@@ -1,0 +1,2093 @@
+<header>
+	<title> snpEff: SNP effect predictor </title>
+	<link rel="stylesheet" href="style.css" type="text/css" media="screen" />
+
+	<style type="text/css" media="all">
+		body { background: url(./images/bg_gradient.jpg) repeat-x; }
+	</style>    
+</header>
+
+<div align="center">
+	<div id="wrap">
+		<div id="header">
+			<div class="logo">
+					<a href="http://snpEff.sourceforge.net/">snpEff</a>
+					<p style="font-size: 12pt" align=right><b>SNP effect predictor</b></p>
+			</div>
+		</div>
+		<div id="menu">
+			<ul>
+			<li><a href="http://snpeff.sourceforge.net/">Home</a></li>
+			<li class="page_item"><a href="faq.html" title="FAQ">FAQ</a></li>
+			<li class="page_item"><a href="features.html" title="Features">Features</a></li>
+			<li class="page_item"><a href="manual.html" title="Manual">Manual</a></li>
+			<li class="page_item"><a href="morebs.html" title="MoreBs">MoreBs</a></li>
+			<li class="page_item"><a href="SnpSift.html" title="SnpSift">SnpSift</a></li>
+			<li class="page_item"><a href="download.html" title="Download">Downloads</a></li>
+			<li class="page_item"><a href="about.html" title="About">About</a></li>
+			</ul>
+		</div>
+
+
+
+			<div class="entry">
+
+	<div id="content"> 
+
+				<hr><p style="font-size: 16pt"> <b> Download </a> </b></p>
+				<ul>
+					<li> SnpEff: 
+						<ul>
+							<li> <a class="body" style="font-size:150%;" href="http://sourceforge.net/projects/snpeff/files/snpEff_v2_1a_core.zip/download" title="Download">Download here</a> the core program.
+							<li> Use the 'download' command to download a database (see list of available databases below). E.g. to downlaod GRCh37.64, just run: 
+								<pre>java -jar snpEff.jar download GRCh37.64</pre>
+						</ul>
+						<p>
+					<li> SnpSift </a> You can download a JAR file <a class="body" href="http://sourceforge.net/projects/snpeff/files/SnpSift_v1_3_4b.jar/download" title="Download">here</a>.<p>
+					<li> MoreBs </a> : Comming soon.
+				</ul>
+
+				<hr><p style="font-size: 14pt"> <b> <a class="body" name="SnpEff"> Instruccions: Download SnpEff</a> </b></p>
+				
+				<ul>
+					<li> <b>Step 1:</b> Download the core program <a class="body" style="font-size:150%;" href="http://sourceforge.net/projects/snpeff/files/snpEff_v2_1a_core.zip/download" title="Download">here</a>. 
+					<li> <b>Step 2:</b> Download the database/s you want to use. You can 
+						<ul>
+							<li> Download manualy by clicking the link below, or
+							<li> Use the 'download' command (see list of available databases below). E.g. to downlaod GRCh37.64, just run: 
+								<pre>java -jar snpEff.jar download GRCh37.64</pre>
+						</ul>
+
+	<table> <tr bgcolor=#CCCCCC> <td> <b> Genome </b> </td>  <td> <b> Version </b> </td>  <td> <b> Reference </b> </td> </tr>
+		<tr bgcolor=#EEEEEE>
+			<td> Ailuropoda melanoleuca </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_ailmel1.61.zip"> ailmel1.61 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_ailMel1.66.zip"> ailMel1.66 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-66/gtf/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_ailMel1.65.zip"> ailMel1.65 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-65/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_ailMel1.64.zip"> ailMel1.64 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-64/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_ailMel1.63.zip"> ailMel1.63 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-63/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> Anolis carolinensis </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_anoCar2.0.61.zip"> anoCar2.0.61 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_anoCar1.0.60.zip"> anoCar1.0.60 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_AnoCar2.0.66.zip"> AnoCar2.0.66 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-66/gtf/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_AnoCar2.0.65.zip"> AnoCar2.0.65 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-65/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_AnoCar2.0.64.zip"> AnoCar2.0.64 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-64/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_AnoCar2.0.63.zip"> AnoCar2.0.63 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-63/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> Anopheles gambiae </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_agam2.6.zip"> agam2.6 </a> </td>
+			<td> <a class="body" href="http://agambiae.vectorbase.org/GetData/ ">agambiae.vectorbase.org</a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_agam.zip"> agam </a> </td>
+			<td> <a class="body" href="http://agambiae.vectorbase.org/GetData/ ">agambiae.vectorbase.org</a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> Aquilegia coerulea </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_aquiCoer.zip"> aquiCoer </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> Arabidopsis Thaliana </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_athalianaTair9.zip"> athalianaTair9 </a> </td>
+			<td> <a class="body" href="ftp://ftp.arabidopsis.org/home/tair/Genes/TAIR9_genome_release">ftp.arabidopsis.org</a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_athalianaTair10.zip"> athalianaTair10 </a> </td>
+			<td> <a class="body" href="ftp://ftp.arabidopsis.org/home/tair/Genes/TAIR10_genome_release">ftp.arabidopsis.org</a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_athaliana130.zip"> athaliana130 </a> </td>
+			<td> <a class="body" href="http://www.phytozome.net/dataUsagePolicy.php?org=Org_Athaliana">www.phytozome.net</a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> Arabidopsis lyrata </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_alyrata107.zip"> alyrata107 </a> </td>
+			<td> <a class="body" href="http://www.phytozome.net/search.php?method=Org_Alyrata">www.phytozome.net</a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_alyrata1.zip"> alyrata1 </a> </td>
+			<td> <a class="body" href="http://genome.jgi-psf.org/Araly1/Araly1.download.ftp.html">genome.jgi-psf.org</a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> Bee </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_amel2.zip"> amel2 </a> </td>
+			<td> <a class="body" href="http://beebase.org">beebase.org</a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> Bos taurus </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_btau4.0.61.zip"> btau4.0.61 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_btau4.0.60.zip"> btau4.0.60 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_btau4.0.59.zip"> btau4.0.59 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_UMD3_1.zip"> UMD3_1 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_UMD3.1.66.zip"> UMD3.1.66 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-66/gtf/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_UMD3.1.65.zip"> UMD3.1.65 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-65/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_UMD3.1.64.zip"> UMD3.1.64 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-64/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_Btau_4.0.63.zip"> Btau_4.0.63 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-63/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> Caenorhabditis briggsae </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_c_briggsae_WS230.zip"> c_briggsae_WS230 </a> </td>
+			<td> <a class="body" href="ftp://ftp.wormbase.org/pub/wormbase/releases/WS230/species/c_briggsae/">ftp.wormbase.org</a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> Caenorhabditis elegans </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_ce.WS220.61.zip"> ce.WS220.61 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_ce.WS210.60.zip"> ce.WS210.60 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_ce.WS201.zip"> ce.WS201 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_WS220.66.zip"> WS220.66 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-66/gtf/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_WS220.65.zip"> WS220.65 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-65/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_WS220.64.zip"> WS220.64 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-64/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_WS220.63.zip"> WS220.63 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-63/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> Callithrix jacchus </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_calJac3.2.1.61.zip"> calJac3.2.1.61 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_calJac3.2.1.60.zip"> calJac3.2.1.60 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_C_jacchus3.2.1.66.zip"> C_jacchus3.2.1.66 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-66/gtf/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_C_jacchus3.2.1.65.zip"> C_jacchus3.2.1.65 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-65/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_C_jacchus3.2.1.64.zip"> C_jacchus3.2.1.64 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-64/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_C_jacchus3.2.1.63.zip"> C_jacchus3.2.1.63 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-63/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> Candida albicans SC5314 </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_cAlbicansv21.zip"> cAlbicansv21 </a> </td>
+			<td> <a class="body" href="http://www.candidagenome.org/download/gff/C_albicans_SC5314/">www.candidagenome.org</a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> Canis familiaris </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_canFam2.61.zip"> canFam2.61 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_canFam2.60.zip"> canFam2.60 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_canFam2.59.zip"> canFam2.59 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_BROADD2.66.zip"> BROADD2.66 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-66/gtf/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_BROADD2.65.zip"> BROADD2.65 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-65/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_BROADD2.64.zip"> BROADD2.64 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-64/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_BROADD2.63.zip"> BROADD2.63 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-63/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> Capsella rubella v1.0 </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_crubella.zip"> crubella </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> Cavia porcellus </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_cavPor3.66.zip"> cavPor3.66 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-66/gtf/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_cavPor3.65.zip"> cavPor3.65 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-65/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_cavPor3.64.zip"> cavPor3.64 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-64/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_cavPor3.63.zip"> cavPor3.63 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-63/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_cavPor3.61.zip"> cavPor3.61 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_cavPor3.60.zip"> cavPor3.60 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> Choloepus hoffmanni </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_choHof1.66.zip"> choHof1.66 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-66/gtf/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_choHof1.65.zip"> choHof1.65 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-65/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_choHof1.64.zip"> choHof1.64 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-64/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_choHof1.63.zip"> choHof1.63 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-63/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_choHof1.61.zip"> choHof1.61 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_choHof1.60.zip"> choHof1.60 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> Ciona intestinalis </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_cInt2.61.zip"> cInt2.61 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_cInt2.60.zip"> cInt2.60 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_KH.66.zip"> KH.66 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-66/gtf/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_JGI2.65.zip"> JGI2.65 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-65/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_JGI2.64.zip"> JGI2.64 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-64/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_JGI2.63.zip"> JGI2.63 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-63/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> Ciona savignyi </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_cSav2.0.61.zip"> cSav2.0.61 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_cSav2.0.60.zip"> cSav2.0.60 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_CSAV2.0.66.zip"> CSAV2.0.66 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-66/gtf/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_CSAV2.0.65.zip"> CSAV2.0.65 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-65/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_CSAV2.0.64.zip"> CSAV2.0.64 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-64/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_CSAV2.0.63.zip"> CSAV2.0.63 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-63/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> Clostridium difficile </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_NC_009089.1.zip"> NC_009089.1 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> Cryptococcus neoformans </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_c_neoformans.zip"> c_neoformans </a> </td>
+			<td> <a class="body" href="http://www.broadinstitute.org/annotation/genome/cryptococcus_neoformans/MultiDownloads.html">www.broadinstitute.org</a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> Danio rerio </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_danRer9.61.zip"> danRer9.61 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_danRer9.60.zip"> danRer9.60 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_danRer8.59.zip"> danRer8.59 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_Zv9.66.zip"> Zv9.66 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-66/gtf/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_Zv9.65.zip"> Zv9.65 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-65/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_Zv9.64.zip"> Zv9.64 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-64/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_Zv9.63.zip"> Zv9.63 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-63/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> Dasypus novemcinctus </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_dasNov2.66.zip"> dasNov2.66 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-66/gtf/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_dasNov2.65.zip"> dasNov2.65 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-65/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_dasNov2.64.zip"> dasNov2.64 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-64/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_dasNov2.63.zip"> dasNov2.63 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-63/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_dasNov2.61.zip"> dasNov2.61 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_dasNov2.60.zip"> dasNov2.60 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> Dipodomys ordii </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_dipOrd1.66.zip"> dipOrd1.66 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-66/gtf/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_dipOrd1.65.zip"> dipOrd1.65 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-65/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_dipOrd1.64.zip"> dipOrd1.64 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-64/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_dipOrd1.63.zip"> dipOrd1.63 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-63/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_dipOrd1.61.zip"> dipOrd1.61 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_dipOrd1.60.zip"> dipOrd1.60 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> Drosophila melanogaster </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_dm5.42.zip"> dm5.42 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_dm5.40.zip"> dm5.40 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_dm5.34.zip"> dm5.34 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_dm5.32.zip"> dm5.32 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_dm5.31.zip"> dm5.31 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_dm5.30.zip"> dm5.30 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_dm5.25.63.zip"> dm5.25.63 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_dm5.25.61.zip"> dm5.25.61 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_dm5.25.60.zip"> dm5.25.60 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_dm5.25.59.zip"> dm5.25.59 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_dm5.22.zip"> dm5.22 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_dm5.12.zip"> dm5.12 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_BDGP5.66.zip"> BDGP5.66 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-66/gtf/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_BDGP5.25.65.zip"> BDGP5.25.65 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-65/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_BDGP5.25.64.zip"> BDGP5.25.64 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-64/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_BDGP5.25.63.zip"> BDGP5.25.63 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-63/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> Echinops telfairi </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_tenrec1.61.zip"> tenrec1.61 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_tenrec1.60.zip"> tenrec1.60 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_TENREC.66.zip"> TENREC.66 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-66/gtf/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_TENREC.65.zip"> TENREC.65 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-65/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_TENREC.64.zip"> TENREC.64 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-64/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_TENREC.63.zip"> TENREC.63 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-63/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> Equus caballus </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_equCab2.61.zip"> equCab2.61 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_equCab2.60.zip"> equCab2.60 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_EquCab2.66.zip"> EquCab2.66 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-66/gtf/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_EquCab2.65.zip"> EquCab2.65 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-65/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_EquCab2.64.zip"> EquCab2.64 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-64/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_EquCab2.63.zip"> EquCab2.63 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-63/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> Erinaceus europaeus </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_eriEur1.61.zip"> eriEur1.61 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_eriEur1.60.zip"> eriEur1.60 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_HEDGEHOG.66.zip"> HEDGEHOG.66 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-66/gtf/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_HEDGEHOG.65.zip"> HEDGEHOG.65 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-65/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_HEDGEHOG.64.zip"> HEDGEHOG.64 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-64/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_HEDGEHOG.63.zip"> HEDGEHOG.63 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-63/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> Escherichia coli </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_NC_000913.zip"> NC_000913 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> Felis catus </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_cat1.61.zip"> cat1.61 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_cat1.60.zip"> cat1.60 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_CAT.66.zip"> CAT.66 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-66/gtf/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_CAT.65.zip"> CAT.65 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-65/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_CAT.64.zip"> CAT.64 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-64/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_CAT.63.zip"> CAT.63 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-63/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> Gadus morhua </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_gadMor1.66.zip"> gadMor1.66 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-66/gtf/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> Gallus gallus </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_ggallus2.61.zip"> ggallus2.61 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_ggallus2.60.zip"> ggallus2.60 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_ggallus2.59.zip"> ggallus2.59 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_WASHUC2.66.zip"> WASHUC2.66 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-66/gtf/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_WASHUC2.65.zip"> WASHUC2.65 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-65/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_WASHUC2.64.zip"> WASHUC2.64 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-64/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_WASHUC2.63.zip"> WASHUC2.63 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-63/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> Gasterosteus aculeatus </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_gacu1.61.zip"> gacu1.61 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_gacu1.60.zip"> gacu1.60 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_BROADS1.66.zip"> BROADS1.66 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-66/gtf/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_BROADS1.65.zip"> BROADS1.65 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-65/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_BROADS1.64.zip"> BROADS1.64 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-64/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_BROADS1.63.zip"> BROADS1.63 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-63/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> Glycine Max </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_gmax1.09v8.zip"> gmax1.09v8 </a> </td>
+			<td> <a class="body" href="ftp://ftp.jgi-psf.org/pub/JGI_data/phytozome/v8.0/Gmax/">ftp.jgi-psf.org</a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_gmax1.09.zip"> gmax1.09 </a> </td>
+			<td> <a class="body" href="ftp://ftp.jgi-psf.org/pub/JGI_data/phytozome/v7.0/Gmax/">ftp.jgi-psf.org</a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> Gorilla gorilla </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_gorGor3.63.zip"> gorGor3.63 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-63/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_gorGor3.61.zip"> gorGor3.61 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_gorGor3.60.zip"> gorGor3.60 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_gorGor3.1.66.zip"> gorGor3.1.66 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-66/gtf/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_gorGor3.1.65.zip"> gorGor3.1.65 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-65/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_gorGor3.1.64.zip"> gorGor3.1.64 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-64/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> Grosmannia clavigera </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_kw1407.2012.zip"> kw1407.2012 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> HIV </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_hiv.zip"> hiv </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_SIVmac239.zip"> SIVmac239 </a> </td>
+			<td> <a class="body" href="http://www.ncbi.nlm.nih.gov/nuccore/334647">www.ncbi.nlm.nih.gov</a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> Herpesvirus </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_herpesvirus1.zip"> herpesvirus1 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> Homo sapiens </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_hg37.63.zip"> hg37.63 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_hg37.61.zip"> hg37.61 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_hg37.60.zip"> hg37.60 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_hg37.59.zip"> hg37.59 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_hg36.54.zip"> hg36.54 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_hg19.zip"> hg19 </a> </td>
+			<td> <a class="body" href="http://hgdownload.cse.ucsc.edu 												# Gene information from 'table' download">hgdownload.cse.ucsc.edu 												# Gene information from 'table' download</a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_GRCh37.66.zip"> GRCh37.66 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-66/gtf/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_GRCh37.65.zip"> GRCh37.65 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-65/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_GRCh37.64.zip"> GRCh37.64 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-64/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_GRCh37.63.zip"> GRCh37.63 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-63/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> Latimeria chalumnae </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_LatCha1.66.zip"> LatCha1.66 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-66/gtf/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> LmajorFriedlin </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_lmjf4.zip"> lmjf4 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> Loxodonta africana </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_loxAfr3.66.zip"> loxAfr3.66 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-66/gtf/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_loxAfr3.65.zip"> loxAfr3.65 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-65/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_loxAfr3.64.zip"> loxAfr3.64 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-64/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_loxAfr3.63.zip"> loxAfr3.63 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-63/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_loxAfr3.61.zip"> loxAfr3.61 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_loxAfr3.60.zip"> loxAfr3.60 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> Macaca mulatta </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_mmul1.61.zip"> mmul1.61 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_mmul1.60.zip"> mmul1.60 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_MMUL_1.66.zip"> MMUL_1.66 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-66/gtf/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_MMUL_1.65.zip"> MMUL_1.65 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-65/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_MMUL_1.64.zip"> MMUL_1.64 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-64/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_MMUL_1.63.zip"> MMUL_1.63 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-63/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> Macropus eugenii </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_meug1.0.61.zip"> meug1.0.61 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_meug1.0.60.zip"> meug1.0.60 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_Meug_1.0.66.zip"> Meug_1.0.66 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-66/gtf/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_Meug_1.0.65.zip"> Meug_1.0.65 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-65/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_Meug_1.0.64.zip"> Meug_1.0.64 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-64/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_Meug_1.0.63.zip"> Meug_1.0.63 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-63/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> Maize ZmB73 </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_maizeZmB73.zip"> maizeZmB73 </a> </td>
+			<td> <a class="body" href="http://ftp.maizesequence.org/">ftp.maizesequence.org</a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> Meleagris gallopavo </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_turkey.UMD2.61.zip"> turkey.UMD2.61 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_UMD2.66.zip"> UMD2.66 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-66/gtf/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_UMD2.65.zip"> UMD2.65 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-65/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_UMD2.64.zip"> UMD2.64 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-64/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_UMD2.63.zip"> UMD2.63 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-63/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> Microcebus murinus </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_micMur1.66.zip"> micMur1.66 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-66/gtf/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_micMur1.65.zip"> micMur1.65 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-65/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_micMur1.64.zip"> micMur1.64 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-64/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_micMur1.63.zip"> micMur1.63 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-63/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_micMur1.61.zip"> micMur1.61 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_micMur1.60.zip"> micMur1.60 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> Monodelphis domestica </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_monDom5.61.zip"> monDom5.61 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_monDom5.60.zip"> monDom5.60 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_BROADO5.66.zip"> BROADO5.66 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-66/gtf/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_BROADO5.65.zip"> BROADO5.65 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-65/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_BROADO5.64.zip"> BROADO5.64 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-64/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_BROADO5.63.zip"> BROADO5.63 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-63/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> Mus musculus </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_mm37.61.zip"> mm37.61 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_mm37.60.zip"> mm37.60 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_mm37.59.zip"> mm37.59 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_mm37.zip"> mm37 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_NCBIM37.66.zip"> NCBIM37.66 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-66/gtf/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_NCBIM37.65.zip"> NCBIM37.65 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-65/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_NCBIM37.64.zip"> NCBIM37.64 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-64/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_NCBIM37.63.zip"> NCBIM37.63 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-63/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> Mycobacterium marinum M </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_mmm.2012.zip"> mmm.2012 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> Mycobacterium tuberculosis </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_m_tuberculosis.zip"> m_tuberculosis </a> </td>
+			<td> <a class="body" href="ftp://ftp.sanger.ac.uk/pub/pathogens/Mycobacterium/tuberculosis/">ftp.sanger.ac.uk</a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> Mycoplasma pneumoninae FH </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_myco_fh.zip"> myco_fh </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> Mycoplasma pneumoninae M129 </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_myco_m129.zip"> myco_m129 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> Myotis lucifugus </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_myoLuc1.61.zip"> myoLuc1.61 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_myoLuc1.60.zip"> myoLuc1.60 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_Myoluc2.0.66.zip"> Myoluc2.0.66 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-66/gtf/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_Myoluc2.0.65.zip"> Myoluc2.0.65 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-65/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_Myoluc2.0.64.zip"> Myoluc2.0.64 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-64/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_Myoluc2.0.63.zip"> Myoluc2.0.63 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-63/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> Neurospora Crassa </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_ncrassa.zip"> ncrassa </a> </td>
+			<td> <a class="body" href="http://www.broadinstitute.org/annotation/genome/neurospora/MultiDownloads.html">www.broadinstitute.org</a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> Nomascus leucogenys </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_Nleu1.0.66.zip"> Nleu1.0.66 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-66/gtf/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_Nleu1.0.65.zip"> Nleu1.0.65 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-65/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_Nleu1.0.64.zip"> Nleu1.0.64 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-64/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_Nleu1.0.63.zip"> Nleu1.0.63 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-63/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> Ochotona princeps </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_pika.66.zip"> pika.66 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-66/gtf/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_pika.65.zip"> pika.65 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-65/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_pika.64.zip"> pika.64 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-64/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_pika.63.zip"> pika.63 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-63/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_ochPri2.61.zip"> ochPri2.61 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_ochPri2.60.zip"> ochPri2.60 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> Ornithorhynchus anatinus </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_oana5.61.zip"> oana5.61 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_oana5.60.zip"> oana5.60 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_OANA5.66.zip"> OANA5.66 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-66/gtf/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_OANA5.65.zip"> OANA5.65 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-65/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_OANA5.64.zip"> OANA5.64 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-64/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_OANA5.63.zip"> OANA5.63 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-63/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> Oryctolagus cuniculus </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_oryCun2.66.zip"> oryCun2.66 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-66/gtf/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_oryCun2.65.zip"> oryCun2.65 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-65/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_oryCun2.64.zip"> oryCun2.64 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-64/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_oryCun2.63.zip"> oryCun2.63 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-63/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_oryCun2.61.zip"> oryCun2.61 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_oryCun2.60.zip"> oryCun2.60 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> Oryzias latipes </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_medaka1.61.zip"> medaka1.61 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_medaka1.60.zip"> medaka1.60 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_MEDAKA1.66.zip"> MEDAKA1.66 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-66/gtf/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_MEDAKA1.65.zip"> MEDAKA1.65 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-65/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_MEDAKA1.64.zip"> MEDAKA1.64 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-64/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_MEDAKA1.63.zip"> MEDAKA1.63 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-63/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> Otolemur garnettii </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_bushBaby1.61.zip"> bushBaby1.61 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_bushBaby1.60.zip"> bushBaby1.60 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_OtoGar3.66.zip"> OtoGar3.66 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-66/gtf/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_BUSHBABY1.65.zip"> BUSHBABY1.65 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-65/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_BUSHBABY1.64.zip"> BUSHBABY1.64 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-64/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_BUSHBABY1.63.zip"> BUSHBABY1.63 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-63/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> Pan troglodytes </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_chimp2.1.61.zip"> chimp2.1.61 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_chimp2.1.60.zip"> chimp2.1.60 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_chimp2.1.59.zip"> chimp2.1.59 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_CHIMP2.1.65.zip"> CHIMP2.1.65 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-65/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_CHIMP2.1.64.zip"> CHIMP2.1.64 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-64/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_CHIMP2.1.63.zip"> CHIMP2.1.63 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-63/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_CHIMP2.1.4.66.zip"> CHIMP2.1.4.66 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-66/gtf/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> Peach </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_ppersica139.zip"> ppersica139 </a> </td>
+			<td> <a class="body" href="ftp://ftp.plantgdb.org/download/Genomes/PeGDB/">ftp.plantgdb.org</a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> Peromyscus leucopus </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_peromyscus.zip"> peromyscus </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> Petromyzon marinus </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_Pmarinus_7.0.66.zip"> Pmarinus_7.0.66 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-66/gtf/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_Petromyzon_marinus_7.0.65.zip"> Petromyzon_marinus_7.0.65 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-65/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_Petromyzon_marinus_7.0.64.zip"> Petromyzon_marinus_7.0.64 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-64/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> Plasmodium falciparum </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_plasmo72.zip"> plasmo72 </a> </td>
+			<td> <a class="body" href="http://plasmodb.org/common/downloads/release-7.2/Pfalciparum/">plasmodb.org</a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> Pongo abelii </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_PPYG2.66.zip"> PPYG2.66 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-66/gtf/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_PPYG2.65.zip"> PPYG2.65 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-65/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_PPYG2.64.zip"> PPYG2.64 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-64/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_PPYG2.63.zip"> PPYG2.63 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-63/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> Pongo pygmaeus </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_ppyg2.61.zip"> ppyg2.61 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_ppyg2.60.zip"> ppyg2.60 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> Procavia capensis </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_proCap1.66.zip"> proCap1.66 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-66/gtf/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_proCap1.65.zip"> proCap1.65 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-65/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_proCap1.64.zip"> proCap1.64 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-64/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_proCap1.63.zip"> proCap1.63 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-63/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_proCap1.61.zip"> proCap1.61 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_proCap1.60.zip"> proCap1.60 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> Pseudomonas aeruginosa </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_paeru.PA14.zip"> paeru.PA14 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_paeru.PA01.zip"> paeru.PA01 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> Pseudomonas fluorescens </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_pfluo.SBW25.NC_012660.zip"> pfluo.SBW25.NC_012660 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_pfluo.SBW25.NC_009444.zip"> pfluo.SBW25.NC_009444 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> Pteropus vampyrus </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_pteVam1.66.zip"> pteVam1.66 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-66/gtf/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_pteVam1.65.zip"> pteVam1.65 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-65/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_pteVam1.64.zip"> pteVam1.64 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-64/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_pteVam1.63.zip"> pteVam1.63 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-63/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_pteVam1.61.zip"> pteVam1.61 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_pteVam1.60.zip"> pteVam1.60 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> Rattus norvegicus </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_rat3.4.61.zip"> rat3.4.61 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_rat3.4.60.zip"> rat3.4.60 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_rat3.4.59.zip"> rat3.4.59 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_RGSC3.4.66.zip"> RGSC3.4.66 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-66/gtf/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_RGSC3.4.65.zip"> RGSC3.4.65 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-65/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_RGSC3.4.64.zip"> RGSC3.4.64 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-64/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_RGSC3.4.63.zip"> RGSC3.4.63 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-63/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> Rice </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_rice6.1.zip"> rice6.1 </a> </td>
+			<td> <a class="body" href="ftp://ftp.plantbiology.msu.edu">ftp.plantbiology.msu.edu</a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_rice5.zip"> rice5 </a> </td>
+			<td> <a class="body" href="http://rapdb.dna.affrc.go.jp/download/index.html">rapdb.dna.affrc.go.jp</a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> SCU49845 </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_SCU49845.zip"> SCU49845 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> Saccharomyces cerevisiae </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_sacCer2.61.zip"> sacCer2.61 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_sacCer2.60.zip"> sacCer2.60 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_sacCer2.59.zip"> sacCer2.59 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_sacCer2.zip"> sacCer2 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_EF4.66.zip"> EF4.66 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-66/gtf/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_EF4.65.zip"> EF4.65 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-65/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_EF3.64.zip"> EF3.64 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-64/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_EF3.63.zip"> EF3.63 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-63/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> Sarcophilus harrisii </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_DEVIL7.0.66.zip"> DEVIL7.0.66 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-66/gtf/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_DEVIL7.0.65.zip"> DEVIL7.0.65 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-65/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_DEVIL7.0.64.zip"> DEVIL7.0.64 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-64/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> Schizosaccharomyces pombe </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_spombe.zip"> spombe </a> </td>
+			<td> <a class="body" href="ftp://ftp.sanger.ac.uk/pub/yeast/pombe/GFF">ftp.sanger.ac.uk</a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> Sorex araneus </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_sorAra1.61.zip"> sorAra1.61 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_sorAra1.60.zip"> sorAra1.60 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_COMMON_SHREW1.66.zip"> COMMON_SHREW1.66 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-66/gtf/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_COMMON_SHREW1.65.zip"> COMMON_SHREW1.65 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-65/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_COMMON_SHREW1.64.zip"> COMMON_SHREW1.64 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-64/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_COMMON_SHREW1.63.zip"> COMMON_SHREW1.63 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-63/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> Spermophilus tridecemlineatus </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_speTri1.61.zip"> speTri1.61 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_speTri1.60.zip"> speTri1.60 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_SQUIRREL.66.zip"> SQUIRREL.66 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-66/gtf/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_SQUIRREL.65.zip"> SQUIRREL.65 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-65/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_SQUIRREL.64.zip"> SQUIRREL.64 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-64/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_SQUIRREL.63.zip"> SQUIRREL.63 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-63/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> Staphylococcus aureus </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_CP000730.zip"> CP000730 </a> </td>
+			<td> <a class="body" href="http://www.ncbi.nlm.nih.gov/nuccore/CP000730.1">www.ncbi.nlm.nih.gov</a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> Sus scrofa </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_sScrofa9.61.zip"> sScrofa9.61 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_sScrofa9.60.zip"> sScrofa9.60 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_Sscrofa9.66.zip"> Sscrofa9.66 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-66/gtf/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_Sscrofa9.65.zip"> Sscrofa9.65 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-65/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_Sscrofa9.64.zip"> Sscrofa9.64 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-64/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_Sscrofa9.63.zip"> Sscrofa9.63 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-63/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> Taeniopygia guttata </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_taeGut3.2.4.66.zip"> taeGut3.2.4.66 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-66/gtf/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_taeGut3.2.4.65.zip"> taeGut3.2.4.65 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-65/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_taeGut3.2.4.64.zip"> taeGut3.2.4.64 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-64/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_taeGut3.2.4.63.zip"> taeGut3.2.4.63 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-63/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_taeGut3.2.4.61.zip"> taeGut3.2.4.61 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_taeGut3.2.4.60.zip"> taeGut3.2.4.60 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> Takifugu rubripes </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_fugu4.61.zip"> fugu4.61 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_fugu4.60.zip"> fugu4.60 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_FUGU4.66.zip"> FUGU4.66 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-66/gtf/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_FUGU4.65.zip"> FUGU4.65 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-65/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_FUGU4.64.zip"> FUGU4.64 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-64/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_FUGU4.63.zip"> FUGU4.63 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-63/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> Tarsius syrichta </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_tarSyr1.66.zip"> tarSyr1.66 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-66/gtf/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_tarSyr1.65.zip"> tarSyr1.65 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-65/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_tarSyr1.64.zip"> tarSyr1.64 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-64/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_tarSyr1.63.zip"> tarSyr1.63 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-63/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_tarSyr1.61.zip"> tarSyr1.61 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_tarSyr1.60.zip"> tarSyr1.60 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> TestCase </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_test_ENSG00000158062.zip"> test_ENSG00000158062 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_testHg3765Chr22.zip"> testHg3765Chr22 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_testHg3763ChrY.zip"> testHg3763ChrY </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_testHg3763Chr20.zip"> testHg3763Chr20 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_testHg3763Chr1.zip"> testHg3763Chr1 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_testHg3761Chr16.zip"> testHg3761Chr16 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_testHg3761Chr15.zip"> testHg3761Chr15 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_testCase.zip"> testCase </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_test.zip"> test </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> Tetraodon nigroviridis </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_tetraodon8.61.zip"> tetraodon8.61 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_tetraodon8.60.zip"> tetraodon8.60 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_TETRAODON8.66.zip"> TETRAODON8.66 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-66/gtf/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_TETRAODON8.65.zip"> TETRAODON8.65 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-65/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_TETRAODON8.64.zip"> TETRAODON8.64 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-64/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_TETRAODON8.63.zip"> TETRAODON8.63 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-63/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> Tomato </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_SL2.40.zip"> SL2.40 </a> </td>
+			<td> <a class="body" href="ftp://ftp.solgenomics.net/">ftp.solgenomics.net</a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> Tupaia belangeri </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_tupBel1.61.zip"> tupBel1.61 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_tupBel1.60.zip"> tupBel1.60 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_TREESHREW.66.zip"> TREESHREW.66 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-66/gtf/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_TREESHREW.65.zip"> TREESHREW.65 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-65/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_TREESHREW.64.zip"> TREESHREW.64 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-64/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_TREESHREW.63.zip"> TREESHREW.63 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-63/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> Tursiops truncatus </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_turTru1.66.zip"> turTru1.66 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-66/gtf/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_turTru1.65.zip"> turTru1.65 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-65/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_turTru1.64.zip"> turTru1.64 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-64/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_turTru1.63.zip"> turTru1.63 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-63/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_turTru1.61.zip"> turTru1.61 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_turTru1.60.zip"> turTru1.60 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> Vaccinia Western Reserve </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_vacwr.zip"> vacwr </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> Vibrio Cholerae </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_vibrio.zip"> vibrio </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> Vicugna pacos </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_vicPac1.66.zip"> vicPac1.66 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-66/gtf/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_vicPac1.65.zip"> vicPac1.65 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-65/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_vicPac1.64.zip"> vicPac1.64 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-64/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_vicPac1.63.zip"> vicPac1.63 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-63/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_vicPac1.61.zip"> vicPac1.61 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#CCCCCC>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_vicPac1.60.zip"> vicPac1.60 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> Xenopus tropicalis </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_xtrop7.1.zip"> xtrop7.1 </a> </td>
+			<td> <a class="body" href="ftp://ftp.xenbase.org/pub/Genomics/JGI/Xentr7.1/">ftp.xenbase.org</a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_xtrop4.1.61.zip"> xtrop4.1.61 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_xtrop4.1.60.zip"> xtrop4.1.60 </a> </td>
+			<td> <a class="body" href=""></a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_JGI_4.2.66.zip"> JGI_4.2.66 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-66/gtf/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_JGI_4.2.64.zip"> JGI_4.2.64 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-64/">ftp.ensembl.org</a> </td>
+		</tr>
+		<tr bgcolor=#EEEEEE>
+			<td> &nbsp; </td>
+			<td> <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/v2.1/snpEff_v2.1_JGI_4.2.63.zip"> JGI_4.2.63 </a> </td>
+			<td> <a class="body" href="ftp://ftp.ensembl.org/pub/release-63/">ftp.ensembl.org</a> </td>
+		</tr>
+	</table>
+
+
+				</ul>
+	</div> 
+
+
+				<p style="font-size: 8pt" align=center><font color=#777777> - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - </font></p>
+					<center><b>Author: <a class="body" href="http://www.mcb.mcgill.ca/~pcingola/">Pablo Cingolani</a> (pcingola@users.sourceforge.net</a>)</b></center>
+			</div>
+		</div>
+	</div>
+</div>
+
+<center>
+<font color=ffffff>
+Key words (for search engines): <br>
+	SNP : single nucleotide polymorphisms <br>
+	SNP effect predictor <br>
+	SNP effect predictor Galaxy<br>
+	SNP functional annotation <br>
+	NG sequencing analysis <br>
+	Next genenration sequencing analysis <br>
+	Next genenration sequencing analysis tool <br>
+	Functionally annotate single nucleotide polymorphisms (SNP) <br>
+	Variation analysis <br>
+	Open source <br>
+	java <br>
+	Windows Linux OSX <br>
+	<a href="http://en.wikipedia.org/wiki/Single-nucleotide_polymorphism">SNP Wikipedia</a> <br>
+</font>
+</center>
