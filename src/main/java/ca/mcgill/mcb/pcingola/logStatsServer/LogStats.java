@@ -62,7 +62,12 @@ public class LogStats extends Thread {
 	 * @param value
 	 */
 	public void add(String name, String value) {
-		values.put(name, value);
+		// Replace '\n' char by (literally) a "\n" string. Same for '\t'
+		value = value.replaceAll("\\n", "\\\\n");
+		value = value.replaceAll("\\t", "\\\\t");
+		value = value.replaceAll("\\r", ""); // Remove '\r'
+
+		values.put(name, value); // Now we can store values
 	}
 
 	/** Unencripted */

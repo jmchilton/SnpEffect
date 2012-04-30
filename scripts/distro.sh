@@ -8,7 +8,7 @@
 #------------------------------------------------------------------------------
 
 VERSION="2_1"
-VERSION_REV=$VERSION"a"
+VERSION_REV=$VERSION"b"
 DIR=$HOME/snpEff_$VERSION_REV
 rm -rvf $DIR
 mkdir $DIR

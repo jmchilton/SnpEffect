@@ -562,7 +562,9 @@ public class Transcript extends IntervalAndSubIntervals<Exon> {
 		// Create a list of changes
 		ArrayList<ChangeEffect> changeEffectList = new ArrayList<ChangeEffect>();
 
+		//---
 		// Hits a UTR region?
+		//---
 		boolean includedInUtr = false;
 		for (Utr utr : utrs)
 			if (utr.intersects(seqChange)) {
@@ -577,16 +579,41 @@ public class Transcript extends IntervalAndSubIntervals<Exon> {
 		// Since the effect was fully included in the UTR, we are done.
 		if (includedInUtr) return changeEffectList;
 
-		// Analyze only coding transcripts?
-		if (!Config.get().isTreatAllAsProteinCoding() && !isProteinCoding()) {
-			// Just mark it as hitting a transcript
-			ChangeEffect cheff = changeEffect.clone();
-			cheff.set(this, EffectType.TRANSCRIPT, "");
-			changeEffectList.add(cheff);
+		//---
+		// Analyze non-coding transcripts (or 'interval' seqChanges)
+		//---
+		if ((!Config.get().isTreatAllAsProteinCoding() && !isProteinCoding()) || seqChange.isInterval()) {
+			// Do we have exon information for this transcript?
+			if (!subintervals().isEmpty()) {
+				// Add all exons
+				for (Exon exon : this) {
+					if (exon.intersects(seqChange)) {
+						ChangeEffect cheff = changeEffect.clone();
+						cheff.set(exon, EffectType.EXON, "");
+						changeEffectList.add(cheff);
+					}
+				}
+
+				// Did not hit an exon or a UTR? => Must hit an intron
+				if (changeEffectList.isEmpty()) {
+					ChangeEffect cheff = changeEffect.clone();
+					cheff.set(this, EffectType.INTRON, "");
+					changeEffectList.add(cheff);
+				}
+			} else {
+				// No exons annotated? Just mark it as hitting a transcript
+				ChangeEffect cheff = changeEffect.clone();
+				cheff.set(this, EffectType.TRANSCRIPT, "");
+				changeEffectList.add(cheff);
+			}
+
 			return changeEffectList;
 		}
 
-		// This is a protein coding 
+		//---
+		// This is a protein coding transcript.
+		// We analyze codon replacement effect
+		//---
 		if (isCds(seqChange)) {
 			// Get codon change effect 
 			CodonChange codonChange = new CodonChange(seqChange, this, changeEffect);

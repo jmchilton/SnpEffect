@@ -186,49 +186,43 @@ public class SnpEffPredictorFactoryRefSeq extends SnpEffPredictorFactory {
 						//---
 						// Create
 						//----
-						// Are both CDS start and end 'complete'?
-						if (cdsStartStat.equals(CDS_STAT_COMPLETE) && cdsEndStat.equals(CDS_STAT_COMPLETE)) {
-							Chromosome chromo = getOrCreateChromosome(chromoName);
+						Chromosome chromo = getOrCreateChromosome(chromoName);
 
-							// Get or create gene
-							String geneId = geneName + "." + chromo.getId(); // Create a gene ID using chr, because gene ID are repeated across chromosomes
-							Gene gene = genesById.get(geneId);
-							if (gene == null) {
-								gene = new Gene(chromo, txstart, txend, strand, geneId, geneName, bioType(id));
-								genesById.put(geneId, gene);
-								snpEffectPredictor.add(gene);
+						// Get or create gene
+						String geneId = geneName + "." + chromo.getId(); // Create a gene ID using chr, because gene ID are repeated across chromosomes
+						Gene gene = genesById.get(geneId);
+						if (gene == null) {
+							gene = new Gene(chromo, txstart, txend, strand, geneId, geneName, bioType(id));
+							genesById.put(geneId, gene);
+							snpEffectPredictor.add(gene);
+						}
+
+						// Create transcript
+						String trId = uniqueTrId(id);
+						Transcript tr = new Transcript(gene, txstart, txend, strand, trId);
+						boolean markAsCoding = isProteinCoding(id) && cdsStartStat.equals(CDS_STAT_COMPLETE) && cdsEndStat.equals(CDS_STAT_COMPLETE); // If CDS start or end are not 'complete', don't mark as protein coding
+						tr.setProteinCoding(markAsCoding);
+						add(tr);
+
+						// Add Exons and CDS
+						String exStartStr[] = exonStarts.split(",");
+						String exEndStr[] = exonEnds.split(",");
+						String exFrameStr[] = exonFrames.split(",");
+						for (int i = 0; i < exonCount; i++) {
+							// Exons
+							int exStart = parsePosition(exStartStr[i]);
+							int exEnd = parsePosition(exEndStr[i]) - 1; // Our internal database representations of coordinates always have a zero-based start and a one-based end (Reference: http://genome.ucsc.edu/FAQ/FAQtracks.html#tracks1 )
+							int exFrame = Gpr.parseIntSafe(exFrameStr[i]);
+							String exId = trId + ".ex." + (i + 1);
+							Exon ex = new Exon(tr, exStart, exEnd, strand, exId, i);
+							ex.setFrame(exFrame);
+							add(ex);
+
+							// CDS (ony if intersects)
+							if ((exStart <= cdsEnd) && (exEnd >= cdsStart)) {
+								Cds cds = new Cds(tr, Math.max(cdsStart, exStart), Math.min(cdsEnd, exEnd), strand, exId);
+								add(cds);
 							}
-
-							// Create transcript
-							String trId = uniqueTrId(id);
-							Transcript tr = new Transcript(gene, txstart, txend, strand, trId);
-							tr.setProteinCoding(isProteinCoding(id));
-							add(tr);
-
-							// Add Exons and CDS
-							String exStartStr[] = exonStarts.split(",");
-							String exEndStr[] = exonEnds.split(",");
-							String exFrameStr[] = exonFrames.split(",");
-							for (int i = 0; i < exonCount; i++) {
-								// Exons
-								int exStart = parsePosition(exStartStr[i]);
-								int exEnd = parsePosition(exEndStr[i]) - 1; // Our internal database representations of coordinates always have a zero-based start and a one-based end (Reference: http://genome.ucsc.edu/FAQ/FAQtracks.html#tracks1 )
-								int exFrame = Gpr.parseIntSafe(exFrameStr[i]);
-								String exId = trId + ".ex." + (i + 1);
-								Exon ex = new Exon(tr, exStart, exEnd, strand, exId, i);
-								ex.setFrame(exFrame);
-								add(ex);
-
-								// CDS (ony if intersects)
-								if ((exStart <= cdsEnd) && (exEnd >= cdsStart)) {
-									Cds cds = new Cds(tr, Math.max(cdsStart, exStart), Math.min(cdsEnd, exEnd), strand, exId);
-									add(cds);
-								}
-							}
-
-						} else {
-							System.err.println("WARNING: Ignoring line " + lineNum + ", incomplete transcript '" + id + "'. Cds stat = ['" + cdsStartStat + "', '" + cdsEndStat + "']");
-							ignoredTr++;
 						}
 
 						count++;

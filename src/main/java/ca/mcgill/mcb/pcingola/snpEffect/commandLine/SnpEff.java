@@ -38,9 +38,11 @@ public class SnpEff implements CommandLine {
 		TXT, VCF, BED, BEDANN
 	}
 
+	public static final int COMMAND_LINE_WIDTH = 40;
+
 	public static final String BUILD = "2012-04-20";
 	public static final String VERSION_MAJOR = "2.1";
-	public static final String REVISION = "a";
+	public static final String REVISION = "b";
 	public static final String VERSION_SHORT = VERSION_MAJOR + REVISION;
 	public static final String VERSION = VERSION_SHORT + " (build " + BUILD + "), by " + Pcingola.BY;
 
@@ -87,6 +89,32 @@ public class SnpEff implements CommandLine {
 	}
 
 	/**
+	 * 	Command line argument list (try to fit it into COMMAND_LINE_WIDTH)
+	 * 
+	 * @param splitLines
+	 * @return
+	 */
+	String commandLineStr(boolean splitLines) {
+		StringBuilder argsList = new StringBuilder();
+		argsList.append("SnpEff " + command + " ");
+		int size = argsList.length();
+
+		for (String arg : args) {
+			argsList.append(arg);
+			size += arg.length();
+			if (splitLines && (size > COMMAND_LINE_WIDTH)) {
+				argsList.append(" \n");
+				size = 0;
+			} else {
+				argsList.append(" ");
+				size++;
+			}
+		}
+
+		return argsList.toString();
+	}
+
+	/**
 	 * Show an error (if not 'quiet' mode)
 	 * @param message
 	 */
@@ -119,6 +147,7 @@ public class SnpEff implements CommandLine {
 				|| args[0].equalsIgnoreCase("eff") //
 				|| args[0].equalsIgnoreCase("download") //
 				|| args[0].equalsIgnoreCase("protein") //
+				|| args[0].equalsIgnoreCase("closestExon") //
 				|| args[0].equalsIgnoreCase("test") //
 				|| args[0].equalsIgnoreCase("cfg2table") //
 		) {
@@ -194,7 +223,26 @@ public class SnpEff implements CommandLine {
 	 * @return
 	 */
 	public HashMap<String, String> reportValues() {
-		return new HashMap<String, String>();
+		HashMap<String, String> reportValues = new HashMap<String, String>();
+
+		// Extra statistics: What kind of systems do users run this program on?
+		String properties[] = { "user.name", "os.name", "os.version", "os.arch" };
+		for (String prop : properties) {
+			try {
+				reportValues.put(prop, System.getProperty(prop));
+			} catch (Exception e) {
+				; // Do nothing, just skip the values
+			};
+		}
+
+		try {
+			reportValues.put("num.cores", Gpr.NUM_CORES + "");
+			reportValues.put("total.mem", Runtime.getRuntime().totalMemory() + "");
+		} catch (Exception e) {
+			; // Do nothing, just skip the values
+		};
+
+		return reportValues;
 	}
 
 	/**
@@ -241,6 +289,12 @@ public class SnpEff implements CommandLine {
 			//---
 			snpEff = new SnpEffCmdProtein();
 			snpEff.parseArgs(shiftArgs);
+		} else if (command.equals("closestexon")) {
+			//---
+			// Find closest exon
+			//---
+			snpEff = new SnpEffCmdClosestExon();
+			snpEff.parseArgs(shiftArgs);
 		} else if (command.equals("cfg2table")) {
 			// Create download table and galaxy list from config file
 			snpEff = new Config2DownloadTable();
@@ -277,11 +331,13 @@ public class SnpEff implements CommandLine {
 	public void usage(String message) {
 		if (message != null) System.err.println("Error: " + message + "\n");
 		System.err.println("snpEff version " + VERSION);
-		System.err.println("Usage: snpEff [eff]    [options] genome_version snp_file");
-		System.err.println("   or: snpEff download [options] genome_version");
-		System.err.println("   or: snpEff build    [options] genome_version");
-		System.err.println("   or: snpEff dump     [options] genome_version");
-		System.err.println("   or: snpEff cds      [options] genome_version");
+		System.err.println("Usage: snpEff [eff]        [options] genome_version snp_file");
+		System.err.println("   or: snpEff download     [options] genome_version");
+		System.err.println("   or: snpEff build        [options] genome_version");
+		System.err.println("   or: snpEff dump         [options] genome_version");
+		System.err.println("   or: snpEff cds          [options] genome_version");
+		System.err.println("   or: snpEff protein      [options] genome_version");
+		System.err.println("   or: snpEff closestExon  [options] genome_version");
 		System.exit(-1);
 	}
 }

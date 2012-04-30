@@ -22,7 +22,7 @@ import ca.mcgill.mcb.pcingola.util.Gpr;
 import ca.mcgill.mcb.pcingola.util.GprSeq;
 
 /**
- * Test random SNP changes 
+ * Test random DEL changes 
  * 
  * @author pcingola
  */

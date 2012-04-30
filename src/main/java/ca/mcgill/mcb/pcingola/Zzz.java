@@ -1,17 +1,14 @@
 package ca.mcgill.mcb.pcingola;
 
-import ca.mcgill.mcb.pcingola.fileIterator.VcfFileIterator;
-import ca.mcgill.mcb.pcingola.util.Gpr;
-import ca.mcgill.mcb.pcingola.vcf.VcfEntry;
-
 public class Zzz {
 
 	public static void main(String[] args) {
-		String vcfFileName = Gpr.HOME + "/snpEFf/empty.vcf";
-		VcfFileIterator vcfFile = new VcfFileIterator(vcfFileName);
-		for (VcfEntry ve : vcfFile) {
-			System.out.println(ve.isVariant() + "\t" + ve);
-		}
-
+		String s = "Hello\n\tworld!";
+		String ss = s.replaceAll("\\n", "\\\\n");
+		ss = ss.replaceAll("\\t", "\\\\t");
+		ss = ss.replaceAll("\\r", "");
+		System.out.println(s);
+		System.out.println("--------------------------------------");
+		System.out.println(ss);
 	}
 }

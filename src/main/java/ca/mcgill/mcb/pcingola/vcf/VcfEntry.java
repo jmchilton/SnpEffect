@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import ca.mcgill.mcb.pcingola.fileIterator.NeedlemanWunsch;
 import ca.mcgill.mcb.pcingola.fileIterator.VcfFileIterator;
@@ -301,6 +302,24 @@ public class VcfEntry extends Marker implements Iterable<VcfGenotype> {
 	public long getInfoInt(String key) {
 		if (info == null) parseInfo();
 		return Gpr.parseLongSafe(info.get(key));
+	}
+
+	/**
+	 * Get all keys available in the info field
+	 * @param key
+	 * @return
+	 */
+	public Set<String> getInfoKeys(String key) {
+		if (info == null) parseInfo();
+		return info.keySet();
+	}
+
+	/**
+	 * Get the full (unparsed) INFO field
+	 * @return
+	 */
+	public String getInfoStr() {
+		return infoStr;
 	}
 
 	public int getLineNum() {

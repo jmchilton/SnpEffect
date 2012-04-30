@@ -142,6 +142,9 @@ public class SeqChange extends Marker {
 	 * @return
 	 */
 	public SeqChange getSeqChangeOption(int i) {
+		// Just an interval (i.e. no changes)? => return the 'this' object
+		if (changeType == ChangeType.Interval) return this;
+
 		// Not a real change? return null
 		// This might happen in heterozygous variants
 		// E.g.: "A -> T/A", or "* -> +A/*")

@@ -59,8 +59,6 @@ public class SnpEffCmdEff extends SnpEff {
 	public static final String SUMMARY_TEMPLATE = "snpEff_summary.ftl"; // Summary template file name
 	public static final String SUMMARY_GENES_TEMPLATE = "snpEff_genes.ftl"; // Genes template file name
 
-	public static final int COMMAND_LINE_WIDTH = 40;
-
 	boolean supressOutput = false; // Only used for debugging purposes 
 	boolean createSummary = true; // Do not create summary output file 
 	boolean useLocalTemplate = false; // Use template from 'local' file instead of 'jar' (this is only used for development and debugging)
@@ -98,32 +96,6 @@ public class SnpEffCmdEff extends SnpEff {
 		customIntervalFiles = new ArrayList<String>(); // Custom interval files
 		summaryFile = DEFAULT_SUMMARY_FILE;
 		summaryGenesFile = DEFAULT_SUMMARY_GENES_FILE;
-	}
-
-	/**
-	 * 	Command line argument list (try to fit it into COMMAND_LINE_WIDTH)
-	 * 
-	 * @param splitLines
-	 * @return
-	 */
-	String commandLineStr(boolean splitLines) {
-		StringBuilder argsList = new StringBuilder();
-		argsList.append("SnpEff eff ");
-		int size = argsList.length();
-
-		for (String arg : args) {
-			argsList.append(arg);
-			size += arg.length();
-			if (splitLines && (size > COMMAND_LINE_WIDTH)) {
-				argsList.append(" \n");
-				size = 0;
-			} else {
-				argsList.append(" ");
-				size++;
-			}
-		}
-
-		return argsList.toString();
 	}
 
 	public ChangeEffectResutStats getChangeEffectResutStats() {
@@ -559,7 +531,7 @@ public class SnpEffCmdEff extends SnpEff {
 
 	@Override
 	public HashMap<String, String> reportValues() {
-		HashMap<String, String> report = new HashMap<String, String>();
+		HashMap<String, String> report = super.reportValues();
 		if (seqChangeStats != null) report.put("SeqChanges", seqChangeStats.getCount() + "");
 		return report;
 	}
