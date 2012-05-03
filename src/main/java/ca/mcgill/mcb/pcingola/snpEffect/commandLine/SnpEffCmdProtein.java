@@ -33,6 +33,40 @@ public class SnpEffCmdProtein extends SnpEff {
 	Config config;
 	HashMap<String, String> proteinByTrId;
 
+	/**
+	 * Count number of differences between strings
+	 * @param s1
+	 * @param s2
+	 * @return
+	 */
+	public static int diffCount(String s1, String s2) {
+		int minLen = Math.min(s1.length(), s2.length());
+		int count = 0;
+		for (int j = 0; j < minLen; j++)
+			if (s1.charAt(j) != s2.charAt(j)) count++;
+
+		return count;
+	}
+
+	/**
+	 * Show difference between two strings
+	 * @param s1
+	 * @param s2
+	 * @return
+	 */
+	public static String diffStr(String s1, String s2) {
+		// Create a string indicating differences
+		int minLen = Math.min(s1.length(), s2.length());
+		char diff[] = new char[minLen];
+		for (int j = 0; j < minLen; j++) {
+			if (s1.charAt(j) != s2.charAt(j)) {
+				diff[j] = '|';
+			} else diff[j] = ' ';
+
+		}
+		return new String(diff);
+	}
+
 	public SnpEffCmdProtein() {
 	}
 
@@ -163,17 +197,8 @@ public class SnpEffCmdProtein extends SnpEff {
 						proteinReference = proteinFormat(proteinReference);
 
 						// Create a string indicating differences
-						int countDiff = 0;
-						int minLen = Math.min(protein.length(), proteinReference.length());
-						char diff[] = new char[minLen];
-						for (int j = 0; j < minLen; j++) {
-							if (protein.charAt(j) != proteinReference.charAt(j)) {
-								diff[j] = '|';
-								countDiff++;
-							} else diff[j] = ' ';
-
-						}
-						String diffStr = new String(diff);
+						String diffStr = diffStr(protein, proteinReference);
+						int countDiff = diffCount(protein, proteinReference);
 
 						System.err.println("\nERROR:Protein sequence does not match:" //
 								+ "\n\tTranscript " + tr.getId() //
@@ -182,7 +207,7 @@ public class SnpEffCmdProtein extends SnpEff {
 								+ "\t, Exons: " + tr.numChilds() //
 								+ "\n\tsnpEff    (" + protein.length() + "):\t" + (protein).toLowerCase() //
 								+ "\n\tReference (" + proteinReference.length() + "):\t" + proteinFormat(proteinReference).toLowerCase() //
-								+ "\n\tDiff      (" + countDiff + "):\t" + diffStr //
+								+ "\n\tdiff      (" + countDiff + "):\t" + diffStr //
 								+ "\n\tTranscript details:\t" + tr //
 						);
 					} else if (!verbose) System.out.print('*');

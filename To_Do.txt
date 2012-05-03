@@ -1,0 +1,37 @@
+
+										Databases / Algorithms
+										----------------------
+
+- dbSnp
+
+- VAAST
+
+- SIFT
+
+- OMNIM
+
+- PharmGKB: Licensed for non-academic users
+
+- Cosmic:	http://www.sanger.ac.uk/genetics/CGP/cosmic/
+
+- Cancer genome atlas
+
+
+										Cancer: Germline/Somatic mutations
+										----------------------------------
+
+- VCF Format
+	- Two files: germline and somatic
+
+	- One file: Integrative caller
+
+		- Somatice INDEL for GATK
+				http://www.broadinstitute.org/gsa/wiki/index.php/Somatic_Indel_Detector
+
+		- Somatic Snipper
+				http://gmt.genome.wustl.edu/somatic-sniper/1.0.0/documentation.html
+
+		- Joint SNVmix
+
+		- Machine learning toolkit form GATK
+

@@ -89,7 +89,7 @@ public class SnpEffCmdCds extends SnpEff {
 				} else if (mRna.equals(cdsReference)) { // May be the file has mRNA instead of CDS?
 					totalOk++;
 					if (!verbose) System.out.print('-');
-				} else if ((mRna.length() < cdsReference.length()) // CDS longer than mRNA? May be it is actuallt an mRNA + poly-A tail (instead of a CDS)
+				} else if ((mRna.length() < cdsReference.length()) // CDS longer than mRNA? May be it is actually an mRNA + poly-A tail (instead of a CDS)
 						&& cdsReference.substring(mRna.length()).replace('A', ' ').trim().isEmpty() // May be it is an mRNA and it has a ploy-A tail added
 						&& cdsReference.substring(0, mRna.length()).equals(mRna) // Compare cutting poly-A tail
 				) {
@@ -98,12 +98,25 @@ public class SnpEffCmdCds extends SnpEff {
 					if (!verbose) System.out.print('-');
 				} else {
 					if (verbose || onlyOneError) {
-						System.err.println("\nERROR:CDS do not match for transcript " + tint.getId() + "\tStrand:" + tint.getStrand() + "\tExons: " + tint.numChilds() //
-								+ "\n\tsnpEff mRNA (" + mRna.length() + "):\t" + mRna.toLowerCase() //
-								+ "\n\tsnpEff CDS  (" + cds.length() + "):\t" + cds.toLowerCase() //
-								+ "\n\tReference   (" + cdsReference.length() + "):\t" + cdsReference.toLowerCase() //
-								+ "\nTranscript details:\n" + tint //
-						);
+						// Create a string indicating differences
+						String diffMrna = SnpEffCmdProtein.diffStr(mRna, cdsReference);
+						int diffMrnaCount = SnpEffCmdProtein.diffCount(mRna, cdsReference);
+
+						String diffCds = SnpEffCmdProtein.diffStr(cds, cdsReference);
+						int diffCdsCount = SnpEffCmdProtein.diffCount(cds, cdsReference);
+
+						System.err.println("\nERROR:CDS do not match for transcript " + tint.getId() + "\tStrand:" + tint.getStrand() + "\tExons: " + tint.numChilds());
+
+						if (diffMrnaCount < diffCdsCount) {
+							System.err.println(String.format("\tsnpEff mRNA (%6d) : '%s'", mRna.length(), mRna.toLowerCase()));
+							System.err.println(String.format("\tdiff        (%6d) : '%s'", diffMrnaCount, diffMrna));
+						} else {
+							System.err.println(String.format("\tsnpEff CDS  (%6d) : '%s'", cds.length(), cds.toLowerCase()));
+							System.err.println(String.format("\tdiff        (%6d) : '%s'", diffCdsCount, diffCds));
+						}
+
+						System.err.println(String.format("\tReference   (%6d) : '%s'", cdsReference.length(), cdsReference.toLowerCase()));
+						System.err.println("Transcript details:\n" + tint);
 					} else System.out.print('*');
 
 					totalErrors++;

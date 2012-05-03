@@ -348,8 +348,9 @@ public class SnpEffCmdEff extends SnpEff {
 				else if (args[i].equalsIgnoreCase("-noChromoPlots")) chromoPlots = false;
 				else if (args[i].equalsIgnoreCase("-treatAllAsProteinCoding")) {
 					if ((i + 1) < args.length) {
-						if (args[++i].equalsIgnoreCase("auto")) treatAllAsProteinCoding = null;
-						else treatAllAsProteinCoding = Gpr.parseBoolSafe(args[++i]);
+						i++;
+						if (args[i].equalsIgnoreCase("auto")) treatAllAsProteinCoding = null;
+						else treatAllAsProteinCoding = Gpr.parseBoolSafe(args[i]);
 					}
 				}
 				//---

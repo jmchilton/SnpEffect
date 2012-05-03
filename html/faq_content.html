@@ -40,6 +40,9 @@
 - <a class="body" href="#What_is_a_rare_amino_acid?"> What is a rare amino acid? </a> <br>
 - <a class="body" href="#Why_are_TXT_and_VCF_coordinates_different?"> Why are TXT and VCF coordinates different? </a> <br>
 <p>
+<b> Output summary page </b> <br>
+- <a class="body" href="#Effects_by_type_vs_Effects_by_region"> "Effects by type" vs "Effects by region"? </a> <br>
+<p>
 <b> Building databases / Supporting new genomes </b> <br>
 - <a class="body" href="#Where_is_the_human_genome?"> Where is the human genome?</a> <br>
 - <a class="body" href="#Which_genomes_are_supported?"> Which genomes are supported? </a> <br>
@@ -511,6 +514,132 @@ tgctgcggctgcggctgcggctgcggctacggctgcggct    ALT (from VCF file)
 <p>
 
 				So the two VCF and TXT representations are equivalent.
+
+				<hr> <center> <p style="font-size: 16pt"> <b> Output summary page </b></center></p>
+				<p style="font-size: 14pt"> <b> <a class="body" name="Effects_by_type_vs_Effects_by_region"> "Effects by type" vs "Effects by region" </a> </b></p>
+				SnpEff annotates variants. 
+				Variants produce effect of difference "types" (e.g. NON_SYNONYMOUS_CODING, STOP_GAINED). 
+				These variants affect regions of the genome (e.g. EXON, INTRON). <p>
+				The two tables count how many effects for each type and for each region exists.
+				<p>
+				E.g.: In an EXON region, you can have all the following effect types:	NON_SYNONYMOUS_CODING, SYNONYMOUS_CODING, FRAME_SHIFT, STOP_GAINED, etc.
+				<p>
+				The complicated part is that some effect types affect a region that has the same name (yes, I know, this is confusing).
+				<p>
+				E.g.: In a UTR_5_PRIME region you can have UTR_5_PRIME and START_GAINED effect type. <br>
+				This means that the number of both tables are not exactly the same, because the labels don't mean the same.
+				See the next figure as an example
+				<p>
+				<img width=700 src="images/type_vs_region.png">
+				<p>
+				So the number of effects that affect a UTR_5_PRIME <b>region</b> is 206. Of those, 57 are effects <b>type</b> START_GAINED and 149 are effects <b>type</b> UTR_5_PRIME.
+				<p>
+				How exactly are effect <b>type</b> and effect <b>region</b> related? See the following table<p>
+				<center>
+				<table border=0>
+					<tr bgcolor=aaaaaa> <th> Effect Type </th><th> ..affect Region </th> </tr> 
+					 <tr bgcolor=eeeeee>
+						<td>
+						NONE<br>
+						CHROMOSOME<br>
+						CUSTOM<br>
+						CDS<br>
+						</td>
+						<td>NONE</td>
+					</tr>
+					<tr bgcolor=dddddd>
+						<td>
+						INTERGENIC<br>
+						INTERGENIC_CONSERVED<br>
+						</td>
+						<td>INTERGENIC</td>
+					</tr>
+					<tr bgcolor=eeeeee>
+						<td>
+						UPSTREAM<br>
+						</td>
+						<td>UPSTREAM</td>
+					</tr>
+					<tr bgcolor=dddddd>
+						<td>
+						UTR_5_PRIME<br>
+						UTR_5_DELETED<br>
+						START_GAINED<br>
+						</td>
+						<td>UTR_5_PRIME</td>
+					</tr>
+					<tr bgcolor=eeeeee>
+						<td>
+						SPLICE_SITE_ACCEPTOR<br>
+						</td>
+						<td>SPLICE_SITE_ACCEPTOR</td>
+					</tr>
+					<tr bgcolor=dddddd>
+						<td>
+						SPLICE_SITE_DONOR<br>
+						</td>
+						<td>SPLICE_SITE_DONOR</td>
+					</tr>
+					<tr bgcolor=eeeeee>
+						<td>
+						INTRAGENIC<br>
+						START_LOST<br>
+						SYNONYMOUS_START<br>
+						NON_SYNONYMOUS_START<br>
+						GENE<br>
+						TRANSCRIPT<br>
+						</td>
+						<td>EXON or NONE</td>
+					</tr>
+					<tr bgcolor=dddddd>
+						<td>
+						EXON<br>
+						EXON_DELETED<br>
+						NON_SYNONYMOUS_CODING<br>
+						SYNONYMOUS_CODING<br>
+						FRAME_SHIFT<br>
+						CODON_CHANGE<br>
+						CODON_INSERTION<br>
+						CODON_CHANGE_PLUS_CODON_INSERTION<br>
+						CODON_DELETION<br>
+						CODON_CHANGE_PLUS_CODON_DELETION<br>
+						STOP_GAINED<br>
+						SYNONYMOUS_STOP<br>
+						NON_SYNONYMOUS_STOP<br>
+						STOP_LOST<br>
+						RARE_AMINO_ACID<br>
+						</td>
+						<td>EXON</td>
+					</tr>
+					<tr bgcolor=eeeeee>
+						<td>
+						INTRON<br>
+						INTRON_CONSERVED<br>
+						</td>
+						<td>INTRON</td>
+					</tr>
+					<tr bgcolor=dddddd>
+						<td>
+						UTR_3_PRIME<br>
+						UTR_3_DELETED<br>
+						</td>
+						<td>UTR_3_PRIME</td>
+					</tr>
+					<tr bgcolor=eeeeee>
+						<td>
+						DOWNSTREAM<br>
+						</td>
+						<td>DOWNSTREAM</td>
+					</tr>
+					<tr bgcolor=dddddd>
+						<td>
+						REGULATION<br>
+						</td>
+						<td>REGULATION</td>
+					</tr>
+				</table>
+				</center>
+
 
 				<hr> <center> <p style="font-size: 16pt"> <b> Supporting genomes </b></center></p>
 
