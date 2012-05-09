@@ -37,17 +37,17 @@ public class VcfGenotype {
 	 */
 	public void add(String name, String value) {
 		// Sanity check value
-		if( (value.indexOf(' ') >= 0) //
+		if ((value.indexOf(' ') >= 0) //
 				|| (value.indexOf('\t') >= 0) //
 				|| (value.indexOf('=') >= 0) //
 		) throw new RuntimeException("Error: Attempt to add a value containin illegal characters: no white-space, semi-colons, or equals-signs permitted\n\tname : '" + name + "'\n\tvalue : '" + value + "'");
 
 		// Sanity check format
-		if( vcfEntry.getFormat().indexOf(name) < 0 ) throw new RuntimeException("Error Attempt to add a field (name=" + name + ") that is not present in FORMAT field. Use VcfEntry.addFormat() method first!");
+		if (vcfEntry.getFormat().indexOf(name) < 0) throw new RuntimeException("Error Attempt to add a field (name=" + name + ") that is not present in FORMAT field. Use VcfEntry.addFormat() method first!");
 
 		// Finally, add the values
 		values += (values.endsWith(":") ? "" : ":") + value; // Add to value string
-		if( fields != null ) fields.put(name, value); // Add value to hash (if needed)
+		if (fields != null) fields.put(name, value); // Add value to hash (if needed)
 	}
 
 	/**
@@ -88,8 +88,11 @@ public class VcfGenotype {
 	public String getGenotype(int idx) {
 		parseFields(); // Lazy parse
 
+		if (genotype == null) return ""; // Missing genotype
+
 		int num = genotype[idx];
-		if( num < 0 ) return ""; // Missing genotype
+		if (num < 0) return ""; // Missing genotype
+
 		return num == 0 ? vcfEntry.getRef() : vcfEntry.getAlts()[num - 1];
 	}
 
@@ -106,11 +109,11 @@ public class VcfGenotype {
 		parseFields(); // Lazy parse
 
 		// No genotype info?
-		if( genotype == null ) return -1;
+		if (genotype == null) return -1;
 
 		int code = 0;
-		for( int i = 0; i < genotype.length; i++ ) {
-			if( (genotype[i] < 0) || (genotype[i] > 1) ) return -1;
+		for (int i = 0; i < genotype.length; i++) {
+			if ((genotype[i] < 0) || (genotype[i] > 1)) return -1;
 			code += genotype[i];
 		}
 
@@ -126,16 +129,16 @@ public class VcfGenotype {
 
 		StringBuilder sb = new StringBuilder();
 
-		for( int i = 0; i < genotype.length; i++ ) {
+		for (int i = 0; i < genotype.length; i++) {
 			int num = genotype[i];
 
 			String gen = ".";
-			if( num == 0 ) gen = vcfEntry.getRef();
-			else if( num > 0 ) gen = vcfEntry.getAlts()[num - 1];
+			if (num == 0) gen = vcfEntry.getRef();
+			else if (num > 0) gen = vcfEntry.getAlts()[num - 1];
 
 			sb.append(gen);
-			if( i < (genotype.length - 1) ) {
-				if( isPhased() ) sb.append("|");
+			if (i < (genotype.length - 1)) {
+				if (isPhased()) sb.append("|");
 				else sb.append("/");
 			}
 		}
@@ -158,10 +161,10 @@ public class VcfGenotype {
 	public boolean isHomozygous() {
 		parseFields(); // Lazy parse
 
-		if( genotype != null ) {
+		if (genotype != null) {
 			// Any genotype is different? => not homozygous
-			for( int i = 1; i < genotype.length; i++ )
-				if( genotype[i] != genotype[i - 1] ) return false;
+			for (int i = 1; i < genotype.length; i++)
+				if (genotype[i] != genotype[i - 1]) return false;
 
 			return true; // Homozygous
 		}
@@ -177,11 +180,11 @@ public class VcfGenotype {
 		parseFields();
 
 		// The field is missing?
-		if( genotype == null ) return true;
+		if (genotype == null) return true;
 
 		// Any genotype missing?
-		for( int i = 0; i < genotype.length; i++ )
-			if( genotype[i] < 0 ) return true;
+		for (int i = 0; i < genotype.length; i++)
+			if (genotype[i] < 0) return true;
 
 		return false;
 	}
@@ -198,13 +201,13 @@ public class VcfGenotype {
 	 * @return
 	 */
 	public boolean isVariant() {
-		if( values.isEmpty() ) return false;
+		if (values.isEmpty()) return false;
 		parseFields(); // Lazy parse
 
-		if( genotype != null ) {
+		if (genotype != null) {
 			// Any genotype is different than REF? => This is a variant
-			for( int i = 0; i < genotype.length; i++ )
-				if( genotype[i] > 0 ) return true;
+			for (int i = 0; i < genotype.length; i++)
+				if (genotype[i] > 0) return true;
 			return false;
 		}
 
@@ -215,29 +218,29 @@ public class VcfGenotype {
 	 * Parse fields 
 	 */
 	void parseFields() {
-		if( fields != null ) return;
+		if (fields != null) return;
 
 		try {
 			fields = new HashMap<String, String>();
 
-			if( values.isEmpty() ) return; // Values are missing? Nothing to do
+			if (values.isEmpty()) return; // Values are missing? Nothing to do
 
 			String fieldNames[] = vcfEntry.getFormat().split(":");
 			String fieldValues[] = values.split(":");
 
 			int min = Math.min(fieldValues.length, fieldNames.length);
 
-			for( int i = 0; i < min; i++ ) {
+			for (int i = 0; i < min; i++) {
 				String name = fieldNames[i];
 				String value = fieldValues[i];
 
 				fields.put(name, value);
-				if( name.equals("GT") ) parseGt(value);
-				else if( name.equals("PL") ) parsePl(value);
-				else if( name.equals("GQ") ) gQuality = Gpr.parseDoubleSafe(value);
+				if (name.equals("GT")) parseGt(value);
+				else if (name.equals("PL")) parsePl(value);
+				else if (name.equals("GQ")) gQuality = Gpr.parseDoubleSafe(value);
 			}
 
-		} catch(Exception e) {
+		} catch (Exception e) {
 			throw new RuntimeException("Error parsing fields on line:\n\tFormat: '" + vcfEntry.getFormat() + "'\n\tValues: '" + values + "'", e);
 		}
 	}
@@ -248,7 +251,7 @@ public class VcfGenotype {
 	 */
 	void parseGt(String value) {
 		String gtStr[] = null;
-		if( value.indexOf('|') >= 0 ) {
+		if (value.indexOf('|') >= 0) {
 			gtStr = value.split("\\|");
 			phased = true; // Phased
 		} else {
@@ -258,13 +261,13 @@ public class VcfGenotype {
 
 		// Create fields
 		genotype = new int[gtStr.length];
-		for( int i = 0; i < genotype.length; i++ )
-			if( gtStr[i].isEmpty() || gtStr[i].isEmpty() || gtStr[i].equals(".") ) genotype[i] = -1; // Genotype '-1' means missing values
+		for (int i = 0; i < genotype.length; i++)
+			if (gtStr[i].isEmpty() || gtStr[i].isEmpty() || gtStr[i].equals(".")) genotype[i] = -1; // Genotype '-1' means missing values
 			else {
 				genotype[i] = Gpr.parseIntSafe(gtStr[i]);
 
 				// Sanity check
-				if( (genotype[i] - 1) >= vcfEntry.getAlts().length ) {
+				if ((genotype[i] - 1) >= vcfEntry.getAlts().length) {
 					boolean plural = vcfEntry.getAlts().length > 1;
 					throw new RuntimeException("Error: Bad genotype field '" + value + "'. Genotype says '" + genotype[i] + "' but there " + (plural ? "are" : "is") + " only '" + vcfEntry.getAlts().length + "' allele" + (plural ? "s" : "") + " ('" + vcfEntry.getAltsStr() + "').");
 				}
@@ -278,7 +281,7 @@ public class VcfGenotype {
 	void parsePl(String value) {
 		String plStr[] = value.split(",");
 		genotypeLikelihoodPhred = new int[plStr.length];
-		for( int i = 0; i < plStr.length; i++ )
+		for (int i = 0; i < plStr.length; i++)
 			genotypeLikelihoodPhred[i] = Gpr.parseIntSafe(plStr[i]);
 	}
 

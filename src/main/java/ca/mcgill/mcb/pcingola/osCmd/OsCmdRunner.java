@@ -183,7 +183,7 @@ public class OsCmdRunner {
 
 	@Override
 	public String toString() {
-		return super.toString() + "\t" + (osCmd != null ? osCmd.toString() : "");
+		return super.toString() + "\t" + (osCmd != null ? osCmd.toString() : "null");
 	}
 
 }
