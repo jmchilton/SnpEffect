@@ -180,4 +180,10 @@ public class OsCmdRunner {
 	public void setDefaultWaitTime(long defaultWaitTime) {
 		this.defaultWaitTime = defaultWaitTime;
 	}
+
+	@Override
+	public String toString() {
+		return super.toString() + "\t" + (osCmd != null ? osCmd.toString() : "");
+	}
+
 }

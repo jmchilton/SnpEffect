@@ -37,6 +37,7 @@ public class ExecuteOsCommand extends Thread implements Progress {
 	boolean binaryStdout = false;
 	boolean binaryStderr = false;
 	LineFilter stdOutFilter = null;
+	boolean showExceptions = true; // Show exceptions when running the program
 
 	public ExecuteOsCommand(String args[]) {
 		commandArgs = args;
@@ -114,7 +115,7 @@ public class ExecuteOsCommand extends Thread implements Progress {
 		} catch (Exception e) {
 			error = e.getMessage();
 			exitValue = -1;
-			e.printStackTrace();
+			if (showExceptions) e.printStackTrace();
 		} finally {
 			// We are done. Either process finished or an exception was raised.
 			started = true;
@@ -273,6 +274,10 @@ public class ExecuteOsCommand extends Thread implements Progress {
 
 	public void setSaveStd(boolean saveStd) {
 		this.saveStd = saveStd;
+	}
+
+	public void setShowExceptions(boolean showExceptions) {
+		this.showExceptions = showExceptions;
 	}
 
 	public void setStdoutAlert(String alert) {
