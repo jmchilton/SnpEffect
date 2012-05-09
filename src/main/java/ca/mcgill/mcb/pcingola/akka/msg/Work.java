@@ -29,6 +29,10 @@ public class Work<T> {
 		this.data = data;
 	}
 
+	public int size() {
+		return data.length;
+	}
+
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();

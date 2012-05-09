@@ -28,7 +28,7 @@ public class MasterEff extends MasterVcf<String> {
 					}
 
 				}) //
-				, numWorkers, DEFAULT_BATCH_SIZE);
+				, numWorkers);
 		parseNow = false;
 	}
 }

@@ -18,8 +18,8 @@ public class MasterVcf<T> extends Master<VcfEntry, T> {
 	protected String addHeader[]; // Add lines to VCF header before showing it
 	protected VcfFileIterator vcfFileIterator;
 
-	public MasterVcf(Props props, int numWorkers, int batchSize) {
-		super(props, numWorkers, batchSize);
+	public MasterVcf(Props props, int numWorkers) {
+		super(props, numWorkers);
 	}
 
 	@Override

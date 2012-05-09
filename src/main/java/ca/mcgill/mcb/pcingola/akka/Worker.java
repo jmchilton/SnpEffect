@@ -50,7 +50,7 @@ public class Worker<TI, TO> extends UntypedActor {
 		// Create array
 		TO resultData[] = (TO[]) new Object[work.data.length];
 
-		// Clculate each result
+		// Calculate each result
 		int i = 0;
 		for (TI datIn : work.data)
 			resultData[i++] = calculate(datIn);

@@ -48,7 +48,7 @@ public abstract class Master<TI, TO> extends UntypedActor implements Iterable<TI
 	 * @param numWorkers: How may workers will be used
 	 * @param listener : Listener
 	 */
-	public Master(Props props, int numWorkers, int batchSize) {
+	public Master(Props props, int numWorkers) {
 		// Initialize 
 		sentWorks = 0;
 		this.numWorkers = numWorkers;
