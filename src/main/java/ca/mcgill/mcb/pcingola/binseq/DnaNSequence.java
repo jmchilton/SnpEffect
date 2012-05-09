@@ -13,8 +13,8 @@ import ca.mcgill.mcb.pcingola.collections.OpenBitSet;
  * 
  * @author pcingola
  */
-@SuppressWarnings("serial")
 public class DnaNSequence extends DnaSequence {
+  private static final long serialVersionUID = 843945646419836582L;
 
 	OpenBitSet hasN; // A bit set indicating if there is an 'N'
 
