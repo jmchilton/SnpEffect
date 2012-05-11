@@ -5,12 +5,14 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 
+import ca.mcgill.mcb.pcingola.fileIterator.SeqChangeBedFileIterator;
 import ca.mcgill.mcb.pcingola.fileIterator.VcfFileIterator;
 import ca.mcgill.mcb.pcingola.interval.Chromosome;
 import ca.mcgill.mcb.pcingola.interval.Exon;
 import ca.mcgill.mcb.pcingola.interval.Gene;
 import ca.mcgill.mcb.pcingola.interval.Marker;
 import ca.mcgill.mcb.pcingola.interval.Markers;
+import ca.mcgill.mcb.pcingola.interval.SeqChange;
 import ca.mcgill.mcb.pcingola.interval.Transcript;
 import ca.mcgill.mcb.pcingola.interval.tree.IntervalForest;
 import ca.mcgill.mcb.pcingola.snpEffect.Config;
@@ -33,9 +35,10 @@ public class SnpEffCmdClosestExon extends SnpEff {
 	public static final String INFO_LINE = "##INFO=<ID=" + CLOSEST_EXON + ",Number=4,Type=String,Description=\"Closest exon: Distance (bases), exons Id, transcript Id, gene name\">";
 
 	boolean verbose = false;
+	boolean bedFormat = false;
 	String configFile = Config.DEFAULT_CONFIG_FILE;
 	String genomeVer = "";
-	String vcfFile = "";
+	String inFile = "";
 	Config config;
 	IntervalForest intervalForest;
 
@@ -46,7 +49,7 @@ public class SnpEffCmdClosestExon extends SnpEff {
 	public SnpEffCmdClosestExon(Config config) {
 		command = "closestExon";
 		this.config = config;
-		vcfFile = config.getFileNameProteins();
+		inFile = config.getFileNameProteins();
 	}
 
 	/**
@@ -57,6 +60,42 @@ public class SnpEffCmdClosestExon extends SnpEff {
 		vcf.addHeader("##SnpEffVersion=\"" + SnpEff.VERSION + "\"");
 		vcf.addHeader("##SnpEffCmd=\"" + commandLineStr(false) + "\"");
 		vcf.addHeader(INFO_LINE);
+	}
+
+	/**
+	 * Iterate over VCF file, find closest exons and annotate vcf lines
+	 */
+	void bedIterate() {
+		// Open file
+		SeqChangeBedFileIterator bfi = new SeqChangeBedFileIterator(inFile, config.getGenome(), 0);
+		bfi.setCreateChromos(true); // Any 'new' chromosome in the input file will be created (otherwise an error will be thrown)
+
+		for (SeqChange bed : bfi) {
+			try {
+				// Find closest exon
+				Exon exon = (Exon) findClosestExons(bed);
+
+				String id = bed.getId();
+
+				// Update INFO fields if any exon was found
+				if (exon != null) {
+					int dist = exon.distance(bed);
+					Transcript tr = (Transcript) exon.getParent();
+					Gene gene = (Gene) tr.getParent();
+					id = (id.isEmpty() ? "" : bed.getId() + ";") + dist + "," + exon.getId() + "," + tr.getId() + "," + gene.getGeneName();
+				}
+
+				// Show output
+				System.out.println(bed.getChromosomeName() //
+						+ "\t" + bed.getStart() // BED format: Zero-based position
+						+ "\t" + (bed.getEnd() + 1) // BED format: End base is not included
+						+ "\t" + id //
+				);
+
+			} catch (Exception e) {
+				e.printStackTrace(); // Show exception and move on...
+			}
+		}
 	}
 
 	/**
@@ -117,18 +156,18 @@ public class SnpEffCmdClosestExon extends SnpEff {
 	}
 
 	/**
-	 * Find closest exon for this VCF entry
-	 * @param vcfEntry
+	 * Find closest exon for this interval
+	 * @param inputInterval
 	 */
-	Marker findClosestExons(VcfEntry vcfEntry) {
+	Marker findClosestExons(Marker inputInterval) {
 		int initialExtension = 1000;
 
-		Chromosome chr = vcfEntry.getChromosome();
+		Chromosome chr = inputInterval.getChromosome();
 		if (chr.size() > 0) {
 			// Extend interval to capture 'close' exons
 			for (int extend = initialExtension; extend < chr.size(); extend *= 2) {
-				int start = Math.max(vcfEntry.getStart() - extend, 0);
-				int end = vcfEntry.getEnd() + extend;
+				int start = Math.max(inputInterval.getStart() - extend, 0);
+				int end = inputInterval.getEnd() + extend;
 				Marker extended = new Marker(chr, start, end, 1, "");
 
 				// Find all exons that intersect with the interval
@@ -136,7 +175,7 @@ public class SnpEffCmdClosestExon extends SnpEff {
 				int minDist = Integer.MAX_VALUE;
 				Marker minDistMarker = null;
 				for (Marker m : markers) {
-					int dist = m.distance(vcfEntry);
+					int dist = m.distance(inputInterval);
 					if (dist < minDist) {
 						minDistMarker = m;
 						minDist = dist;
@@ -168,17 +207,19 @@ public class SnpEffCmdClosestExon extends SnpEff {
 				if ((args[i].equals("-c") || args[i].equalsIgnoreCase("-config"))) {
 					if ((i + 1) < args.length) configFile = args[++i];
 					else usage("Option '-c' without config file argument");
+				} else if (args[i].equals("-bed")) {
+					bedFormat = true;
 				} else if (args[i].equals("-v") || args[i].equalsIgnoreCase("-verbose")) {
 					verbose = true;
 				} else usage("Unknow option '" + args[i] + "'");
 			} else if (genomeVer.isEmpty()) genomeVer = args[i];
-			else if (vcfFile.isEmpty()) vcfFile = args[i];
+			else if (inFile.isEmpty()) inFile = args[i];
 			else usage("Unknow parameter '" + args[i] + "'");
 		}
 
 		// Check: Do we have all required parameters?
 		if (genomeVer.isEmpty()) usage("Missing genomer_version parameter");
-		if (vcfFile.isEmpty()) usage("Missing protein_file parameter");
+		if (inFile.isEmpty()) usage("Missing protein_file parameter");
 	}
 
 	/**
@@ -199,8 +240,9 @@ public class SnpEffCmdClosestExon extends SnpEff {
 
 		createForest();
 
-		if (verbose) Timer.showStdErr("Reading file '" + vcfFile + "'");
-		vcfIterate();
+		if (verbose) Timer.showStdErr("Reading file '" + inFile + "'");
+		if (bedFormat) bedIterate();
+		else vcfIterate();
 		if (verbose) Timer.showStdErr("done");
 
 		return true;
@@ -219,9 +261,10 @@ public class SnpEffCmdClosestExon extends SnpEff {
 		System.err.println("snpEff version " + SnpEff.VERSION);
 		System.err.println("Usage: snpEff closestExon [options] genome_version file.vcf");
 		System.err.println("\nOptions:");
-		System.err.println("\t-c , -config            : Specify config file");
-		System.err.println("\t-noLog                  : Do not report usage statistics to server");
-		System.err.println("\t-v , -verbose           : Verbose mode");
+		System.err.println("\t-bed          : Input format is BED. Default: VCF");
+		System.err.println("\t-c , -config  : Specify config file");
+		System.err.println("\t-noLog        : Do not report usage statistics to server");
+		System.err.println("\t-v , -verbose : Verbose mode");
 		System.exit(-1);
 	}
 
@@ -230,7 +273,7 @@ public class SnpEffCmdClosestExon extends SnpEff {
 	 */
 	void vcfIterate() {
 		// Open file
-		VcfFileIterator vcf = new VcfFileIterator(vcfFile, config.getGenome());
+		VcfFileIterator vcf = new VcfFileIterator(inFile, config.getGenome());
 		vcf.setCreateChromos(true); // Any 'new' chromosome in the input file will be created (otherwise an error will be thrown)
 
 		boolean header = true;
@@ -262,4 +305,5 @@ public class SnpEffCmdClosestExon extends SnpEff {
 			}
 		}
 	}
+
 }
