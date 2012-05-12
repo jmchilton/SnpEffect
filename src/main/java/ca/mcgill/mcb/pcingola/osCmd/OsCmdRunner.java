@@ -10,7 +10,7 @@ import ca.mcgill.mcb.pcingola.util.Timer;
  * 
  * @author pcingola
  */
-public class OsCmdRunner {
+public class OsCmdRunner extends Thread {
 
 	boolean executing = false, started = false;
 	int exitValue = 0;
@@ -20,6 +20,7 @@ public class OsCmdRunner {
 	String head = ""; // Ouput's head
 	String headStderr = ""; // Stderr's head
 	String error; // Latest error message
+	String stdout = "", stderr = "";
 	ExecuteOsCommand osCmd = null;
 
 	/**
@@ -85,6 +86,10 @@ public class OsCmdRunner {
 			osCmd.kill();
 			head = osCmd.getHead();
 			headStderr = osCmd.getHeadStderr();
+
+			// Note: this only get values if osCmd.setSaveStd(true) is invoked
+			stdout = osCmd.getStdout();
+			stderr = osCmd.getStdout();
 		}
 		osCmd = null;
 	}
@@ -129,6 +134,16 @@ public class OsCmdRunner {
 		return (osCmd == null ? 0 : osCmd.getProgress());
 	}
 
+	public String getStderr() {
+		if (osCmd != null) return osCmd.getStderr();
+		return stderr;
+	}
+
+	public String getStdout() {
+		if (osCmd != null) return osCmd.getStdout();
+		return stdout;
+	}
+
 	/**
 	 * Has this runner finished?
 	 * @return
@@ -142,6 +157,7 @@ public class OsCmdRunner {
 		return executing && osCmd.isExecuting();
 	}
 
+	@Override
 	public void run() {
 		try {
 			executing = true; // OK, we are running
@@ -179,6 +195,10 @@ public class OsCmdRunner {
 
 	public void setDefaultWaitTime(long defaultWaitTime) {
 		this.defaultWaitTime = defaultWaitTime;
+	}
+
+	public void setSaveStd(boolean save) {
+		osCmd.setSaveStd(save);
 	}
 
 	@Override

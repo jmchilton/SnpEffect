@@ -172,7 +172,7 @@ public class ExecuteOsCommand extends Thread implements Progress {
 	}
 
 	public String getStderr() {
-		return stdErrGobbler.getAllLines();
+		return stdErrGobbler == null ? "" : stdErrGobbler.getAllLines();
 	}
 
 	public OutputStream getStdin() {
@@ -180,7 +180,7 @@ public class ExecuteOsCommand extends Thread implements Progress {
 	}
 
 	public String getStdout() {
-		return stdOutGobbler.getAllLines();
+		return stdOutGobbler == null ? "" : stdOutGobbler.getAllLines();
 	}
 
 	public LineFilter getStdOutFilter() {
