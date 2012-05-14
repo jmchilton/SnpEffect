@@ -54,9 +54,10 @@ public class TxtOutputFormatter extends OutputFormatter {
 
 				if (qual.endsWith(".0")) qual = qual.substring(0, qual.length() - 2);
 
+				int start = seqChange.getStart() + outOffset;
+				int end = seqChange.getEnd() + outOffset;
 				sb.append(chrStr + seqChange.getChromosomeName() //
-						+ "\t" + (seqChange.getStart() + outOffset) //
-						+ ((seqChange.getChangeType() == ChangeType.Interval) ? "\t" + (seqChange.getEnd() + outOffset) : "") // Only when showing intervals
+						+ "\t" + start + ((seqChange.getChangeType() == ChangeType.Interval) ? "-" + end : "") // Only when showing intervals
 						+ "\t" + seqChange.reference() //
 						+ "\t" + seqChange.change() //  
 						+ "\t" + seqChange.getChangeType() //

@@ -585,7 +585,7 @@ public class ChangeEffect implements Cloneable {
 	@Override
 	public String toString() {
 		// Get data to show
-		String geneId = "", geneName = "", bioType = "", transcriptId = "", exonId = "", other = "";
+		String geneId = "", geneName = "", bioType = "", transcriptId = "", exonId = "", customId = "";
 		int exonRank = -1, cdsSize = -1;
 
 		if (marker != null) {
@@ -620,13 +620,13 @@ public class ChangeEffect implements Cloneable {
 			if (isRegulation()) {
 				bioType = ((Regulation) marker).getCellType();
 			}
-
-			// Add seqChage's ID
-			if (!seqChange.getId().isEmpty()) other += seqChange.getId();
-
-			// Add custom markers
-			if (marker instanceof Custom) other += (other.isEmpty() ? "" : ";") + marker.getId();
 		}
+
+		// Add seqChage's ID
+		if (!seqChange.getId().isEmpty()) customId += seqChange.getId();
+
+		// Add custom markers
+		if ((marker != null) && (marker instanceof Custom)) customId += (customId.isEmpty() ? "" : ";") + marker.getId();
 
 		if (COMPATIBLE_v1_8 && (isUpstream() || isDownstream() || isUtr() || isSpliceSite() || isStartGained())) cdsSize = -1;
 
@@ -646,7 +646,7 @@ public class ChangeEffect implements Cloneable {
 				+ "\t" + (cdsSize >= 0 ? cdsSize : "") //
 				+ "\t" + (codonsAroundOld.length() > 0 ? codonsAroundOld + " / " + codonsAroundNew : "") //
 				+ "\t" + (aasAroundOld.length() > 0 ? aasAroundOld + " / " + aasAroundNew : "") //
-				+ "\t" + other //
+				+ "\t" + customId //
 		;
 	}
 
