@@ -129,5 +129,13 @@
         </configuration>
       </plugin>
     </plugins>
+	<resources>
+		<resource>
+			<directory>templates</directory>
+			<includes>
+				<include> */*.ftl </include>
+			</includes>
+		</resource>
+	</resources>
   </build>
 </project>
