@@ -60,7 +60,9 @@ public class SnpEffCmdCds extends SnpEff {
 				String mRna = tint.mRna().toUpperCase();
 				String cdsReference = cdsByTrId.get(tint.getId());
 
-				if ((cdsReference == null) || (cds.length() <= 0)) {
+				if (cdsReference != null) cdsReference = cdsReference.toUpperCase();
+
+				if ((cdsReference == null) || cds.isEmpty()) {
 					if (verbose) System.err.println("\nWARNING:Cannot find CDS for transcript " + tint.getId());
 					else System.out.print('.');
 					totalNotFound++;
@@ -92,6 +94,13 @@ public class SnpEffCmdCds extends SnpEff {
 				} else if ((mRna.length() < cdsReference.length()) // CDS longer than mRNA? May be it is actually an mRNA + poly-A tail (instead of a CDS)
 						&& cdsReference.substring(mRna.length()).replace('A', ' ').trim().isEmpty() // May be it is an mRNA and it has a ploy-A tail added
 						&& cdsReference.substring(0, mRna.length()).equals(mRna) // Compare cutting poly-A tail
+				) {
+					// OK, it was a mRNA +  polyA
+					totalOk++;
+					if (!verbose) System.out.print('-');
+				} else if ((mRna.length() > cdsReference.length()) // PolyA in the reference? 
+						&& mRna.substring(cdsReference.length()).replace('A', ' ').trim().isEmpty() // 
+						&& mRna.substring(0, cdsReference.length()).equals(mRna) // 
 				) {
 					// OK, it was a mRNA +  polyA
 					totalOk++;
