@@ -59,6 +59,7 @@ public class SnpEffCmdEff extends SnpEff {
 	public static final String SUMMARY_TEMPLATE = "snpEff_summary.ftl"; // Summary template file name
 	public static final String SUMMARY_GENES_TEMPLATE = "snpEff_genes.ftl"; // Genes template file name
 
+	boolean canonical = false; // Use only canonical transcripts
 	boolean supressOutput = false; // Only used for debugging purposes 
 	boolean createSummary = true; // Do not create summary output file 
 	boolean useLocalTemplate = false; // Use template from 'local' file instead of 'jar' (this is only used for development and debugging)
@@ -346,13 +347,16 @@ public class SnpEffCmdEff extends SnpEff {
 				else if (args[i].equalsIgnoreCase("-noOut")) supressOutput = true; // Undocumented option (only used for development & debugging)
 				else if (args[i].equalsIgnoreCase("-noStats")) createSummary = false; // Do not create summary file. It can be much faster (e.g. when parsing VCF files with many samples)
 				else if (args[i].equalsIgnoreCase("-noChromoPlots")) chromoPlots = false;
+				//---
+				// Annotation options
+				//---
 				else if (args[i].equalsIgnoreCase("-treatAllAsProteinCoding")) {
 					if ((i + 1) < args.length) {
 						i++;
 						if (args[i].equalsIgnoreCase("auto")) treatAllAsProteinCoding = null;
 						else treatAllAsProteinCoding = Gpr.parseBoolSafe(args[i]);
 					}
-				}
+				} else if (args[i].equalsIgnoreCase("-canon")) canonical = true; // Use canonical transcripts
 				//---
 				// Input options
 				//---
@@ -611,6 +615,11 @@ public class SnpEffCmdEff extends SnpEff {
 		// Set upstream-downstream interval length
 		config.getSnpEffectPredictor().setUpDownStreamLength(upDownStreamLength);
 
+		// Filter canonical transcripts
+		if (verbose) Timer.showStdErr("Filtering out non-canonical transcripts.");
+		config.getSnpEffectPredictor().removeNonCanonical();
+		if (verbose) Timer.showStdErr("done.");
+
 		// Build tree
 		if (verbose) Timer.showStdErr("Building interval forest");
 		config.getSnpEffectPredictor().buildForest();
@@ -791,6 +800,8 @@ public class SnpEffCmdEff extends SnpEff {
 		System.err.println("\t-no-intron                      : Do not show INTRON changes");
 		System.err.println("\t-no-upstream                    : Do not show UPSTREAM changes");
 		System.err.println("\t-no-utr                         : Do not show 5_PRIME_UTR or 3_PRIME_UTR changes");
+		System.err.println("\nAnnotations filter options:");
+		System.err.println("\t-canon                          : Only use canonical transcripts.");
 		System.err.println("\t-onlyReg                        : Only use regulation tracks.");
 		System.err.println("\t-reg <name>                     : Regulation track to use (this option can be used add several times).");
 		System.err.println("\t-treatAllAsProteinCoding <bool> : If true, all transcript are treated as if they were protein conding. Default: Auto");

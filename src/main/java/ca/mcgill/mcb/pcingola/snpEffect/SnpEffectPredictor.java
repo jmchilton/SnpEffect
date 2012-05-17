@@ -260,6 +260,14 @@ public class SnpEffectPredictor implements Serializable {
 	}
 
 	/**
+	 * Remove all non-canonical transcripts
+	 */
+	public void removeNonCanonical() {
+		for (Gene g : genome.getGenes())
+			g.removeNonCanonical();
+	}
+
+	/**
 	 * Save predictor to a binary file (specified by the configuration)
 	 */
 	public void save(Config config) {

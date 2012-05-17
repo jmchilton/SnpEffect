@@ -133,6 +133,27 @@ public class Gene extends IntervalAndSubIntervals<Transcript> implements Seriali
 	}
 
 	/**
+	 * Remove all non-canonical transcripts
+	 */
+	public void removeNonCanonical() {
+		// Find canonical transcript (longest CDS)
+		ArrayList<Transcript> toDelete = new ArrayList<Transcript>();
+		Transcript canonical = null;
+		for (Transcript t : this) {
+			if ((canonical == null) || (canonical.cds().length() < t.cds().length())) canonical = t;
+			toDelete.add(t);
+		}
+
+		// Found canonical? => Remove all others
+		if (canonical != null) {
+			// Remove all other transcripts
+			toDelete.remove(canonical); // Do not remove canonical transcript.
+			for (Transcript t : toDelete)
+				remove(t);
+		}
+	}
+
+	/**
 	 * Get some details about the effect on this gene
 	 * @param seqChange
 	 * @return
