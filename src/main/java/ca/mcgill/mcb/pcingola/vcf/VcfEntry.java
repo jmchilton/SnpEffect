@@ -113,7 +113,7 @@ public class VcfEntry extends Marker implements Iterable<VcfGenotype> {
 	 * @param value : Can be null if it is a boolean field.
 	 */
 	public void addInfo(String name, String value) {
-		if ((value != null) && ((value.indexOf(' ') >= 0) || (value.indexOf(';') >= 0) || (value.indexOf('=') >= 0))) throw new RuntimeException("No white-space, semi-colons, or equals-signs are permitted in INFO field. Name:\""+name+"\" Value:\"" + value + "\"");
+		if ((value != null) && ((value.indexOf(' ') >= 0) || (value.indexOf(';') >= 0) || (value.indexOf('=') >= 0) || (value.indexOf('\t') >= 0) || (value.indexOf('\n') >= 0))) throw new RuntimeException("No white-space, semi-colons, or equals-signs are permitted in INFO field. Name:\""+name+"\" Value:\"" + value + "\"");
 
 		String addInfoStr = name + (value != null ? "=" + value : "");
 		addInfo(addInfoStr);

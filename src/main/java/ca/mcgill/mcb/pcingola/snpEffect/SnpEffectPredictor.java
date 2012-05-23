@@ -32,10 +32,10 @@ import ca.mcgill.mcb.pcingola.util.Gpr;
  * @author pcingola
  *
  */
-@SuppressWarnings("serial")
 public class SnpEffectPredictor implements Serializable {
+  private static final long serialVersionUID = 4519418862303325081L;
 
-	public static final int DEFAULT_UP_DOWN_LENGTH = 5000;
+  public static final int DEFAULT_UP_DOWN_LENGTH = 5000;
 
 	boolean useChromosomes = true;
 	int upDownStreamLength = DEFAULT_UP_DOWN_LENGTH;
