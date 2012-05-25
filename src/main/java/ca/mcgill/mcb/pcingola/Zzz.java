@@ -8,6 +8,7 @@ import ca.mcgill.mcb.pcingola.interval.Transcript;
 import ca.mcgill.mcb.pcingola.motif.MotifLogo;
 import ca.mcgill.mcb.pcingola.motif.Pwm;
 import ca.mcgill.mcb.pcingola.snpEffect.Config;
+import ca.mcgill.mcb.pcingola.stats.CountByType;
 import ca.mcgill.mcb.pcingola.util.Gpr;
 import ca.mcgill.mcb.pcingola.util.GprSeq;
 import ca.mcgill.mcb.pcingola.util.Timer;
@@ -22,15 +23,22 @@ public class Zzz {
 	public static int HTML_WIDTH = 20;
 	public static int HTML_HEIGHT = 100;
 
+	public static String[] MOTIFS = { "TCCTTAAC" // U12 consensus, from "Evolitionary Fates and Origins of U12 
+			, "TACTAAC" // From Yeast
+			, "CTAAC", "CTAAT", "CTCAC", "CTGAC", "CTGAT" // CTRAY Motif
+	};
+
+	int motifMatchedBases = 0, motifMatchedStr = 0;
 	String genomeVer;
 	String genomeFasta;
 	Config config;
 	Pwm pwmAcc, pwmDonor, pwmBranch;
 	StringBuilder out = new StringBuilder();
+	CountByType countMotif = new CountByType();
 
 	public static void main(String[] args) {
-		//Zzz zzz = new Zzz("testHg3763Chr20");
-		Zzz zzz = new Zzz("hg19");
+		Zzz zzz = new Zzz("testHg3763Chr20");
+		//		Zzz zzz = new Zzz("hg19");
 		zzz.run();
 	}
 
@@ -61,7 +69,12 @@ public class Zzz {
 			Timer.showStdErr("Reading chromosome: " + chrName);
 			run(chrName, chrSeq);
 		}
-		out.append("</pre>");
+		out.append("</pre>\n");
+
+		// Motif counts
+		out.append("Count Motifs:<br>\n<pre>\n");
+		out.append(countMotif);
+		out.append("</pre>\n");
 
 		// Show PWMs
 		MotifLogo mlDonor = new MotifLogo(pwmDonor);
@@ -145,18 +158,14 @@ public class Zzz {
 	 * Calculate and show score
 	 * @param branchStr
 	 */
-	String score(String branchStr) {
-		char bases[] = branchStr.toUpperCase().toCharArray();
+	String countMotifMatch(String branchStr) {
+		for (String motif : MOTIFS) {
+			int idx = branchStr.indexOf(motif);
+			if (idx >= 0) countMotif.inc(motif);
+		}
 
-		// Show Scores
-		double maxScore = 0;
-		StringBuilder sb = new StringBuilder();
-		for (int i = 0; i < bases.length; i++)
-			if (bases[i] == 'A') {
-				double score = score(bases, i, i + POLYPYRIMIDINE_TRACT_SIZE);
-				maxScore = Math.max(maxScore, score);
-				sb.append(String.format("%.1f\t", score));
-			}
+		motifMatchedBases += branchStr.length();
+		motifMatchedStr++;
 
 		return ""; // String.format("%.1f\t%s\n", maxScore, sb.toString());
 	}
@@ -201,7 +210,7 @@ public class Zzz {
 			out.append(line + "\n");
 		}
 
-		String scoreStr = score(branchStr);
+		String scoreStr = countMotifMatch(branchStr);
 		out.append(scoreStr);
 
 		// Update PWM
