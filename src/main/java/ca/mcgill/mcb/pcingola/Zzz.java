@@ -1,14 +1,14 @@
 package ca.mcgill.mcb.pcingola;
 
+import ca.mcgill.mcb.pcingola.genBank.Feature;
+import ca.mcgill.mcb.pcingola.genBank.GenBank;
+import ca.mcgill.mcb.pcingola.util.Gpr;
+
 public class Zzz {
 
 	public static void main(String[] args) {
-		String s = "Hello\n\tworld!";
-		String ss = s.replaceAll("\\n", "\\\\n");
-		ss = ss.replaceAll("\\t", "\\\\t");
-		ss = ss.replaceAll("\\r", "");
-		System.out.println(s);
-		System.out.println("--------------------------------------");
-		System.out.println(ss);
+		GenBank gb = new GenBank(Gpr.HOME + "/genes.gb");
+		for (Feature f : gb.getFeatures())
+			System.out.println(f);
 	}
 }

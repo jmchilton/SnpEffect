@@ -122,7 +122,7 @@ public abstract class SnpEffPredictorFactoryFeatures extends SnpEffPredictorFact
 	String chromoName(Feature f) {
 		if (f.getType() != Type.SOURCE) throw new RuntimeException("Cannot find chromosome name in a non-SOURCE feature");
 		String chrName = f.get("chromosome");
-		return chrName != null ? chrName : "chr1";
+		return chrName != null ? chrName : genome.getId();
 	}
 
 	@Override
@@ -155,30 +155,16 @@ public abstract class SnpEffPredictorFactoryFeatures extends SnpEffPredictorFact
 		return snpEffectPredictor;
 	}
 
-	//	/**
-	//	 * Set exon sequences
-	//	 * @param sequence
-	//	 */
-	//	protected void exonSequences(String sequence) {
-	//		for (Gene g : genome.getGenes())
-	//			for (Transcript t : g)
-	//				for (Exon e : t) {
-	//					if (e.getEnd() < sequence.length()) {
-	//						String seq = sequence.substring(e.getStart(), e.getEnd() + 1);
-	//						e.setSequence(seq);
-	//					} else throw new RuntimeException("WARNING: Exon outside sequence. Sequence length is " + sequence.length() + ", exon range is [ " + e.getStart() + " , " + e.getEnd() + " ]");
-	//				}
-	//	}
-
 	Gene findOrCreateGene(Feature f, Chromosome chr, boolean warn) {
 		int start = f.getStart() - inOffset;
 		int end = f.getEnd() - inOffset;
 
 		String geneId = geneId(f, start, end);
+		String geneName = geneName(f, start, end);
 
 		Gene gene = findGene(geneId);
 		if (gene == null) {
-			gene = new Gene(chr, start, end, f.isComplement() ? 1 : -1, geneId, geneId, "");
+			gene = new Gene(chr, start, end, f.isComplement() ? 1 : -1, geneId, geneName, "");
 			add(gene);
 			if (warn) System.err.println("WARNING: Gene '" + geneId + "' not found");
 		}
@@ -192,17 +178,29 @@ public abstract class SnpEffPredictorFactoryFeatures extends SnpEffPredictorFact
 	 * @return
 	 */
 	protected String geneId(Feature f, int start, int end) {
+		// Try 'locus'...
+		String geneId = f.get("locus_tag");
+		if (geneId != null) return geneId;
+
+		// Try 'db_xref'...
+		geneId = f.get("db_xref");
+		if (geneId != null) return geneId;
+
 		// Try 'gene'...
-		String geneId = f.get("gene");
+		geneId = f.get("gene");
 		if (geneId != null) return geneId;
 
-		// Try 'locus'...
-		geneId = f.get("locus_tag");
-		if (geneId != null) return geneId;
+		return "Gene_" + start + "_" + end;
+	}
+
+	protected String geneName(Feature f, int start, int end) {
+		// Try 'gene'...
+		String geneName = f.get("gene");
+		if (geneName != null) return geneName;
 
 		// Try 'locus'...
-		geneId = f.get("locus_tag");
-		if (geneId != null) return geneId;
+		geneName = f.get("locus_tag");
+		if (geneName != null) return geneName;
 
 		return "Gene_" + start + "_" + end;
 	}
