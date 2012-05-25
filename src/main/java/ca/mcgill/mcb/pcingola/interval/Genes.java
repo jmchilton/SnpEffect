@@ -13,8 +13,9 @@ import java.util.List;
  * 
  * @author pcingola
  */
-@SuppressWarnings("serial")
 public class Genes implements Iterable<Gene>, Serializable {
+
+	private static final long serialVersionUID = 9022385501946879197L;
 
 	public boolean debug = false;
 	Genome genome;
@@ -41,12 +42,12 @@ public class Genes implements Iterable<Gene>, Serializable {
 		HashMap<String, Marker> map = new HashMap<String, Marker>(); // Use a map in order to remove repeated splice sites (different transcripts may have the same exons)
 
 		// For each gene, transcript and exon
-		for( Gene gene : this ) {
-			for( Transcript tr : gene ) {
+		for (Gene gene : this) {
+			for (Transcript tr : gene) {
 				List<SpliceSite> slist = tr.createSpliceSites();
 
 				// Store all markers in hash
-				for( SpliceSite ss : slist ) {
+				for (SpliceSite ss : slist) {
 					String key = ss.getClass().getSimpleName() + " " + ss.getChromosomeName() + ":" + ss.getStart() + "-" + ss.getEnd() + "_" + ss.getId();
 					map.put(key, ss);
 				}
@@ -64,11 +65,11 @@ public class Genes implements Iterable<Gene>, Serializable {
 	 */
 	public List<Marker> createUpDownStream(int upDownLength) {
 		ArrayList<Marker> list = new ArrayList<Marker>();
-		if( upDownLength <= 0 ) return list;
+		if (upDownLength <= 0) return list;
 
 		// For each gene, transcript
-		for( Gene gene : this ) {
-			for( Transcript tr : gene ) {
+		for (Gene gene : this) {
+			for (Transcript tr : gene) {
 				tr.createUpDownStream(upDownLength);
 				list.add(tr.getUpstream());
 				list.add(tr.getDownstream());
@@ -91,10 +92,14 @@ public class Genes implements Iterable<Gene>, Serializable {
 		return genesById.values().iterator();
 	}
 
+	public int size() {
+		return genesById.size();
+	}
+
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
-		for( Gene gint : this )
+		for (Gene gint : this)
 			sb.append(gint + "\n");
 		return sb.toString();
 	}
