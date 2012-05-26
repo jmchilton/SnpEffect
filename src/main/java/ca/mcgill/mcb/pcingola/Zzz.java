@@ -15,7 +15,7 @@ import ca.mcgill.mcb.pcingola.util.Timer;
 
 public class Zzz {
 
-	public static int SIZE_SPLICE = 6;
+	public static int SIZE_SPLICE = 2;
 	public static int SIZE_BRANCH = 60;
 	public static int POLYPYRIMIDINE_TRACT_SIZE = 3;
 	public static boolean debug = false;
@@ -52,6 +52,22 @@ public class Zzz {
 		load();
 	}
 
+	/**
+	 * Calculate and show score
+	 * @param branchStr
+	 */
+	String countMotifMatch(String branchStr) {
+		for (String motif : MOTIFS) {
+			int idx = branchStr.indexOf(motif);
+			if (idx >= 0) countMotif.inc(motif);
+		}
+
+		motifMatchedBases += branchStr.length();
+		motifMatchedStr++;
+
+		return ""; // String.format("%.1f\t%s\n", maxScore, sb.toString());
+	}
+
 	void load() {
 		Timer.showStdErr("Loading");
 		config = new Config(genomeVer);
@@ -73,7 +89,12 @@ public class Zzz {
 
 		// Motif counts
 		out.append("Count Motifs:<br>\n<pre>\n");
-		out.append(countMotif);
+		out.append(countMotif + "\n");
+		out.append("Expected:\n");
+		for (String motif : MOTIFS) {
+			double expected = (motifMatchedBases - (motif.length() * motifMatchedStr)) * Math.pow(0.25, motif.length());
+			out.append(motif + "\t" + expected + "\n");
+		}
 		out.append("</pre>\n");
 
 		// Show PWMs
@@ -155,22 +176,6 @@ public class Zzz {
 	}
 
 	/**
-	 * Calculate and show score
-	 * @param branchStr
-	 */
-	String countMotifMatch(String branchStr) {
-		for (String motif : MOTIFS) {
-			int idx = branchStr.indexOf(motif);
-			if (idx >= 0) countMotif.inc(motif);
-		}
-
-		motifMatchedBases += branchStr.length();
-		motifMatchedStr++;
-
-		return ""; // String.format("%.1f\t%s\n", maxScore, sb.toString());
-	}
-
-	/**
 	 * Update PWM
 	 * @param tr
 	 * @param intronStart
@@ -183,14 +188,14 @@ public class Zzz {
 		int splAccStart = intronEnd - SIZE_SPLICE;
 		int splAccEnd = intronEnd + SIZE_SPLICE;
 		int splBranchStart = intronEnd - SIZE_BRANCH + 1;
-		int splBranchEnd = intronEnd;
+		int splBranchEnd = intronEnd - 2;
 
 		if (tr.isStrandMinus()) {
 			splDonorStart = intronEnd - SIZE_SPLICE;
 			splDonorEnd = intronEnd + SIZE_SPLICE;
 			splAccStart = intronStart - SIZE_SPLICE;
 			splAccEnd = intronStart + SIZE_SPLICE;
-			splBranchStart = intronStart;
+			splBranchStart = intronStart + 2;
 			splBranchEnd = intronStart + SIZE_BRANCH - 1;
 		}
 

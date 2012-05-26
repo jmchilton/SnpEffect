@@ -31,7 +31,7 @@ public class SnpEffPredictorFactoryGenesFile extends SnpEffPredictorFactory {
 		// Sanity check
 		if ((genome.getChromoFastaFiles().length > 0) && (genome.getChromosomeNames().length != genome.getChromoFastaFiles().length)) throw new RuntimeException("Number of chromosomes does not match number of fasta files (there must be one fasta files per chromosome)\n" + genome);
 
-		// Read gene intervals from a file
+		// Read gene annotations from a file
 		fileName = config.getBaseFileNameGenes() + ".txt";
 		System.out.println("Reading gene intervals file : '" + fileName + "'");
 		readGenesFile(); // Read gene info
