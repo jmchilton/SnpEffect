@@ -58,7 +58,7 @@ public class NmerCount implements Serializable {
 
 			@Override
 			public boolean execute(long key, int value) {
-				if( value > threshold ) counter.inc();
+				if (value > threshold) counter.inc();
 				return true;
 			}
 		});
@@ -76,7 +76,7 @@ public class NmerCount implements Serializable {
 
 			@Override
 			public boolean execute(long key, int value) {
-				if( value > counter.get() ) counter.set(value);
+				if (value > counter.get()) counter.set(value);
 				return true;
 			}
 		});
@@ -93,6 +93,10 @@ public class NmerCount implements Serializable {
 	}
 
 	public String toStringAll() {
+		return toStringAll(0);
+	}
+
+	public String toStringAll(final int minCount) {
 		final StringBuilder sb = new StringBuilder();
 		final Nmer nmer = new Nmer(nmerSize);
 		hash.forEachEntry(new TLongIntProcedure() {
@@ -100,7 +104,7 @@ public class NmerCount implements Serializable {
 			@Override
 			public boolean execute(long key, int value) {
 				nmer.setNmer(key);
-				sb.append(nmer + "\t" + value + "\n");
+				if (value >= minCount) sb.append(nmer + "\t" + value + "\n");
 				return true;
 			}
 		});
