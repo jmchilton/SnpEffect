@@ -28,7 +28,10 @@ public class RnaStackedFreeEnergy {
 	 * 		3'<== 5'
 	*/
 	double energy(char w, char x, char y, char z) {
-		return freeEnergy.get("" + w + x + y + z);
+		String key = "" + w + x + y + z;
+		Double d = freeEnergy.get(key);
+		if (d == null) throw new RuntimeException("Unkonw WXYZ : '" + key + "'");
+		return d;
 	}
 
 	/**

@@ -46,7 +46,16 @@ public class SpliceBranchAnalysis {
 
 		}
 
+		/**
+		 * Calculate the best free energy potition
+		 * 
+		 * @param intron
+		 * @param branchStr
+		 * @return
+		 */
 		public double bestFreeEergy(String intron, String branchStr) {
+			if ((intron.indexOf('N') >= 0) || (branchStr.indexOf('N') >= 0)) return 0;
+
 			// RWC
 			intron = GprSeq.reverseWc(intron).toUpperCase();
 
@@ -59,6 +68,7 @@ public class SpliceBranchAnalysis {
 				double dg = rnaFreeEnergy.energy(intron, branchSub);
 				dgStatsAll.sample((int) (dg * 10)); // Stats for all Delta_G
 
+				// Lowest energy?
 				if (dg < bestDg) {
 					bestDg = dg;
 					bestBranch = branchSub;
@@ -66,7 +76,6 @@ public class SpliceBranchAnalysis {
 			}
 
 			dgStatsBest.sample((int) (bestDg * 10)); // Stats for best Delta_G
-			Gpr.debug("===>\t" + intron + "\t" + bestBranch + "\t" + bestDg);
 			return 0.0;
 		}
 
@@ -149,19 +158,14 @@ public class SpliceBranchAnalysis {
 	}
 
 	public static boolean debug = false;
-	public static boolean test = true;
-
+	public static boolean test = false;
 	public static int SIZE_SPLICE = 9;
 	public static int SIZE_BRANCH = 60;
 	public static int POLYPYRIMIDINE_TRACT_SIZE = 3;
-
 	public static int BRANCH_ENERGY_LEN = 8;
-
 	public static int MIN_PWM_LEN = 5;
 	public static int MAX_PWM_LEN = 10;
-
 	public static double MIN_UPDATES_PERC = 0.0005; // Don't show if there are less than this number on the whole genome
-
 	public static int HTML_WIDTH = 20;
 	public static int HTML_HEIGHT = 100;
 
@@ -187,8 +191,8 @@ public class SpliceBranchAnalysis {
 	public static void main(String[] args) {
 
 		SpliceBranchAnalysis zzz = new SpliceBranchAnalysis(test ? "testHg3763Chr20" // 
-		// : "hg19"); 
-				: "GRCh37.66");
+				: "hg19");
+		//		: "GRCh37.66");
 
 		zzz.run();
 	}
