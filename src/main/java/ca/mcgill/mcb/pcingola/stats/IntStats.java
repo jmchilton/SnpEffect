@@ -33,7 +33,7 @@ public class IntStats implements Serializable {
 	}
 
 	public int getCount() {
-		if( needUpdate ) update();
+		if (needUpdate) update();
 		return statsProcedure.count;
 	}
 
@@ -42,7 +42,7 @@ public class IntStats implements Serializable {
 	}
 
 	public int getMax() {
-		if( needUpdate ) update();
+		if (needUpdate) update();
 		return statsProcedure.maxKey;
 	}
 
@@ -51,13 +51,13 @@ public class IntStats implements Serializable {
 	}
 
 	public int getMaxCount() {
-		if( needUpdate ) update();
+		if (needUpdate) update();
 		return statsProcedure.maxValue;
 	}
 
 	public double getMean() {
-		if( needUpdate ) update();
-		if( statsProcedure.count <= 0 ) return 0;
+		if (needUpdate) update();
+		if (statsProcedure.count <= 0) return 0;
 		return statsProcedure.sum / ((double) statsProcedure.count);
 	}
 
@@ -66,31 +66,50 @@ public class IntStats implements Serializable {
 	 * @return
 	 */
 	public double getMedian() {
-		if( needUpdate ) update();
+		return getQuantile(0.5);
+	}
+
+	public int getMin() {
+		if (needUpdate) update();
+		return statsProcedure.minKey;
+	}
+
+	public int getMinCount() {
+		if (needUpdate) update();
+		return statsProcedure.minValue;
+	}
+
+	/**
+	 * Get value at a given quantile
+	 * @param quantile
+	 * @return
+	 */
+	public double getQuantile(double quantile) {
+		if (needUpdate) update();
 
 		// Sort keys
 		int keys[] = counters.keys();
 		Arrays.sort(keys);
 
 		// Iterate over all sorted keys
-		int count = 0, median = 0, prevKey = 0, half = statsProcedure.count / 2;
+		int count = 0, median = 0, prevKey = 0, threshold = (int) (quantile * statsProcedure.count);
 		boolean isOdd = (statsProcedure.count % 2 == 1);
-		for( int i = 0; i < keys.length; i++ ) {
+		for (int i = 0; i < keys.length; i++) {
 			int key = keys[i];
 			int countKey = counters.get(key);
 			count += countKey;
 			median = key;
 
-			if( count == half ) {
-				if( isOdd ) return key;
+			if (count == threshold) {
+				if (isOdd) return key;
 				else {
 					int nextKey = keys[i + 1];
 					return (key + nextKey) / 2.0;
 				}
 			}
 
-			if( count > half ) {
-				if( countKey > 1 ) return key;
+			if (count > threshold) {
+				if (countKey > 1) return key;
 				return (key + prevKey) / 2.0;
 			}
 			prevKey = key;
@@ -98,27 +117,17 @@ public class IntStats implements Serializable {
 		return median;
 	}
 
-	public int getMin() {
-		if( needUpdate ) update();
-		return statsProcedure.minKey;
-	}
-
-	public int getMinCount() {
-		if( needUpdate ) update();
-		return statsProcedure.minValue;
-	}
-
 	/**
 	 * Calculate the standard deviation
 	 * @return
 	 */
 	public double getStd() {
-		if( needUpdate ) update();
+		if (needUpdate) update();
 		return Math.sqrt(statsProcedure.variance());
 	}
 
 	public long getSum() {
-		if( needUpdate ) update();
+		if (needUpdate) update();
 		return statsProcedure.sum;
 	}
 
@@ -127,7 +136,7 @@ public class IntStats implements Serializable {
 	 * @return
 	 */
 	public boolean isValidData() {
-		if( needUpdate ) update();
+		if (needUpdate) update();
 		return statsProcedure.minKey <= statsProcedure.maxKey; // If this doesn't hold, it means that there was no data at all
 	}
 
@@ -171,7 +180,7 @@ public class IntStats implements Serializable {
 		Arrays.sort(keys);
 
 		// Iterate over all sorted keys
-		for( int i = 0; i < keys.length; i++ ) {
+		for (int i = 0; i < keys.length; i++) {
 			int key = keys[i];
 			int count = counters.get(key);
 			countsb.append(count + "\t");
@@ -197,12 +206,12 @@ public class IntStats implements Serializable {
 		int values[] = counters.keys();
 		Arrays.sort(values);
 		int counts[] = new int[values.length];
-		for( int i = 0; i < values.length; i++ )
+		for (int i = 0; i < values.length; i++)
 			counts[i] = counters.get(values[i]);
 
 		// Create histogram
 		GooglePlotInt ggplot;
-		if( barChart ) {
+		if (barChart) {
 			GoogleHistogram gbar = new GoogleHistogram(values, counts, title, xAxisLabel, "Count");
 			gbar.setMaxBins(maxBins);
 			ggplot = gbar;
@@ -227,7 +236,7 @@ public class IntStats implements Serializable {
 		Arrays.sort(keys);
 
 		// Iterate over all sorted keys
-		for( int i = 0; i < keys.length; i++ ) {
+		for (int i = 0; i < keys.length; i++) {
 			int key = keys[i];
 			keysb.append(key + "\t");
 		}
@@ -271,12 +280,12 @@ class StatsProcedure implements TIntIntProcedure, Serializable {
 		// Keep in mind that 'value' is the number of times that 'key' appears
 
 		// Key stats
-		if( key < minKey ) minKey = key;
-		if( key > maxKey ) maxKey = key;
+		if (key < minKey) minKey = key;
+		if (key > maxKey) maxKey = key;
 
 		// Value stats
-		if( value < minValue ) minValue = value;
-		if( value > maxValue ) maxValue = value;
+		if (value < minValue) minValue = value;
+		if (value > maxValue) maxValue = value;
 
 		sum += key * value;
 		count += value;
@@ -289,14 +298,14 @@ class StatsProcedure implements TIntIntProcedure, Serializable {
 	}
 
 	double mean() {
-		if( count <= 0 ) mean = 0;
+		if (count <= 0) mean = 0;
 		else mean = sum / ((double) count);
 		return mean;
 	}
 
 	double variance() {
-		if( maxKey == minKey ) return 0;
-		if( count <= 0 ) return 0;
+		if (maxKey == minKey) return 0;
+		if (count <= 0) return 0;
 		return s2sum / (count - 1);
 	}
 }

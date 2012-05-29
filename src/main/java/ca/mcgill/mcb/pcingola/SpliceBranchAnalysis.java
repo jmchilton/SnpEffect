@@ -27,7 +27,7 @@ public class SpliceBranchAnalysis {
 	 */
 	class PwmSet {
 		String name;
-		Pwm pwmAcc, pwmDonor;
+		Pwm pwmAcc, pwmDonor, pwmBestEnergy;
 		CountByType countMotif;
 		IntStats lenStats;
 		int motifMatchedBases = 0, motifMatchedStr = 0;
@@ -38,6 +38,7 @@ public class SpliceBranchAnalysis {
 			this.name = name;
 			pwmAcc = new Pwm(2 * SIZE_SPLICE + 1);
 			pwmDonor = new Pwm(2 * SIZE_SPLICE + 1);
+			pwmBestEnergy = new Pwm(SIZE_SPLICE + 1);
 			lenStats = new IntStats();
 			countMotif = new CountByType();
 
@@ -60,23 +61,37 @@ public class SpliceBranchAnalysis {
 			intron = GprSeq.reverseWc(intron).toUpperCase();
 
 			// Energy on each subsequence of the branch site
-			double bestDg = 0;
-			String bestBranch = "";
+			int bestDg = 0, bestIdx = 0;
+			double bestPpt = 0;
+			String bestDgSeq = "";
 			int max = branchStr.length() - intron.length();
 			for (int i = 0; i < max; i++) {
 				String branchSub = branchStr.substring(i, i + intron.length());
-				double dg = rnaFreeEnergy.energy(intron, branchSub);
-				dgStatsAll.sample((int) (dg * 10)); // Stats for all Delta_G
+				int dg = rnaFreeEnergy.energyInt(intron, branchSub);
+				dgStatsAll.sample(dg); // Stats for all Delta_G
 
 				// Lowest energy?
-				if (dg < bestDg) {
-					bestDg = dg;
-					bestBranch = branchSub;
+				if (dg <= bestDg) {
+					double ppt = polyPyrimidineScore(branchStr, i + intron.length());
+
+					// Better PPT score?
+					if (ppt > bestPpt) {
+						bestDg = dg;
+						bestDgSeq = branchSub;
+						bestIdx = branchStr.length() - i;
+						bestPpt = ppt;
+					}
 				}
 			}
 
-			dgStatsBest.sample((int) (bestDg * 10)); // Stats for best Delta_G
-			return 0.0;
+			// Filter what we show
+			if ((bestDg < energyThreshold) && (bestPpt > 0.7)) {
+				Gpr.debug("Energy :  " + bestDg + "\tIntronSeq: " + intron + "\tBestSeq: " + bestDgSeq + "\tPPT score: " + bestPpt + "\tIdx: " + bestIdx);
+				pwmBestEnergy.updateCounts(bestDgSeq);
+			}
+			dgStatsBest.sample(bestDg); // Stats for best Delta_G
+
+			return bestDg;
 		}
 
 		/**
@@ -95,6 +110,33 @@ public class SpliceBranchAnalysis {
 
 		void len(int len) {
 			lenStats.sample(len);
+		}
+
+		/**
+		 * Calculate Number of Polypyrimidines in a region
+		 * @param bases
+		 * @param start
+		 * @param end
+		 * @return
+		 */
+		double polyPyrimidineScore(String branchStr, int start) {
+			int score = 0, count = 0;
+
+			if (start < 0) start = 0;
+			int end = start + POLYPYRIMIDINE_TRACT_SIZE;
+
+			char bases[] = branchStr.toCharArray();
+			for (int i = start; (i <= end) && (i < bases.length); i++) {
+				switch (bases[i]) {
+				case 'C':
+				case 'T':
+					score++;
+					break;
+				}
+				count++;
+			}
+
+			return score / ((double) count);
 		}
 
 		@Override
@@ -135,14 +177,20 @@ public class SpliceBranchAnalysis {
 			out.append(mlAcc.toStringHtml(HTML_WIDTH, HTML_HEIGHT));
 			out.append("\t</td>\n");
 
+			// Branch (best energy) motif
+			MotifLogo mlBbe = new MotifLogo(pwmBestEnergy);
 			out.append("\t<td>\n");
-			out.append(lenStats.toString());
-			out.append("<img src=\"" + dgStatsAll.toStringPlot("Free energy all", "Free Energy", true) + "\">");
+			out.append(mlBbe.toStringHtml(HTML_WIDTH, HTML_HEIGHT));
 			out.append("\t</td>\n");
 
-			out.append("\t<td>\n");
-			out.append(lenStats.toString());
-			out.append("<img src=\"" + dgStatsBest.toStringPlot("Free energy best", "Free Energy", true) + "\">");
+			out.append("\t<td nowrap>\n");
+			out.append(dgStatsAll.toString());
+			out.append("<br><img src=\"" + dgStatsAll.toStringPlot("Free energy all", "Free Energy", true) + "\">");
+			out.append("\t</td>\n");
+
+			out.append("\t<td nowrap>\n");
+			out.append(dgStatsBest.toString());
+			out.append("<br><img src=\"" + dgStatsBest.toStringPlot("Free energy best", "Free Energy", true) + "\">");
 			out.append("\t</td>\n");
 
 			out.append("</tr>\n");
@@ -157,17 +205,21 @@ public class SpliceBranchAnalysis {
 		}
 	}
 
+	public static final String DELTA_G_FILE = Gpr.HOME + "/workspace/SnpEff/data/stack.deltaG";
+
 	public static boolean debug = false;
 	public static boolean test = false;
 	public static int SIZE_SPLICE = 9;
 	public static int SIZE_BRANCH = 60;
-	public static int POLYPYRIMIDINE_TRACT_SIZE = 3;
+	public static int POLYPYRIMIDINE_TRACT_SIZE = 15;
 	public static int BRANCH_ENERGY_LEN = 8;
 	public static int MIN_PWM_LEN = 5;
 	public static int MAX_PWM_LEN = 10;
 	public static double MIN_UPDATES_PERC = 0.0005; // Don't show if there are less than this number on the whole genome
 	public static int HTML_WIDTH = 20;
 	public static int HTML_HEIGHT = 100;
+	public static int ENERGY_DISTRIBUTION_ITERATIONS = 10 * 1000 * 1000;
+	public static final double ENERGY_THRESHOLD_QUANTILE = 0.05;
 
 	public static String[] MOTIFS = { "TCCTTAAC", "TCCTTGAC", "TCCTTAAT", "TCCTTGAT" // U12 consensus, from "Evolutionary Fates and Origins of U12 
 			, "TACTAAC" // From Yeast
@@ -177,6 +229,7 @@ public class SpliceBranchAnalysis {
 	public static String[] DONOR_LONG_KEYS = { "ATATCCT", "GTATCCT" };
 
 	int countIntrons = 0;
+	int energyThreshold = 0;
 	String genomeVer;
 	String genomeFasta;
 	StringBuilder out = new StringBuilder();
@@ -189,12 +242,11 @@ public class SpliceBranchAnalysis {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-
-		SpliceBranchAnalysis zzz = new SpliceBranchAnalysis(test ? "testHg3763Chr20" // 
+		SpliceBranchAnalysis splBr = new SpliceBranchAnalysis(test ? "testHg3763Chr20" // 
 				: "hg19");
 		//		: "GRCh37.66");
 
-		zzz.run();
+		splBr.run();
 	}
 
 	public SpliceBranchAnalysis(String genomeVer) {
@@ -202,6 +254,19 @@ public class SpliceBranchAnalysis {
 		genomeFasta = Gpr.HOME + "/snpEff/data/genomes/" + genomeVer + ".fa.gz";
 		pwms = new HashMap<String, PwmSet>();
 		load();
+	}
+
+	/**
+	 * Calculate empirical values for energy and select a threshold
+	 * @param quantile
+	 * @return
+	 */
+	int energyThreshold(double quantile) {
+		Timer.showStdErr("Energy  statistics");
+		IntStats distr = rnaFreeEnergy.empiricalDistribution(BRANCH_ENERGY_LEN, ENERGY_DISTRIBUTION_ITERATIONS);
+		int th = (int) distr.getQuantile(quantile);
+		Timer.showStdErr("Done. Quantile: " + quantile + "\tThreshold = " + th);
+		return th;
 	}
 
 	PwmSet getPwmSet(String key) {
@@ -222,7 +287,7 @@ public class SpliceBranchAnalysis {
 		config = new Config(genomeVer);
 		config.loadSnpEffectPredictor();
 
-		rnaFreeEnergy = new RnaStackedFreeEnergy(Gpr.HOME + "/workspace/SnpEff/data/stack.deltaG");
+		rnaFreeEnergy = new RnaStackedFreeEnergy(DELTA_G_FILE);
 
 		Timer.showStdErr("done");
 	}
@@ -231,6 +296,9 @@ public class SpliceBranchAnalysis {
 	 * Run algorithms
 	 */
 	void run() {
+		// Sample energy distribution
+		energyThreshold = energyThreshold(ENERGY_THRESHOLD_QUANTILE / SIZE_BRANCH);
+
 		out.append("<pre>\n");
 
 		// Iterate over all chromosomes
@@ -256,7 +324,7 @@ public class SpliceBranchAnalysis {
 		out.append("</table>\n");
 
 		System.out.println(out);
-		Gpr.toFile(Gpr.HOME + "/zzz.html", out);
+		Gpr.toFile(Gpr.HOME + "/splice_sites/zzz.html", out);
 	}
 
 	/**
@@ -288,38 +356,6 @@ public class SpliceBranchAnalysis {
 		}
 
 		Timer.showStdErr("Chromo: " + chrName + "\tGenes: " + config.getGenome().getGenes().size() + "\tExons: " + countEx);
-	}
-
-	/**
-	 * Calculate Number of Polypyrimidines in a region
-	 * @param bases
-	 * @param start
-	 * @param end
-	 * @return
-	 */
-	double score(char bases[], int start, int end) {
-		int score = 0, count = 0;
-		if (start < 0) start = 0;
-		for (int i = start; (i <= end) && (i < bases.length); i++) {
-			switch (bases[i]) {
-			case 'A':
-			case 'G':
-				score--;
-				break;
-
-			case 'C':
-			case 'T':
-				score++;
-				break;
-
-			default:
-				throw new RuntimeException("Unknown base '" + bases[i] + "'");
-			}
-			count++;
-		}
-
-		if (count < POLYPYRIMIDINE_TRACT_SIZE) return 0;
-		return score / ((double) count);
 	}
 
 	/**

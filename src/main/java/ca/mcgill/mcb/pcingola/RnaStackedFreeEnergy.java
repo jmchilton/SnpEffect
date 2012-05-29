@@ -1,8 +1,11 @@
 package ca.mcgill.mcb.pcingola;
 
 import java.util.HashMap;
+import java.util.Random;
 
+import ca.mcgill.mcb.pcingola.stats.IntStats;
 import ca.mcgill.mcb.pcingola.util.Gpr;
+import ca.mcgill.mcb.pcingola.util.GprSeq;
 
 /**
  * Simple free energy calculation from stacked RNA constructs.
@@ -11,6 +14,8 @@ import ca.mcgill.mcb.pcingola.util.Gpr;
  */
 public class RnaStackedFreeEnergy {
 
+	public static final int TO_INT = 1000;
+
 	static String BASES[] = { "A", "C", "G", "U" };
 
 	HashMap<String, Double> freeEnergy;
@@ -18,6 +23,36 @@ public class RnaStackedFreeEnergy {
 	public RnaStackedFreeEnergy(String detlaGfile) {
 		freeEnergy = new HashMap<String, Double>();
 		load(detlaGfile);
+	}
+
+	/**
+	 * Calculate an empirical distribution
+	 * @param size
+	 * @param iterations
+	 * @return
+	 */
+	public IntStats empiricalDistribution(int size, int iterations) {
+		IntStats distribution = new IntStats();
+
+		Random random = new Random();
+		char bases1[] = new char[size];
+		char bases2[] = new char[size];
+
+		for (int i = 0; i < iterations; i++) {
+			// Create random sequences
+			for (int j = 0; j < bases1.length; j++) {
+				bases1[j] = GprSeq.randBase(random);
+				bases2[j] = GprSeq.randBase(random);
+			}
+
+			String seq1 = new String(bases1);
+			String seq2 = new String(bases2);
+
+			int energyInt = energyInt(seq1, seq2); // Get energy as an integer
+			distribution.sample(energyInt); // Sample distrbiution
+		}
+
+		return distribution;
 	}
 
 	/** 
@@ -57,6 +92,16 @@ public class RnaStackedFreeEnergy {
 			energy += energy(rnaBases1[i], rnaBases1[i + 1], rnaBases2[i + 1], rnaBases2[i]);
 
 		return energy;
+	}
+
+	/**
+	 * Return energy as an integer
+	 * @param rna1
+	 * @param rna2
+	 * @return
+	 */
+	public int energyInt(String rna1, String rna2) {
+		return (int) (energy(rna1, rna2) * TO_INT);
 	}
 
 	/**
