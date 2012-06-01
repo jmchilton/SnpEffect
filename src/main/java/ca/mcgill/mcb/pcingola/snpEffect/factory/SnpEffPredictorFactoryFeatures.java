@@ -76,7 +76,7 @@ public abstract class SnpEffPredictorFactoryFeatures extends SnpEffPredictorFact
 				Gene gene = findOrCreateGene(f, chromosome, false); // Find or create gene
 
 				// Add transcript
-				Transcript tr = new Transcript(gene, start, end, f.isComplement() ? 1 : -1, trId);
+				Transcript tr = new Transcript(gene, start, end, f.isComplement() ? -1 : 1, trId);
 				add(tr);
 			}
 		}
@@ -101,14 +101,14 @@ public abstract class SnpEffPredictorFactoryFeatures extends SnpEffPredictorFact
 					// Not found? => Create gene and transcript
 					Gene gene = findOrCreateGene(f, chromosome, false); // Find or create gene
 					trId = "Tr_" + start + "_" + end;
-					tr = new Transcript(gene, start, end, f.isComplement() ? 1 : -1, trId);
+					tr = new Transcript(gene, start, end, f.isComplement() ? -1 : 1, trId);
 					add(tr);
 				}
 
 				// Mark transcript as protein coding
 				if (f.get("translation") != null) tr.setProteinCoding(true);
 
-				Cds cds = new Cds(tr, f.getStart() - inOffset, f.getEnd() - inOffset, f.isComplement() ? 1 : -1, "CDS_" + trId);
+				Cds cds = new Cds(tr, f.getStart() - inOffset, f.getEnd() - inOffset, f.isComplement() ? -1 : 1, "CDS_" + trId);
 				add(cds);
 			}
 		}
@@ -164,7 +164,7 @@ public abstract class SnpEffPredictorFactoryFeatures extends SnpEffPredictorFact
 
 		Gene gene = findGene(geneId);
 		if (gene == null) {
-			gene = new Gene(chr, start, end, f.isComplement() ? 1 : -1, geneId, geneName, "");
+			gene = new Gene(chr, start, end, f.isComplement() ? -1 : 1, geneId, geneName, "");
 			add(gene);
 			if (warn) System.err.println("WARNING: Gene '" + geneId + "' not found");
 		}
