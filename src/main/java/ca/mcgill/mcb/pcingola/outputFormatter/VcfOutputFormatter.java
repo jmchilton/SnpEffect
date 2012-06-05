@@ -99,6 +99,10 @@ public class VcfOutputFormatter extends OutputFormatter {
 				} else if (changeEffect.isRegulation()) {
 					Regulation reg = (Regulation) changeEffect.getMarker();
 					effBuff.append("|" + reg.getCellType() + "||");
+				} else if (changeEffect.isCustom()) {
+					Marker m = changeEffect.getMarker();
+					if (m != null) effBuff.append("|" + m.getId() + "||");
+					else effBuff.append("|||");
 				} else effBuff.append("|||");
 
 				// Add transcript info
