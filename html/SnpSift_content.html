@@ -66,8 +66,21 @@ rs71262673</pre>
 					<li> <b>Multiple value</b> info fields (comma separated) can be accessed using an index. E.g. If the INFO field has "CI95=0.04167,0.5417" you can use an expression such as 
 						<pre> "( CI95[0] > 0.1 ) & (CI95[1] <= 0.3)" </pre>
 
-						You may use an asterisk to represent 'ANY' variable
+					<li> <b>Multiple indexes</b> You may test multiple indexed fields using 'ANY' or 'ALL' as index. In the examples we assume the INFO field has "CI95=0.04167,0.5417" <p>
+						<b>ANY</b> or <b>*</b>: If you use 'ANY' as index, the expression will be true if any field satisfies the expression.<br>
+						So, for instance, the following expresssions
+						<pre> "( CI95[ANY] > 0.1 )" </pre>
+						or
 						<pre> "( CI95[*] > 0.1 )" </pre>
+						are equivalent to (in this case, there are only two values in the array)
+						<pre> "( CI95[0] > 0.1 ) | ( CI95[1] > 0.1 )" </pre>
+						<p>
+						<b>ALL</b> or <b>?</b>: If you use 'ALL' as index, the expression will be true if all field satisfy the expression.<br>
+						So, for instance, the following expresssions
+						<pre> "( CI95[ALL] > 0.1 )" </pre>
+						<pre> "( CI95[?] > 0.1 )" </pre>
+						are equivalent to (in this case, there are only two values in the array)
+						<pre> "( CI95[0] > 0.1 ) & ( CI95[1] > 0.1 )" </pre>
 
 					<li> <b>Genotype fields</b> are accessed using an index (sample number) followed by a variable name. E.g. If the genotypes are "GT:PL:GQ    1/1:255,66,0:63    0/1:245,0,255:99"
 						You can write something like
