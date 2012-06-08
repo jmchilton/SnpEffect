@@ -295,6 +295,18 @@ public class TestCasesVcf extends TestCase {
 		Assert.assertEquals(1, numLines);
 	}
 
+	/**
+	 * Header should NOT have a trailing '\n'
+	 */
+	public void test_12_readHeader_NL() {
+		String file = "./tests/test.chr1.1line.vcf";
+
+		VcfFileIterator vcfFile = new VcfFileIterator(file);
+		String header = vcfFile.readHeader();
+
+		Assert.assertEquals(false, header.charAt(header.length() - 1) == '\n');
+	}
+
 	public void test_13_chrOri() {
 		String file = "./tests/test.chr1.1line.vcf";
 

@@ -117,9 +117,6 @@ public class VcfFileIterator extends MarkerFileIterator<VcfEntry> implements Par
 
 		// Not added yet? => Add to the end
 		if (!added) header.append(newHeaderLine + "\n"); // Add new header right before title line
-
-		// Delete last character, if it's a '\n'
-		if (header.charAt(header.length() - 1) == '\n') header.deleteCharAt(header.length() - 1);
 	}
 
 	/**
@@ -127,6 +124,10 @@ public class VcfFileIterator extends MarkerFileIterator<VcfEntry> implements Par
 	 * @return
 	 */
 	public String getHeader() {
+		// Delete last character, if it's a '\n'
+		while (header.charAt(header.length() - 1) == '\n')
+			header.deleteCharAt(header.length() - 1);
+
 		return header.toString();
 	}
 
