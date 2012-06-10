@@ -78,5 +78,5 @@ close R;
 $os = `uname`;
 $show = "eog"; 
 if( $os =~ "Darwin" )	{ $show = "open"; }
-`$show $pngFile`;
+`$show $pngFile &`;
 

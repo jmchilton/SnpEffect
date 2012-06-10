@@ -38,7 +38,7 @@ close TXT;
 open R, "| R --vanilla --slave " or die "Cannot open R program\n";
 print R <<EOF;
 
-histDens <- function( x, title, q=1.0, breaks = 30 ) {
+histDens <- function( x, title, q=1.0, breaks = 50 ) {
 	# Show only this part of the data
 	xmin <- quantile( x, 1-q )
 	xmax <- quantile( x, q )
@@ -84,5 +84,5 @@ close R;
 $os = `uname`;
 $show = "eog"; 
 if( $os =~ "Darwin" )	{ $show = "open"; }
-`$show $pngFile`;
+`$show $pngFile &`;
 

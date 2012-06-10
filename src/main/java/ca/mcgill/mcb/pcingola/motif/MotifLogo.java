@@ -3,6 +3,8 @@ package ca.mcgill.mcb.pcingola.motif;
 import java.util.ArrayList;
 import java.util.Collections;
 
+import ca.mcgill.mcb.pcingola.util.Gpr;
+
 /**
  * Store a base, size and compare them
  * @author pcingola
@@ -20,8 +22,8 @@ class BaseSize implements Comparable<BaseSize> {
 
 	@Override
 	public int compareTo(BaseSize baseScore) {
-		if( size < baseScore.size ) return -1;
-		if( size > baseScore.size ) return 1;
+		if (size < baseScore.size) return -1;
+		if (size > baseScore.size) return 1;
 		return 0;
 	}
 }
@@ -84,12 +86,12 @@ public class MotifLogo {
 
 		// Observed entropy
 		double sObs = 0;
-		for( char base : Pwm.BASES ) {
+		for (char base : Pwm.BASES) {
 			double p = baseFrecuency(base, position);
 			sObs += -p * log2(p);
 		}
 
-		return sMax - sObs;
+		return (sMax - sObs) / sMax;
 	}
 
 	/**
@@ -99,7 +101,7 @@ public class MotifLogo {
 	 */
 	int sumCount(int position) {
 		int total = 0;
-		for( char b : Pwm.BASES )
+		for (char b : Pwm.BASES)
 			total += pwm.getCount(b, position);
 		return total;
 	}
@@ -113,14 +115,17 @@ public class MotifLogo {
 	public String toStringHtml(int width, int maxHeight) {
 		StringBuffer sb = new StringBuffer();
 		sb.append("<table border=0>\n\t</tr>\n");
-		for( int pos = 0; pos < pwm.size(); pos++ ) {
+		for (int pos = 0; pos < pwm.size(); pos++) {
 			// Sequence conservation
 			double seqConserv = seqConserv(pos);
 
 			// Calculate all base sizes and sort by size
 			ArrayList<BaseSize> bases = new ArrayList<BaseSize>();
-			for( char base : Pwm.BASES ) {
-				double size = seqConserv * baseFrecuency(base, pos);
+			for (char base : Pwm.BASES) {
+				double p = baseFrecuency(base, pos);
+				double size = seqConserv * p;
+				Gpr.debug("P:" + p + "\tSize: " + size + "\tSeqCons: " + seqConserv);
+
 				BaseSize baseSize = new BaseSize(base, size);
 				bases.add(baseSize);
 			}
@@ -130,10 +135,11 @@ public class MotifLogo {
 
 			// Show
 			sb.append("\t\t<td valign=bottom>\n");
-			for( BaseSize baseSize : bases ) {
+			for (BaseSize baseSize : bases) {
 				int height = (int) (maxHeight * baseSize.size);
 				sb.append("\t\t\t<img border=0 src=\"" + baseSize.base + ".png\" width=" + width + " height=" + height + "\"><br>\n");
 			}
+			sb.append("\t\t" + pos + "<br>\n");
 			sb.append("\t\t</td>\n");
 		}
 		sb.append("\t</tr>\n</table>\n");

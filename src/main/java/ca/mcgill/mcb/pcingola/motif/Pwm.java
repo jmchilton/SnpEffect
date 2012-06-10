@@ -10,6 +10,7 @@ public class Pwm {
 	public static final char BASES[] = { 'A', 'C', 'G', 'T' };
 	int countMatrix[][]; // Keep counts for each base and position: countMatrix[base][position]
 	int length;
+	int totalCount;
 
 	public Pwm(int length) {
 		this.length = length;
@@ -22,21 +23,21 @@ public class Pwm {
 	 * @return
 	 */
 	int base2int(char base) {
-		switch(base) {
-			case 'a':
-			case 'A':
-				return 0;
-			case 'c':
-			case 'C':
-				return 1;
-			case 'g':
-			case 'G':
-				return 2;
-			case 't':
-			case 'T':
-			case 'u':
-			case 'U':
-				return 3;
+		switch (base) {
+		case 'a':
+		case 'A':
+			return 0;
+		case 'c':
+		case 'C':
+			return 1;
+		case 'g':
+		case 'G':
+			return 2;
+		case 't':
+		case 'T':
+		case 'u':
+		case 'U':
+			return 3;
 		}
 
 		return -1;
@@ -52,6 +53,10 @@ public class Pwm {
 		return countMatrix[base2int(base)][position];
 	}
 
+	public int getTotalCount() {
+		return totalCount;
+	}
+
 	/**
 	 * Matrix size
 	 * @return
@@ -63,18 +68,18 @@ public class Pwm {
 	@Override
 	public String toString() {
 		StringBuffer sb = new StringBuffer();
-		for( int b = 0; b < BASES.length; b++ ) {
+		for (int b = 0; b < BASES.length; b++) {
 			sb.append(BASES[b] + "\t");
-			for( int i = 0; i < countMatrix[b].length; i++ )
+			for (int i = 0; i < countMatrix[b].length; i++)
 				sb.append(countMatrix[b][i] + "\t");
 			sb.append("\n");
 		}
 
 		sb.append("Max:\t");
-		for( int i = 0; i < countMatrix[0].length; i++ ) {
+		for (int i = 0; i < countMatrix[0].length; i++) {
 			int max = 0, maxb = 0;
-			for( int b = 0; b < BASES.length; b++ ) {
-				if( max < countMatrix[b][i] ) {
+			for (int b = 0; b < BASES.length; b++) {
+				if (max < countMatrix[b][i]) {
 					max = countMatrix[b][i];
 					maxb = b;
 				}
@@ -95,11 +100,12 @@ public class Pwm {
 	 * @param dna
 	 */
 	public void updateCounts(String dna, int inc) {
+		totalCount += inc;
 		char bases[] = dna.toCharArray();
 
-		for( int i = 0; i < bases.length; i++ ) {
+		for (int i = 0; i < bases.length; i++) {
 			int code = base2int(bases[i]);
-			if( code >= 0 ) countMatrix[code][i] += inc;
+			if (code >= 0) countMatrix[code][i] += inc;
 		}
 	}
 }

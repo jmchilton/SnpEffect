@@ -35,6 +35,14 @@ public class SeqChange extends Marker {
 	double score = Double.NaN; // Score (e.g. BED files)
 	int coverage; // Number of reads covering the position (negative means 'not available')
 
+	public SeqChange(Marker parent, int start, int end, int strand, String id) {
+		super(parent, start, end, strand, id);
+		reference = change = "";
+		changeType = ChangeType.Interval;
+		changeOptions = new String[1];
+		changeOptions[0] = "";
+	}
+
 	/**
 	 * This constructor is used when we only have interval data (e.g. when reading a BED file)
 	 * @param parent

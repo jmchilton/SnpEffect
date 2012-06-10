@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 #-------------------------------------------------------------------------------
 #
-# Plot a QQ plot (using R) 
+# Plot (using R) 
 # Data is feed as a 1 column of numbers 
 #
 # Note: Any line that does not match a numeric regular expression, is filtered out).
@@ -14,7 +14,7 @@
 #-------------------------------------------------------------------------------
 
 # Parse command line option (file base name)
-$base = 'QQ-plot';
+$base = 'plot';
 if( $ARGV[0] ne '' )	{ $base = $ARGV[0]; }
 
 $pngFile = "$base.png";
@@ -32,36 +32,29 @@ for( $ln = 0 ; $l = <STDIN> ; ) {
 close TXT;
 
 #---
-# Create an R program, save QQ-plot as PNG image
+# Create an R program, save plot as PNG image
 #---
 
 open R, "| R --vanilla --slave " or die "Cannot open R program\n";
 print R <<EOF;
 
-qqplot <- function( x, title ) {
-	keep <- (x > 0) & (x <= 1) & ( ! is.na(x) );
-	x <- x[keep]
-	s <- sort(x);
-	ly <- -log10(s);
+plotChart <- function( x, title ) {
+    plot(x)
 
-	n <- length(s);
-	lx <- -log10( (1:n) / (n+1) )
-	
-	# Show auto range
-	#par( mfrow=c(2,1) );
-	#plot( lx, ly, main=title, xlab="-Log[ rank / (N+1) ]", ylab="-Log[ p ]" );
-	#abline( 0 , 1 , col='red');
+    # Mean & median calculated over the whola data
+    abline( h=mean(x), col='blue', lty=2, lwd=2);
+    abline( h=median(x), col='green', lty=2, lwd=2);
 
-	# Show full range in both plots
-	range <- c(0 , max(lx, ly) );
-	plot( lx, ly, xlim=range, ylim=range, main=title, xlab="-Log[ rank / (N+1) ]", ylab="-Log[ p ]" );
-	abline( 0 , 1 , col='red');
+	legend("topright",c("Mean","Median"),lty=c(1,1),col=c("blue","green"))
+
 }
 
 png('$pngFile', width = 1024, height = 1024);
 
-data <- read.csv("$txtFile", sep='\t', header = TRUE);
-qqplot( data\$x, "$base" );
+data <- read.csv("$txtFile", sep='\\t', header = TRUE);
+x <- data\$x
+plotChart( x, "All data" );
+print( summary( x ) )
 
 dev.off();
 quit( save='no' )
