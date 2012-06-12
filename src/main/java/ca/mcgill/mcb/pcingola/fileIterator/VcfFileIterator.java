@@ -120,7 +120,7 @@ public class VcfFileIterator extends MarkerFileIterator<VcfEntry> implements Par
 	}
 
 	/**
-	 * Get heade information
+	 * Get header information
 	 * @return
 	 */
 	public String getHeader() {
