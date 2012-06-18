@@ -124,8 +124,8 @@ public class VcfFileIterator extends MarkerFileIterator<VcfEntry> implements Par
 	 * @return
 	 */
 	public String getHeader() {
-		// Delete last character, if it's a '\n'
-		while (header.charAt(header.length() - 1) == '\n')
+		// Delete last character, if it's a '\n' or a '\r'
+		for (char c = header.charAt(header.length() - 1); (c == '\n') || (c == '\r'); c = header.charAt(header.length() - 1))
 			header.deleteCharAt(header.length() - 1);
 
 		return header.toString();
