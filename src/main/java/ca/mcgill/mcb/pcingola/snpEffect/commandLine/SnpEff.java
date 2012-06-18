@@ -8,7 +8,6 @@ import ca.mcgill.mcb.pcingola.Pcingola;
 import ca.mcgill.mcb.pcingola.logStatsServer.LogStats;
 import ca.mcgill.mcb.pcingola.snpEffect.Config;
 import ca.mcgill.mcb.pcingola.util.Gpr;
-import ca.mcgill.mcb.pcingola.util.Timer;
 
 /**
  * Command line program
@@ -44,14 +43,10 @@ public class SnpEff implements CommandLine {
 	public static final String VERSION_MAJOR = "2.2";
 	public static final String REVISION = "a";
 	public static final String VERSION_SHORT = VERSION_MAJOR + REVISION;
-	public static final String VERSION = VERSION_SHORT + " (build " + BUILD + "), by " + Pcingola.BY;
+	public static final String VERSION = "SnpEff " + VERSION_SHORT + " (build " + BUILD + "), by " + Pcingola.BY;
 
 	public static final String DEFAULT_SUMMARY_FILE = "snpEff_summary.html";
 	public static final String DEFAULT_SUMMARY_GENES_FILE = "snpEff_genes.txt";
-
-	// Parameters for LOG thread (a thread that logs information to a server)
-	public static final int LOG_THREAD_WAIT_TIME = 1000; // 1 Second
-	public static final int LOG_THREAD_WAIT_TIME_REPEAT = 3;
 
 	protected String command = "";
 	protected String[] args; // Arguments used to invoke this command
@@ -169,79 +164,11 @@ public class SnpEff implements CommandLine {
 	}
 
 	/**
-	 * Report stats to server
-	 * @param ok
-	 * @param errorMessage
-	 */
-	void report(boolean ok, String errorMessage, HashMap<String, String> reportValues) {
-		if (!log) return; // Do nothing
-
-		//---
-		// Create logStats & add data 
-		//---
-		LogStats logStats = new LogStats();
-
-		// Add paramters
-		for (int i = 0; i < args.length; i++)
-			logStats.add("args_" + i, args[i]);
-
-		// Add run status info
-		logStats.add("Finished_OK", Boolean.toString(ok));
-		if (!errorMessage.isEmpty()) logStats.add("Error", errorMessage);
-
-		// Add other info
-		for (String name : reportValues.keySet())
-			logStats.add(name, reportValues.get(name));
-
-		//---
-		// Run thread
-		//---
-		logStats.start();
-
-		// Finish up
-		if (verbose) Timer.showStdErr("Finishing up");
-		for (int i = 0; i < LOG_THREAD_WAIT_TIME_REPEAT; i++) {
-			if (!logStats.isAlive()) break;
-
-			try {
-				Thread.sleep(LOG_THREAD_WAIT_TIME); // Sleep 1 sec
-			} catch (InterruptedException e) {
-				; // Nothing to do
-			}
-		}
-
-		// Interrupt?
-		if (logStats.isAlive() && !logStats.isInterrupted()) {
-			// Some people freak out about this 'Interrupting thread' message
-			// if( verbose ) Timer.showStdErr("Interrupting thread");
-			logStats.interrupt();
-		}
-	}
-
-	/**
 	 * Additional values to be reported
 	 * @return
 	 */
 	public HashMap<String, String> reportValues() {
 		HashMap<String, String> reportValues = new HashMap<String, String>();
-
-		// Extra statistics: What kind of systems do users run this program on?
-		String properties[] = { "user.name", "os.name", "os.version", "os.arch" };
-		for (String prop : properties) {
-			try {
-				reportValues.put(prop, System.getProperty(prop));
-			} catch (Exception e) {
-				; // Do nothing, just skip the values
-			};
-		}
-
-		try {
-			reportValues.put("num.cores", Gpr.NUM_CORES + "");
-			reportValues.put("total.mem", Runtime.getRuntime().totalMemory() + "");
-		} catch (Exception e) {
-			; // Do nothing, just skip the values
-		};
-
 		return reportValues;
 	}
 
@@ -318,7 +245,8 @@ public class SnpEff implements CommandLine {
 			t.printStackTrace();
 		}
 
-		report(ok, err, snpEff.reportValues()); // Report 
+		// Report to server (usage statistics) 
+		if (log) LogStats.report(VERSION, ok, verbose, args, err, snpEff.reportValues());
 
 		return ok;
 	}

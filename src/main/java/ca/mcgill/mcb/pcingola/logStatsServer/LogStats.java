@@ -12,6 +12,7 @@ import java.util.Properties;
 
 import ca.mcgill.mcb.pcingola.snpEffect.commandLine.SnpEff;
 import ca.mcgill.mcb.pcingola.util.Gpr;
+import ca.mcgill.mcb.pcingola.util.Timer;
 
 /** 
  * 
@@ -30,6 +31,9 @@ public class LogStats extends Thread {
 		}
 	}
 
+	// Parameters for LOG thread (a thread that logs information to a server)
+	public static final int LOG_THREAD_WAIT_TIME = 3000; // 3 Seconds
+	public static final int LOG_THREAD_WAIT_TIME_REPEAT = 3;
 	public static boolean debug = false; // Debug mode?
 
 	// Log server parameters
@@ -38,21 +42,100 @@ public class LogStats extends Thread {
 	private static final int HTTP_CONNECT_TIMEOUT_MSECS = 22000;
 	private static final int HTTP_READ_TIMEOUT_MSECS = 23000;
 
-	// Connection
+	// Class variables
 	private final Properties response = new Properties(); // empty if bad connection
-
-	// Protocol
 	public StringBuilder msg = new StringBuilder(); // info for the user
 	private final String version;
-
 	private RequestResult res = RequestResult.NOINFO;
 	private long duration; // time to complete the request, in msecs - succuessfull or not
+	protected boolean log = true; // Log to server (statistics)
+	protected boolean verbose = false; // Be verbose
+	HashMap<String, String> values; // Values to report
 
-	HashMap<String, String> values;
+	/**
+	 * Report stats to server
+	 * @param version : Program name and version
+	 * @param ok : Did the program finished OK?
+	 * @param verbose : Be verbose while reporting
+	 * @param args : Program's command line arguments
+	 * @param errorMessage : Error messages (if any)
+	 * @param reportValues : A hash containing <name, value> pairs to report
+	 */
+	public static void report(String version, boolean ok, boolean verbose, String args[], String errorMessage, HashMap<String, String> reportValues) {
+		//---
+		// Create logStats & add data 
+		//---
+		LogStats logStats = new LogStats(version);
+
+		//---
+		// Add command line arguments
+		//---
+		if (args != null) {
+			for (int i = 0; i < args.length; i++)
+				logStats.add("args_" + i, args[i]);
+		}
+
+		//---
+		// Add run status info
+		//---
+		logStats.add("Finished_OK", Boolean.toString(ok));
+		if ((errorMessage != null) && !errorMessage.isEmpty()) logStats.add("Error", errorMessage);
+
+		//---
+		// Add system info 
+		//---
+		// What kind of systems do users run this program on?
+		String properties[] = { "user.name", "os.name", "os.version", "os.arch" };
+		for (String prop : properties) {
+			try {
+				logStats.add(prop, System.getProperty(prop));
+			} catch (Exception e) {
+				; // Do nothing, just skip the values
+			};
+		}
+
+		// What kind of computers are users using?
+		try {
+			logStats.add("num.cores", Gpr.NUM_CORES + "");
+			logStats.add("total.mem", Runtime.getRuntime().totalMemory() + "");
+		} catch (Exception e) {
+			; // Do nothing, just skip the values
+		};
+
+		//---
+		// Add custom values 
+		//---
+		for (String name : reportValues.keySet())
+			logStats.add(name, reportValues.get(name));
+
+		//---
+		// Run thread
+		//---
+		logStats.start();
+
+		// Finish up
+		if (verbose) Timer.showStdErr("Finishing up");
+		for (int i = 0; i < LOG_THREAD_WAIT_TIME_REPEAT; i++) {
+			if (!logStats.isAlive()) break;
+
+			try {
+				Thread.sleep(LOG_THREAD_WAIT_TIME); // Sleep 1 sec
+			} catch (InterruptedException e) {
+				; // Nothing to do
+			}
+		}
+
+		// Interrupt?
+		if (logStats.isAlive() && !logStats.isInterrupted()) {
+			// Some people freak out about this 'Interrupting thread' message
+			// if( verbose ) Timer.showStdErr("Interrupting thread");
+			logStats.interrupt();
+		}
+	}
 
 	// Constructor
-	public LogStats() {
-		version = SnpEff.VERSION_SHORT;
+	public LogStats(String version) {
+		this.version = version;
 		values = new HashMap<String, String>();
 	}
 
