@@ -200,12 +200,40 @@ public class ChangeEffect implements Cloneable {
 		return aaOld + (codonNum + 1) + aaNew;
 	}
 
+	/**
+	 * Amino acid length (negative if there is none)
+	 * @return
+	 */
+	public int getAaLength() {
+		return getCdsLength() / 3;
+	}
+
 	public String getAaNew() {
 		return aaNew;
 	}
 
 	public String getAaOld() {
 		return aaOld;
+	}
+
+	/**
+	 * CDS length (negative if there is none)
+	 * @return
+	 */
+	public int getCdsLength() {
+		if (marker == null) return -1;
+
+		int cdsSize = -1;
+
+		// CDS size info
+		Transcript tr;
+		if (exon != null) tr = (Transcript) exon.findParent(Transcript.class);
+		else tr = (Transcript) marker.findParent(Transcript.class);
+
+		if (tr != null) cdsSize = tr.cds().length();
+
+		if (COMPATIBLE_v1_8 && (isUpstream() || isDownstream() || isUtr() || isSpliceSite() || isStartGained())) cdsSize = -1;
+		return cdsSize;
 	}
 
 	/**
@@ -586,7 +614,7 @@ public class ChangeEffect implements Cloneable {
 	public String toString() {
 		// Get data to show
 		String geneId = "", geneName = "", bioType = "", transcriptId = "", exonId = "", customId = "";
-		int exonRank = -1, cdsSize = -1;
+		int exonRank = -1;
 
 		if (marker != null) {
 			// Gene Id, name and biotype
@@ -605,10 +633,8 @@ public class ChangeEffect implements Cloneable {
 			if (exon != null) tr = (Transcript) exon.findParent(Transcript.class);
 			else tr = (Transcript) marker.findParent(Transcript.class);
 
-			if (tr != null) {
-				transcriptId = tr.getId();
-				cdsSize = tr.cds().length();
-			}
+			// Update trId
+			if (tr != null) transcriptId = tr.getId();
 
 			// Exon rank information
 			if (exon != null) {
@@ -628,7 +654,8 @@ public class ChangeEffect implements Cloneable {
 		// Add custom markers
 		if ((marker != null) && (marker instanceof Custom)) customId += (customId.isEmpty() ? "" : ";") + marker.getId();
 
-		if (COMPATIBLE_v1_8 && (isUpstream() || isDownstream() || isUtr() || isSpliceSite() || isStartGained())) cdsSize = -1;
+		// CDS length
+		int cdsSize = getCdsLength();
 
 		String errWarn = error + (error.isEmpty() ? "" : "|") + warning;
 		return errWarn //		

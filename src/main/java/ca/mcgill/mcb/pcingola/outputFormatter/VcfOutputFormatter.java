@@ -80,6 +80,11 @@ public class VcfOutputFormatter extends OutputFormatter {
 				effBuff.append("|");
 
 				// Add amino acid change
+				int aalen = changeEffect.getAaLength();
+				effBuff.append(aalen > 0 ? aalen : "");
+				effBuff.append("|");
+
+				// Add amino acid length
 				effBuff.append(changeEffect.getAaChangeHgvs());
 				effBuff.append("|");
 
@@ -161,7 +166,7 @@ public class VcfOutputFormatter extends OutputFormatter {
 		ArrayList<String> newLines = new ArrayList<String>();
 		newLines.add("##SnpEffVersion=\"" + version + "\"");
 		newLines.add("##SnpEffCmd=\"" + commandLineStr + "\"");
-		newLines.add("##INFO=<ID=EFF,Number=.,Type=String,Description=\"Predicted effects for this variant.Format: 'Effect ( Effect_Impact | Functional_Class | Codon_Change | Amino_Acid_change | Gene_Name | Gene_BioType | Coding | Transcript | Exon [ | ERRORS | WARNINGS ] )' \">");
+		newLines.add("##INFO=<ID=EFF,Number=.,Type=String,Description=\"Predicted effects for this variant.Format: 'Effect ( Effect_Impact | Functional_Class | Codon_Change | Amino_Acid_change| Amino_Acid_length | Gene_Name | Gene_BioType | Coding | Transcript | Exon [ | ERRORS | WARNINGS ] )' \">");
 		return newLines;
 	}
 
