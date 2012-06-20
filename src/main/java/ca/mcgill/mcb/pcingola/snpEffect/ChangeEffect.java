@@ -19,6 +19,10 @@ import ca.mcgill.mcb.pcingola.interval.Transcript;
  */
 public class ChangeEffect implements Cloneable {
 
+	public enum Coding {
+		CODING, NON_CODING
+	}
+
 	public enum EffectImpact {
 		HIGH, MODERATE, LOW, MODIFIER
 	}

@@ -13,6 +13,7 @@ import ca.mcgill.mcb.pcingola.interval.Chromosome;
 import ca.mcgill.mcb.pcingola.interval.Marker;
 import ca.mcgill.mcb.pcingola.interval.SeqChange;
 import ca.mcgill.mcb.pcingola.interval.SeqChange.ChangeType;
+import ca.mcgill.mcb.pcingola.outputFormatter.VcfOutputFormatter;
 import ca.mcgill.mcb.pcingola.util.Gpr;
 
 /**
@@ -113,7 +114,7 @@ public class VcfEntry extends Marker implements Iterable<VcfGenotype> {
 	 * @param value : Can be null if it is a boolean field.
 	 */
 	public void addInfo(String name, String value) {
-		if ((value != null) && ((value.indexOf(' ') >= 0) || (value.indexOf(';') >= 0) || (value.indexOf('=') >= 0) || (value.indexOf('\t') >= 0) || (value.indexOf('\n') >= 0))) throw new RuntimeException("No white-space, semi-colons, or equals-signs are permitted in INFO field. Name:\""+name+"\" Value:\"" + value + "\"");
+		if ((value != null) && ((value.indexOf(' ') >= 0) || (value.indexOf(';') >= 0) || (value.indexOf('=') >= 0) || (value.indexOf('\t') >= 0) || (value.indexOf('\n') >= 0))) throw new RuntimeException("No white-space, semi-colons, or equals-signs are permitted in INFO field. Name:\"" + name + "\" Value:\"" + value + "\"");
 
 		String addInfoStr = name + (value != null ? "=" + value : "");
 		addInfo(addInfoStr);
@@ -564,6 +565,26 @@ public class VcfEntry extends Marker implements Iterable<VcfGenotype> {
 		} else if (ref.length() > minAltLen) changeType = ChangeType.DEL;
 		else if (ref.length() < maxAltLen) changeType = ChangeType.INS;
 		else changeType = ChangeType.MIXED;
+	}
+
+	/**
+	 * Parse 'EFF' info field and get a list of effects
+	 * @return
+	 */
+	public List<VcfEffect> parseEffects() {
+		String effStr = getInfo(VcfOutputFormatter.VCF_INFO_EFF_NAME); // Get effect string from INFO field
+
+		// Create a list of effect
+		ArrayList<VcfEffect> effList = new ArrayList<VcfEffect>();
+		if (effStr == null) return effList;
+
+		// Add each effect
+		String effs[] = effStr.split(",");
+		for (String eff : effs) {
+			VcfEffect veff = new VcfEffect(eff); // Create and parse this effect
+			effList.add(veff);
+		}
+		return effList;
 	}
 
 	/**

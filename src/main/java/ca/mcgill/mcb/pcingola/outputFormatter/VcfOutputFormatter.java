@@ -22,6 +22,8 @@ import ca.mcgill.mcb.pcingola.vcf.VcfEntry;
  */
 public class VcfOutputFormatter extends OutputFormatter {
 
+	public static final String VCF_INFO_EFF_NAME = "EFF";
+
 	boolean needAddInfo = false;
 	boolean needAddHeader = true;
 
@@ -79,13 +81,13 @@ public class VcfOutputFormatter extends OutputFormatter {
 				effBuff.append(changeEffect.getCodonChange());
 				effBuff.append("|");
 
+				// Add amino acid length
+				effBuff.append(changeEffect.getAaChangeHgvs());
+				effBuff.append("|");
+
 				// Add amino acid change
 				int aalen = changeEffect.getAaLength();
 				effBuff.append(aalen > 0 ? aalen : "");
-				effBuff.append("|");
-
-				// Add amino acid length
-				effBuff.append(changeEffect.getAaChangeHgvs());
 				effBuff.append("|");
 
 				// Add gene info
@@ -93,7 +95,7 @@ public class VcfOutputFormatter extends OutputFormatter {
 				if (gene != null) {
 					// Protein coding gene?
 					String coding = "";
-					if (gene.getGenome().hasCodingInfo()) coding = (gene.isProteinCoding() ? "CODING" : "NON_CODING");
+					if (gene.getGenome().hasCodingInfo()) coding = (gene.isProteinCoding() ? ChangeEffect.Coding.CODING.toString() : ChangeEffect.Coding.NON_CODING.toString());
 
 					effBuff.append(gene.getGeneName());
 					effBuff.append("|");
@@ -142,7 +144,7 @@ public class VcfOutputFormatter extends OutputFormatter {
 		if (sbEffs.length() > 0) sbEffs.deleteCharAt(sbEffs.length() - 1); // Remove last comma
 
 		// Add 'EFF' info field
-		vcfEntry.addInfo("EFF", sbEffs.toString());
+		vcfEntry.addInfo(VCF_INFO_EFF_NAME, sbEffs.toString());
 
 		needAddInfo = false; // Don't add info twice
 	}

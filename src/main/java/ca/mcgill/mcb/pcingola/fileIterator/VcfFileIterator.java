@@ -247,6 +247,7 @@ public class VcfFileIterator extends MarkerFileIterator<VcfEntry> implements Par
 			vcfInfoById.put("EFF.FUNCLASS", new VcfInfo("EFF.FUNCLASS", VcfInfoType.STRING, ".", "SnpEff functional class (NONE, SILENT, MISSENSE, NONSENSE)"));
 			vcfInfoById.put("EFF.CODON", new VcfInfo("EFF.CODON", VcfInfoType.STRING, ".", "SnpEff codon change"));
 			vcfInfoById.put("EFF.AA", new VcfInfo("EFF.AA", VcfInfoType.STRING, ".", "SnpEff amino acid change"));
+			vcfInfoById.put("EFF.AA_LEN", new VcfInfo("EFF.AA_LEN", VcfInfoType.INTEGER, ".", "Protein length in amino acids"));
 			vcfInfoById.put("EFF.GENE", new VcfInfo("EFF.GENE", VcfInfoType.STRING, ".", "SnpEff gene name"));
 			vcfInfoById.put("EFF.BIOTYPE", new VcfInfo("EFF.BIOTYPE", VcfInfoType.STRING, ".", "SnpEff gene bio-type"));
 			vcfInfoById.put("EFF.CODING", new VcfInfo("EFF.CODING", VcfInfoType.STRING, ".", "SnpEff gene coding (CODING, NON_CODING)"));
