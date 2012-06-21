@@ -10,6 +10,8 @@ import ca.mcgill.mcb.pcingola.util.Gpr;
  */
 public class VcfEffect {
 
+	public static final boolean USE_OLD_FORMAT = true;
+
 	ChangeEffect.EffectType effect;
 	ChangeEffect.EffectImpact impact;
 	ChangeEffect.FunctionalClass funClass;
@@ -76,21 +78,51 @@ public class VcfEffect {
 		eff = eff.replace(')', ' ');
 		String effs[] = eff.split("\\s");
 
-		// Parse each sub field
-		effect = ChangeEffect.EffectType.valueOf(effs[0]);
-		if (!effs[1].isEmpty()) impact = ChangeEffect.EffectImpact.valueOf(effs[1]);
-		if (!effs[2].isEmpty()) funClass = ChangeEffect.FunctionalClass.valueOf(effs[2]);
-		if (!effs[3].isEmpty()) codon = effs[3];
-		if (!effs[4].isEmpty()) aa = effs[4];
+		try {
+			// Parse each sub field
+			int index = 0;
+			if (effs[index].startsWith("REGULATION")) effect = ChangeEffect.EffectType.REGULATION;
+			else effect = ChangeEffect.EffectType.valueOf(effs[index]);
+			index++;
 
-		if (!effs[5].isEmpty()) aaLen = Gpr.parseIntSafe(effs[5]);
-		else aaLen = 0;
+			if ((effs.length > index) && !effs[index].isEmpty()) impact = ChangeEffect.EffectImpact.valueOf(effs[index]);
+			index++;
 
-		if ((effs.length >= 7) && !effs[6].isEmpty()) gene = effs[6];
-		if ((effs.length >= 8) && !effs[7].isEmpty()) bioType = effs[7];
-		if ((effs.length >= 9) && !effs[8].isEmpty()) coding = ChangeEffect.Coding.valueOf(effs[8]);
-		if ((effs.length >= 10) && !effs[9].isEmpty()) transcriptId = effs[9];
-		if ((effs.length >= 11) && !effs[10].isEmpty()) exonId = effs[10];
+			if ((effs.length > index) && !effs[index].isEmpty()) funClass = ChangeEffect.FunctionalClass.valueOf(effs[index]);
+			index++;
+
+			if ((effs.length > index) && !effs[index].isEmpty()) codon = effs[index];
+			index++;
+
+			if ((effs.length > index) && !effs[index].isEmpty()) aa = effs[index];
+			index++;
+
+			if (!USE_OLD_FORMAT) {
+				if ((effs.length > index) && !effs[index].isEmpty()) aaLen = Gpr.parseIntSafe(effs[index]);
+				else aaLen = 0;
+				index++;
+			}
+
+			if ((effs.length > index) && !effs[index].isEmpty()) gene = effs[index];
+			index++;
+
+			if ((effs.length > index) && !effs[index].isEmpty()) bioType = effs[index];
+			index++;
+
+			if ((effs.length > index) && !effs[index].isEmpty()) coding = ChangeEffect.Coding.valueOf(effs[index]);
+			index++;
+
+			if ((effs.length > index) && !effs[index].isEmpty()) transcriptId = effs[index];
+			index++;
+
+			if ((effs.length > index) && !effs[index].isEmpty()) exonId = effs[index];
+			index++;
+		} catch (Exception e) {
+			String fields = "";
+			for (int i = 0; i < effs.length; i++)
+				fields += "\t" + i + " : '" + effs[i] + "'\n";
+			throw new RuntimeException("Error parsing: '" + eff + "'\n" + fields, e);
+		}
 	}
 
 	public void setAa(String aa) {

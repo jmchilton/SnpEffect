@@ -13,6 +13,7 @@ import java.util.Properties;
 
 import ca.mcgill.mcb.pcingola.codons.CodonTable;
 import ca.mcgill.mcb.pcingola.codons.CodonTables;
+import ca.mcgill.mcb.pcingola.interval.Chromosome;
 import ca.mcgill.mcb.pcingola.interval.Genome;
 import ca.mcgill.mcb.pcingola.util.Gpr;
 
@@ -110,7 +111,12 @@ public class Config implements Serializable, Iterable<String> {
 
 					// Sanity checks
 					if (genomeByVersion.get(genomeVer) == null) throw new RuntimeException("Error parsing property '" + key + "'. No such genome '" + genomeVer + "'");
-					if (!genomeByVersion.get(genomeVer).hasChromosome(chromo)) throw new RuntimeException("Error parsing property '" + key + "'. No such chromosome '" + chromo + "'");
+					if (!genomeByVersion.get(genomeVer).hasChromosome(chromo)) {
+						// Create chromosome
+						Genome genome = genomeByVersion.get(genomeVer);
+						Chromosome chr = new Chromosome(genome, 0, 0, 1, chromo);
+						genome.add(chr);
+					}
 					if (codonTable == null) throw new RuntimeException("Error parsing property '" + key + "'. No such codon table '" + codonTableName + "'");
 
 					// Everything seems to be OK, go on
