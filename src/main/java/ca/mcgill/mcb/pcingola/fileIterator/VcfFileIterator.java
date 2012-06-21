@@ -160,6 +160,15 @@ public class VcfFileIterator extends MarkerFileIterator<VcfEntry> implements Par
 	}
 
 	/**
+	 * Get all VcfInfo entries
+	 * @return
+	 */
+	public Collection<VcfInfo> getVcfInfo() {
+		parseInfoLines();
+		return vcfInfoById.values();
+	}
+
+	/**
 	 * Get Info type for a given ID
 	 * @param id
 	 * @return

@@ -80,15 +80,17 @@ public class VcfEffect {
 		effect = ChangeEffect.EffectType.valueOf(effs[0]);
 		if (!effs[1].isEmpty()) impact = ChangeEffect.EffectImpact.valueOf(effs[1]);
 		if (!effs[2].isEmpty()) funClass = ChangeEffect.FunctionalClass.valueOf(effs[2]);
-		codon = effs[3];
-		aa = effs[4];
+		if (!effs[3].isEmpty()) codon = effs[3];
+		if (!effs[4].isEmpty()) aa = effs[4];
+
 		if (!effs[5].isEmpty()) aaLen = Gpr.parseIntSafe(effs[5]);
 		else aaLen = 0;
-		gene = effs[6];
-		bioType = effs[7];
-		if (!effs[8].isEmpty()) coding = ChangeEffect.Coding.valueOf(effs[8]);
-		if (effs.length >= 10) transcriptId = effs[9];
-		if (effs.length >= 11) exonId = effs[10];
+
+		if ((effs.length >= 7) && !effs[6].isEmpty()) gene = effs[6];
+		if ((effs.length >= 8) && !effs[7].isEmpty()) bioType = effs[7];
+		if ((effs.length >= 9) && !effs[8].isEmpty()) coding = ChangeEffect.Coding.valueOf(effs[8]);
+		if ((effs.length >= 10) && !effs[9].isEmpty()) transcriptId = effs[9];
+		if ((effs.length >= 11) && !effs[10].isEmpty()) exonId = effs[10];
 	}
 
 	public void setAa(String aa) {
