@@ -254,8 +254,9 @@ rs71262673</pre>
 				</center>
 
 				<a class="body" name="annotate"><p><hr><p style="font-size: 16pt"> <b> SnpSift Annotate</b></p></a>
-				This is typically used to annotate IDs from dbSnp. Here is an example
+				This is typically used to annotate IDs and all INFO fields from dbSnp. Here is an example
 				<pre> java -jar SnpSift.jar annotate dbSnp132.vcf variants.vcf > variants_annotated.vcf </pre>
+				<b>Note:</b> By default now the 'annotate' command adds ALL database INFO fields. You can use the '-id' command line option if you only want to add ID fields.
 
 				<a class="body" name="casecontrol"><p><hr><p style="font-size: 16pt"> <b> SnpSift CaseControl</b></p></a>
 				Allows you to count how many samples are in 'case' group and a 'control' group. You can count 'homozygous', 'heterozygous' or 'any' variants. Case and control are defined by a string containing plus and minus symbols {'+', '-', '0'} where '+' is case, '-' is control and '0' is neutral.

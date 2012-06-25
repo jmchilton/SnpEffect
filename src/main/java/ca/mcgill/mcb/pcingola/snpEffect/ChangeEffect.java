@@ -209,7 +209,8 @@ public class ChangeEffect implements Cloneable {
 	 * @return
 	 */
 	public int getAaLength() {
-		return getCdsLength() / 3;
+		int lenNoStop = Math.max(0, getCdsLength() - 3); // Do not include the STOP codon
+		return lenNoStop / 3;
 	}
 
 	public String getAaNew() {
