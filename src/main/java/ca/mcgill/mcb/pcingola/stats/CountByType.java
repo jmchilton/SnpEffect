@@ -35,7 +35,7 @@ public class CountByType implements Serializable {
 	 */
 	public void addScore(String type, double score) {
 		Double currScore = scoreByType.get(type);
-		if( currScore == null ) currScore = 0.0;
+		if (currScore == null) currScore = 0.0;
 		scoreByType.put(type, currScore + score);
 	}
 
@@ -53,12 +53,12 @@ public class CountByType implements Serializable {
 	 * @return An html coded color
 	 */
 	public String getColorHtml(String type) {
-		if( countByType.get(type) == null ) return "ffffff"; // Not found? => White
+		if (countByType.get(type) == null) return "ffffff"; // Not found? => White
 
 		long count = get(type);
 
 		Long max = Long.MIN_VALUE, min = Long.MAX_VALUE;
-		for( String key : countByType.keySet() ) {
+		for (String key : countByType.keySet()) {
 			long v = get(key);
 			max = Math.max(max, v);
 			min = Math.min(min, v);
@@ -69,9 +69,9 @@ public class CountByType implements Serializable {
 
 	long getCount(HashMap<String, Long> hash, String type) {
 		// We have a special type called 'Total'
-		if( type.equalsIgnoreCase(TOTAL_TYPE) ) {
+		if (type.equalsIgnoreCase(TOTAL_TYPE)) {
 			long total = 0;
-			for( Long count : hash.values() )
+			for (Long count : hash.values())
 				total += (count != null ? count : 0);
 			return total;
 		}
@@ -112,7 +112,7 @@ public class CountByType implements Serializable {
 	 */
 	void inc(HashMap<String, Long> hash, String type, int toAdd) {
 		Long count = hash.get(type);
-		if( count == null ) count = 0L;
+		if (count == null) count = 0L;
 		count += toAdd;
 		hash.put(type, count);
 	}
@@ -134,7 +134,7 @@ public class CountByType implements Serializable {
 	 */
 	public long max() {
 		long max = Long.MIN_VALUE;
-		for( Long count : countByType.values() )
+		for (Long count : countByType.values())
 			max = Math.max(max, count);
 		return max;
 	}
@@ -144,7 +144,7 @@ public class CountByType implements Serializable {
 	 */
 	public long min() {
 		long min = Long.MAX_VALUE;
-		for( Long count : countByType.values() )
+		for (Long count : countByType.values())
 			min = Math.min(min, count);
 		return min;
 	}
@@ -169,16 +169,25 @@ public class CountByType implements Serializable {
 
 	double toProb(long num, long total) {
 		double p = 0;
-		if( total > 0 ) p = ((double) num) / ((double) total);
+		if (total > 0) p = ((double) num) / ((double) total);
 		return p;
 	}
 
 	@Override
 	public String toString() {
 		StringBuffer out = new StringBuffer();
-		for( String type : getTypeList() )
+		for (String type : getTypeList())
 			out.append(type + "\t" + get(type) + "\n");
 
 		return out.toString();
 	}
+
+	public String toStringLine() {
+		StringBuffer out = new StringBuffer();
+		for (String type : getTypeList())
+			out.append(type + ":" + get(type) + "\t");
+
+		return out.toString();
+	}
+
 }
