@@ -279,7 +279,10 @@ public class Config implements Serializable, Iterable<String> {
 		dataDir = properties.getProperty("data_dir", DEFAULT_DATA_DIR);
 		if (dataDir.startsWith("~")) dataDir = Gpr.HOME + "/" + dataDir.substring(1); // Relative to 'home' dir?
 		else if (!dataDir.startsWith("/")) dataDir = cfgDir + "/" + dataDir; // Not an absolute path?
-		if (dataDir.endsWith("/")) dataDir = dataDir.substring(0, dataDir.length() - 1); // make sure path doesn't end with '/' (some OS can have problems with "//" in paths)
+
+		// Remove all trailing slashes
+		while (dataDir.endsWith("/"))
+			dataDir = dataDir.substring(0, dataDir.length() - 1); // make sure path doesn't end with '/' (some OS can have problems with "//" in paths)
 
 		databaseRepository = properties.getProperty("database_repository", "");
 

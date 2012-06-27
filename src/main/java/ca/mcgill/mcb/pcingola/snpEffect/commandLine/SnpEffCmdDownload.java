@@ -209,7 +209,7 @@ public class SnpEffCmdDownload extends SnpEff {
 				String entryName = entry.getName();
 				String entryPath[] = entryName.split("/"); // Entry name should be something like 'data/genomeVer/file';
 				String dataName = entryPath[entryPath.length - 2] + "/" + entryPath[entryPath.length - 1]; // remove the 'data/' part
-				entryName = config.getDirData() + dataName; // Ad local 'data' dir
+				entryName = config.getDirData() + "/" + dataName; // Ad local 'data' dir
 				Timer.show("Local file name: '" + entryName + "'");
 
 				// Create local dir
