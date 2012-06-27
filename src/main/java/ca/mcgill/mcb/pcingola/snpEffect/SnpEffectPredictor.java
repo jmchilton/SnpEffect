@@ -33,9 +33,9 @@ import ca.mcgill.mcb.pcingola.util.Gpr;
  *
  */
 public class SnpEffectPredictor implements Serializable {
-  private static final long serialVersionUID = 4519418862303325081L;
+	private static final long serialVersionUID = 4519418862303325081L;
 
-  public static final int DEFAULT_UP_DOWN_LENGTH = 5000;
+	public static final int DEFAULT_UP_DOWN_LENGTH = 5000;
 
 	boolean useChromosomes = true;
 	int upDownStreamLength = DEFAULT_UP_DOWN_LENGTH;
@@ -184,6 +184,18 @@ public class SnpEffectPredictor implements Serializable {
 	 * @return A set of region names
 	 */
 	public Set<String> regions(Marker marker, boolean showGeneDetails, boolean compareTemplate) {
+		return regions(marker, showGeneDetails, compareTemplate, null);
+	}
+
+	/**
+	 * Name of the regions hit by a marker
+	 * @param marker
+	 * @param showGeneDetails
+	 * @param compareTemplate
+	 * @param id : Only use genes or transcripts matching this ID
+	 * @return
+	 */
+	public Set<String> regions(Marker marker, boolean showGeneDetails, boolean compareTemplate, String id) {
 		boolean hitChromo = false;
 		boolean hitGene = false;
 		HashSet<String> hits = new HashSet<String>();
@@ -203,29 +215,45 @@ public class SnpEffectPredictor implements Serializable {
 
 					// For all transcripts...
 					for (Transcript tr : gene) {
-						if (tr.intersects(marker)) { // Does it intersect this transcript?
-							boolean hitExon = false;
+						if ((id == null) || gene.getId().equals(id) || tr.getId().equals(id)) { // Mathes ID? (...or no ID to match)
 
-							regionsAddHit(hits, tr, marker, showGeneDetails, compareTemplate);
+							if (tr.intersects(marker)) { // Does it intersect this transcript?
+								boolean hitExon = false;
 
-							for (Utr utr : tr.getUtrs())
-								if (utr.intersects(marker)) regionsAddHit(hits, utr, marker, showGeneDetails, compareTemplate);
+								regionsAddHit(hits, tr, marker, showGeneDetails, compareTemplate);
 
-							for (Exon ex : tr)
-								if (ex.intersects(marker)) { // Does it intersect this UTR? Add 'Exon'
-									regionsAddHit(hits, ex, marker, showGeneDetails, compareTemplate);
-									hitExon = true;
+								for (Utr utr : tr.getUtrs())
+									if (utr.intersects(marker)) regionsAddHit(hits, utr, marker, showGeneDetails, compareTemplate);
+
+								for (Exon ex : tr)
+									if (ex.intersects(marker)) { // Does it intersect this UTR? Add 'Exon'
+										regionsAddHit(hits, ex, marker, showGeneDetails, compareTemplate);
+										hitExon = true;
+									}
+
+								// Not in an exon? => Add 'Intron'
+								if (!hitExon) {
+									Intron intron = new Intron(tr, marker.getStart(), marker.getEnd(), tr.getStrand(), "");
+									regionsAddHit(hits, intron, marker, showGeneDetails, compareTemplate);
 								}
-
-							// Not in an exon? => Add 'Intron'
-							if (!hitExon) {
-								Intron intron = new Intron(tr, marker.getStart(), marker.getEnd(), tr.getStrand(), "");
-								regionsAddHit(hits, intron, marker, showGeneDetails, compareTemplate);
 							}
 						}
 					}
 				} else {
-					regionsAddHit(hits, markerInt, marker, showGeneDetails, compareTemplate);
+					// No ID to match?
+					if (id == null) regionsAddHit(hits, markerInt, marker, showGeneDetails, compareTemplate);
+					else {
+						// Is ID from transcript?
+						Transcript tr = (Transcript) markerInt.findParent(Transcript.class);
+						if ((tr != null) && (tr.getId().equals(id))) {
+							regionsAddHit(hits, markerInt, marker, showGeneDetails, compareTemplate); // Transcript ID matches => count
+						} else {
+							// Is ID from gene?
+							Gene gene = (Gene) markerInt.findParent(Gene.class);
+							if ((gene != null) && (gene.getId().equals(id))) regionsAddHit(hits, markerInt, marker, showGeneDetails, compareTemplate); // Gene ID matches => count
+						}
+
+					}
 				}
 			}
 		}
