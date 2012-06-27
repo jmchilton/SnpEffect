@@ -405,7 +405,7 @@ public abstract class SnpEffPredictorFactory {
 	 * @param fastaFile
 	 */
 	protected void readExonSequences() {
-		List<String> files = config.getFileNameGenomeFasta();
+		List<String> files = config.getFileListGenomeFasta();
 
 		// Force a specific file?
 		if (fastaFile != null) {

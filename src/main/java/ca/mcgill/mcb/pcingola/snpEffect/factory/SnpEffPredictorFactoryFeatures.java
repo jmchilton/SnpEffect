@@ -234,7 +234,7 @@ public abstract class SnpEffPredictorFactoryFeatures extends SnpEffPredictorFact
 		if (verbose) System.out.println("No sequence found in feature file.");
 
 		// No sequence information in 'features' file? => Try to read a sequence from a fasta file
-		for (String fastaFile : config.getFileNameGenomeFasta()) {
+		for (String fastaFile : config.getFileListGenomeFasta()) {
 			if (verbose) System.out.println("\tTrying fasta file '" + fastaFile + "'");
 
 			if (Gpr.canRead(fastaFile)) {

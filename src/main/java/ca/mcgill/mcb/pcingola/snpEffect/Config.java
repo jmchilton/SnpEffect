@@ -182,19 +182,32 @@ public class Config implements Serializable, Iterable<String> {
 		return getDirDataVersion() + "/regulation.bed/";
 	}
 
+	/**
+	 * Filenames for reference sequence (fasta files)
+	 * @return
+	 */
+	public List<String> getFileListGenomeFasta() {
+		ArrayList<String> files = new ArrayList<String>();
+		files.add(getDirData() + "/genomes/" + genome.getVersion() + ".fa");
+		files.add(getDirData() + "/" + genome.getVersion() + "/sequences.fa");
+		return files;
+	}
+
 	public String getFileNameCds() {
 		return getDirDataVersion() + "/cds.fa";
 	}
 
 	/**
-	 * Filenames for reference sequence (fasta files)
+	 * Filename for reference sequence (fasta file)
+	 * Scans the list of files 'getFileListGenomeFasta()' and finds the first file that exists
 	 * @return
 	 */
-	public List<String> getFileNameGenomeFasta() {
-		ArrayList<String> files = new ArrayList<String>();
-		files.add(getDirData() + "/genomes/" + genome.getVersion() + ".fa");
-		files.add(getDirData() + "/" + genome.getVersion() + "/sequences.fa");
-		return files;
+	public String getFileNameGenomeFasta() {
+		for (String f : getFileListGenomeFasta()) {
+			if ((new File(f)).exists()) return f;
+			if ((new File(f + ".gz")).exists()) return f;
+		}
+		return null;
 	}
 
 	public String getFileNameProteins() {
