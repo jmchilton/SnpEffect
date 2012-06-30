@@ -16,3 +16,6 @@ $SNPEFF build -gtf22 testHg3763ChrY
 
 # Test cases hg37.65
 $SNPEFF build -gtf22 testHg3765Chr22
+
+# Test cases hg37.67
+$SNPEFF build -gtf22 testHg3767Chr21Mt

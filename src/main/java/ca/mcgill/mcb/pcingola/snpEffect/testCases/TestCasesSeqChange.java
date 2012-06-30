@@ -442,4 +442,13 @@ public class TestCasesSeqChange extends TestCase {
 		snpEffect("tests/rareAa.txt", null, true);
 	}
 
+	/**
+	 * Test effect when hits a gene, but not any transcript within a gene. 
+	 * This is an extremely weird case, might be an annotation problem.
+	 */
+	public void test_31_CodonTable() {
+		initSnpEffPredictor("testHg3767Chr21Mt");
+		snpEffect("tests/mt.txt", null, true);
+	}
+
 }

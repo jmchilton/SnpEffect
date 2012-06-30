@@ -3,6 +3,7 @@ package ca.mcgill.mcb.pcingola.codons;
 import java.util.HashMap;
 import java.util.Iterator;
 
+import ca.mcgill.mcb.pcingola.interval.Chromosome;
 import ca.mcgill.mcb.pcingola.interval.Genome;
 
 /**
@@ -58,9 +59,9 @@ public class CodonTables implements Iterable<CodonTable> {
 	 * @param chromosome
 	 * @param codonTable
 	 */
-	public void add(Genome genome, String chromosome, CodonTable codonTable) {
+	public void add(Genome genome, Chromosome chr, CodonTable codonTable) {
 		add(codonTable); // Just in case it's not already added
-		String key = genome.toString() + "_" + chromosome;
+		String key = genome.getId() + "_" + chr.getId();
 		genChr2codonTable.put(key, codonTable);
 	}
 
@@ -84,7 +85,7 @@ public class CodonTables implements Iterable<CodonTable> {
 	 * @return
 	 */
 	public CodonTable getTable(Genome genome, String chromosome) {
-		String key = genome.toString() + "_" + chromosome;
+		String key = genome.getId() + "_" + chromosome;
 		CodonTable codonTable = genChr2codonTable.get(key);
 		if (codonTable == null) return codonTables.getTable(STANDARD_NAME);
 		return codonTable;

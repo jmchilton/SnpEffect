@@ -94,34 +94,27 @@ public class Config implements Serializable, Iterable<String> {
 		//---
 		for (Object key : properties.keySet()) {
 			String keyStr = key.toString();
-			if (keyStr.endsWith(CODONTABLE_KEY) && keyStr.startsWith(genomeVersion)) {
-				// We have to find genome name and chromosome name
-				// E.g. parse "dm5.30.dmel_mitochondrion_genome.codonTable" => genomeVer="dm5.30" and chromo="dmel_mitochondrion_genome"
-				String genomeVer = findGenome(keyStr);
-				if (genomeVer == null) throw new RuntimeException("Cannot find appropriate genome for '" + keyStr + "'");
-
+			if (keyStr.endsWith(CODONTABLE_KEY) && keyStr.startsWith(genomeVersion + ".")) {
 				// Everything between gneomeName and ".codonTable" is assumed to be chromosome name
-				String chromo = keyStr.substring(genomeVer.length() + 1, keyStr.length() - CODONTABLE_KEY.length());
+				String chromo = keyStr.substring(genomeVersion.length() + 1, keyStr.length() - CODONTABLE_KEY.length());
 
-				// Ignore configuration for other genomes
-				if (genomeVersion.equals(genomeVer)) {
+				String codonTableName = properties.getProperty(key.toString());
+				CodonTable codonTable = CodonTables.getInstance().getTable(codonTableName);
 
-					String codonTableName = properties.getProperty(key.toString());
-					CodonTable codonTable = CodonTables.getInstance().getTable(codonTableName);
+				// Sanity checks
+				if (genomeByVersion.get(genomeVersion) == null) throw new RuntimeException("Error parsing property '" + key + "'. No such genome '" + genomeVersion + "'");
+				if (codonTable == null) throw new RuntimeException("Error parsing property '" + key + "'. No such codon table '" + codonTableName + "'");
 
-					// Sanity checks
-					if (genomeByVersion.get(genomeVer) == null) throw new RuntimeException("Error parsing property '" + key + "'. No such genome '" + genomeVer + "'");
-					if (!genomeByVersion.get(genomeVer).hasChromosome(chromo)) {
-						// Create chromosome
-						Genome genome = genomeByVersion.get(genomeVer);
-						Chromosome chr = new Chromosome(genome, 0, 0, 1, chromo);
-						genome.add(chr);
-					}
-					if (codonTable == null) throw new RuntimeException("Error parsing property '" + key + "'. No such codon table '" + codonTableName + "'");
-
-					// Everything seems to be OK, go on
-					CodonTables.getInstance().add(genomeByVersion.get(genomeVer), chromo, codonTable);
+				Chromosome chr = genomeByVersion.get(genomeVersion).getChromosome(chromo);
+				if (chr == null) {
+					// Create chromosome
+					Genome genome = genomeByVersion.get(genomeVersion);
+					chr = new Chromosome(genome, 0, 0, 1, chromo);
+					genome.add(chr);
 				}
+
+				// Everything seems to be OK, go on
+				CodonTables.getInstance().add(genomeByVersion.get(genomeVersion), chr, codonTable);
 			}
 		}
 	}

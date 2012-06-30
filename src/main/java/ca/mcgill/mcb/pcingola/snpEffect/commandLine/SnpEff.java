@@ -39,9 +39,9 @@ public class SnpEff implements CommandLine {
 
 	public static final int COMMAND_LINE_WIDTH = 40;
 
-	public static final String BUILD = "2012-06-18";
+	public static final String BUILD = "2012-06-30";
 	public static final String VERSION_MAJOR = "2.2";
-	public static final String REVISION = "a";
+	public static final String REVISION = "b";
 	public static final String VERSION_SHORT = VERSION_MAJOR + REVISION;
 	public static final String VERSION = "SnpEff " + VERSION_SHORT + " (build " + BUILD + "), by " + Pcingola.BY;
 
@@ -151,10 +151,10 @@ public class SnpEff implements CommandLine {
 			// Copy all args except initial 'command'
 			ArrayList<String> argsList = new ArrayList<String>();
 			for (int i = 1; i < args.length; i++) {
-				if (args[i].equals("-noLog")) log = false; // This option is always available (to allow privacy in all commands)
+				if (args[i].equalsIgnoreCase("-noLog")) log = false; // This option is always available (to allow privacy in all commands)
 				else argsList.add(args[i]);
 
-				if (args[i].equals("-v")) verbose = true; // Make this option availabe here as well
+				if (args[i].equals("-v")) verbose = true; // Make this option available here as well
 			}
 			shiftArgs = argsList.toArray(new String[0]);
 		} else {
