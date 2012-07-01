@@ -15,6 +15,7 @@ import ca.mcgill.mcb.pcingola.interval.SeqChange;
 import ca.mcgill.mcb.pcingola.interval.SeqChange.ChangeType;
 import ca.mcgill.mcb.pcingola.outputFormatter.VcfOutputFormatter;
 import ca.mcgill.mcb.pcingola.util.Gpr;
+import ca.mcgill.mcb.pcingola.vcf.VcfEffect.FormatVersion;
 
 /**
  * A VCF entry (a line) in a VCF file
@@ -571,7 +572,7 @@ public class VcfEntry extends Marker implements Iterable<VcfGenotype> {
 	 * Parse 'EFF' info field and get a list of effects
 	 * @return
 	 */
-	public List<VcfEffect> parseEffects() {
+	public List<VcfEffect> parseEffects(FormatVersion formatVersion) {
 		String effStr = getInfo(VcfOutputFormatter.VCF_INFO_EFF_NAME); // Get effect string from INFO field
 
 		// Create a list of effect
@@ -581,7 +582,7 @@ public class VcfEntry extends Marker implements Iterable<VcfGenotype> {
 		// Add each effect
 		String effs[] = effStr.split(",");
 		for (String eff : effs) {
-			VcfEffect veff = new VcfEffect(eff); // Create and parse this effect
+			VcfEffect veff = new VcfEffect(eff, formatVersion); // Create and parse this effect
 			effList.add(veff);
 		}
 		return effList;
