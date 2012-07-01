@@ -3,6 +3,7 @@ package ca.mcgill.mcb.pcingola.stats;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 
@@ -190,4 +191,21 @@ public class CountByType implements Serializable {
 		return out.toString();
 	}
 
+	public String toStringSort() {
+		ArrayList<String> keys = new ArrayList<String>();
+		keys.addAll(countByType.keySet());
+		Collections.sort(keys, new Comparator<String>() {
+
+			@Override
+			public int compare(String arg0, String arg1) {
+				return (int) (get(arg1) - get(arg0));
+			}
+		});
+
+		StringBuffer out = new StringBuffer();
+		for (String type : keys)
+			out.append(type + "\t" + get(type) + "\n");
+
+		return out.toString();
+	}
 }

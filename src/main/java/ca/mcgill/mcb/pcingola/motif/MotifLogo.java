@@ -3,8 +3,6 @@ package ca.mcgill.mcb.pcingola.motif;
 import java.util.ArrayList;
 import java.util.Collections;
 
-import ca.mcgill.mcb.pcingola.util.Gpr;
-
 /**
  * Store a base, size and compare them
  * @author pcingola
@@ -124,7 +122,6 @@ public class MotifLogo {
 			for (char base : Pwm.BASES) {
 				double p = baseFrecuency(base, pos);
 				double size = seqConserv * p;
-				Gpr.debug("P:" + p + "\tSize: " + size + "\tSeqCons: " + seqConserv);
 
 				BaseSize baseSize = new BaseSize(base, size);
 				bases.add(baseSize);
@@ -134,12 +131,12 @@ public class MotifLogo {
 			Collections.sort(bases, Collections.reverseOrder());
 
 			// Show
-			sb.append("\t\t<td valign=bottom>\n");
+			sb.append("\t\t<td valign=bottom>\n\t\t\t<center>\n");
 			for (BaseSize baseSize : bases) {
 				int height = (int) (maxHeight * baseSize.size);
 				sb.append("\t\t\t<img border=0 src=\"" + baseSize.base + ".png\" width=" + width + " height=" + height + "\"><br>\n");
 			}
-			sb.append("\t\t" + pos + "<br>\n");
+			sb.append("\t\t\t" + pos + "<br>\n\t\t\t</center>\n");
 			sb.append("\t\t</td>\n");
 		}
 		sb.append("\t</tr>\n</table>\n");
