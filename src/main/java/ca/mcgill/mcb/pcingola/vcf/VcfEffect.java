@@ -10,8 +10,14 @@ import ca.mcgill.mcb.pcingola.util.Gpr;
  */
 public class VcfEffect {
 
-	public static final boolean USE_OLD_FORMAT = true;
+	/**
+	 * VcfFields in SnpEff version 2.X have a different format than 3.X 
+	 */
+	public enum FormatVersion {
+		FORMAT_2, FORMAT_3
+	};
 
+	FormatVersion formatVersion;
 	ChangeEffect.EffectType effect;
 	ChangeEffect.EffectImpact impact;
 	ChangeEffect.FunctionalClass funClass;
@@ -24,7 +30,60 @@ public class VcfEffect {
 	String transcriptId;
 	String exonId;
 
+	/**
+	 * Convert from field name to field number
+	 * @param name
+	 * @param formatVersion
+	 * @return
+	 */
+	public static int fieldNum(String name, FormatVersion formatVersion) {
+		int fieldNum = 0;
+
+		if (name.equals("EFF.EFFECT")) return fieldNum;
+		fieldNum++;
+
+		if (name.equals("EFF.IMPACT")) return fieldNum;
+		fieldNum++;
+
+		if (name.equals("EFF.FUNCLASS")) return fieldNum;
+		fieldNum++;
+
+		if (name.equals("EFF.CODON")) return fieldNum;
+		fieldNum++;
+
+		if (name.equals("EFF.AA")) return fieldNum;
+		fieldNum++;
+
+		if (formatVersion != FormatVersion.FORMAT_2) {
+			if (name.equals("EFF.AA_LEN")) return fieldNum;
+			fieldNum++;
+		}
+
+		if (name.equals("EFF.GENE")) return fieldNum;
+		fieldNum++;
+
+		if (name.equals("EFF.BIOTYPE")) return fieldNum;
+		fieldNum++;
+
+		if (name.equals("EFF.CODING")) return fieldNum;
+		fieldNum++;
+
+		if (name.equals("EFF.TRID")) return fieldNum;
+		fieldNum++;
+
+		if (name.equals("EFF.EXID")) return fieldNum;
+		fieldNum++;
+
+		return -1;
+	}
+
 	public VcfEffect(String effStr) {
+		formatVersion = FormatVersion.FORMAT_3;
+		parse(effStr);
+	}
+
+	public VcfEffect(String effStr, FormatVersion formatVersion) {
+		this.formatVersion = formatVersion;
 		parse(effStr);
 	}
 
@@ -97,7 +156,7 @@ public class VcfEffect {
 			if ((effs.length > index) && !effs[index].isEmpty()) aa = effs[index];
 			index++;
 
-			if (!USE_OLD_FORMAT) {
+			if (formatVersion != FormatVersion.FORMAT_2) {
 				if ((effs.length > index) && !effs[index].isEmpty()) aaLen = Gpr.parseIntSafe(effs[index]);
 				else aaLen = 0;
 				index++;
