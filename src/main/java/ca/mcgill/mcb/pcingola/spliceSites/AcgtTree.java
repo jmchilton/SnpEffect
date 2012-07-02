@@ -20,6 +20,7 @@ public class AcgtTree {
 	String name;
 	AcgtTree nodes[];
 	int counts[];
+	int totalCount;
 
 	public static int base2index(char base) {
 		switch (Character.toUpperCase(base)) {
@@ -35,14 +36,23 @@ public class AcgtTree {
 		throw new RuntimeException("Unknown base '" + base + "'");
 	}
 
-	public AcgtTree(String name) {
+	public AcgtTree() {
+		name = "";
+		nodes = new AcgtTree[4];
+		counts = new int[4];
+	}
+
+	protected AcgtTree(String name) {
 		this.name = name;
 		nodes = new AcgtTree[4];
 		counts = new int[4];
 	}
 
 	public void add(String sequence) {
-		if ((sequence == null) || sequence.isEmpty()) return;
+		if ((sequence == null) || sequence.isEmpty()) {
+			totalCount++;
+			return;
+		}
 
 		// Count for this node
 		char base = sequence.charAt(0);
@@ -71,25 +81,17 @@ public class AcgtTree {
 	 * @param thresholdCount
 	 * @return
 	 */
-	public List<String> findNodeNames(double thresholdEntropy, double thresholdP, int thresholdCount) {
+	public List<String> findNodeNames(double thresholdP, int thresholdCount) {
 		ArrayList<String> names = new ArrayList<String>();
-		if (totalCount() == 0) return names;
+		if (getTotalCount() == 0) return names;
 
-		names.add(name);
 		double p[] = p();
-		int i = 0;
-
-		for (char base : BASES) {
-			int idx = base2index(base);
+		for (int idx = 0; idx < 4; idx++) {
 			AcgtTree n = nodes[idx];
-
-			// if ((n != null) && (n.entropy() <= thresholdEntropy) && (counts[idx] >= thresholdCount)) names.addAll(n.findNodeNames(thresholdEntropy, thresholdCount));
-			if ((n != null) //
-					&& ((n.entropy() <= thresholdEntropy) || (p[idx] >= thresholdP)) //
-					&& (counts[idx] >= thresholdCount) //
-			) names.addAll(n.findNodeNames(thresholdEntropy, thresholdP, thresholdCount));
-
-			i++;
+			if (n != null) {
+				if ((p[idx] >= thresholdP) && (counts[idx] >= thresholdCount)) names.add(n.name);
+				names.addAll(n.findNodeNames(thresholdP, thresholdCount));
+			}
 		}
 
 		return names;
@@ -132,12 +134,17 @@ public class AcgtTree {
 		return node;
 	}
 
+	public int getTotalCount() {
+		return totalCount;
+	}
+
 	/**
 	 * Increment counter for a base
 	 * @param base
 	 */
 	public void inc(char base) {
 		counts[base2index(base)]++;
+		totalCount++;
 	}
 
 	double[] informationContent() {
@@ -186,7 +193,7 @@ public class AcgtTree {
 	}
 
 	public String toString(String tabs, double thresholdEntropy, double thresholdP, int thresholdCount) {
-		if (totalCount() == 0) return "";
+		if (getTotalCount() == 0) return "";
 
 		StringBuilder sb = new StringBuilder();
 		double p[] = p();
@@ -207,12 +214,5 @@ public class AcgtTree {
 		}
 
 		return sb.toString();
-	}
-
-	public int totalCount() {
-		int tot = 0;
-		for (int c : counts)
-			tot += c;
-		return tot;
 	}
 }

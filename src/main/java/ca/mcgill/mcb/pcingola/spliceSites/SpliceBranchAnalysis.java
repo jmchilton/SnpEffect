@@ -3,6 +3,7 @@ package ca.mcgill.mcb.pcingola.spliceSites;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 
 import ca.mcgill.mcb.pcingola.fileIterator.FastaFileIterator;
 import ca.mcgill.mcb.pcingola.interval.Chromosome;
@@ -439,6 +440,7 @@ public class SpliceBranchAnalysis {
 	 */
 	void spliceAnalysis(String chrName, String chrSeq) {
 		int countEx = 0;
+		HashSet<String> done = new HashSet<String>();
 
 		for (Gene gene : config.getGenome().getGenes()) {
 			if (gene.getChromosomeName().equals(chrName)) { // Same chromosome
@@ -449,7 +451,15 @@ public class SpliceBranchAnalysis {
 
 						if (prev >= 0) {
 							if (prev > ex.getStart()) System.err.println("WARNINIG: Exon check failed. Skipping: " + ex);
-							else updatePwm(tr, chrSeq, prev, ex.getStart());
+							else {
+								int start = prev;
+								int end = ex.getStart();
+								String key = chrName + ":" + start + "-" + end;
+
+								if (!done.contains(key)) updatePwm(tr, chrSeq, start, end);
+
+								done.add(key);
+							}
 						}
 
 						prev = ex.getEnd();
