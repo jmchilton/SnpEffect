@@ -3,6 +3,8 @@ package ca.mcgill.mcb.pcingola.spliceSites;
 import java.util.ArrayList;
 import java.util.List;
 
+import ca.mcgill.mcb.pcingola.util.Gpr;
+
 /**
  * ACGT tree
  * 
@@ -57,8 +59,8 @@ public class AcgtTree {
 	 */
 	public double entropy() {
 		double entropy = 0;
-		for (double p : p())
-			entropy += -p * Math.log(p) / LOG2;
+		for (double inf : informationContent())
+			entropy += inf;
 
 		return entropy;
 	}
@@ -69,18 +71,25 @@ public class AcgtTree {
 	 * @param thresholdCount
 	 * @return
 	 */
-	public List<String> findNodeNames(double thresholdEntropy, int thresholdCount) {
+	public List<String> findNodeNames(double thresholdEntropy, double thresholdP, int thresholdCount) {
 		ArrayList<String> names = new ArrayList<String>();
 		if (totalCount() == 0) return names;
 
 		names.add(name);
+		double p[] = p();
+		int i = 0;
 
 		for (char base : BASES) {
 			int idx = base2index(base);
 			AcgtTree n = nodes[idx];
-			if ((n != null) && (n.entropy() <= thresholdEntropy) && (counts[idx] >= thresholdCount)) {
-				names.addAll(n.findNodeNames(thresholdEntropy, thresholdCount));
-			}
+
+			// if ((n != null) && (n.entropy() <= thresholdEntropy) && (counts[idx] >= thresholdCount)) names.addAll(n.findNodeNames(thresholdEntropy, thresholdCount));
+			if ((n != null) //
+					&& ((n.entropy() <= thresholdEntropy) || (p[idx] >= thresholdP)) //
+					&& (counts[idx] >= thresholdCount) //
+			) names.addAll(n.findNodeNames(thresholdEntropy, thresholdP, thresholdCount));
+
+			i++;
 		}
 
 		return names;
@@ -131,6 +140,15 @@ public class AcgtTree {
 		counts[base2index(base)]++;
 	}
 
+	double[] informationContent() {
+		double inf[] = new double[4];
+		double p[] = p();
+		for (int i = 0; i < 4; i++)
+			inf[i] += -p[i] * Math.log(p[i]) / LOG2;
+
+		return inf;
+	}
+
 	double[] p() {
 		int tot = 0;
 		for (int c : counts) {
@@ -164,19 +182,27 @@ public class AcgtTree {
 
 	@Override
 	public String toString() {
-		return toString("", 2.0, 0);
+		return toString("", 2.0, 1.0, 0);
 	}
 
-	public String toString(String tabs, double thresholdEntropy, int thresholdCount) {
+	public String toString(String tabs, double thresholdEntropy, double thresholdP, int thresholdCount) {
 		if (totalCount() == 0) return "";
 
 		StringBuilder sb = new StringBuilder();
-		for (char base : BASES) {
-			int idx = base2index(base);
+		double p[] = p();
+		for (int idx = 0; idx < 4; idx++) {
+			char base = BASES[idx];
 			AcgtTree n = nodes[idx];
 			if (n != null) {
-				sb.append(tabs + name + base + ": " + counts[idx] + "\t" + n.entropy() + "\n");
-				if ((n.entropy() <= thresholdEntropy) && (counts[idx] >= thresholdCount)) sb.append(n.toString(tabs + "\t", thresholdEntropy, thresholdCount));
+				sb.append(String.format("%s%s%s: %d\te:%4.3f\tp:%4.2f\n", tabs, name, base, counts[idx], n.entropy(), p[idx]));
+
+				if (((n.entropy() <= thresholdEntropy) || (p[idx] >= thresholdP)) //
+						&& (counts[idx] >= thresholdCount) //
+				) {
+					Gpr.debug("Name:" + n.name + "\tIdx:" + +idx + "\tEntropy: " + n.entropy() + "\tP:" + p[idx] + "\tCount:" + counts[idx]);
+					sb.append(n.toString(tabs + "\t", thresholdEntropy, thresholdP, thresholdCount));
+				}
+
 			}
 		}
 

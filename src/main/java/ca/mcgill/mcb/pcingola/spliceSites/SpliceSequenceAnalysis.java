@@ -14,7 +14,8 @@ import ca.mcgill.mcb.pcingola.util.Timer;
 public class SpliceSequenceAnalysis {
 
 	public static final double THRESHOLD_ENTROPY = 1.5;
-	public static final int THRESHOLD_COUNT = 50;
+	public static final int THRESHOLD_COUNT = 100;
+	public static final double THRESHOLD_P = 0.6;
 	public static final int BRANCH_SIZE = 5;
 
 	ArrayList<String> donors = new ArrayList<String>();
@@ -54,10 +55,10 @@ public class SpliceSequenceAnalysis {
 
 			if (branch.indexOf('N') < 0) {
 				branches.add(branch);
-				for (int i = 0; i < branch.length() - BRANCH_SIZE; i++) {
-					String b = branch.substring(i, i + BRANCH_SIZE + 1);
-					acgtTreeBranch.add(b);
-				}
+				//				for (int i = 0; i < branch.length() - BRANCH_SIZE; i++) {
+				//					String b = branch.substring(i, i + BRANCH_SIZE + 1);
+				//					acgtTreeBranch.add(b);
+				//				}
 			}
 
 			if (acc.indexOf('N') < 0) {
@@ -67,12 +68,13 @@ public class SpliceSequenceAnalysis {
 		}
 
 		Timer.showStdErr("Done. Total added: " + donors.size());
-		System.out.println("\n\nDonors: " + acgtTreeDonors.seqConservation() + "\n" + acgtTreeDonors.toString("", THRESHOLD_ENTROPY, THRESHOLD_COUNT));
-		for (String seq : acgtTreeDonors.findNodeNames(THRESHOLD_ENTROPY, THRESHOLD_COUNT))
-			System.out.println("\t" + seq);;
 
-		System.out.println("\n\nAcceptors: " + acgtTreeAcc.seqConservation() + "\n" + acgtTreeAcc.toString("", THRESHOLD_ENTROPY, THRESHOLD_COUNT));
-		for (String seq : acgtTreeAcc.findNodeNames(THRESHOLD_ENTROPY, THRESHOLD_COUNT))
+		//		System.out.println("\n\nDonors: " + acgtTreeDonors.seqConservation() + "\n" + acgtTreeDonors.toString("", THRESHOLD_ENTROPY, THRESHOLD_P, THRESHOLD_COUNT));
+		//		for (String seq : acgtTreeDonors.findNodeNames(THRESHOLD_ENTROPY, THRESHOLD_P, THRESHOLD_COUNT))
+		//			System.out.println("\t" + seq);;
+
+		System.out.println("\n\nAcceptors: " + acgtTreeAcc.seqConservation() + "\n" + acgtTreeAcc.toString("", THRESHOLD_ENTROPY, THRESHOLD_P, THRESHOLD_COUNT));
+		for (String seq : acgtTreeAcc.findNodeNames(THRESHOLD_ENTROPY, THRESHOLD_P, THRESHOLD_COUNT))
 			System.out.println("\t" + seq);;
 
 		//System.out.println("\n\nBranch:\n" + acgtTreeBranch.toString("", 1.95, THRESHOLD_COUNT));
