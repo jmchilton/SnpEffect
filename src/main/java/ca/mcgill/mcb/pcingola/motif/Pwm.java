@@ -1,11 +1,15 @@
 package ca.mcgill.mcb.pcingola.motif;
 
+import ca.mcgill.mcb.pcingola.util.Gpr;
+
 /**
  * Create a DNA motif count matrix
  * 
  * @author pcingola
  */
 public class Pwm {
+
+	public static final int SCALE = 1000000;
 
 	public static final char BASES[] = { 'A', 'C', 'G', 'T' };
 	int countMatrix[][]; // Keep counts for each base and position: countMatrix[base][position]
@@ -15,6 +19,20 @@ public class Pwm {
 	public Pwm(int length) {
 		this.length = length;
 		countMatrix = new int[4][length];
+	}
+
+	public Pwm(String file) {
+		String data = Gpr.readFile(file);
+		String lines[] = data.split("\n");
+
+		length = lines.length;
+		countMatrix = new int[4][length];
+
+		for (int lineNum = 0; lineNum < lines.length; lineNum++) {
+			String val[] = lines[lineNum].split("\t");
+			for (int baseNum = 0; baseNum < 4; baseNum++)
+				countMatrix[baseNum][lineNum] = (int) (Gpr.parseDoubleSafe(val[baseNum]) * SCALE);
+		}
 	}
 
 	/**
@@ -55,6 +73,24 @@ public class Pwm {
 
 	public int getTotalCount() {
 		return totalCount;
+	}
+
+	public int length() {
+		return length;
+	}
+
+	/**
+	 * Calculate PWM score for a string
+	 * @param dna
+	 * @return
+	 */
+	public double score(String dna) {
+		char bases[] = dna.toCharArray();
+		int score = 0;
+		for (int i = 0; i < bases.length; i++)
+			score += getCount(bases[i], i);
+
+		return ((double) score) / (length * SCALE);
 	}
 
 	/**
