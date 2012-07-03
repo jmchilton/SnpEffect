@@ -4,9 +4,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 
 import ca.mcgill.mcb.pcingola.fileIterator.LineFileIterator;
 import ca.mcgill.mcb.pcingola.stats.CountByType;
+import ca.mcgill.mcb.pcingola.util.Gpr;
 import ca.mcgill.mcb.pcingola.util.GprSeq;
 import ca.mcgill.mcb.pcingola.util.Timer;
 
@@ -17,9 +19,9 @@ import ca.mcgill.mcb.pcingola.util.Timer;
  */
 public class SpliceSequenceAnalysis {
 
-	public static final double THRESHOLD_ENTROPY = 1.5;
+	public static final double THRESHOLD_ENTROPY = 0.05;
 	public static final int THRESHOLD_COUNT = 100;
-	public static final double THRESHOLD_P = 0.75;
+	public static final double THRESHOLD_P = 0.95;
 	public static final int BRANCH_SIZE = 5;
 	public static final int ACCEPTOR_SIZE = 5;
 	//	public static final int NMER_SIZE = 6;
@@ -33,6 +35,11 @@ public class SpliceSequenceAnalysis {
 	AcgtTree acgtTreeAcc = new AcgtTree();
 	AcgtTree acgtTreeBranch = new AcgtTree();
 	HashMap<String, Integer> donorAcc = new HashMap<String, Integer>();
+
+	double thresholdPDonor;
+	double thresholdEntropyDonor;
+	double thresholdPAcc;
+	double thresholdEntropyAcc;
 
 	public static void main(String[] args) {
 		// Command line arguments
@@ -63,7 +70,7 @@ public class SpliceSequenceAnalysis {
 		}
 
 		// Show them
-		for (String accSeq : tree.findNodeNames(THRESHOLD_P, THRESHOLD_COUNT)) {
+		for (String accSeq : tree.findNodeNames(thresholdEntropyAcc, thresholdPAcc, THRESHOLD_COUNT)) {
 			if (accSeq.length() > 1) {
 				accSeq = GprSeq.reverse(accSeq);
 				add(donorSeq, accSeq);
@@ -109,9 +116,10 @@ public class SpliceSequenceAnalysis {
 	 */
 	void countMotifMatch(String donor, String acceptor) {
 		StringBuilder sb = new StringBuilder();
+		StringBuilder fasta = new StringBuilder();
 
 		CountByType countMotif = new CountByType();
-		int countBranch = 0;
+		int countBranch = 0, fastaId = 0;
 		for (int i = 0; i < donors.size(); i++) {
 			String d = donors.get(i);
 			String a = accs.get(i);
@@ -121,7 +129,8 @@ public class SpliceSequenceAnalysis {
 				countMotifMatch(countMotif, branch);
 				countBranch += branch.length();
 
-				sb.append("\t\t\t\t\t\t" + branch.subSequence(0, branch.length() - acceptor.length()) + "\n");
+				fasta.append(">id_" + fastaId + "\n" + branch.subSequence(0, branch.length() - acceptor.length()) + "\n");
+				fastaId++;
 			}
 		}
 
@@ -136,6 +145,10 @@ public class SpliceSequenceAnalysis {
 		}
 		if (show) System.out.print("\t\t\t\t\t\tBranch:\n" + sb);
 
+		// Write fasta file 
+		String fastaFile = SpliceBranchAnalysis.OUTPUT_DIR + "/" + donor + "-" + acceptor + ".fa";
+		Timer.showStdErr("Writing fasta sequences to file: " + fastaFile);
+		Gpr.toFile(fastaFile, fasta);
 	}
 
 	/**
@@ -154,9 +167,33 @@ public class SpliceSequenceAnalysis {
 		}
 
 		// Show them
-		for (String donorSeq : tree.findNodeNames(THRESHOLD_P, THRESHOLD_COUNT))
+		for (String donorSeq : tree.findNodeNames(thresholdEntropyDonor, thresholdPDonor, THRESHOLD_COUNT))
 			if (donorSeq.length() > 1) add(donorSeq, accSeq);
 
+	}
+
+	/**
+	 * Find an probability threshold using THRESHOLD_P quantile
+	 * @param tree
+	 * @return
+	 */
+	double findEntropyThreshold(AcgtTree tree) {
+		List<Double> values = tree.entropyAll(THRESHOLD_COUNT);
+		Collections.sort(values);
+		int index = (int) (values.size() * THRESHOLD_ENTROPY);
+		return values.get(index);
+	}
+
+	/**
+	 * Find an probability threshold using THRESHOLD_P quantile
+	 * @param tree
+	 * @return
+	 */
+	double findPthreshold(AcgtTree tree) {
+		List<Double> values = tree.pAll(THRESHOLD_COUNT);
+		Collections.sort(values);
+		int index = (int) (values.size() * THRESHOLD_P);
+		return values.get(index);
 	}
 
 	public void run(String fileName) {
@@ -187,16 +224,27 @@ public class SpliceSequenceAnalysis {
 		//---
 		// Find donor - acceptor pairs
 		//---
-		for (String seq : acgtTreeDonors.findNodeNames(THRESHOLD_P, THRESHOLD_COUNT))
-			if (seq.length() > 1) acc4donor(seq);
+		Timer.showStdErr("Calculate thresholds");
+		thresholdPDonor = findPthreshold(acgtTreeDonors);
+		thresholdEntropyDonor = findEntropyThreshold(acgtTreeDonors);
+		thresholdPAcc = findPthreshold(acgtTreeAcc);
+		thresholdEntropyAcc = findEntropyThreshold(acgtTreeAcc);
 
-		for (String seq : acgtTreeAcc.findNodeNames(THRESHOLD_P, THRESHOLD_COUNT))
+		Timer.showStdErr("Donors Thresholds:\tEntropy: " + thresholdEntropyDonor + "\t\tProbability: " + thresholdPDonor);
+		for (String seq : acgtTreeDonors.findNodeNames(thresholdEntropyDonor, thresholdPDonor, THRESHOLD_COUNT)) {
+			if (seq.length() > 1) acc4donor(seq);
+		}
+
+		Timer.showStdErr("Find acceptors");
+		Timer.showStdErr("Acceptors Thresholds:\tEntropy: " + thresholdEntropyAcc + "\t\tProbability: " + thresholdPAcc);
+		for (String seq : acgtTreeAcc.findNodeNames(thresholdEntropyAcc, thresholdPAcc, THRESHOLD_COUNT)) {
 			if (seq.length() > 1) donor4acc(GprSeq.reverse(seq));
+		}
 
 		//---
 		// Show all donor - acc pairs (sort by number of matches)
 		//---
-		System.out.println("\n\nDonor - Acceptors: ");
+		Timer.showStdErr("Add Donor - Acceptors pairs: ");
 		ArrayList<String> keys = new ArrayList<String>();
 		keys.addAll(donorAcc.keySet());
 		Collections.sort(keys, new Comparator<String>() {
@@ -212,5 +260,8 @@ public class SpliceSequenceAnalysis {
 			System.out.println(donorAcc.get(key) + "\t" + key);
 			countMotifMatch(k[0], k[1]);
 		}
+
+		Timer.showStdErr("Finished!");
 	}
+
 }

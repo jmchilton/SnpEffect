@@ -212,7 +212,7 @@ public class SpliceBranchAnalysis {
 	}
 
 	public static final String DELTA_G_FILE = Gpr.HOME + "/workspace/SnpEff/data/stack.deltaG";
-	public static final String OUTPUT_DIR = Gpr.HOME + "/workspace/SnpEff/data/spliceSites";
+	public static final String OUTPUT_DIR = Gpr.HOME + "/snpEff/splice";
 
 	public static boolean debug = false;
 	public static boolean test = false;

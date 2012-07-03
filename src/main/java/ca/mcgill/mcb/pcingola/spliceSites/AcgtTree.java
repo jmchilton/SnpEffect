@@ -21,6 +21,7 @@ public class AcgtTree {
 	AcgtTree nodes[];
 	int counts[];
 	int totalCount;
+	AcgtTree parent;
 
 	public static int base2index(char base) {
 		switch (Character.toUpperCase(base)) {
@@ -40,10 +41,12 @@ public class AcgtTree {
 		name = "";
 		nodes = new AcgtTree[4];
 		counts = new int[4];
+		parent = null; // Root of the tree
 	}
 
-	protected AcgtTree(String name) {
+	protected AcgtTree(String name, AcgtTree parent) {
 		this.name = name;
+		this.parent = parent;
 		nodes = new AcgtTree[4];
 		counts = new int[4];
 	}
@@ -75,13 +78,25 @@ public class AcgtTree {
 		return entropy;
 	}
 
+	public List<Double> entropyAll(int thresholdCount) {
+		ArrayList<Double> entropies = new ArrayList<Double>();
+		entropyAll(thresholdCount, entropies);
+		return entropies;
+	}
+
+	void entropyAll(int thresholdCount, ArrayList<Double> entropies) {
+		if (totalCount >= thresholdCount) entropies.add(entropy());
+		for (AcgtTree node : nodes)
+			if (node != null) node.entropyAll(thresholdCount, entropies);
+	}
+
 	/**
 	 * Find node names that are within the thresholds
 	 * @param thresholdEntropy
 	 * @param thresholdCount
 	 * @return
 	 */
-	public List<String> findNodeNames(double thresholdP, int thresholdCount) {
+	public List<String> findNodeNames(double thresholdEntropy, double thresholdP, int thresholdCount) {
 		ArrayList<String> names = new ArrayList<String>();
 		if (getTotalCount() == 0) return names;
 
@@ -89,8 +104,14 @@ public class AcgtTree {
 		for (int idx = 0; idx < 4; idx++) {
 			AcgtTree n = nodes[idx];
 			if (n != null) {
-				if ((p[idx] >= thresholdP) && (counts[idx] >= thresholdCount)) names.add(n.name);
-				names.addAll(n.findNodeNames(thresholdP, thresholdCount));
+				if (((parent == null) || (parent.entropy() <= thresholdEntropy)) // Parent's entropy is low enough?
+						&& (p[idx] >= thresholdP) // Probability is high enough?
+						&& (counts[idx] >= thresholdCount) // Do we have enough counts?
+				) {
+					names.add(n.name);
+				}
+
+				names.addAll(n.findNodeNames(thresholdEntropy, thresholdP, thresholdCount));
 			}
 		}
 
@@ -129,7 +150,7 @@ public class AcgtTree {
 		if (node != null) return node;
 
 		// Create node
-		node = new AcgtTree(name + base);
+		node = new AcgtTree(name + base, this);
 		set(base, node);
 		return node;
 	}
@@ -172,6 +193,23 @@ public class AcgtTree {
 		}
 
 		return p;
+	}
+
+	public List<Double> pAll(int thresholdCount) {
+		ArrayList<Double> ps = new ArrayList<Double>();
+		pAll(thresholdCount, ps);
+		return ps;
+	}
+
+	protected void pAll(int thresholdCount, List<Double> ps) {
+		for (int i = 0; i < nodes.length; i++) {
+			AcgtTree node = nodes[i];
+			double p[] = p();
+			if (node != null) {
+				if (counts[i] >= thresholdCount) ps.add(p[i]);
+				node.pAll(thresholdCount, ps);
+			}
+		}
 	}
 
 	public double seqConservation() {
