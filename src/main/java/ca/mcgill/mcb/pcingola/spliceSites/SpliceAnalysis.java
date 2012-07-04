@@ -97,6 +97,11 @@ public class SpliceAnalysis extends SnpEff {
 			out.append(mlAcc.toStringHtml(HTML_WIDTH, HTML_HEIGHT));
 			out.append("\t</td>\n");
 
+			// Intrin length stats
+			out.append("\t<td> <pre>\n");
+			out.append(lenStats.toString());
+			out.append("\t</pre></td>\n");
+
 			out.append("</tr>\n");
 
 			return out.toString();
@@ -428,7 +433,7 @@ public class SpliceAnalysis extends SnpEff {
 		pwmsets.addAll(pwmSetsByName.values());
 		Collections.sort(pwmsets);
 		out("<table border=1>\n");
-		out("<tr> <th> Donor type </th>  <th> Count </th>  <th> Donor Motif </th> <th> U12 matches (Observed / Expected) </th> <th> Acceptor Motif </th> </tr>\n");
+		out("<tr> <th> Donor type </th>  <th> Count </th>  <th> Donor Motif </th> <th> U12 matches (Observed / Expected) </th> <th> Acceptor Motif </th> <th> Intron length </th> </tr>\n");
 		for (PwmSet pwmset : pwmsets)
 			if (pwmset.updates > threshold) out(pwmset);
 		out("</table>\n");
