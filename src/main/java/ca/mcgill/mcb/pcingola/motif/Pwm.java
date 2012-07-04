@@ -94,6 +94,22 @@ public class Pwm {
 	}
 
 	/**
+	 * Set PWM as a perfect match to a dna sequence
+	 * @param dna
+	 * @param weight
+	 */
+	public void set(String dna, int weight) {
+		char bases[] = dna.toCharArray();
+		for (int i = 0; i < bases.length; i++) {
+			// Fake count
+			for (int j = 0; j < BASES.length; j++)
+				countMatrix[j][i] = 1;
+
+			countMatrix[base2int(bases[i])][i] = weight;
+		}
+	}
+
+	/**
 	 * Matrix size
 	 * @return
 	 */

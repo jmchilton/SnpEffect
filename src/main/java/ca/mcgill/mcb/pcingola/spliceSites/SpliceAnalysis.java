@@ -212,6 +212,24 @@ public class SpliceAnalysis extends SnpEff {
 		return best;
 	}
 
+	double bestU2Score(String donor, String seq) {
+		// Create a match for this donor
+		Pwm pwm = new Pwm(donor.length());
+		pwm.set(donor, 100);
+
+		int max = seq.length() - pwm.length();
+		double best = 0;
+		for (int i = 0; i < max; i++) {
+			String sub = seq.substring(i, i + pwm.length());
+			if (sub.indexOf('N') < 0) {
+				double score = pwm.score(sub);
+				best = Math.max(best, score);
+			}
+		}
+
+		return best;
+	}
+
 	/**
 	 * Calculate threshold of U12 PWM scores  
 	 */
@@ -219,7 +237,9 @@ public class SpliceAnalysis extends SnpEff {
 		Timer.showStdErr("Finding U12 PWM score distribution and threshold.");
 		ArrayList<Double> scores = new ArrayList<Double>();
 
-		for (String branch : branchesList) {
+		//for (String branch : branchesList) {
+		for (int i = 0; i < branchesList.size(); i++) {
+			String branch = branchesList.get(i);
 			double bestScore = bestU12Score(branch);
 			scores.add(bestScore);
 		}
