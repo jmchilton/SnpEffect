@@ -532,8 +532,6 @@ public class SpliceAnalysis extends SnpEff {
 	 * Find splice sequences for this intron
 	 */
 	void spliceSequences(Transcript tr, String chrSeq, int intronStart, int intronEnd) {
-		countIntrons++;
-
 		//---
 		// Get donor and acceptor coordinates and strings
 		//---
