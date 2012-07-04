@@ -242,13 +242,6 @@ public class SpliceAnalysis extends SnpEff {
 		return count;
 	}
 
-	void countMotifMatch(CountByType countMotif, String branchStr) {
-		for (String motif : SpliceBranchAnalysis.BRANCH_POINT_SEQUENCES) {
-			int idx = branchStr.indexOf(motif);
-			if (idx >= 0) countMotif.inc(motif);
-		}
-	}
-
 	/**
 	 * Create one fasta file for each donor-acceptor pair
 	 */
