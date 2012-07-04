@@ -7,6 +7,7 @@ import ca.mcgill.mcb.pcingola.Config2DownloadTable;
 import ca.mcgill.mcb.pcingola.Pcingola;
 import ca.mcgill.mcb.pcingola.logStatsServer.LogStats;
 import ca.mcgill.mcb.pcingola.snpEffect.Config;
+import ca.mcgill.mcb.pcingola.spliceSites.SpliceAnalysis;
 import ca.mcgill.mcb.pcingola.util.Gpr;
 
 /**
@@ -145,6 +146,7 @@ public class SnpEff implements CommandLine {
 				|| args[0].equalsIgnoreCase("closestExon") //
 				|| args[0].equalsIgnoreCase("test") //
 				|| args[0].equalsIgnoreCase("cfg2table") //
+				|| args[0].equalsIgnoreCase("spliceAnalysis") //
 		) {
 			command = args[0].toLowerCase();
 
@@ -231,6 +233,12 @@ public class SnpEff implements CommandLine {
 			// Test command (only for testing weird stuff)
 			//---
 			snpEff = new SnpEffCmdTest();
+			snpEff.parseArgs(shiftArgs);
+		} else if (command.equals("spliceanalysis")) {
+			//---
+			// Splice site analysis
+			//---
+			snpEff = new SpliceAnalysis();
 			snpEff.parseArgs(shiftArgs);
 		} else throw new RuntimeException("Unknown command '" + command + "'");
 

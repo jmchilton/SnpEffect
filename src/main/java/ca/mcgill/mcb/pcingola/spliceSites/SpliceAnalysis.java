@@ -15,6 +15,7 @@ import ca.mcgill.mcb.pcingola.interval.Transcript;
 import ca.mcgill.mcb.pcingola.motif.MotifLogo;
 import ca.mcgill.mcb.pcingola.motif.Pwm;
 import ca.mcgill.mcb.pcingola.snpEffect.Config;
+import ca.mcgill.mcb.pcingola.snpEffect.commandLine.SnpEff;
 import ca.mcgill.mcb.pcingola.stats.CountByType;
 import ca.mcgill.mcb.pcingola.stats.IntStats;
 import ca.mcgill.mcb.pcingola.util.Gpr;
@@ -26,7 +27,7 @@ import ca.mcgill.mcb.pcingola.util.Timer;
  * 
  * @author pcingola
  */
-public class SpliceAnalysis {
+public class SpliceAnalysis extends SnpEff {
 
 	/**
 	 * A set of PWMs
@@ -40,6 +41,7 @@ public class SpliceAnalysis {
 		IntStats lenStats;
 		int motifMatchedBases = 0, motifMatchedStr = 0;
 		int updates = 0;
+		int countU12 = 0;
 
 		public PwmSet(String name) {
 			this.name = name;
@@ -47,6 +49,10 @@ public class SpliceAnalysis {
 			pwmDonor = new Pwm(2 * SIZE_SPLICE + 1);
 			lenStats = new IntStats();
 			countMotif = new CountByType();
+		}
+
+		void incU12() {
+			countU12++;
 		}
 
 		void len(int len) {
@@ -67,23 +73,16 @@ public class SpliceAnalysis {
 			out.append(mlDonor.toStringHtml(HTML_WIDTH, HTML_HEIGHT));
 			out.append("\t</td>\n");
 
-			// Branch motif match count
-			out.append("\t<td>\n\t<table>\n");
-			out.append("\t\t<tr> <th> Motif </th> <th> Observed </th> <th> Expected </th> <th> Obs. / Exp. </th> </tr> \n");
-			for (String motif : countMotif.getTypeList()) {
-				int totalBases = motifMatchedBases - motifMatchedStr * motif.length();
-				double expected = totalBases * Math.pow(0.25, motif.length());
-				double oe = countMotif.get(motif) / expected; // ratio = Observed / expected
+			// U12 count
+			double expected = updates * (1.0 - THRESHOLD_BRANCH_U12_SCORE);
+			double oe = countU12 / expected; // ratio = Observed / expected
 
-				// Colors
-				String bg = "ffffff";
-				if (oe > 10) bg = "ff0000";
-				else if (oe > 2) bg = "ff8888";
-				else if (oe > 1.2) bg = "ffcccc";
-
-				out.append(String.format("\t<tr bgcolor=%s> <td>%s </td> <td align=right> %d </td> <td align=right> %.1f </td> <td align=right> %.2f </td> </tr> \n", bg, motif, countMotif.get(motif), expected, oe));
-			}
-			out.append("\t</table></center> </td>\n");
+			// U12 Colors
+			String bg = "ffffff";
+			if (oe > 10) bg = "ff0000";
+			else if (oe > 2) bg = "ff8888";
+			else if (oe > 1.2) bg = "ffcccc";
+			out.append(String.format("\t<td bgcolor=%s> <center> %d (%1.2f)" + " </center> </td>\n", bg, countU12, oe));
 
 			// Acceptor motif
 			MotifLogo mlAcc = new MotifLogo(pwmAcc);
@@ -100,10 +99,11 @@ public class SpliceAnalysis {
 			updates++;
 			if (accStr != null) pwmAcc.updateCounts(accStr);
 			if (donorStr != null) pwmDonor.updateCounts(donorStr);
+
 		}
 	}
 
-	public static final String OUTPUT_DIR = Gpr.HOME + "/snpEff/splice";
+	public static final String OUTPUT_DIR = ".";
 	public static int SIZE_SPLICE = 10;
 	public static int SIZE_CONSENSUS_DONOR = 2;
 	public static int SIZE_CONSENSUS_ACCEPTOR = 2;
@@ -111,13 +111,13 @@ public class SpliceAnalysis {
 	public static final double THRESHOLD_ENTROPY = 0.05;
 	public static final int THRESHOLD_COUNT = 100;
 	public static final double THRESHOLD_P = 0.95;
-	public static final double THRESHOLD_BRANCH_U12_SCORE = 0.99;
+	public static final double THRESHOLD_BRANCH_U12_SCORE = 0.95;
 	public static final int BRANCH_SIZE = 5;
 	public static final int ACCEPTOR_SIZE = 5;
 	public static final double MIN_OE_BRANCH = 5.0;
 	public static int HTML_WIDTH = 20;
 	public static int HTML_HEIGHT = 100;
-	public static double MIN_UPDATES_PERC = 0.0000; // Don't show if there are less than this number on the whole genome
+	public static double MIN_UPDATES_PERC = 0.0001; // Don't show if there are less than this number on the whole genome
 
 	String genomeVer;
 	String genomeFasta;
@@ -147,26 +147,8 @@ public class SpliceAnalysis {
 
 	int countIntrons = 0;
 
-	public static void main(String[] args) {
-		// Command line arguments
-		if (args.length != 1) {
-			System.err.println("Usage: SpliceBranchAnalysis2 genomeName");
-			System.exit(1);
-		}
-
-		// Find dono-acceptor combinations
-		String genomeName = args[0];
-		SpliceAnalysis splBr = new SpliceAnalysis(genomeName);
-		splBr.run();
-	}
-
-	public SpliceAnalysis(String genomeVer) {
-		Config config = new Config(genomeVer);
-		this.genomeVer = genomeVer;
-
-		// Find genome reference
-		genomeFasta = config.getFileNameGenomeFasta();
-		if (genomeFasta == null) throw new RuntimeException("Cannot find reference genome: " + config.getFileListGenomeFasta());
+	public SpliceAnalysis() {
+		super();
 	}
 
 	/**
@@ -180,7 +162,7 @@ public class SpliceAnalysis {
 			String donor = donorsList.get(i);
 			if (donor.startsWith(donorSeq)) {
 				String acc = GprSeq.reverse(acceptorsList.get(i));
-				tree.add(acc);
+				if (acc.indexOf('N') < 0) tree.add(acc);
 			}
 		}
 
@@ -209,8 +191,10 @@ public class SpliceAnalysis {
 		double best = 0;
 		for (int i = 0; i < max; i++) {
 			String sub = seq.substring(i, i + pwmU12.length());
-			double score = pwmU12.score(sub);
-			best = Math.max(best, score);
+			if (sub.indexOf('N') < 0) {
+				double score = pwmU12.score(sub);
+				best = Math.max(best, score);
+			}
 		}
 
 		return best;
@@ -268,7 +252,7 @@ public class SpliceAnalysis {
 			String acc = GprSeq.reverse(acceptorsList.get(i));
 			if (acc.endsWith(accSeq)) {
 				String donor = donorsList.get(i);
-				tree.add(donor);
+				if (donor.indexOf('N') < 0) tree.add(donor);
 			}
 		}
 
@@ -316,8 +300,9 @@ public class SpliceAnalysis {
 	 * Lad data from files
 	 */
 	void load() {
-		Timer.showStdErr("Loading U12 PWM: " + genomeVer);
-		pwmU12 = new Pwm(OUTPUT_DIR + "/u12_branch.txt");
+		String u12file = config.getDirData() + "/spliceSites/u12_branch.pwm";
+		Timer.showStdErr("Loading U12 PWM form file '" + u12file + "'");
+		pwmU12 = new Pwm(u12file);
 
 		Timer.showStdErr("Loading: " + genomeVer);
 		config = new Config(genomeVer);
@@ -335,28 +320,41 @@ public class SpliceAnalysis {
 		//System.out.println(s);
 	}
 
-	public void run() {
+	@Override
+	public void parseArgs(String[] args) {
+		if (args.length != 1) usage("Missing genome");
+		genomeVer = args[0];
+	}
+
+	@Override
+	public boolean run() {
+		config = new Config(genomeVer);
+		genomeFasta = config.getFileNameGenomeFasta();
+		if (genomeFasta == null) throw new RuntimeException("Cannot find reference genome: " + config.getFileListGenomeFasta());
+
 		// Load data
 		load();
 
 		// Find splice sequences
 		spliceSequences();
 
-		//		// Find donor acceptor pairs
-		//		spliceDonoAcceptorPairs();
-		//		acgtTreeDonors = acgtTreeAcc = null; // Free some unused objects
+		// Find donor acceptor pairs
+		spliceDonoAcceptorPairs();
+		acgtTreeDonors = acgtTreeAcc = null; // Free some unused objects
 
 		branchU12Threshold();
 
-		//		// Splice site PWM analysis
-		//		spliceAnalysis();
-		//
-		//		//---
-		//		// Save output
-		//		//---
-		//		String outputFile = OUTPUT_DIR + "/" + this.getClass().getSimpleName() + "_" + genomeVer + ".html";
-		//		Timer.showStdErr("Saving output to: " + outputFile);
-		//		Gpr.toFile(outputFile, out);
+		// Splice site PWM analysis
+		spliceAnalysis();
+
+		//---
+		// Save output
+		//---
+		String outputFile = OUTPUT_DIR + "/" + this.getClass().getSimpleName() + "_" + genomeVer + ".html";
+		Timer.showStdErr("Saving output to: " + outputFile);
+		Gpr.toFile(outputFile, out);
+
+		return true;
 	}
 
 	void spliceAnalysis() {
@@ -378,7 +376,7 @@ public class SpliceAnalysis {
 		names.addAll(pwms.keySet());
 		Collections.sort(names);
 		out("<table border=1>\n");
-		out("<tr> <th> Donor type </th>  <th> Count </th>  <th> Donor Motif </th> <th> Branch matches </th> <th> Acceptor Motif </th> <th> Branch (best energy) Motif </th> <th> Intron length </th> </tr>\n");
+		out("<tr> <th> Donor type </th>  <th> Count </th>  <th> Donor Motif </th> <th> U12 matches (Observed / Expected) </th> <th> Acceptor Motif </th> </tr>\n");
 		for (String key : names)
 			if (pwms.get(key).updates > threshold) out(pwms.get(key));
 		out("</table>\n");
@@ -630,7 +628,6 @@ public class SpliceAnalysis {
 		// Use long consensus? U12
 		String accConsensus = accStr.substring(SIZE_SPLICE - SIZE_CONSENSUS_ACCEPTOR, SIZE_SPLICE);
 		if (donorConsensus.indexOf('N') >= 0) return; // Ignore if there is an 'N'
-		String consensus = donorConsensus + "_" + accConsensus;
 
 		int maxLenDa = 0;
 		for (int i = 0; i < daPairDonor.size(); i++) {
@@ -645,6 +642,12 @@ public class SpliceAnalysis {
 				}
 			}
 		}
+		String consensus = donorConsensus + "_" + accConsensus;
+
+		//---
+		// Branch U12 score
+		//---
+		double bu12score = bestU12Score(branchStr);
 
 		//---
 		// Update PWM
@@ -652,11 +655,20 @@ public class SpliceAnalysis {
 		PwmSet pwmSet = getPwmSet(consensus);
 		pwmSet.update(accStr, donorStr);
 		pwmSet.len(len);
+		if (bu12score >= thresholdU12Score) pwmSet.incU12();
 
 		// Update total counts
 		pwmSet = getPwmSet(" ALL");
 		pwmSet.update(accStr, donorStr);
 		pwmSet.len(len);
+
+	}
+
+	@Override
+	public void usage(String message) {
+		if (message != null) System.err.println("Error: " + message + "\n");
+		System.err.println("Usage: snpEff genome_version");
+		System.exit(-1);
 	}
 
 }
