@@ -6,6 +6,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Random;
 
 import ca.mcgill.mcb.pcingola.fileIterator.FastaFileIterator;
 import ca.mcgill.mcb.pcingola.interval.Chromosome;
@@ -115,7 +116,7 @@ public class SpliceAnalysis extends SnpEff {
 		}
 	}
 
-	public static int SIZE_SPLICE = 8;
+	public static int SIZE_SPLICE = 10;
 	public static int SIZE_CONSENSUS_DONOR = 2;
 	public static int SIZE_CONSENSUS_ACCEPTOR = 2;
 	public static int SIZE_BRANCH = 60;
@@ -129,6 +130,7 @@ public class SpliceAnalysis extends SnpEff {
 	public static int HTML_WIDTH = 20;
 	public static int HTML_HEIGHT = 100;
 	public static double MIN_UPDATES_PERC = 0.0001; // Don't show if there are less than this number on the whole genome
+	public static final String U12_PATTERN = "TCCTT";
 
 	String outputDir = ".";
 	String genomeVer;
@@ -158,6 +160,9 @@ public class SpliceAnalysis extends SnpEff {
 	double thresholdU12Score;
 
 	int countIntrons = 0;
+
+	Random random = new Random();
+	StringBuilder sbScore = new StringBuilder();
 
 	public SpliceAnalysis() {
 		super();
@@ -213,9 +218,11 @@ public class SpliceAnalysis extends SnpEff {
 	}
 
 	double bestU2Score(String donor, String seq) {
+		if (donor.indexOf('N') >= 0) return -1;
+
 		// Create a match for this donor
 		Pwm pwm = new Pwm(donor.length());
-		pwm.set(donor, 100);
+		pwm.set(donor);
 
 		int max = seq.length() - pwm.length();
 		double best = 0;
@@ -457,6 +464,10 @@ public class SpliceAnalysis extends SnpEff {
 		for (PwmSet pwmset : pwmsets)
 			if (pwmset.updates > threshold) out(pwmset);
 		out("</table>\n");
+
+		String fileName = outputDir + "/" + genomeVer + ".branchDonorScore.txt";
+		Timer.showStdErr("Saving scores file to :" + fileName);
+		Gpr.toFile(fileName, sbScore);
 	}
 
 	/**
@@ -574,6 +585,8 @@ public class SpliceAnalysis extends SnpEff {
 		int countEx = 0;
 		HashSet<String> done = new HashSet<String>();
 
+		new StringBuilder();
+
 		for (Gene gene : config.getGenome().getGenes()) {
 			if (gene.getChromosomeName().equals(chrName)) { // Same chromosome
 				for (Transcript tr : gene) {
@@ -690,6 +703,28 @@ public class SpliceAnalysis extends SnpEff {
 
 		String intronSeqDonor = donorStr.substring(SIZE_SPLICE + 1);
 		String intronSeqAcc = accStr.substring(0, SIZE_SPLICE);
+
+		//---
+		// PWM scores based on bases after the donor splice site
+		//---
+
+		// Be careful not to update if the branch string overlaps with the donor splice site
+		if (len > (SIZE_BRANCH + SIZE_SPLICE)) {
+			String pwmTest = intronSeqDonor.substring(3);
+			if (pwmTest.indexOf(U12_PATTERN) < 0) { // Make sure it's not U12
+				double score = bestU2Score(pwmTest, branchStr);
+
+				// Random matrix (null distribution)
+				String randSeq = GprSeq.randSequence(random, pwmTest.length());
+				double scoreRand = bestU2Score(randSeq, branchStr);
+
+				// Random matrix (null distribution)
+				String randSeq2 = GprSeq.randSequence(random, pwmTest.length());
+				double scoreRand2 = bestU2Score(randSeq2, branchStr);
+
+				if ((score >= 0) && (scoreRand >= 0) && (scoreRand2 >= 0)) sbScore.append(score + "\t" + scoreRand + "\t" + scoreRand2 + "\n"); // Save scores
+			}
+		}
 
 		//---
 		// Group by donor type

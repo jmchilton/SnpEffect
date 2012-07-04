@@ -98,14 +98,14 @@ public class Pwm {
 	 * @param dna
 	 * @param weight
 	 */
-	public void set(String dna, int weight) {
+	public void set(String dna) {
 		char bases[] = dna.toCharArray();
 		for (int i = 0; i < bases.length; i++) {
 			// Fake count
 			for (int j = 0; j < BASES.length; j++)
 				countMatrix[j][i] = 1;
 
-			countMatrix[base2int(bases[i])][i] = weight;
+			countMatrix[base2int(bases[i])][i] = SCALE;
 		}
 	}
 
