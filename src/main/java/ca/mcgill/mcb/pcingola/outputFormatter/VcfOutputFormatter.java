@@ -92,6 +92,7 @@ public class VcfOutputFormatter extends OutputFormatter {
 
 				// Add gene info
 				Gene gene = changeEffect.getGene();
+				Transcript tr = changeEffect.getTranscript();
 				if (gene != null) {
 					// Protein coding gene?
 					String coding = "";
@@ -99,7 +100,7 @@ public class VcfOutputFormatter extends OutputFormatter {
 
 					effBuff.append(gene.getGeneName());
 					effBuff.append("|");
-					effBuff.append(gene.getBioType());
+					effBuff.append(tr != null ? tr.getBioType() : "");
 					effBuff.append("|");
 					effBuff.append(coding);
 					effBuff.append("|");
@@ -113,7 +114,6 @@ public class VcfOutputFormatter extends OutputFormatter {
 				} else effBuff.append("|||");
 
 				// Add transcript info
-				Transcript tr = changeEffect.getTranscript();
 				if (tr != null) effBuff.append(tr.getId());
 				effBuff.append("|");
 

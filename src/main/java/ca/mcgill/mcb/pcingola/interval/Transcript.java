@@ -35,6 +35,7 @@ public class Transcript extends IntervalAndSubIntervals<Exon> {
 	Upstream upstream;
 	Downstream downstream;
 	String cds = null; // Coding sequence
+	String bioType; // Transcript biotype
 	int cdsStart = -1;
 	int cdsEnd = -1;
 	boolean proteinCoding = false; // Is this a protein-coding transcript?
@@ -427,6 +428,10 @@ public class Transcript extends IntervalAndSubIntervals<Exon> {
 		for (Utr utr : utrs)
 			if (utr instanceof Utr5prime) list.add((Utr5prime) utr);
 		return list;
+	}
+
+	public String getBioType() {
+		return bioType;
 	}
 
 	/**
