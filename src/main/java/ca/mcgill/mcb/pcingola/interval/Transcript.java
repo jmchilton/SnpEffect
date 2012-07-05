@@ -644,6 +644,10 @@ public class Transcript extends IntervalAndSubIntervals<Exon> {
 		return changeEffectList;
 	}
 
+	public void setBioType(String bioType) {
+		this.bioType = bioType;
+	}
+
 	public void setProteinCoding(boolean proteinCoding) {
 		this.proteinCoding = proteinCoding;
 	}

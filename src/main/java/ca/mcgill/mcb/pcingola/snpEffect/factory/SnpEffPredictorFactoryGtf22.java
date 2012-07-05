@@ -46,7 +46,7 @@ public class SnpEffPredictorFactoryGtf22 extends SnpEffPredictorFactoryGff {
 	 * @param name
 	 * @param parent
 	 */
-	void addInterval(String id, String type, String chromo, int start, int end, int strand, String geneId, String geneName, String transcriptId, boolean proteinCoding, String bioType, int frame) {
+	void addInterval(String id, String type, String chromo, int start, int end, int strand, String geneId, String geneName, String transcriptId, boolean proteinCoding, String geneBioType, String trBioType, int frame) {
 		// Get chromosome
 		Chromosome chromosome = getOrCreateChromosome(chromo);
 
@@ -55,8 +55,8 @@ public class SnpEffPredictorFactoryGtf22 extends SnpEffPredictorFactoryGff {
 		if (gene == null) {
 			// Create and add  gene
 			if (geneName == null) geneName = geneId;
-			if ((bioType == null) || (bioType.isEmpty())) bioType = "mRNA"; // No bioType? Create a default one
-			gene = new Gene(chromosome, start, end, strand, geneId, geneName, bioType);
+			if ((geneBioType == null) || (geneBioType.isEmpty())) geneBioType = "mRNA"; // No bioType? Create a default one
+			gene = new Gene(chromosome, start, end, strand, geneId, geneName, geneBioType);
 			add(gene);
 		}
 
@@ -66,6 +66,8 @@ public class SnpEffPredictorFactoryGtf22 extends SnpEffPredictorFactoryGff {
 			tr = findTranscript(transcriptId);
 			if (tr == null) {
 				tr = new Transcript(gene, start, end, strand, transcriptId);
+				if ((trBioType == null) || (trBioType.isEmpty())) trBioType = "mRNA"; // No bioType? Create a default one
+				tr.setBioType(trBioType);
 				add(tr);
 			}
 
@@ -152,6 +154,7 @@ public class SnpEffPredictorFactoryGtf22 extends SnpEffPredictorFactoryGff {
 
 		// Is it protein coding?
 		boolean proteinCoding = isProteingCoding(source);
+		String geneBioType = "";
 
 		// Parse attributes
 		if (fields.length >= 8) {
@@ -161,10 +164,10 @@ public class SnpEffPredictorFactoryGtf22 extends SnpEffPredictorFactoryGff {
 			geneId = attrMap.get("gene_id");
 			transcriptId = attrMap.get("transcript_id");
 			geneName = attrMap.get("gene_name");
-
+			geneBioType = attrMap.get("gene_biotype"); // Note: This is ENSEMBL specific
 		}
 
-		String bioType = source; // Use 'source' as bioType (ENSEMBL uses this field)
+		String trBioType = source; // Use 'source' as bioType (ENSEMBL uses this field)
 
 		// Transform null to empty
 		if (geneId == null) geneId = "";
@@ -172,7 +175,7 @@ public class SnpEffPredictorFactoryGtf22 extends SnpEffPredictorFactoryGff {
 
 		String id = type + "_" + chromo + "_" + (start + 1) + "_" + (end + 1); // Create ID
 		if (geneId.isEmpty()) warning("Empty gene_id. This should never happen (see norm");
-		else addInterval(id, type, chromo, start, end, strand, geneId, geneName, transcriptId, proteinCoding, bioType, frame); // Add interval
+		else addInterval(id, type, chromo, start, end, strand, geneId, geneName, transcriptId, proteinCoding, geneBioType, trBioType, frame); // Add interval
 
 		return true;
 	}

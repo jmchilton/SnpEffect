@@ -624,19 +624,20 @@ public class ChangeEffect implements Cloneable {
 		if (marker != null) {
 			// Gene Id, name and biotype
 			Gene gene = (Gene) marker.findParent(Gene.class);
-			if (gene != null) {
-				geneId = gene.getId();
-				geneName = gene.getGeneName();
-				bioType = gene.getBioType();
-
-				// Make one more effort to show whether gene is protein coding or not
-				if ((bioType.isEmpty()) && gene.getGenome().hasCodingInfo()) bioType = (gene.isProteinCoding() ? "coding" : "non-coding");
-			}
 
 			// CDS size info
 			Transcript tr;
 			if (exon != null) tr = (Transcript) exon.findParent(Transcript.class);
 			else tr = (Transcript) marker.findParent(Transcript.class);
+
+			if (gene != null) {
+				geneId = gene.getId();
+				geneName = gene.getGeneName();
+				bioType = (tr != null ? tr.getBioType() : "");
+
+				// Make one more effort to show whether gene is protein coding or not
+				if ((bioType.isEmpty()) && gene.getGenome().hasCodingInfo()) bioType = (gene.isProteinCoding() ? "coding" : "non-coding");
+			}
 
 			// Update trId
 			if (tr != null) transcriptId = tr.getId();
