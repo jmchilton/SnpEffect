@@ -5,20 +5,27 @@ import ca.mcgill.mcb.pcingola.util.Gpr;
 /**
  * Create a DNA motif count matrix
  * 
+ * Refrence http://en.wikipedia.org/wiki/Position-specific_scoring_matrix
+ * 
  * @author pcingola
  */
 public class Pwm {
 
-	public static final int SCALE = 1000000;
+	public static final int SCALE = 100;
+	static final double LOG2 = Math.log(2);
 
 	public static final char BASES[] = { 'A', 'C', 'G', 'T' };
 	int countMatrix[][]; // Keep counts for each base and position: countMatrix[base][position]
+	int count[]; // Keep counts for each base and position: countMatrix[base][position]
+	double logOdds[][];
 	int length;
 	int totalCount;
 
 	public Pwm(int length) {
 		this.length = length;
-		countMatrix = new int[4][length];
+		countMatrix = new int[BASES.length][length];
+		count = new int[BASES.length];
+		logOdds = null;
 	}
 
 	public Pwm(String file) {
@@ -26,12 +33,14 @@ public class Pwm {
 		String lines[] = data.split("\n");
 
 		length = lines.length;
-		countMatrix = new int[4][length];
+		countMatrix = new int[BASES.length][length];
+		count = new int[BASES.length];
+		logOdds = new double[BASES.length][length];
 
 		for (int lineNum = 0; lineNum < lines.length; lineNum++) {
-			String val[] = lines[lineNum].split("\t");
-			for (int baseNum = 0; baseNum < 4; baseNum++)
-				countMatrix[baseNum][lineNum] = (int) (Gpr.parseDoubleSafe(val[baseNum]) * SCALE);
+			String val[] = lines[lineNum].trim().split("\\s+");
+			for (int baseNum = 0; baseNum < BASES.length; baseNum++)
+				logOdds[baseNum][lineNum] = Gpr.parseDoubleSafe(val[baseNum]);
 		}
 	}
 
@@ -62,6 +71,31 @@ public class Pwm {
 	}
 
 	/**
+	 * Calculate log odds matrix from counts
+	 * Reference: http://en.wikipedia.org/wiki/Position-specific_scoring_matrix
+	 */
+	public void calcLogOddsWeight() {
+		logOdds = new double[BASES.length][length];
+		double b[] = new double[BASES.length];
+
+		// Calculate total
+		int total = 0;
+		for (int baseNum = 0; baseNum < BASES.length; baseNum++)
+			total += (count[baseNum] + 1);
+
+		// Calculate b[i]
+		for (int baseNum = 0; baseNum < BASES.length; baseNum++)
+			b[baseNum] = ((double) (count[baseNum] + 1)) / ((double) total);
+
+		for (int i = 0; i < countMatrix.length; i++) {
+			for (int baseNum = 0; baseNum < BASES.length; baseNum++) {
+				double p = ((double) (countMatrix[baseNum][i] + 1)) / ((double) total);
+				logOdds[baseNum][i] = Math.log(p / b[baseNum]) / LOG2;
+			}
+		}
+	}
+
+	/**
 	 * Get counts for a given position
 	 * @param base
 	 * @param position
@@ -69,6 +103,10 @@ public class Pwm {
 	 */
 	public int getCount(char base, int position) {
 		return countMatrix[base2int(base)][position];
+	}
+
+	public double getLogOdds(char base, int position) {
+		return logOdds[base2int(base)][position];
 	}
 
 	public int getTotalCount() {
@@ -85,10 +123,12 @@ public class Pwm {
 	 * @return
 	 */
 	public double score(String dna) {
+		if (logOdds == null) calcLogOddsWeight();
+
 		char bases[] = dna.toCharArray();
 		int score = 0;
 		for (int i = 0; i < bases.length; i++)
-			score += getCount(bases[i], i);
+			score += getLogOdds(bases[i], i);
 
 		return ((double) score) / (length * SCALE);
 	}
@@ -120,10 +160,11 @@ public class Pwm {
 	@Override
 	public String toString() {
 		StringBuffer sb = new StringBuffer();
+		sb.append("Counts:\n");
 		for (int b = 0; b < BASES.length; b++) {
 			sb.append(BASES[b] + "\t");
 			for (int i = 0; i < countMatrix[b].length; i++)
-				sb.append(countMatrix[b][i] + "\t");
+				sb.append(String.format("%10d  ", countMatrix[b][i]));
 			sb.append("\n");
 		}
 
@@ -136,7 +177,29 @@ public class Pwm {
 					maxb = b;
 				}
 			}
-			sb.append(BASES[maxb] + "\t");
+			sb.append(String.format("%10s  ", BASES[maxb]));
+		}
+		sb.append("\n");
+
+		sb.append("\nWeights:\n");
+		for (int b = 0; b < BASES.length; b++) {
+			sb.append(BASES[b] + "\t");
+			for (int i = 0; i < logOdds[b].length; i++)
+				sb.append(String.format("%10.2f  ", logOdds[b][i]));
+			sb.append("\n");
+		}
+
+		sb.append("Max:\t");
+		for (int i = 0; i < countMatrix[0].length; i++) {
+			int maxb = 0;
+			double max = Double.NEGATIVE_INFINITY;
+			for (int b = 0; b < BASES.length; b++) {
+				if (max < logOdds[b][i]) {
+					max = logOdds[b][i];
+					maxb = b;
+				}
+			}
+			sb.append(String.format("%10s  ", BASES[maxb]));
 		}
 		sb.append("\n");
 
@@ -157,7 +220,10 @@ public class Pwm {
 
 		for (int i = 0; i < bases.length; i++) {
 			int code = base2int(bases[i]);
-			if (code >= 0) countMatrix[code][i] += inc;
+			if (code >= 0) {
+				countMatrix[code][i] += inc;
+				count[code] += inc;
+			}
 		}
 	}
 }

@@ -390,6 +390,7 @@ public class SpliceAnalysis extends SnpEff {
 		String u12file = config.getDirData() + "/spliceSites/u12_branch.pwm";
 		Timer.showStdErr("Loading U12 PWM form file '" + u12file + "'");
 		pwmU12 = new Pwm(u12file);
+		Gpr.debug(pwmU12);
 
 		Timer.showStdErr("Loading: " + genomeVer);
 		config.loadSnpEffectPredictor();

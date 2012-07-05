@@ -1,8 +1,8 @@
 
 
-#file <- 'testHg3763Chr1.branchDonorScore.txt';
+file <- 'testHg3763Chr1.branchDonorScore.txt';
 #file <- 'GRCh37.66.branchDonorScore.txt';
-file <- 'hg19.branchDonorScore.txt';
+#file <- 'hg19.branchDonorScore.txt';
 
 d <- read.table(file, header = FALSE, col.names=c('score','rand','rand2') );
 
