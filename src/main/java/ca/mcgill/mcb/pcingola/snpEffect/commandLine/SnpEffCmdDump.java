@@ -36,37 +36,37 @@ public class SnpEffCmdDump extends SnpEff {
 	@Override
 	public void parseArgs(String[] args) {
 		this.args = args;
-		for( int i = 0; i < args.length; i++ ) {
+		for (int i = 0; i < args.length; i++) {
 
 			// Argument starts with '-'?
-			if( args[i].startsWith("-") ) {
-				if( (args[i].equals("-c") || args[i].equalsIgnoreCase("-config")) ) {
-					if( (i + 1) < args.length ) configFile = args[++i];
+			if (args[i].startsWith("-")) {
+				if ((args[i].equals("-c") || args[i].equalsIgnoreCase("-config"))) {
+					if ((i + 1) < args.length) configFile = args[++i];
 					else usage("Option '-c' without config file argument");
-				} else if( args[i].equals("-v") || args[i].equalsIgnoreCase("-verbose") ) {
+				} else if (args[i].equals("-v") || args[i].equalsIgnoreCase("-verbose")) {
 					verbose = true;
 					quiet = false;
-				} else if( args[i].equals("-q") || args[i].equalsIgnoreCase("-quiet") ) {
+				} else if (args[i].equals("-q") || args[i].equalsIgnoreCase("-quiet")) {
 					quiet = true;
 					verbose = false;
-				} else if( args[i].equalsIgnoreCase("-chr") ) chrStr = args[++i];
-				else if( (args[i].equals("-if") || args[i].equalsIgnoreCase("-inOffset")) ) {
-					if( (i + 1) < args.length ) inOffset = Gpr.parseIntSafe(args[++i]);
-				} else if( args[i].equals("-1") ) inOffset = outOffset = 1;
-				else if( args[i].equals("-0") ) inOffset = outOffset = 0;
-				else if( args[i].equals("-bed") ) {
+				} else if (args[i].equalsIgnoreCase("-chr")) chrStr = args[++i];
+				else if ((args[i].equals("-if") || args[i].equalsIgnoreCase("-inOffset"))) {
+					if ((i + 1) < args.length) inOffset = Gpr.parseIntSafe(args[++i]);
+				} else if (args[i].equals("-1")) inOffset = outOffset = 1;
+				else if (args[i].equals("-0")) inOffset = outOffset = 0;
+				else if (args[i].equals("-bed")) {
 					dumpFormat = DumpFormat.Bed;
 					inOffset = outOffset = 0;
-				} else if( args[i].equals("-h") || args[i].equalsIgnoreCase("-help") ) {
+				} else if (args[i].equals("-h") || args[i].equalsIgnoreCase("-help")) {
 					usage(null);
 					System.exit(0);
 				} else usage("Unknow option '" + args[i] + "'");
-			} else if( genomeVer.length() <= 0 ) genomeVer = args[i];
+			} else if (genomeVer.length() <= 0) genomeVer = args[i];
 			else usage("Unknow parameter '" + args[i] + "'");
 		}
 
 		// Check: Do we have all required parameters?
-		if( genomeVer.isEmpty() ) usage("Missing genomer_version parameter");
+		if (genomeVer.isEmpty()) usage("Missing genomer_version parameter");
 	}
 
 	/**
@@ -74,25 +74,25 @@ public class SnpEffCmdDump extends SnpEff {
 	 * References: http://genome.ucsc.edu/FAQ/FAQformat.html#format1
 	 */
 	void printBed() {
-		for( IntervalTree tree : config.getSnpEffectPredictor().getIntervalForest() ) {
-			for( Marker i : tree ) {
+		for (IntervalTree tree : config.getSnpEffectPredictor().getIntervalForest()) {
+			for (Marker i : tree) {
 				printBed(i);
 
 				// Shoe gene specifics
-				if( i instanceof Gene ) {
+				if (i instanceof Gene) {
 					Gene g = (Gene) i;
 
 					// Show transcripts: UTR and Exons
-					for( Transcript t : g ) {
+					for (Transcript t : g) {
 						printBed(t);
 
-						for( Cds c : t.getCds() )
+						for (Cds c : t.getCds())
 							printBed(c);
 
-						for( Utr u : t.getUtrs() )
+						for (Utr u : t.getUtrs())
 							printBed(u);
 
-						for( Exon e : t )
+						for (Exon e : t)
 							printBed(e);
 					}
 				}
@@ -123,18 +123,18 @@ public class SnpEffCmdDump extends SnpEff {
 		config = new Config(genomeVer, configFile);
 
 		// Read database
-		if( verbose ) Timer.showStdErr("Reading database for genome '" + genomeVer + "' (this might take a while)");
+		if (verbose) Timer.showStdErr("Reading database for genome '" + genomeVer + "' (this might take a while)");
 		config.loadSnpEffectPredictor(); // Read snpEffect predictor
-		if( verbose ) Timer.showStdErr("done");
+		if (verbose) Timer.showStdErr("done");
 
 		// Build forest
-		if( verbose ) Timer.showStdErr("Building interval forest");
+		if (verbose) Timer.showStdErr("Building interval forest");
 		config.getSnpEffectPredictor().buildForest();
-		if( verbose ) Timer.showStdErr("Done.");
+		if (verbose) Timer.showStdErr("Done.");
 
 		// Dump database
-		if( dumpFormat == DumpFormat.Simple ) config.getSnpEffectPredictor().print();
-		else if( dumpFormat == DumpFormat.Bed ) printBed();
+		if (dumpFormat == DumpFormat.Simple) config.getSnpEffectPredictor().print();
+		else if (dumpFormat == DumpFormat.Bed) printBed();
 		else throw new RuntimeException("Unimplemented format '" + dumpFormat + "'");
 
 		return true;
@@ -146,7 +146,7 @@ public class SnpEffCmdDump extends SnpEff {
 	 */
 	@Override
 	public void usage(String message) {
-		if( message != null ) System.err.println("Error: " + message + "\n");
+		if (message != null) System.err.println("Error: " + message + "\n");
 		System.err.println("snpEff version " + VERSION);
 		System.err.println("Usage: snpEff dump [options] genome_version");
 		System.err.println("\t-bed                    : Dump in BED format (implies -0)");

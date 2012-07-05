@@ -35,7 +35,7 @@ public class Transcript extends IntervalAndSubIntervals<Exon> {
 	Upstream upstream;
 	Downstream downstream;
 	String cds = null; // Coding sequence
-	String bioType; // Transcript biotype
+	String bioType = ""; // Transcript biotype
 	int cdsStart = -1;
 	int cdsEnd = -1;
 	boolean proteinCoding = false; // Is this a protein-coding transcript?
@@ -659,6 +659,7 @@ public class Transcript extends IntervalAndSubIntervals<Exon> {
 		sb.append(getChromosomeName() + ":" + start + "-" + end);
 		sb.append(", strand: " + (strand >= 0 ? "+" : "-"));
 		if ((id != null) && (id.length() > 0)) sb.append(", id:" + id);
+		if ((bioType != null) && (bioType.length() > 0)) sb.append(", bioType:" + bioType);
 		if (isProteinCoding()) sb.append(", Protein");
 
 		if (numChilds() > 0) {
