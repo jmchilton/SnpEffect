@@ -509,6 +509,9 @@ public class SpliceAnalysis extends SnpEff {
 		Timer.showStdErr("\tChromosome: " + chrName + "\tGenes: " + config.getGenome().getGenes().size() + "\tExons: " + countEx);
 	}
 
+	/**
+	 * Find donor-acceptor pairs
+	 */
 	void spliceDonoAcceptorPairs() {
 		//---
 		// Create trees
