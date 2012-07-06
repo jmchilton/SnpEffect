@@ -142,6 +142,7 @@ public class SpliceAnalysis extends SnpEff {
 	ArrayList<String> donorsList = new ArrayList<String>();
 	ArrayList<String> acceptorsList = new ArrayList<String>();
 	ArrayList<String> branchesList = new ArrayList<String>();
+	ArrayList<String> geneList = new ArrayList<String>();
 
 	ArrayList<String> donorAccPairDonor = new ArrayList<String>();
 	ArrayList<String> donorAccPairAcc = new ArrayList<String>();
@@ -295,6 +296,8 @@ public class SpliceAnalysis extends SnpEff {
 	 */
 	void createSpliceFasta(String donor, String acceptor) {
 		StringBuilder fasta = new StringBuilder();
+		StringBuilder genes = new StringBuilder();
+		HashSet<String> geneSet = new HashSet<String>();
 
 		int fastaId = 0;
 		for (int i = 0; i < donorsList.size(); i++) {
@@ -305,6 +308,9 @@ public class SpliceAnalysis extends SnpEff {
 				String branch = branchesList.get(i);
 				fasta.append(">id_" + fastaId + "\n" + branch.subSequence(0, branch.length() - acceptor.length()) + "\n");
 				fastaId++;
+
+				String gene = geneList.get(i);
+				geneSet.add(gene);
 			}
 		}
 
@@ -312,6 +318,14 @@ public class SpliceAnalysis extends SnpEff {
 		String fastaFile = outputDir + "/" + genomeVer + "." + donor + "-" + acceptor + ".fa";
 		Timer.showStdErr("\tWriting fasta sequences to file: " + fastaFile);
 		Gpr.toFile(fastaFile, fasta);
+
+		// Write genes file
+		for (String gene : geneSet)
+			genes.append(gene + "\n");
+		String genesFile = outputDir + "/" + genomeVer + "." + donor + "-" + acceptor + ".genes.txt";
+		Timer.showStdErr("\tWriting genes list to file: " + genesFile);
+		Gpr.toFile(genesFile, genes);
+
 	}
 
 	/**
@@ -659,9 +673,11 @@ public class SpliceAnalysis extends SnpEff {
 		String intronSeqAcc = accStr.substring(0, SIZE_SPLICE);
 
 		// Add to arrays
+		Gene gene = (Gene) tr.getParent();
 		donorsList.add(intronSeqDonor);
 		acceptorsList.add(intronSeqAcc);
 		branchesList.add(branchStr);
+		geneList.add(gene.getGeneName());
 	}
 
 	/**
