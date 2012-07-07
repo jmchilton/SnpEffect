@@ -40,11 +40,18 @@ public class Transcript extends IntervalAndSubIntervals<Exon> {
 	int cdsEnd = -1;
 	boolean proteinCoding = false; // Is this a protein-coding transcript?
 
+	protected Transcript() {
+		super();
+		utrs = new ArrayList<Utr>();
+		cdss = new ArrayList<Cds>();
+		type = EffectType.TRANSCRIPT;
+	}
+
 	public Transcript(Marker gene, int start, int end, int strand, String id) {
 		super(gene, start, end, strand, id);
 		utrs = new ArrayList<Utr>();
 		cdss = new ArrayList<Cds>();
-		type = EffectType.TRANSCRIPT.toString();
+		type = EffectType.TRANSCRIPT;
 	}
 
 	/**
@@ -131,7 +138,7 @@ public class Transcript extends IntervalAndSubIntervals<Exon> {
 		// Change transcript strand?
 		int newStrand = strandSumTr >= 0 ? 1 : -1;
 		if (strand != newStrand) {
-			strand = newStrand;
+			strand = (byte) newStrand;
 			changed = true;
 		}
 
@@ -642,6 +649,42 @@ public class Transcript extends IntervalAndSubIntervals<Exon> {
 		}
 
 		return changeEffectList;
+	}
+
+	/**
+	 * Parse a line from a serialized file
+	 * @param line
+	 * @return
+	 */
+	@Override
+	public void serializeParse(MarkerSerializer markerSerializer) {
+		super.serializeParse(markerSerializer);
+		bioType = markerSerializer.getNextField();
+		proteinCoding = markerSerializer.getNextFieldBoolean();
+		upstream = (Upstream) markerSerializer.getNextFieldMarker();
+		downstream = (Downstream) markerSerializer.getNextFieldMarker();
+
+		for (Marker m : markerSerializer.getNextFieldMarkers())
+			utrs.add((Utr) m);
+
+		for (Marker m : markerSerializer.getNextFieldMarkers())
+			cdss.add((Cds) m);
+	}
+
+	/**
+	 * Create a string to serialize to a file
+	 * @return
+	 */
+	@Override
+	public String serializeSave(MarkerSerializer markerSerializer) {
+		return super.serializeSave(markerSerializer) //
+				+ "\t" + bioType //
+				+ "\t" + proteinCoding //
+				+ "\t" + markerSerializer.save(upstream) //
+				+ "\t" + markerSerializer.save(downstream) //
+				+ "\t" + markerSerializer.save((Iterable) utrs)//
+				+ "\t" + markerSerializer.save((Iterable) cdss)//
+		;
 	}
 
 	public void setBioType(String bioType) {

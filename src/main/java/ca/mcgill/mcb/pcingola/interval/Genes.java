@@ -3,6 +3,7 @@ package ca.mcgill.mcb.pcingola.interval;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -96,6 +97,13 @@ public class Genes implements Iterable<Gene>, Serializable {
 		return genesById.size();
 	}
 
+	public Collection<Gene> sorted() {
+		ArrayList<Gene> genes = new ArrayList<Gene>();
+		genes.addAll(genesById.values());
+		Collections.sort(genes);
+		return genes;
+	}
+
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
@@ -107,4 +115,5 @@ public class Genes implements Iterable<Gene>, Serializable {
 	public Collection<Gene> values() {
 		return genesById.values();
 	}
+
 }

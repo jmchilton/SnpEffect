@@ -17,6 +17,6 @@ public class SpliceSiteDonor extends SpliceSite {
 
 	public SpliceSiteDonor(Marker parent, int start, int end, int strand, String id) {
 		super(parent, start, end, strand, id);
-		type = EffectType.SPLICE_SITE_DONOR.toString();
+		type = EffectType.SPLICE_SITE_DONOR;
 	}
 }

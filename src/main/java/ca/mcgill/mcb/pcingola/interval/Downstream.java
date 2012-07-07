@@ -17,7 +17,7 @@ public class Downstream extends Marker {
 
 	public Downstream(Marker parent, int start, int end, int strand, String id) {
 		super(parent, start, end, strand, id);
-		type = EffectType.DOWNSTREAM.toString();
+		type = EffectType.DOWNSTREAM;
 	}
 
 	/**

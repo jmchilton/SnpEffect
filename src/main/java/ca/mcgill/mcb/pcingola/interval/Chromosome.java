@@ -27,10 +27,14 @@ public class Chromosome extends Marker {
 		return ChromosomeSimpleName.get(chrName);
 	}
 
+	protected Chromosome() {
+		super();
+	}
+
 	public Chromosome(Marker parent, int start, int end, int strand, String id) {
 		super(null, start, end, strand, id); // Parent = null to avoid sanity check (it will always fail for chromosomes)
 		this.parent = parent;
-		type = EffectType.CHROMOSOME.toString();
+		type = EffectType.CHROMOSOME;
 		setChromosomeName(id);
 	}
 
@@ -62,6 +66,17 @@ public class Chromosome extends Marker {
 	@Override
 	protected boolean isShowWarningIfParentDoesNotInclude() {
 		return false;
+	}
+
+	/**
+	 * Parse a line from a serialized file
+	 * @param line
+	 * @return
+	 */
+	@Override
+	public void serializeParse(MarkerSerializer markerSerializer) {
+		super.serializeParse(markerSerializer);
+		setChromosomeName(id);
 	}
 
 	/**

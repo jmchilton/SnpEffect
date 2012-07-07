@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Properties;
 
 import ca.mcgill.mcb.pcingola.fileIterator.FastaFileIterator;
+import ca.mcgill.mcb.pcingola.snpEffect.ChangeEffect.EffectType;
 import ca.mcgill.mcb.pcingola.util.Gpr;
 
 /**
@@ -61,9 +62,19 @@ public class Genome extends Marker implements Serializable, Iterable<Chromosome>
 
 	}
 
+	public Genome() {
+		super();
+		version = "";
+		type = EffectType.GENOME;
+		chromosomeNames = new ArrayList<String>();
+		chromosomes = new HashMap<String, Chromosome>();
+		genes = new Genes(this);
+	}
+
 	public Genome(String version) {
 		super(null, Integer.MIN_VALUE, Integer.MAX_VALUE, 1, version);
 		this.version = version;
+		type = EffectType.GENOME;
 		chromosomeNames = new ArrayList<String>();
 		chromosomes = new HashMap<String, Chromosome>();
 		genes = new Genes(this);
@@ -72,6 +83,7 @@ public class Genome extends Marker implements Serializable, Iterable<Chromosome>
 	public Genome(String version, Properties properties) {
 		super(null, Integer.MIN_VALUE, Integer.MAX_VALUE, 1, version);
 		this.version = version;
+		type = EffectType.GENOME;
 		genes = new Genes(this);
 
 		species = properties.getProperty(version + ".genome");
@@ -97,6 +109,7 @@ public class Genome extends Marker implements Serializable, Iterable<Chromosome>
 		super(null, Integer.MIN_VALUE, Integer.MAX_VALUE, 1, version);
 		this.species = species;
 		this.version = version;
+		type = EffectType.GENOME;
 		chromosomeNames = new ArrayList<String>();
 		chromoFastaFiles = new String[0];
 		chromosomes = new HashMap<String, Chromosome>();
@@ -298,6 +311,35 @@ public class Genome extends Marker implements Serializable, Iterable<Chromosome>
 		}
 
 		return true;
+	}
+
+	/**
+	 * Parse a line from a serialized file
+	 * @param line
+	 * @return
+	 */
+	@Override
+	public void serializeParse(MarkerSerializer markerSerializer) {
+		super.serializeParse(markerSerializer);
+		version = markerSerializer.getNextField();
+		species = markerSerializer.getNextField();
+
+		for (Marker m : markerSerializer.getNextFieldMarkers())
+			add((Chromosome) m);
+	}
+
+	/**
+	 * Create a string to serialize to a file
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	@Override
+	public String serializeSave(MarkerSerializer markerSerializer) {
+		return super.serializeSave(markerSerializer) //
+				+ "\t" + version //
+				+ "\t" + species //
+				+ "\t" + markerSerializer.save((Iterable) chromosomes.values()) //
+		;
 	}
 
 	/**

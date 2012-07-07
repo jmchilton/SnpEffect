@@ -14,7 +14,7 @@ public class IntronConserved extends Marker {
 
 	public IntronConserved(Gene parent, int start, int end, int strand, String id) {
 		super(parent, start, end, strand, id);
-		type = EffectType.INTRON_CONSERVED.toString();
+		type = EffectType.INTRON_CONSERVED;
 	}
 
 }

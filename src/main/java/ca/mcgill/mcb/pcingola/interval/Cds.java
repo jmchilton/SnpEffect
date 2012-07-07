@@ -14,13 +14,35 @@ public class Cds extends Marker {
 
 	byte frame = 0;
 
+	public Cds() {
+		super();
+		type = EffectType.CDS;
+	}
+
 	public Cds(Transcript parent, int start, int end, int strand, String id) {
 		super(parent, start, end, strand, id);
-		type = EffectType.CDS.toString();
+		type = EffectType.CDS;
 	}
 
 	public int getFrame() {
 		return frame;
+	}
+
+	@Override
+	public void serializeParse(MarkerSerializer markerSerializer) {
+		super.serializeParse(markerSerializer);
+		frame = (byte) markerSerializer.getNextFieldInt();
+	}
+
+	/**
+	 * Create a string to serialize to a file
+	 * @return
+	 */
+	@Override
+	public String serializeSave(MarkerSerializer markerSerializer) {
+		return super.serializeSave(markerSerializer) //
+				+ "\t" + frame //
+		;
 	}
 
 	/**
@@ -28,7 +50,7 @@ public class Cds extends Marker {
 	 * @param frame
 	 */
 	public void setFrame(int frame) {
-		if( (frame > 2) || (frame < -1) ) throw new RuntimeException("Invalid frame value: " + frame);
+		if ((frame > 2) || (frame < -1)) throw new RuntimeException("Invalid frame value: " + frame);
 		this.frame = (byte) frame;
 	}
 

@@ -16,9 +16,14 @@ public class Utr3prime extends Utr {
 
 	private static final long serialVersionUID = 5688641008301281991L;
 
+	protected Utr3prime() {
+		super();
+		type = EffectType.UTR_3_PRIME;
+	}
+
 	public Utr3prime(Marker parent, int start, int end, int strand, String id) {
 		super(parent, start, end, strand, id);
-		type = EffectType.UTR_3_PRIME.toString();
+		type = EffectType.UTR_3_PRIME;
 	}
 
 	@Override
@@ -33,7 +38,7 @@ public class Utr3prime extends Utr {
 
 		String utrDistStr = utrDistance(seqChange, tint);
 
-		changeEffect.set(this, EffectType.valueOf(type), utrDistStr);
+		changeEffect.set(this, type, utrDistStr);
 		changeEffect.setExon(exon);
 
 		Exon eint = (Exon) findParent(Exon.class);

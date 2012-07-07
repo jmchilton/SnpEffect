@@ -14,7 +14,7 @@ public class Intron extends Marker {
 
 	public Intron(Transcript parent, int start, int end, int strand, String id) {
 		super(parent, start, end, strand, id);
-		type = EffectType.INTRON.toString();
+		type = EffectType.INTRON;
 	}
 
 }

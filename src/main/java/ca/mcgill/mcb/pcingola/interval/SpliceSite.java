@@ -3,7 +3,6 @@ package ca.mcgill.mcb.pcingola.interval;
 import java.util.List;
 
 import ca.mcgill.mcb.pcingola.snpEffect.ChangeEffect;
-import ca.mcgill.mcb.pcingola.snpEffect.ChangeEffect.EffectType;
 
 /**
  * Interval for a splice site
@@ -41,7 +40,7 @@ public abstract class SpliceSite extends Marker {
 	@Override
 	public List<ChangeEffect> seqChangeEffect(SeqChange seqChange, ChangeEffect changeEffect) {
 		if (!intersects(seqChange)) return ChangeEffect.emptyResults(); // Sanity check
-		changeEffect.set(this, EffectType.valueOf(type), "");
+		changeEffect.set(this, type, "");
 		return changeEffect.newList();
 	}
 }

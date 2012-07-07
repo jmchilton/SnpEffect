@@ -17,6 +17,6 @@ public class SpliceSiteAcceptor extends SpliceSite {
 
 	public SpliceSiteAcceptor(Marker parent, int start, int end, int strand, String id) {
 		super(parent, start, end, strand, id);
-		type = EffectType.SPLICE_SITE_ACCEPTOR.toString();
+		type = EffectType.SPLICE_SITE_ACCEPTOR;
 	}
 }

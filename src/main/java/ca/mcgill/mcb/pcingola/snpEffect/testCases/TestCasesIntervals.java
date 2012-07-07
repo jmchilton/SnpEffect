@@ -36,7 +36,7 @@ public class TestCasesIntervals extends TestCase {
 		genome = new Genome(genomeName);
 
 		// Create chromosomes
-		for( int i = 1; i < 22; i++ )
+		for (int i = 1; i < 22; i++)
 			genome.add(new Chromosome(genome, 0, 0, 1, "" + i));
 		genome.add(new Chromosome(genome, 0, 0, 1, "X"));
 		genome.add(new Chromosome(genome, 0, 0, 1, "Y"));
@@ -53,16 +53,16 @@ public class TestCasesIntervals extends TestCase {
 	 */
 	boolean anyResultMatches(String transcriptId, SeqChange seqChange, List<ChangeEffect> resultsList, boolean useSimple, StringBuilder resultsSoFar) {
 		boolean ok = false;
-		for( ChangeEffect chEff : resultsList ) {
+		for (ChangeEffect chEff : resultsList) {
 			String resStr = chEff.toStringSimple(!useSimple);
-			if( verbose ) System.out.println(seqChange + "\t'" + resStr + "'");
+			if (verbose) System.out.println(seqChange + "\t'" + resStr + "'");
 
 			String effTrId = chEff.getMarker().findParent(Transcript.class).getId();
-			if( (transcriptId == null) || (transcriptId.equals(effTrId)) ) {
+			if ((transcriptId == null) || (transcriptId.equals(effTrId))) {
 
-				if( !seqChange.getId().equals(resStr) ) {
+				if (!seqChange.getId().equals(resStr)) {
 					// SNP effect does not match this result  
-					if( verbose ) Gpr.debug("SeqChange: " + seqChange + "\tResult: '" + chEff + "'");
+					if (verbose) Gpr.debug("SeqChange: " + seqChange + "\tResult: '" + chEff + "'");
 					resultsSoFar.append(seqChange + "\t'" + resStr + "'\n");
 				} else {
 					// SNP effect matches one result
@@ -82,7 +82,7 @@ public class TestCasesIntervals extends TestCase {
 	public void compareToFile(String result, String fileName) {
 		String file = Gpr.readFile(fileName).trim();
 		result = result.trim();
-		if( !result.equals(file) ) {
+		if (!result.equals(file)) {
 			String errMsg = "Results and file '" + fileName + "' do not match:\n--- Results ---\n" + result + "\n--- File '" + fileName + "' ---\n" + file + "\n--- End ---\n";
 			System.err.println(errMsg);
 			throw new RuntimeException(errMsg);
@@ -95,7 +95,7 @@ public class TestCasesIntervals extends TestCase {
 	public void DnaSequenceBaseAt(int len) {
 		// Create a random sequence
 		char bases[] = new char[len];
-		for( int i = 0; i < bases.length; i++ ) {
+		for (int i = 0; i < bases.length; i++) {
 			char base = GprSeq.bases[(int) (Math.random() * 4)];
 			bases[i] = base;
 		}
@@ -104,9 +104,9 @@ public class TestCasesIntervals extends TestCase {
 		DnaSequence DnaSequence = new DnaSequence(sequence);
 		System.out.println("DnaSequence (len:" + len + ") : " + DnaSequence);
 
-		for( int i = 0; i < bases.length; i++ ) {
+		for (int i = 0; i < bases.length; i++) {
 			char base = Character.toUpperCase(DnaSequence.getBase(i));
-			if( base != bases[i] ) throw new RuntimeException("Bases do not match! Base:" + base + "\tOriginal sequence: " + bases[i]);
+			if (base != bases[i]) throw new RuntimeException("Bases do not match! Base:" + base + "\tOriginal sequence: " + bases[i]);
 		}
 	}
 
@@ -124,8 +124,8 @@ public class TestCasesIntervals extends TestCase {
 	public Markers randomIntervals(int numIntervals, int maxStart, int maxLength, int numChromo) {
 		Markers ints = new Markers();
 
-		for( int ch = 1; ch <= numChromo; ch++ ) {
-			for( int i = 0; i < numIntervals; i++ ) {
+		for (int ch = 1; ch <= numChromo; ch++) {
+			for (int i = 0; i < numIntervals; i++) {
 				int start = rand.nextInt(maxStart);
 				int end = Math.min(start + rand.nextInt(maxLength), maxStart - 1);
 				Marker interval = new Marker(genome.getChromosome("" + ch), start, end, 1, "");
@@ -139,7 +139,7 @@ public class TestCasesIntervals extends TestCase {
 	public void test_00() {
 		initRand();
 
-		for( int len = 1; len < 1000; len++ )
+		for (int len = 1; len < 1000; len++)
 			DnaSequenceBaseAt(len);
 	}
 
@@ -149,63 +149,68 @@ public class TestCasesIntervals extends TestCase {
 	public void test_01() {
 		initRand();
 		Markers intervals = new Markers();
-		intervals.read("tests/interval_data_100.txt", genome);
-		compareToFile(intervals.toStringSave(), "tests/test_01.txt");
+		throw new RuntimeException("FIX THIS!");
+		// intervals.read("tests/interval_data_100.txt", genome);
+		//compareToFile(intervals.toStringSave(), "tests/test_01.txt");
 	}
 
 	/**
 	 * Sort test
 	 */
 	public void test_02() {
-		initRand();
-		Markers intervals = randomIntervals(10, maxLen, 10, 5);
-		intervals.sort(false, false);
-		compareToFile(intervals.toStringSave(), "tests/test_02.txt");
+		throw new RuntimeException("FIX THIS!");
+		//		initRand();
+		//		Markers intervals = randomIntervals(10, maxLen, 10, 5);
+		//		intervals.sort(false, false);
+		//		compareToFile(intervals.toStringSave(), "tests/test_02.txt");
 	}
 
 	/**
 	 * Sort (by end) test
 	 */
 	public void test_03() {
-		initRand();
-		Markers intervals = randomIntervals(100, maxLen, 25, 2);
-		intervals.sort(true, false);
-		compareToFile(intervals.toStringSave(), "tests/test_03.txt");
+		throw new RuntimeException("FIX THIS!");
+		//		initRand();
+		//		Markers intervals = randomIntervals(100, maxLen, 25, 2);
+		//		intervals.sort(true, false);
+		//		compareToFile(intervals.toStringSave(), "tests/test_03.txt");
 	}
 
 	/**
 	 * Merge intervals
 	 */
 	public void test_04() {
-		initRand();
-		Markers intervals = randomIntervals(20, maxLen, 10, 2);
-		Markers merge = intervals.merge();
-		if( verbose ) System.out.println("Merge :\n" + merge.toStringAsciiArt(maxLen));
-		compareToFile(merge.toStringSave(), "tests/test_04.txt");
+		throw new RuntimeException("FIX THIS!");
+		//		initRand();
+		//		Markers intervals = randomIntervals(20, maxLen, 10, 2);
+		//		Markers merge = intervals.merge();
+		//		if (verbose) System.out.println("Merge :\n" + merge.toStringAsciiArt(maxLen));
+		//		compareToFile(merge.toStringSave(), "tests/test_04.txt");
 	}
 
 	/**
 	 * Union of 2 intervals
 	 */
 	public void test_05() {
-		initRand();
-		// Create and perform union
-		Markers intervals = randomIntervals(5, maxLen, 10, 2);
-		Markers intervals2 = randomIntervals(5, maxLen, 10, 2);
-		Markers union = intervals.union(intervals2);
-		compareToFile(union.toStringSave(), "tests/test_05.txt");
-
-		if( verbose ) {
-			// Sort
-			intervals.sort(false, false);
-			intervals2.sort(false, false);
-			union.sort(false, false);
-
-			// Show
-			System.out.println("Intervals 1:\n" + intervals.toStringAsciiArt(maxLen));
-			System.out.println("Intervals 2:\n" + intervals2.toStringAsciiArt(maxLen));
-			System.out.println("Union :\n" + union.toStringAsciiArt(maxLen));
-		}
+		throw new RuntimeException("FIX THIS!");
+		//		initRand();
+		//		// Create and perform union
+		//		Markers intervals = randomIntervals(5, maxLen, 10, 2);
+		//		Markers intervals2 = randomIntervals(5, maxLen, 10, 2);
+		//		Markers union = intervals.union(intervals2);
+		//		compareToFile(union.toStringSave(), "tests/test_05.txt");
+		//
+		//		if (verbose) {
+		//			// Sort
+		//			intervals.sort(false, false);
+		//			intervals2.sort(false, false);
+		//			union.sort(false, false);
+		//
+		//			// Show
+		//			System.out.println("Intervals 1:\n" + intervals.toStringAsciiArt(maxLen));
+		//			System.out.println("Intervals 2:\n" + intervals2.toStringAsciiArt(maxLen));
+		//			System.out.println("Union :\n" + union.toStringAsciiArt(maxLen));
+		//		}
 	}
 
 	/**
@@ -214,14 +219,14 @@ public class TestCasesIntervals extends TestCase {
 	 */
 	public void test_06() {
 
-		for( int numInts = 10; numInts < 1000; numInts *= 2 ) {
+		for (int numInts = 10; numInts < 1000; numInts *= 2) {
 			// Create 'original' intervals
 			Markers intervals = randomIntervals(numInts, maxLen, 20, 2);
 
 			// Create forest (one tree per chromosome)
 			IntervalForest forest = new IntervalForest(intervals);
 
-			if( verbose ) {
+			if (verbose) {
 				intervals.sort(false, false);
 				System.out.println(intervals.toStringAsciiArt(maxLen));
 				forest.build();
@@ -231,12 +236,12 @@ public class TestCasesIntervals extends TestCase {
 			Markers intervals2 = randomIntervals(numInts, maxLen, 20, 2);
 
 			// We test one by one in order to compare individual results
-			for( Marker i : intervals2 ) {
+			for (Marker i : intervals2) {
 				Markers intersect = forest.query(i);
 				Markers intersectBf = intervals.intersects(i);
 
 				// Show
-				if( !intersect.equals(intersectBf) ) {
+				if (!intersect.equals(intersectBf)) {
 					intersect.sort(false, false);
 					intersectBf.sort(false, false);
 					String errMsg = "Interval: " + i + "\n\tIntersects  : " + intersect + "\n\tIntersectsBf: " + intersectBf;
@@ -263,7 +268,7 @@ public class TestCasesIntervals extends TestCase {
 		Markers minus = intervals.minus(intervals2);
 		assertEquals(0, minus.size());
 
-		if( verbose ) System.out.println(minus.toStringAsciiArt(maxLen));
+		if (verbose) System.out.println(minus.toStringAsciiArt(maxLen));
 	}
 
 	/**
@@ -282,7 +287,7 @@ public class TestCasesIntervals extends TestCase {
 		Markers minus = intervals.minus(intervals2);
 		assertEquals(0, minus.size());
 
-		if( verbose ) System.out.println(minus.toStringAsciiArt(maxLen));
+		if (verbose) System.out.println(minus.toStringAsciiArt(maxLen));
 	}
 
 	/**
@@ -304,7 +309,7 @@ public class TestCasesIntervals extends TestCase {
 		assertEquals(51, minusInt.getStart());
 		assertEquals(90, minusInt.getEnd());
 
-		if( verbose ) System.out.println(minus.toStringAsciiArt(maxLen));
+		if (verbose) System.out.println(minus.toStringAsciiArt(maxLen));
 	}
 
 	/**
@@ -322,7 +327,7 @@ public class TestCasesIntervals extends TestCase {
 
 		Markers minus = intervals.minus(intervals2);
 
-		if( verbose ) System.out.println(minus.toStringAsciiArt(maxLen));
+		if (verbose) System.out.println(minus.toStringAsciiArt(maxLen));
 
 		assertEquals(1, minus.size());
 		Marker minusInt = minus.iterator().next();
@@ -345,7 +350,7 @@ public class TestCasesIntervals extends TestCase {
 
 		Markers minus = intervals.minus(intervals2);
 
-		if( verbose ) System.out.println(minus.toStringAsciiArt(maxLen));
+		if (verbose) System.out.println(minus.toStringAsciiArt(maxLen));
 
 		assertEquals(2, minus.size());
 		Iterator<Marker> it = minus.iterator();

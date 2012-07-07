@@ -16,7 +16,12 @@ import ca.mcgill.mcb.pcingola.util.Gpr;
 public class Marker extends Interval {
 
 	private static final long serialVersionUID = 7878886900660027549L;
-	protected String type = "";
+	protected EffectType type = EffectType.NONE;
+
+	protected Marker() {
+		super();
+		type = EffectType.NONE;
+	}
 
 	public Marker(Marker parent, int start, int end, int strand, String id) {
 		super(parent, start, end, strand, id);
@@ -157,7 +162,7 @@ public class Marker extends Interval {
 		return (Marker) parent;
 	}
 
-	public String getType() {
+	public EffectType getType() {
 		return type;
 	}
 
@@ -257,10 +262,38 @@ public class Marker extends Interval {
 	 */
 	public List<ChangeEffect> seqChangeEffect(SeqChange seqChange, ChangeEffect changeEffect) {
 		if (!intersects(seqChange)) return ChangeEffect.emptyResults(); // Sanity check
-		EffectType effType = EffectType.valueOf(type);
-		if (effType == null) throw new RuntimeException("Cannot find effect type for '" + type + "'");
-		changeEffect.set(this, effType, "");
+		changeEffect.set(this, type, "");
 		return changeEffect.newList();
+	}
+
+	/**
+	 * Parse a line from a serialized file
+	 * @param line
+	 * @return
+	 */
+	public void serializeParse(MarkerSerializer markerSerializer) {
+		type = EffectType.valueOf(markerSerializer.getNextField());
+		int thisId = markerSerializer.getNextFieldInt();
+		parent = new MarkerParentId(markerSerializer.getNextFieldInt()); // Create a 'fake' parent. It will be replaced after all objects are in memory.
+		start = markerSerializer.getNextFieldInt();
+		end = markerSerializer.getNextFieldInt();
+		id = markerSerializer.getNextField();
+		strand = (byte) markerSerializer.getNextFieldInt();
+	}
+
+	/**
+	 * Create a string to serialize to a file
+	 * @return
+	 */
+	public String serializeSave(MarkerSerializer markerSerializer) {
+		return type //
+				+ "\t" + markerSerializer.getIdByMarker(this) //
+				+ "\t" + (parent != null ? markerSerializer.getIdByMarker((Marker) parent) : -1) //
+				+ "\t" + start //
+				+ "\t" + end //
+				+ "\t" + id //
+				+ "\t" + strand //
+		;
 	}
 
 	@Override
@@ -269,10 +302,4 @@ public class Marker extends Interval {
 				+ " " //
 				+ type + ((id != null) && (id.length() > 0) ? " '" + id + "'" : "");
 	}
-
-	@Override
-	public String toStringSave() {
-		return getChromosomeName() + "\t" + start + "\t" + end + "\t" + id;
-	}
-
 }

@@ -17,7 +17,7 @@ public class Upstream extends Marker {
 
 	public Upstream(Marker parent, int start, int end, int strand, String id) {
 		super(parent, start, end, strand, id);
-		type = EffectType.UPSTREAM.toString();
+		type = EffectType.UPSTREAM;
 	}
 
 	/**

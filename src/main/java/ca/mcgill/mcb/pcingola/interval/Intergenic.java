@@ -14,7 +14,7 @@ public class Intergenic extends Marker {
 
 	public Intergenic(Chromosome parent, int start, int end, int strand, String id) {
 		super(parent, start, end, strand, id);
-		type = EffectType.INTERGENIC.toString();
+		type = EffectType.INTERGENIC;
 	}
 
 }

@@ -43,7 +43,7 @@ public class BedAnnotationOutputFormatter extends BedOutputFormatter {
 					if (gene != null) geneName = gene.getGeneName();
 
 					// Get annotation type
-					String type = m.getType();
+					String type = m.getType().toString();
 
 					// Show complete regulation info
 					if (m instanceof Regulation) {

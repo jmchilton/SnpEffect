@@ -19,9 +19,14 @@ public class Utr5prime extends Utr {
 
 	private static final long serialVersionUID = 3710420226746056364L;
 
+	public Utr5prime() {
+		super();
+		type = EffectType.UTR_5_PRIME;
+	}
+
 	public Utr5prime(Marker parent, int start, int end, int strand, String id) {
 		super(parent, start, end, strand, id);
-		type = EffectType.UTR_5_PRIME.toString();
+		type = EffectType.UTR_5_PRIME;
 	}
 
 	@Override
@@ -38,7 +43,7 @@ public class Utr5prime extends Utr {
 		String gained = startGained(seqChange, tint);
 
 		if (gained.length() > 0) changeEffect.set(this, EffectType.START_GAINED, gained + ", " + EffectType.UTR_5_PRIME + ": " + utrDistStr);
-		else changeEffect.set(this, EffectType.valueOf(type), utrDistStr);
+		else changeEffect.set(this, type, utrDistStr);
 
 		changeEffect.setExon(exon);
 

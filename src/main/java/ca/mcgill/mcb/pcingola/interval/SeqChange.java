@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import ca.mcgill.mcb.pcingola.util.Gpr;
+import ca.mcgill.mcb.pcingola.snpEffect.ChangeEffect.EffectType;
 import ca.mcgill.mcb.pcingola.util.GprSeq;
 
 /**
@@ -294,7 +294,7 @@ public class SeqChange extends Marker {
 			if ((changeType == ChangeType.INS) || (changeType == ChangeType.DEL)) reference = "*";
 		}
 
-		type = changeType.name();
+		type = EffectType.NONE;
 
 		// Start and end position
 		// 	- Start is always the leftmost base
@@ -403,35 +403,35 @@ public class SeqChange extends Marker {
 		return netChange;
 	}
 
-	/**
-	 * Parse a line (form a file)
-	 * Format: "chromosome \t position \t base \t snp \n" 
-	 * 
-	 * @param line
-	 * @param lineNum
-	 */
-	@Override
-	void parse(String line, int lineNum) {
-		line = line.trim(); // Remove spaces
-
-		// Ignore empty lines and comment lines
-		if ((line.length() > 0) && (!line.startsWith("#"))) {
-			// Parse line
-			String fields[] = line.split("\\s+");
-
-			// Is line OK?
-			if (fields.length >= 4) {
-				String chromosome = fields[0].trim();
-				if (chromosome != null) throw new RuntimeException("CHROMOSOME: Need to process chromosome info!");
-
-				start = Gpr.parseIntSafe(fields[1]);
-				reference = fields[2].toUpperCase();
-				change = fields[3].toUpperCase();
-
-				if (fields.length >= 5) quality = Gpr.parseIntSafe(fields[4]);
-			} else throw new RuntimeException("Error in line " + lineNum + " (number of fields is " + fields.length + "):\t" + line);
-		}
-	}
+	//	/**
+	//	 * Parse a line (form a file)
+	//	 * Format: "chromosome \t position \t base \t snp \n" 
+	//	 * 
+	//	 * @param line
+	//	 * @param lineNum
+	//	 */
+	//	@Override
+	//	void parse(String line, int lineNum) {
+	//		line = line.trim(); // Remove spaces
+	//
+	//		// Ignore empty lines and comment lines
+	//		if ((line.length() > 0) && (!line.startsWith("#"))) {
+	//			// Parse line
+	//			String fields[] = line.split("\\s+");
+	//
+	//			// Is line OK?
+	//			if (fields.length >= 4) {
+	//				String chromosome = fields[0].trim();
+	//				if (chromosome != null) throw new RuntimeException("CHROMOSOME: Need to process chromosome info!");
+	//
+	//				start = Gpr.parseIntSafe(fields[1]);
+	//				reference = fields[2].toUpperCase();
+	//				change = fields[3].toUpperCase();
+	//
+	//				if (fields.length >= 5) quality = Gpr.parseIntSafe(fields[4]);
+	//			} else throw new RuntimeException("Error in line " + lineNum + " (number of fields is " + fields.length + "):\t" + line);
+	//		}
+	//	}
 
 	/**
 	 * Return the reference (always in positive strand)

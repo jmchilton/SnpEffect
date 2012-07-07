@@ -27,12 +27,20 @@ public class Exon extends Marker {
 	SpliceSiteAcceptor spliceSiteAcceptor;
 	SpliceSiteDonor spliceSiteDonor;
 
+	protected Exon() {
+		super();
+		strand = 0;
+		rank = 0;
+		sequence = DnaSequence.empty();
+		type = EffectType.EXON;
+	}
+
 	public Exon(Marker parent, int start, int end, int strand, String id, int rank) {
 		super(parent, start, end, strand, id);
-		this.strand = strand;
+		this.strand = (byte) strand;
 		this.rank = rank;
 		sequence = DnaSequence.empty();
-		type = EffectType.EXON.toString();
+		type = EffectType.EXON;
 	}
 
 	/**
@@ -172,6 +180,39 @@ public class Exon extends Marker {
 		changeEffect.setExon(this); // We do NOT use changeEffect.set(this, EXON, "") because the information has already been set by 'Transcript'
 		check(seqChange, changeEffect); // Check that the base in the exon corresponds with the one in the SNP
 		return changeEffect.newList();
+	}
+
+	/**
+	 * Parse a line from a serialized file
+	 * @param line
+	 * @return
+	 */
+	@Override
+	public void serializeParse(MarkerSerializer markerSerializer) {
+		super.serializeParse(markerSerializer);
+		frame = (byte) markerSerializer.getNextFieldInt();
+		rank = markerSerializer.getNextFieldInt();
+		setSequence(markerSerializer.getNextField());
+		spliceSiteDonor = (SpliceSiteDonor) markerSerializer.getNextFieldMarker();
+		spliceSiteAcceptor = (SpliceSiteAcceptor) markerSerializer.getNextFieldMarker();
+	}
+
+	/**
+	 * Create a string to serialize to a file
+	 * @return
+	 */
+	@Override
+	public String serializeSave(MarkerSerializer markerSerializer) {
+		int ssdId = markerSerializer.save(spliceSiteDonor);
+		int ssaId = markerSerializer.save(spliceSiteAcceptor);
+
+		return super.serializeSave(markerSerializer) //
+				+ "\t" + frame //
+				+ "\t" + rank //
+				+ "\t" + sequence //
+				+ "\t" + ssdId //
+				+ "\t" + ssaId //
+		;
 	}
 
 	/**

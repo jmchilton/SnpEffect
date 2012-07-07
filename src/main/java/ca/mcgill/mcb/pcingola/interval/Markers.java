@@ -225,13 +225,13 @@ public class Markers implements Iterable<Marker>, Serializable {
 		}
 	}
 
-	/**
-	 * Save to a file
-	 * @param fileName
-	 */
-	public void save(String fileName) {
-		Gpr.toFile(fileName, toStringSave());
-	}
+	//	/**
+	//	 * Save to a file
+	//	 * @param fileName
+	//	 */
+	//	public void save(String fileName) {
+	//		Gpr.toFile(fileName, toStringSave());
+	//	}
 
 	public void setVerbose(boolean verbose) {
 		this.verbose = verbose;
@@ -289,12 +289,12 @@ public class Markers implements Iterable<Marker>, Serializable {
 		return sb.toString();
 	}
 
-	public String toStringSave() {
-		StringBuilder sb = new StringBuilder();
-		for (Marker i : this)
-			sb.append(i.toStringSave() + "\n");
-		return sb.toString();
-	}
+	//	public String toStringSave() {
+	//		StringBuilder sb = new StringBuilder();
+	//		for (Marker i : this)
+	//			sb.append(i.serializeSave() + "\n");
+	//		return sb.toString();
+	//	}
 
 	/**
 	 * Create a new 'intervals' object containing the union of both intervals

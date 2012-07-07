@@ -42,6 +42,7 @@ public class ChangeEffect implements Cloneable {
 		, NON_SYNONYMOUS_START //
 		, CDS //
 		, GENE //
+		, GENOME //
 		, TRANSCRIPT //
 		, EXON //		
 		, EXON_DELETED //		

@@ -207,6 +207,10 @@ public class Config implements Serializable, Iterable<String> {
 		return getDirDataVersion() + "/protein.fa";
 	}
 
+	public String getFileSnpEffectPredictor() {
+		return getDirData() + "/" + genome.getVersion() + "/snpEffectPredictor.bin";
+	}
+
 	public Genome getGenome() {
 		return genome;
 	}

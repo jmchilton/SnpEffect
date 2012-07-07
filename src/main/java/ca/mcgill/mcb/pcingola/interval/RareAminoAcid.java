@@ -8,6 +8,6 @@ public class RareAminoAcid extends Marker {
 
 	public RareAminoAcid(Marker parent, int start, int end, String id) {
 		super(parent, start, end, 1, id);
-		type = EffectType.RARE_AMINO_ACID.toString();
+		type = EffectType.RARE_AMINO_ACID;
 	}
 }

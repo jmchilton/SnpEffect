@@ -40,14 +40,14 @@ public class SnpEffectPredictor implements Serializable {
 	boolean useChromosomes = true;
 	int upDownStreamLength = DEFAULT_UP_DOWN_LENGTH;
 	Genome genome;
-	ArrayList<Marker> markers; // All other markers are stored here (e.g. custom markers, intergenic, etc.)
+	Markers markers; // All other markers are stored here (e.g. custom markers, intergenic, etc.)
 	IntervalForest intervalForest;
 
 	/**
 	 * Load predictor from a binary file
 	 */
 	public static SnpEffectPredictor load(Config config) {
-		String snpEffPredFile = config.dataDir + "/" + config.genome.getVersion() + "/snpEffectPredictor.bin";
+		String snpEffPredFile = config.getFileSnpEffectPredictor();
 
 		// Is the file there
 		SnpEffectPredictor snpEffectPredictor = null;
@@ -68,7 +68,7 @@ public class SnpEffectPredictor implements Serializable {
 
 	public SnpEffectPredictor(Genome genome) {
 		this.genome = genome;
-		markers = new ArrayList<Marker>();
+		markers = new Markers();
 	}
 
 	/**
@@ -141,7 +141,7 @@ public class SnpEffectPredictor implements Serializable {
 		return intervalForest;
 	}
 
-	public ArrayList<Marker> getMarkers() {
+	public Markers getMarkers() {
 		return markers;
 	}
 
@@ -170,7 +170,7 @@ public class SnpEffectPredictor implements Serializable {
 			System.out.println("Chromosome: \t" + chr.getId() + "\t" + chr.getStart() + "\t" + chr.getEnd());
 
 		// Show genes
-		for (Gene gene : genome.getGenes())
+		for (Gene gene : genome.getGenes().sorted())
 			System.out.println(gene);
 
 		// Show other inervals
@@ -299,7 +299,7 @@ public class SnpEffectPredictor implements Serializable {
 	 * Save predictor to a binary file (specified by the configuration)
 	 */
 	public void save(Config config) {
-		String cacheFile = config.dataDir + "/" + config.genome.getVersion() + "/snpEffectPredictor.bin";
+		String cacheFile = config.getDirData() + "/" + config.getGenome().getVersion() + "/snpEffectPredictor.bin";
 		Gpr.toFileSerializeGz(cacheFile, this);
 	}
 

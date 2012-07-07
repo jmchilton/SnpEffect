@@ -25,12 +25,18 @@ public class Gene extends IntervalAndSubIntervals<Transcript> implements Seriali
 	String geneName;
 	String bioType;
 
+	protected Gene() {
+		super();
+		geneName = "";
+		bioType = "";
+		type = EffectType.GENE;
+	}
+
 	public Gene(Marker parent, int start, int end, int strand, String id, String geneName, String bioType) {
 		super(parent, start, end, strand, id);
 		this.geneName = geneName;
 		this.bioType = bioType;
-		this.strand = strand;
-		type = EffectType.GENE.toString();
+		type = EffectType.GENE;
 	}
 
 	/**
@@ -66,7 +72,7 @@ public class Gene extends IntervalAndSubIntervals<Transcript> implements Seriali
 		// Change gene strand?
 		int newStrand = strandSumGene >= 0 ? 1 : -1;
 		if (strand != newStrand) {
-			strand = newStrand;
+			strand = (byte) newStrand;
 			changed = true;
 		}
 
@@ -183,6 +189,27 @@ public class Gene extends IntervalAndSubIntervals<Transcript> implements Seriali
 		}
 
 		return changeEffectList;
+	}
+
+	/**
+	 * Parse a line from a serialized file
+	 * @param line
+	 * @return
+	 */
+	@Override
+	public void serializeParse(MarkerSerializer markerSerializer) {
+		super.serializeParse(markerSerializer);
+		geneName = markerSerializer.getNextField();
+		geneName = markerSerializer.getNextField();
+	}
+
+	/**
+	 * Create a string to serialize to a file
+	 * @return
+	 */
+	@Override
+	public String serializeSave(MarkerSerializer markerSerializer) {
+		return super.serializeSave(markerSerializer) + "\t" + geneName + "\t" + bioType;
 	}
 
 	public void setBioType(String bioType) {

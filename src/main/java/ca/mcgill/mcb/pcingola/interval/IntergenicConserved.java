@@ -14,7 +14,7 @@ public class IntergenicConserved extends Marker {
 
 	public IntergenicConserved(Chromosome parent, int start, int end, int strand, String id) {
 		super(parent, start, end, strand, id);
-		type = EffectType.INTERGENIC_CONSERVED.toString();
+		type = EffectType.INTERGENIC_CONSERVED;
 	}
 
 }
