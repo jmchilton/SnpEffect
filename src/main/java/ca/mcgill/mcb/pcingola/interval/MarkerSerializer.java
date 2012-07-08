@@ -90,7 +90,7 @@ public class MarkerSerializer {
 	 * @param markers
 	 * @param genome
 	 */
-	void add(Markers markers, Genome genome) {
+	protected void add(Markers markers, Genome genome) {
 		markers.add(genome);
 
 		for (Chromosome chr : genome)

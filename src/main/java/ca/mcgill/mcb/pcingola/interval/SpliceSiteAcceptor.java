@@ -15,6 +15,11 @@ public class SpliceSiteAcceptor extends SpliceSite {
 
 	private static final long serialVersionUID = -7416687954435361328L;
 
+	public SpliceSiteAcceptor() {
+		super();
+		type = EffectType.SPLICE_SITE_ACCEPTOR;
+	}
+
 	public SpliceSiteAcceptor(Marker parent, int start, int end, int strand, String id) {
 		super(parent, start, end, strand, id);
 		type = EffectType.SPLICE_SITE_ACCEPTOR;

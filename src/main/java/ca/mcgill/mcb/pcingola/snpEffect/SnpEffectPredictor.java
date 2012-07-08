@@ -1,14 +1,12 @@
 package ca.mcgill.mcb.pcingola.snpEffect;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InvalidClassException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import ca.mcgill.mcb.pcingola.interval.Cds;
 import ca.mcgill.mcb.pcingola.interval.Chromosome;
 import ca.mcgill.mcb.pcingola.interval.Exon;
 import ca.mcgill.mcb.pcingola.interval.Gene;
@@ -16,8 +14,10 @@ import ca.mcgill.mcb.pcingola.interval.Genome;
 import ca.mcgill.mcb.pcingola.interval.Intergenic;
 import ca.mcgill.mcb.pcingola.interval.Intron;
 import ca.mcgill.mcb.pcingola.interval.Marker;
+import ca.mcgill.mcb.pcingola.interval.MarkerSerializer;
 import ca.mcgill.mcb.pcingola.interval.Markers;
 import ca.mcgill.mcb.pcingola.interval.SeqChange;
+import ca.mcgill.mcb.pcingola.interval.SpliceSite;
 import ca.mcgill.mcb.pcingola.interval.Transcript;
 import ca.mcgill.mcb.pcingola.interval.Utr;
 import ca.mcgill.mcb.pcingola.interval.tree.IntervalForest;
@@ -49,20 +49,39 @@ public class SnpEffectPredictor implements Serializable {
 	public static SnpEffectPredictor load(Config config) {
 		String snpEffPredFile = config.getFileSnpEffectPredictor();
 
-		// Is the file there
-		SnpEffectPredictor snpEffectPredictor = null;
-		try {
-			snpEffectPredictor = (SnpEffectPredictor) Gpr.readFileSerializedGzThrow(snpEffPredFile);
-		} catch (FileNotFoundException e) {
-			System.err.println("\nERROR: Cannot read file '" + snpEffPredFile + "'.\n\tYou can try to download the database by running the following command:\n\t\tjava -jar snpEff.jar download " + config.genome.getVersion() + "\n");
-			throw new RuntimeException(e);
-		} catch (IOException e) {
-			if (e instanceof InvalidClassException) System.err.println("\nERROR: Incompatible database version. SnpEff and database version do not match.\n\tYou can try to download the apropriate database by running the following command:\n\t\tjava -jar snpEff.jar download " + config.genome.getVersion() + "\n");
-			else System.err.println("Cannot read file '" + snpEffPredFile + "'.\n");
-			throw new RuntimeException(e);
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
+		// Sanity check
+		if (Gpr.canRead(snpEffPredFile)) throw new RuntimeException("\nERROR: Cannot read file '" + snpEffPredFile + "'.\n\tYou can try to download the database by running the following command:\n\t\tjava -jar snpEff.jar download " + config.getGenome().getVersion() + "\n");
+
+		// Load markers from file
+		MarkerSerializer ms = new MarkerSerializer();
+		Markers markers = ms.load(snpEffPredFile);
+
+		// Find genome
+		Genome genome = null;
+		for (Marker m : markers)
+			if (m instanceof Genome) genome = (Genome) m;
+		if (genome == null) throw new RuntimeException("Genome not found. This should never happen!");
+
+		// Create predictor
+		SnpEffectPredictor snpEffectPredictor = new SnpEffectPredictor(genome);
+
+		// Add genes
+		for (Marker m : markers)
+			if (m instanceof Gene) {
+				Gene gene = (Gene) m;
+				snpEffectPredictor.add(gene);
+			}
+
+		// Add 'other' markers
+		for (Marker m : markers)
+			if (!(m instanceof Gene) //
+					&& !(m instanceof Transcript) //
+					&& !(m instanceof Exon) //
+					&& !(m instanceof Cds) //
+					&& !(m instanceof Utr) //
+					&& !(m instanceof SpliceSite) //
+			) snpEffectPredictor.add(m);
+
 		return snpEffectPredictor;
 	}
 
@@ -299,8 +318,9 @@ public class SnpEffectPredictor implements Serializable {
 	 * Save predictor to a binary file (specified by the configuration)
 	 */
 	public void save(Config config) {
-		String cacheFile = config.getDirData() + "/" + config.getGenome().getVersion() + "/snpEffectPredictor.bin";
-		Gpr.toFileSerializeGz(cacheFile, this);
+		String databaseFile = config.getDirData() + "/" + config.getGenome().getVersion() + "/snpEffectPredictor.bin";
+		MarkerSerializer markerSerializer = new MarkerSerializer();
+		markerSerializer.save(databaseFile, this);
 	}
 
 	/**
