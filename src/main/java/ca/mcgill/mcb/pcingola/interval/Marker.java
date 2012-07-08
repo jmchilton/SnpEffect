@@ -78,15 +78,19 @@ public class Marker extends Interval {
 			}
 		}
 
-		// Start
+		// Compare by start position
 		if (start > i2.start) return 1;
 		if (start < i2.start) return -1;
 
-		// End
+		// Compare by end position
 		if (end > i2.end) return 1;
 		if (end < i2.end) return -1;
 
-		return 0;
+		// Compare by ID
+		if ((id == null) && (i2.getId() == null)) return 0;
+		if ((id != null) && (i2.getId() == null)) return -1;
+		if ((id == null) && (i2.getId() != null)) return 1;
+		return id.compareTo(i2.getId());
 	}
 
 	/**
@@ -273,7 +277,7 @@ public class Marker extends Interval {
 	 */
 	public void serializeParse(MarkerSerializer markerSerializer) {
 		type = EffectType.valueOf(markerSerializer.getNextField());
-		int thisId = markerSerializer.getNextFieldInt();
+		markerSerializer.getNextFieldInt();
 		parent = new MarkerParentId(markerSerializer.getNextFieldInt()); // Create a 'fake' parent. It will be replaced after all objects are in memory.
 		start = markerSerializer.getNextFieldInt();
 		end = markerSerializer.getNextFieldInt();

@@ -16,6 +16,15 @@ import ca.mcgill.mcb.pcingola.util.Timer;
 /**
  * Serialize markers to (and from) file
  * 
+ * Note: Marker's children are serialized first (e.g. a transcript get all 
+ * 		exons serialized first).  
+ * 
+ * Note: Since Marker is a tree-like structure, we first load all the markers and then 
+ * 		assign parents. Markers are assigned a fake parent object (MarkerParentId) 
+ * 		which is later replaced by the 'real' parent.
+ * 
+ * Note: All 'IDs' used have not meaning outside this serialization process. 
+ * 
  * @author pcingola
  */
 public class MarkerSerializer {
@@ -26,7 +35,6 @@ public class MarkerSerializer {
 	int parsedField;
 	String fields[];
 	int currId = 0;
-
 	HashMap<Integer, Marker> markerById;
 	HashMap<Marker, Integer> idByMarker;
 
@@ -38,23 +46,29 @@ public class MarkerSerializer {
 		Config config = new Config("testHg3763ChrY");
 		SnpEffectPredictor sep = SnpEffectPredictor.load(config);
 
-		Markers markers = new Markers();
-		markers.add(sep.getGenome());
-
-		for (Chromosome chr : sep.getGenome())
-			markers.add(chr);
-
-		for (Gene g : sep.getGenome().getGenes())
-			markers.add(g);
+		StringBuilder genesOriSb = new StringBuilder();
+		for (Gene gene : sep.getGenome().getGenes().sorted())
+			genesOriSb.append(gene.toString() + "\n");
+		Gpr.toFile(Gpr.HOME + "/genesOriSb.txt", genesOriSb);
 
 		// Write
 		MarkerSerializer is = new MarkerSerializer();
 		Timer.showStdErr("Writing to " + fileName);
-		is.save(fileName, markers);
+		is.save(fileName, sep);
 
 		// Read
 		Timer.showStdErr("Reading to " + fileName);
-		is.load(fileName);
+		Markers markers = is.load(fileName);
+
+		Genes genes = new Genes(sep.getGenome());
+		for (Marker m : markers)
+			if (m instanceof Gene) genes.add((Gene) m);
+
+		StringBuilder genesNewSb = new StringBuilder();
+		for (Gene gene : genes.sorted())
+			genesNewSb.append(gene.toString() + "\n");
+		Gpr.toFile(Gpr.HOME + "/genesNewSb.txt", genesNewSb);
+
 		Timer.showStdErr("Done.");
 
 	}
@@ -64,31 +78,46 @@ public class MarkerSerializer {
 		idByMarker = new HashMap<Marker, Integer>();
 	}
 
-	public int getIdByMarker(Marker m) {
+	/**
+	 * Add all data from 'genome' to markres
+	 * @param markers
+	 * @param genome
+	 */
+	void add(Markers markers, Genome genome) {
+		markers.add(genome);
+
+		for (Chromosome chr : genome)
+			markers.add(chr);
+
+		for (Gene g : genome.getGenes())
+			markers.add(g);
+	}
+
+	protected int getIdByMarker(Marker m) {
 		return idByMarker.get(m);
 	}
 
-	public Marker getMarkerById(int id) {
+	protected Marker getMarkerById(int id) {
 		return markerById.get(id);
 	}
 
-	public String getNextField() {
+	protected String getNextField() {
 		return fields[parsedField++];
 	}
 
-	public boolean getNextFieldBoolean() {
+	protected boolean getNextFieldBoolean() {
 		return Gpr.parseBoolSafe(getNextField());
 	}
 
-	public int getNextFieldInt() {
+	protected int getNextFieldInt() {
 		return Gpr.parseIntSafe(getNextField());
 	}
 
-	public Marker getNextFieldMarker() {
+	protected Marker getNextFieldMarker() {
 		return getMarkerById(getNextFieldInt());
 	}
 
-	public Markers getNextFieldMarkers() {
+	protected Markers getNextFieldMarkers() {
 		Markers markers = new Markers();
 		String fieldIdsStr = getNextField();
 		if (fieldIdsStr.isEmpty()) return markers;
@@ -103,15 +132,16 @@ public class MarkerSerializer {
 		return markers;
 	}
 
-	public int getNextId() {
+	protected int getNextId() {
 		return ++currId;
 	}
 
 	/**
 	 * Load data from file
+	 * 
 	 * @param fileName
 	 */
-	public void load(String fileName) {
+	public Markers load(String fileName) {
 		//---
 		// Load data from file
 		//---
@@ -177,15 +207,24 @@ public class MarkerSerializer {
 		//--- 
 		// Assign parents
 		//---
+		Markers markers = new Markers();
 		for (Marker m : markerById.values()) {
+			// Find parent ID
 			MarkerParentId mpid = (MarkerParentId) m.getParent();
 			int parentId = mpid.getParentId();
+
+			// Find and set parent
 			Marker parent = getMarkerById(parentId);
 			m.setParent(parent);
+
+			// Add to markers
+			markers.add(m);
 		}
+
+		return markers;
 	}
 
-	public String save(Iterable<Marker> markersCol) {
+	protected String save(Iterable<Marker> markersCol) {
 		StringBuilder idStr = new StringBuilder();
 		for (Marker m : markersCol) {
 			int id = save(m);
@@ -199,7 +238,7 @@ public class MarkerSerializer {
 	 * Save a marker
 	 * @param m
 	 */
-	public int save(Marker m) {
+	protected int save(Marker m) {
 		if (m == null) return -1;
 		if (idByMarker.containsKey(m)) return idByMarker.get(m); // Already done
 
@@ -218,16 +257,8 @@ public class MarkerSerializer {
 	 */
 	public void save(String fileName, Genome genome) {
 		Markers markers = new Markers();
-		markers.add(genome);
-
-		for (Chromosome chr : genome)
-			markers.add(chr);
-
-		for (Gene g : genome.getGenes())
-			markers.add(g);
-
-		// Write
-		save(fileName, markers);
+		add(markers, genome);
+		save(fileName, markers); // Write
 	}
 
 	/**
@@ -245,5 +276,17 @@ public class MarkerSerializer {
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
+	}
+
+	/**
+	 * Save all markers in snpEffectPredictor
+	 * @param fileName
+	 * @param genome
+	 */
+	public void save(String fileName, SnpEffectPredictor snpEffectPredictor) {
+		Markers markers = new Markers();
+		add(markers, snpEffectPredictor.getGenome());
+		markers.add(snpEffectPredictor.getMarkers());
+		save(fileName, markers);
 	}
 }

@@ -100,7 +100,7 @@ public class Genes implements Iterable<Gene>, Serializable {
 	public Collection<Gene> sorted() {
 		ArrayList<Gene> genes = new ArrayList<Gene>();
 		genes.addAll(genesById.values());
-		Collections.sort(genes);
+		Collections.sort(genes, new IntervalComparatorByStart());
 		return genes;
 	}
 

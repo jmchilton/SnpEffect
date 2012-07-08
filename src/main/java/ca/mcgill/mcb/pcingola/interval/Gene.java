@@ -200,7 +200,7 @@ public class Gene extends IntervalAndSubIntervals<Transcript> implements Seriali
 	public void serializeParse(MarkerSerializer markerSerializer) {
 		super.serializeParse(markerSerializer);
 		geneName = markerSerializer.getNextField();
-		geneName = markerSerializer.getNextField();
+		bioType = markerSerializer.getNextField();
 	}
 
 	/**
@@ -209,7 +209,9 @@ public class Gene extends IntervalAndSubIntervals<Transcript> implements Seriali
 	 */
 	@Override
 	public String serializeSave(MarkerSerializer markerSerializer) {
-		return super.serializeSave(markerSerializer) + "\t" + geneName + "\t" + bioType;
+		return super.serializeSave(markerSerializer) //
+				+ "\t" + geneName //
+				+ "\t" + bioType;
 	}
 
 	public void setBioType(String bioType) {
