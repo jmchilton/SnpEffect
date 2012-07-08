@@ -148,69 +148,63 @@ public class TestCasesIntervals extends TestCase {
 	 */
 	public void test_01() {
 		initRand();
-		Markers intervals = new Markers();
-		throw new RuntimeException("FIX THIS!");
-		// intervals.read("tests/interval_data_100.txt", genome);
-		//compareToFile(intervals.toStringSave(), "tests/test_01.txt");
+		Markers intervals = Markers.readTxt("tests/interval_data_100.txt", genome);
+		compareToFile(intervals.toStringTxt(), "tests/test_01.txt");
 	}
 
 	/**
 	 * Sort test
 	 */
 	public void test_02() {
-		throw new RuntimeException("FIX THIS!");
-		//		initRand();
-		//		Markers intervals = randomIntervals(10, maxLen, 10, 5);
-		//		intervals.sort(false, false);
-		//		compareToFile(intervals.toStringSave(), "tests/test_02.txt");
+		initRand();
+		Markers intervals = randomIntervals(10, maxLen, 10, 5);
+		intervals.sort(false, false);
+		compareToFile(intervals.toStringTxt(), "tests/test_02.txt");
 	}
 
 	/**
 	 * Sort (by end) test
 	 */
 	public void test_03() {
-		throw new RuntimeException("FIX THIS!");
-		//		initRand();
-		//		Markers intervals = randomIntervals(100, maxLen, 25, 2);
-		//		intervals.sort(true, false);
-		//		compareToFile(intervals.toStringSave(), "tests/test_03.txt");
+		initRand();
+		Markers intervals = randomIntervals(100, maxLen, 25, 2);
+		intervals.sort(true, false);
+		compareToFile(intervals.toStringTxt(), "tests/test_03.txt");
 	}
 
 	/**
 	 * Merge intervals
 	 */
 	public void test_04() {
-		throw new RuntimeException("FIX THIS!");
-		//		initRand();
-		//		Markers intervals = randomIntervals(20, maxLen, 10, 2);
-		//		Markers merge = intervals.merge();
-		//		if (verbose) System.out.println("Merge :\n" + merge.toStringAsciiArt(maxLen));
-		//		compareToFile(merge.toStringSave(), "tests/test_04.txt");
+		initRand();
+		Markers intervals = randomIntervals(20, maxLen, 10, 2);
+		Markers merge = intervals.merge();
+		if (verbose) System.out.println("Merge :\n" + merge.toStringAsciiArt(maxLen));
+		compareToFile(merge.toStringTxt(), "tests/test_04.txt");
 	}
 
 	/**
 	 * Union of 2 intervals
 	 */
 	public void test_05() {
-		throw new RuntimeException("FIX THIS!");
-		//		initRand();
-		//		// Create and perform union
-		//		Markers intervals = randomIntervals(5, maxLen, 10, 2);
-		//		Markers intervals2 = randomIntervals(5, maxLen, 10, 2);
-		//		Markers union = intervals.union(intervals2);
-		//		compareToFile(union.toStringSave(), "tests/test_05.txt");
-		//
-		//		if (verbose) {
-		//			// Sort
-		//			intervals.sort(false, false);
-		//			intervals2.sort(false, false);
-		//			union.sort(false, false);
-		//
-		//			// Show
-		//			System.out.println("Intervals 1:\n" + intervals.toStringAsciiArt(maxLen));
-		//			System.out.println("Intervals 2:\n" + intervals2.toStringAsciiArt(maxLen));
-		//			System.out.println("Union :\n" + union.toStringAsciiArt(maxLen));
-		//		}
+		initRand();
+		// Create and perform union
+		Markers intervals = randomIntervals(5, maxLen, 10, 2);
+		Markers intervals2 = randomIntervals(5, maxLen, 10, 2);
+		Markers union = intervals.union(intervals2);
+		compareToFile(union.toStringTxt(), "tests/test_05.txt");
+
+		if (verbose) {
+			// Sort
+			intervals.sort(false, false);
+			intervals2.sort(false, false);
+			union.sort(false, false);
+
+			// Show
+			System.out.println("Intervals 1:\n" + intervals.toStringAsciiArt(maxLen));
+			System.out.println("Intervals 2:\n" + intervals2.toStringAsciiArt(maxLen));
+			System.out.println("Union :\n" + union.toStringAsciiArt(maxLen));
+		}
 	}
 
 	/**

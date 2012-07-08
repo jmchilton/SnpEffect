@@ -21,6 +21,32 @@ public class Markers implements Iterable<Marker>, Serializable {
 	boolean verbose = true;
 	ArrayList<Marker> intervals;
 
+	/**
+	 * Read intervals from a file using a simplt TXT format
+	 * Format: 
+	 * 		chr \t start \t end \t id
+	 * 
+	 * Note: Zero-based positions
+	 * 
+	 * @param fileName
+	 */
+	public static Markers readTxt(String fileName, Genome genome) {
+		Markers markers = new Markers();
+		// Read file
+		String file = Gpr.readFile(fileName);
+
+		// Parse lines
+		String lines[] = file.split("\n");
+		int lineNum = 1;
+		for (String line : lines) {
+			Marker interval = new Marker(null, 0, 0, 0, "");
+			interval.readTxt(line, lineNum, genome, 0);
+			markers.add(interval);
+			lineNum++;
+		}
+		return markers;
+	}
+
 	public Markers() {
 		intervals = new ArrayList<Marker>();
 	}
@@ -206,33 +232,6 @@ public class Markers implements Iterable<Marker>, Serializable {
 		return intervals.get(idx);
 	}
 
-	/**
-	 * Read intervals from a file
-	 * @param fileName
-	 */
-	public void read(String fileName, Genome genome) {
-		// Read file
-		String file = Gpr.readFile(fileName);
-
-		// Parse lines
-		String lines[] = file.split("\n");
-		int lineNum = 1;
-		for (String line : lines) {
-			Marker interval = new Marker(null, 0, 0, 0, "");
-			interval.parse(line, lineNum, genome, 0);
-			add(interval);
-			lineNum++;
-		}
-	}
-
-	//	/**
-	//	 * Save to a file
-	//	 * @param fileName
-	//	 */
-	//	public void save(String fileName) {
-	//		Gpr.toFile(fileName, toStringSave());
-	//	}
-
 	public void setVerbose(boolean verbose) {
 		this.verbose = verbose;
 	}
@@ -289,12 +288,12 @@ public class Markers implements Iterable<Marker>, Serializable {
 		return sb.toString();
 	}
 
-	//	public String toStringSave() {
-	//		StringBuilder sb = new StringBuilder();
-	//		for (Marker i : this)
-	//			sb.append(i.serializeSave() + "\n");
-	//		return sb.toString();
-	//	}
+	public String toStringTxt() {
+		StringBuilder sb = new StringBuilder();
+		for (Marker i : this)
+			sb.append(i.getChromosomeName() + "\t" + i.getStart() + "\t" + i.getEnd() + "\t" + i.getId() + "\n");
+		return sb.toString();
+	}
 
 	/**
 	 * Create a new 'intervals' object containing the union of both intervals

@@ -39,13 +39,19 @@ public class MarkerSerializer {
 	HashMap<Marker, Integer> idByMarker;
 
 	public static void main(String[] args) throws IOException {
+
+		Gpr.debug("int 19_gl000209_random: " + Gpr.parseIntSafe("19_gl000209_random"));
+		Gpr.debug("int 19: " + Gpr.parseIntSafe("19"));
+
 		String fileName = Gpr.HOME + "/zzz.txt.gz";
 
 		// Read database
 		Timer.showStdErr("Loading");
-		Config config = new Config("testHg3763ChrY");
+		Config config = new Config("hg19");
+		// Config config = new Config("testHg3763ChrY");
 		SnpEffectPredictor sep = SnpEffectPredictor.load(config);
 
+		Timer.showStdErr("Creating gene list ORI");
 		StringBuilder genesOriSb = new StringBuilder();
 		for (Gene gene : sep.getGenome().getGenes().sorted())
 			genesOriSb.append(gene.toString() + "\n");
@@ -57,9 +63,10 @@ public class MarkerSerializer {
 		is.save(fileName, sep);
 
 		// Read
-		Timer.showStdErr("Reading to " + fileName);
+		Timer.showStdErr("Reading from " + fileName);
 		Markers markers = is.load(fileName);
 
+		Timer.showStdErr("Creating gene list NEW");
 		Genes genes = new Genes(sep.getGenome());
 		for (Marker m : markers)
 			if (m instanceof Gene) genes.add((Gene) m);
@@ -162,8 +169,23 @@ public class MarkerSerializer {
 
 			Marker m = null;
 			switch (type) {
+			case GENOME:
+				m = new Genome();
+				break;
+			case CHROMOSOME:
+				m = new Chromosome();
+				break;
 			case GENE:
 				m = new Gene();
+				break;
+			case TRANSCRIPT:
+				m = new Transcript();
+				break;
+			case CDS:
+				m = new Cds();
+				break;
+			case EXON:
+				m = new Exon();
 				break;
 			case UTR_3_PRIME:
 				m = new Utr3prime();
@@ -171,20 +193,8 @@ public class MarkerSerializer {
 			case UTR_5_PRIME:
 				m = new Utr5prime();
 				break;
-			case EXON:
-				m = new Exon();
-				break;
-			case CDS:
-				m = new Cds();
-				break;
-			case TRANSCRIPT:
-				m = new Transcript();
-				break;
-			case CHROMOSOME:
-				m = new Chromosome();
-				break;
-			case GENOME:
-				m = new Genome();
+			case RARE_AMINO_ACID:
+				m = new RareAminoAcid();
 				break;
 			default:
 				throw new RuntimeException("Unimplemented for type '" + type + "'");
@@ -193,7 +203,6 @@ public class MarkerSerializer {
 			try {
 				// Parse line
 				m.serializeParse(this);
-				System.out.println(m.getId());
 			} catch (Throwable t) {
 				t.printStackTrace();
 				throw new RuntimeException("Error parsing line " + (lineNum + 1) + " from file '" + fileName + "'\n\t" + line + "\n\tField [" + parsedField + "] : '" + (parsedField < fields.length ? fields[parsedField] : "-") + "'", t);

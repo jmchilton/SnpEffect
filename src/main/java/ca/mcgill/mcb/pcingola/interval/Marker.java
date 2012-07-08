@@ -70,13 +70,13 @@ public class Marker extends Interval {
 		Marker m2 = (Marker) i2;
 
 		Chromosome chr1 = getChromosome();
-		if (chr1 != null) {
-			Chromosome chr2 = m2.getChromosome();
-			if (chr2 != null) {
-				int compChromo = chr1.compareChromoName(chr2);
-				if (compChromo != 0) return compChromo;
-			}
-		}
+		Chromosome chr2 = m2.getChromosome();
+		if ((chr1 != null) && (chr2 != null)) {
+			// Non-null: Compare chromosomes
+			int compChromo = chr1.compareChromoName(chr2);
+			if (compChromo != 0) return compChromo;
+		} else if ((chr1 == null) && (chr2 != null)) return 1; // One chromosome is null
+		else if ((chr1 != null) && (chr2 == null)) return -1;
 
 		// Compare by start position
 		if (start > i2.start) return 1;
@@ -232,7 +232,7 @@ public class Marker extends Interval {
 	 * Parse a line (form a file)
 	 * Format: "chromosome \t start \t end \t id \n" 
 	 */
-	public void parse(String line, int lineNum, Genome genome, int positionBase) {
+	public void readTxt(String line, int lineNum, Genome genome, int positionBase) {
 		line = line.trim(); // Remove spaces
 
 		// Ignore empty lines and comment lines

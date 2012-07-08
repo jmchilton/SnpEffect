@@ -262,6 +262,11 @@ public class SnpEffCmdEff extends SnpEff {
 		// Master factory 
 		Props props = new Props(new UntypedActorFactory() {
 
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = 1L;
+
 			@Override
 			public Actor create() {
 				MasterEff master = new MasterEff(numWorkers, snpEffCmdEff, snpEffectPredictor, outputFormatter, filterIntervals, seqChangeFilter);
@@ -460,7 +465,7 @@ public class SnpEffCmdEff extends SnpEff {
 		int count = 0;
 		for (int lineNum = 0; lineNum < lines.length; lineNum++) {
 			Custom ci = new Custom(null, 0, 0, 0, "");
-			ci.parse(lines[lineNum], lineNum + 1, config.getGenome(), inOffset);
+			ci.readTxt(lines[lineNum], lineNum + 1, config.getGenome(), inOffset);
 			config.getSnpEffectPredictor().add(ci);
 			count++;
 		}
@@ -489,7 +494,7 @@ public class SnpEffCmdEff extends SnpEff {
 		int count = 0;
 		for (int lineNum = 0; lineNum < lines.length; lineNum++) {
 			Custom ci = new Custom(null, 0, 0, 0, "");
-			ci.parse(lines[lineNum], lineNum + 1, config.getGenome(), inOffset);
+			ci.readTxt(lines[lineNum], lineNum + 1, config.getGenome(), inOffset);
 			filterIntervals.add(ci);
 			count++;
 		}
