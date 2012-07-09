@@ -50,7 +50,7 @@ public class SnpEffectPredictor implements Serializable {
 		String snpEffPredFile = config.getFileSnpEffectPredictor();
 
 		// Sanity check
-		if (Gpr.canRead(snpEffPredFile)) throw new RuntimeException("\nERROR: Cannot read file '" + snpEffPredFile + "'.\n\tYou can try to download the database by running the following command:\n\t\tjava -jar snpEff.jar download " + config.getGenome().getVersion() + "\n");
+		if (!Gpr.canRead(snpEffPredFile)) throw new RuntimeException("\tERROR: Cannot read file '" + snpEffPredFile + "'.\n\tYou can try to download the database by running the following command:\n\t\tjava -jar snpEff.jar download " + config.getGenome().getVersion() + "\n");
 
 		// Load markers from file
 		MarkerSerializer ms = new MarkerSerializer();
@@ -74,7 +74,9 @@ public class SnpEffectPredictor implements Serializable {
 
 		// Add 'other' markers
 		for (Marker m : markers)
-			if (!(m instanceof Gene) //
+			if (!(m instanceof Genome) //
+					&& !(m instanceof Chromosome) //
+					&& !(m instanceof Gene) //
 					&& !(m instanceof Transcript) //
 					&& !(m instanceof Exon) //
 					&& !(m instanceof Cds) //

@@ -8,10 +8,8 @@ import java.util.zip.GZIPOutputStream;
 
 import ca.mcgill.mcb.pcingola.fileIterator.LineFileIterator;
 import ca.mcgill.mcb.pcingola.snpEffect.ChangeEffect.EffectType;
-import ca.mcgill.mcb.pcingola.snpEffect.Config;
 import ca.mcgill.mcb.pcingola.snpEffect.SnpEffectPredictor;
 import ca.mcgill.mcb.pcingola.util.Gpr;
-import ca.mcgill.mcb.pcingola.util.Timer;
 
 /**
  * Serialize markers to (and from) file
@@ -37,48 +35,6 @@ public class MarkerSerializer {
 	int currId = 0;
 	HashMap<Integer, Marker> markerById;
 	HashMap<Marker, Integer> idByMarker;
-
-	public static void main(String[] args) throws IOException {
-
-		Gpr.debug("int 19_gl000209_random: " + Gpr.parseIntSafe("19_gl000209_random"));
-		Gpr.debug("int 19: " + Gpr.parseIntSafe("19"));
-
-		String fileName = Gpr.HOME + "/zzz.txt.gz";
-
-		// Read database
-		Timer.showStdErr("Loading");
-		Config config = new Config("hg19");
-		// Config config = new Config("testHg3763ChrY");
-		SnpEffectPredictor sep = SnpEffectPredictor.load(config);
-
-		Timer.showStdErr("Creating gene list ORI");
-		StringBuilder genesOriSb = new StringBuilder();
-		for (Gene gene : sep.getGenome().getGenes().sorted())
-			genesOriSb.append(gene.toString() + "\n");
-		Gpr.toFile(Gpr.HOME + "/genesOriSb.txt", genesOriSb);
-
-		// Write
-		MarkerSerializer is = new MarkerSerializer();
-		Timer.showStdErr("Writing to " + fileName);
-		is.save(fileName, sep);
-
-		// Read
-		Timer.showStdErr("Reading from " + fileName);
-		Markers markers = is.load(fileName);
-
-		Timer.showStdErr("Creating gene list NEW");
-		Genes genes = new Genes(sep.getGenome());
-		for (Marker m : markers)
-			if (m instanceof Gene) genes.add((Gene) m);
-
-		StringBuilder genesNewSb = new StringBuilder();
-		for (Gene gene : genes.sorted())
-			genesNewSb.append(gene.toString() + "\n");
-		Gpr.toFile(Gpr.HOME + "/genesNewSb.txt", genesNewSb);
-
-		Timer.showStdErr("Done.");
-
-	}
 
 	public MarkerSerializer() {
 		markerById = new HashMap<Integer, Marker>();
@@ -152,7 +108,7 @@ public class MarkerSerializer {
 		//---
 		// Load data from file
 		//---
-		LineFileIterator lfi = new LineFileIterator(fileName);
+		LineFileIterator lfi = new LineFileIterator(fileName, true); // File is gzipped
 		int lineNum = 0;
 		for (String l : lfi) {
 			line = l;

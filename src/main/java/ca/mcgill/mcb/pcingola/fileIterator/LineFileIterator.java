@@ -22,6 +22,14 @@ public class LineFileIterator extends FileIterator<String> {
 		reader = Gpr.reader(lineSeqFileName);
 	}
 
+	public LineFileIterator(String lineSeqFileName, boolean gzip) {
+		super(lineSeqFileName);
+		line = null;
+		lineNum = 0;
+		reader = null;
+		reader = Gpr.reader(lineSeqFileName, gzip);
+	}
+
 	@Override
 	public Iterator<String> iterator() {
 		return this;

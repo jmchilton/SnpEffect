@@ -21,6 +21,7 @@ import java.io.ObjectOutputStream;
 import java.io.PrintStream;
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
+import java.text.CharacterIterator;
 import java.text.StringCharacterIterator;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
@@ -31,7 +32,74 @@ import java.util.zip.GZIPOutputStream;
  */
 public class Gpr {
 
+	@SuppressWarnings("unchecked")
+	static private class StringTokenizer {
+
+		String string = null;
+		int tokens = 0;
+		int[] separatorPosition = new int[1000];
+
+		StringTokenizer(String value, char delim) {
+			string = value;
+			// Loop on the characters counting the separators and remembering
+			// their positions
+			StringCharacterIterator sci = new StringCharacterIterator(string);
+			char c = sci.first();
+			while (c != CharacterIterator.DONE) {
+				if (c == delim) {
+					// Remember its position
+					separatorPosition[tokens] = sci.getIndex();
+					tokens++;
+
+					// Resize the position array if needed
+					if (tokens >= separatorPosition.length) {
+						int[] copy = new int[separatorPosition.length * 10];
+						System.arraycopy(separatorPosition, 0, copy, 0, separatorPosition.length);
+						separatorPosition = copy;
+					}
+				}
+				c = sci.next();
+			}
+			// Add one token: tokens = separatorCount + 1
+			tokens++;
+		}
+
+		<T> T[] tokens(Class<T> componentType) {
+			T[] r = (T[]) Array.newInstance(componentType, tokens);
+			Constructor<T> ctor;
+			try {
+				ctor = componentType.getConstructor(String.class);
+			} catch (NoSuchMethodException e) {
+				throw new RuntimeException("Cannot create an array of type [" + componentType + "] from an array of String. The type [" + componentType.getSimpleName() + "] must define a single arg constructor that takes a String.class instance.");
+			}
+
+			String currentValue = null;
+			int i = 0;
+			try {
+				int start = 0;
+				for (i = 0; i < tokens; i++) {
+					// Index of the token's last character (exclusive)
+					int nextStart = separatorPosition[i];
+					// Special case for the last token
+					if (i == tokens - 1) nextStart = string.length();
+
+					// Calculate the size of the token
+					int length = nextStart - start;
+					if (length > 0) {
+						currentValue = string.substring(start, nextStart);
+						r[i] = ctor.newInstance(currentValue);
+					}
+					start = nextStart + 1;
+				}
+			} catch (Exception e) {
+				throw new RuntimeException("Cannot create an instance of type [" + componentType + "] from the " + i + "th string value [" + currentValue + "].", e);
+			}
+			return r;
+		}
+	}
+
 	public static final int NUM_CORES = Runtime.getRuntime().availableProcessors();
+
 	public static final String HOME = System.getProperty("user.home");
 
 	/**
@@ -366,12 +434,22 @@ public class Gpr {
 	 * @return
 	 */
 	public static BufferedReader reader(String fileName) {
+		return reader(fileName, false);
+	}
+
+	/**
+	 * Try to open a file (BufferedReader) using either the file or a gzip file (appending '.gz' to fileName)
+	 * @param fileName
+	 * @param gzip : If true, file is assumed to be gzipped
+	 * @return
+	 */
+	public static BufferedReader reader(String fileName, boolean gzip) {
 		BufferedReader reader = null;
 
 		try {
 			if (fileName.equals("-")) {
 				return new BufferedReader(new InputStreamReader(System.in));
-			} else if (fileName.endsWith(".gz")) {
+			} else if (fileName.endsWith(".gz") || gzip) {
 				// This is a gzip compressed file
 				File inputFile = new File(fileName);
 				if (inputFile.exists()) return new BufferedReader(new InputStreamReader(new GZIPInputStream(new FileInputStream(new File(fileName)))));
@@ -542,6 +620,33 @@ public class Gpr {
 		}
 	}
 
+	/**
+	 * Splits a separated string into an array of <code>String</code> tokens. If
+	 * the input string is null, this method returns null.
+	 * 
+	 * <p/>
+	 * Implementation note: for performance reasons, this implementation uses
+	 * neither StringTokenizer nor String.split(). StringTokenizer does not
+	 * return all tokens for strings of the form "1,2,,3," unless you use an
+	 * instance that returns the separator. By doing so, our code would need to
+	 * modify the token string which would create another temporary object and
+	 * would make this method very slow. <br/>
+	 * String.split does not return all tokens for strings of the form
+	 * "1,2,3,,,". We simply cannot use this method.
+	 * <p/>
+	 * The result is a custom String splitter algorithm which performs well for
+	 * large Strings.
+	 * 
+	 * @param value
+	 *            the string value to split into tokens
+	 * @return an array of String Objects or null if the string value is null
+	 */
+	static public String[] split(final String value, char delim) {
+		if (value == null) return null;
+		StringTokenizer st = new StringTokenizer(value, delim);
+		return st.tokens(String.class);
+	}
+
 	public static String tabs(int tabs) {
 		String t = "";
 		for (int i = 0; i < tabs; i++)
@@ -621,99 +726,6 @@ public class Gpr {
 			out.close();
 		} catch (IOException e) {
 			throw new RuntimeException(e);
-		}
-	}
-
-	/**
-	 * Splits a separated string into an array of <code>String</code> tokens. If
-	 * the input string is null, this method returns null.
-	 * 
-	 * <p/>
-	 * Implementation note: for performance reasons, this implementation uses
-	 * neither StringTokenizer nor String.split(). StringTokenizer does not
-	 * return all tokens for strings of the form "1,2,,3," unless you use an
-	 * instance that returns the separator. By doing so, our code would need to
-	 * modify the token string which would create another temporary object and
-	 * would make this method very slow. <br/>
-	 * String.split does not return all tokens for strings of the form
-	 * "1,2,3,,,". We simply cannot use this method.
-	 * <p/>
-	 * The result is a custom String splitter algorithm which performs well for
-	 * large Strings.
-	 * 
-	 * @param value
-	 *            the string value to split into tokens
-	 * @return an array of String Objects or null if the string value is null
-	 */
-	static public String[] split(final String value, char delim) {
-		if (value == null) return null;
-		StringTokenizer st = new StringTokenizer(value, delim);
-		return st.tokens(String.class);
-	}
-
-	@SuppressWarnings("unchecked")
-	static private class StringTokenizer {
-
-		String string = null;
-		int tokens = 0;
-		int[] separatorPosition = new int[1000];
-
-		StringTokenizer(String value, char delim) {
-			this.string = value;
-			// Loop on the characters counting the separators and remembering
-			// their positions
-			StringCharacterIterator sci = new StringCharacterIterator(string);
-			char c = sci.first();
-			while (c != StringCharacterIterator.DONE) {
-				if (c == delim) {
-					// Remember its position
-					separatorPosition[tokens] = sci.getIndex();
-					tokens++;
-
-					// Resize the position array if needed
-					if (tokens >= separatorPosition.length) {
-						int[] copy = new int[separatorPosition.length * 10];
-						System.arraycopy(separatorPosition, 0, copy, 0, separatorPosition.length);
-						separatorPosition = copy;
-					}
-				}
-				c = sci.next();
-			}
-			// Add one token: tokens = separatorCount + 1
-			tokens++;
-		}
-
-		<T> T[] tokens(Class<T> componentType) {
-			T[] r = (T[]) Array.newInstance(componentType, tokens);
-			Constructor<T> ctor;
-			try {
-				ctor = componentType.getConstructor(String.class);
-			} catch (NoSuchMethodException e) {
-				throw new RuntimeException("Cannot create an array of type [" + componentType + "] from an array of String. The type [" + componentType.getSimpleName() + "] must define a single arg constructor that takes a String.class instance.");
-			}
-
-			String currentValue = null;
-			int i = 0;
-			try {
-				int start = 0;
-				for (i = 0; i < tokens; i++) {
-					// Index of the token's last character (exclusive)
-					int nextStart = separatorPosition[i];
-					// Special case for the last token
-					if (i == tokens - 1) nextStart = string.length();
-
-					// Calculate the size of the token
-					int length = nextStart - start;
-					if (length > 0) {
-						currentValue = string.substring(start, nextStart);
-						r[i] = ctor.newInstance(currentValue);
-					}
-					start = nextStart + 1;
-				}
-			} catch (Exception e) {
-				throw new RuntimeException("Cannot create an instance of type [" + componentType + "] from the " + i + "th string value [" + currentValue + "].", e);
-			}
-			return r;
 		}
 	}
 }
