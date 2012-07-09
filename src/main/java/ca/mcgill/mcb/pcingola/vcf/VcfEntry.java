@@ -659,12 +659,18 @@ public class VcfEntry extends Marker implements Iterable<VcfGenotype> {
 	@Override
 	public String toString() {
 		boolean deleteLastTab = true;
-		StringBuilder sb = new StringBuilder( //
-				(chromosomeName != null ? chromosomeName : parent.getId()) // Use original chromosome name or named from chromosome object
-						+ "\t" + (start + 1) //
-						+ "\t" + (id.isEmpty() ? "." : id) //
-						+ "\t" + ref //
-						+ "\t");
+
+		// Use original chromosome name or named from chromosome object
+		String chr = chromosomeName != null ? chromosomeName : null;
+		if (chromosomeName != null) chr = chromosomeName;
+		else if (parent != null) chr = parent.getId();
+		else chr = ".";
+
+		StringBuilder sb = new StringBuilder(chr //
+				+ "\t" + (start + 1) //
+				+ "\t" + (id.isEmpty() ? "." : id) //
+				+ "\t" + ref //
+				+ "\t");
 
 		// ALTs
 		for (int i = 0; i < alts.length; i++) {

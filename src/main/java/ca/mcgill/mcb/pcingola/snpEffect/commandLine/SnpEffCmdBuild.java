@@ -240,10 +240,10 @@ public class SnpEffCmdBuild extends SnpEff {
 			// Save database
 			if (verbose) Timer.showStdErr("Saving database");
 			snpEffectPredictor.save(config);
-		}
 
-		// Check database
-		checkDb();
+			// Check database
+			checkDb();
+		}
 
 		// Read regulation elements 
 		if (cellType == null) readRegulationGff(); // CellType specific is meant for BED files.
