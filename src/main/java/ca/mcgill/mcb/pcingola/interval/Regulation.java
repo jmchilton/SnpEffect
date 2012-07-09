@@ -14,8 +14,13 @@ public class Regulation extends Marker {
 
 	private static final long serialVersionUID = -5607588295343642199L;
 
-	String name = "";
 	String cellType = "";
+	String name = "";
+
+	public Regulation() {
+		super();
+		type = EffectType.REGULATION;
+	}
 
 	public Regulation(Marker parent, int start, int end, int strand, String id, String name, String cellType) {
 		super(parent, start, end, strand, id);
@@ -44,6 +49,30 @@ public class Regulation extends Marker {
 		EffectType effType = EffectType.REGULATION;
 		changeEffect.set(this, effType, "");
 		return changeEffect.newList();
+	}
+
+	/**
+	 * Parse a line from a serialized file
+	 * @param line
+	 * @return
+	 */
+	@Override
+	public void serializeParse(MarkerSerializer markerSerializer) {
+		super.serializeParse(markerSerializer);
+		cellType = markerSerializer.getNextField();
+		name = markerSerializer.getNextField();
+	}
+
+	/**
+	 * Create a string to serialize to a file
+	 * @return
+	 */
+	@Override
+	public String serializeSave(MarkerSerializer markerSerializer) {
+		return super.serializeSave(markerSerializer) //
+				+ "\t" + cellType //
+				+ "\t" + name //
+		;
 	}
 
 	@Override

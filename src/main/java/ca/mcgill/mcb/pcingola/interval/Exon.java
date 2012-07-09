@@ -105,27 +105,6 @@ public class Exon extends Marker {
 		return spliceSiteDonor;
 	}
 
-	//	public void checkOld(SeqChange seqChange, ChangeEffect results) {
-	//		// Only makes sense for SNPs and MNPs
-	//		if( (seqChange.getChangeType() != ChangeType.SNP) && (seqChange.getChangeType() != ChangeType.MNP) ) return;
-	//
-	//		int idx = seqChange.getStart() - start;
-	//		if( sequence.length() <= 0 ) {
-	//			results.addWarning("WARNING_SEQUENCE_NOT_AVAILABLE");
-	//		} else if( idx >= sequence.length() ) {
-	//			results.addError("ERROR_OUT_OF_EXON");
-	//		} else {
-	//			int len = seqChange.getReference().length();
-	//			String realReference = basesAt(idx, len).toUpperCase();
-	//			String changeReference = seqChange.reference();
-	//
-	//			// Reference sequence different than expected?
-	//			if( !realReference.equals(changeReference) ) {//
-	//				results.addWarning("WARNING_REF_IS_" + realReference + "_NOT_" + changeReference);
-	//			}
-	//		}
-	//	}
-
 	public int getFrame() {
 		return frame;
 	}
