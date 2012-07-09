@@ -40,13 +40,15 @@ Check that databases have been built correctly:
 - Upload to sourceforge
 		
 		# Core program
-		scp snpEff_v2_1b_core.zip pcingola,snpeff@frs.sourceforge.net:/home/frs/project/s/sn/snpeff/
+		scp snpEff_v3_0_core.zip pcingola,snpeff@frs.sourceforge.net:/home/frs/project/s/sn/snpeff/
+		scp snpEff_v3_0_core.zip pcingola,snpeff@frs.sourceforge.net:/home/frs/project/s/sn/snpeff/snpEff_latest_core.zip
 				
 		# Individual databases
-		scp snpEff_v2_1_*.zip pcingola,snpeff@frs.sourceforge.net:/home/frs/project/s/sn/snpeff/databases/v2_1/
+		scp snpEff_v3_0_*.zip pcingola,snpeff@frs.sourceforge.net:/home/frs/project/s/sn/snpeff/databases/v3_0/
 		
 		# SnpSift
-		scp ~/tools/SnpSift_v1_3_4b.jar pcingola,snpeff@frs.sourceforge.net:/home/frs/project/s/sn/snpeff/
+		scp SnpSift_v1_7.jar pcingola,snpeff@frs.sourceforge.net:/home/frs/project/s/sn/snpeff/
+		scp SnpSift_v1_7.jar pcingola,snpeff@frs.sourceforge.net:/home/frs/project/s/sn/snpeff/SnpSift_latest.jar
 		
 		
 - Update snpEff pages (at least download link). 

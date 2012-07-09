@@ -7,8 +7,8 @@
 #                                      Pablo Cingolani 2010
 #------------------------------------------------------------------------------
 
-VERSION="2_1"
-VERSION_REV=$VERSION"b"
+VERSION="3_0"
+VERSION_REV=$VERSION""
 DIR=$HOME/snpEff_$VERSION_REV
 rm -rvf $DIR
 mkdir $DIR
