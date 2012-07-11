@@ -217,7 +217,7 @@ public class CompareToEnsembl {
 
 			// We don't care about the reference (as long as it's different that 'ALT'
 			String ref = "A";
-			for (char base : GprSeq.bases) {
+			for (char base : GprSeq.BASES) {
 				ref = "" + base;
 				if (!ref.equals(alt)) break;
 			}

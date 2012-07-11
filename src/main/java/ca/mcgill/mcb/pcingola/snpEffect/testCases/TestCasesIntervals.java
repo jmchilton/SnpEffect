@@ -96,7 +96,7 @@ public class TestCasesIntervals extends TestCase {
 		// Create a random sequence
 		char bases[] = new char[len];
 		for (int i = 0; i < bases.length; i++) {
-			char base = GprSeq.bases[(int) (Math.random() * 4)];
+			char base = GprSeq.BASES[(int) (Math.random() * 4)];
 			bases[i] = base;
 		}
 

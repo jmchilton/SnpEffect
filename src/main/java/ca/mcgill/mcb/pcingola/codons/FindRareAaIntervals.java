@@ -158,9 +158,9 @@ public class FindRareAaIntervals {
 	 * Calculate all AA in a codon table
 	 */
 	void isInTable() {
-		for( char c1 : GprSeq.bases )
-			for( char c2 : GprSeq.bases )
-				for( char c3 : GprSeq.bases ) {
+		for( char c1 : GprSeq.BASES )
+			for( char c2 : GprSeq.BASES )
+				for( char c3 : GprSeq.BASES ) {
 					String codon = "" + c1 + c2 + c3;
 					String aa = codonTable.aa(codon);
 					isInTable[aa.toUpperCase().charAt(0)] = true;

@@ -10,7 +10,10 @@ import ca.mcgill.mcb.pcingola.fastq.FastqVariant;
 public class GprSeq {
 
 	public static final char FASTQ_SANGER_ZERO = '!';
-	public static char bases[] = { 'A', 'C', 'G', 'T' };
+
+	public static final char BASES[] = { 'A', 'C', 'G', 'T' };
+	public static final char AMINO_ACIDS[] = { 'A', 'R', 'N', 'D', 'C', 'E', 'Q', 'G', 'H', 'I', 'L', 'K', 'M', 'F', 'P', 'S', 'T', 'W', 'Y', 'V' };
+
 	public static final String KNOWN_FILE_EXTENSIONS[] = { ".fa", ".fasta", ".fq", ".fastq", ".sai", ".sam", ".bam", ".bcf", ".vcf", "pileup", "mpileup" };
 
 	/**
