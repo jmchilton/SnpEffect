@@ -622,7 +622,7 @@ public class SnpEffCmdEff extends SnpEff {
 
 		// Filter canonical transcripts
 		if (verbose) Timer.showStdErr("Filtering out non-canonical transcripts.");
-		config.getSnpEffectPredictor().removeNonCanonical();
+		if (canonical) config.getSnpEffectPredictor().removeNonCanonical();
 		if (verbose) Timer.showStdErr("done.");
 
 		// Build tree
