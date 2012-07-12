@@ -17,9 +17,22 @@ import ca.mcgill.mcb.pcingola.util.GprSeq;
  */
 public class Exon extends Marker {
 
-	private static final long serialVersionUID = 5324352193278472543L;
+	/**
+	 * Caracterize exons based on alternative splicing
+	 * References: "Alternative splicing and evolution - diversification, exon definition and function"  (see Box 1)
+	 */
+	public enum ExonSpliceType {
+		RETAINED, // All transcripts have it
+		SKIPPED, // Some transcripts skip it
+		ALTTENATIVE_3SS, // Some transcripts have and alternative 3' exon start 
+		ALTTENATIVE_5SS, // Some transcripts have and alternative 5' exon end
+		MUTUALLY_EXCLUSIVE, // Mutually exclusive (respect to other exon)
+		ALTTENATIVE_PROMOMOTER, // The first exon is different in some transcripts.
+		ALTTENATIVE_POLY_A, // The last exon.
+	}
 
-	public static final int SPLICE_SITE_SIZE = 2;
+	private static final long serialVersionUID = 5324352193278472543L;
+	public static final int SPLICE_SITE_SIZE = 2;;
 
 	byte frame = 0;
 	int rank; // Exon rank in transcript
