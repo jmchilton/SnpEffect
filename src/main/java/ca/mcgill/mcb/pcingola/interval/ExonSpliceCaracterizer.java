@@ -16,7 +16,7 @@ import ca.mcgill.mcb.pcingola.util.Timer;
  * 
  * @author pablocingolani
  */
-public class ExonCaracterizer {
+public class ExonSpliceCaracterizer {
 
 	Genome genome;
 	HashMap<Exon, Exon.ExonSpliceType> typeByExon;
@@ -25,16 +25,16 @@ public class ExonCaracterizer {
 	public static void main(String[] args) {
 		Timer.showStdErr("Start");
 		String genome = "testHg3765Chr22";
-		new ExonCaracterizer(genome);
+		new ExonSpliceCaracterizer(genome);
 		Timer.showStdErr("Done");
 	}
 
-	public ExonCaracterizer(Genome genome) {
+	public ExonSpliceCaracterizer(Genome genome) {
 		this.genome = genome;
 		run();
 	}
 
-	public ExonCaracterizer(String genomeVer) {
+	public ExonSpliceCaracterizer(String genomeVer) {
 		Timer.showStdErr("Loading dataabse");
 		Config config = new Config(genomeVer);
 		SnpEffectPredictor snpEffectPredictor = config.loadSnpEffectPredictor();
