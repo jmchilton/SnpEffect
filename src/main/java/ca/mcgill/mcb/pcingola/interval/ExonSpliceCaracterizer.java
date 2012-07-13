@@ -18,33 +18,34 @@ import ca.mcgill.mcb.pcingola.util.Timer;
  */
 public class ExonSpliceCaracterizer {
 
-	boolean debug = false;
-
+	boolean verbose = false;
 	Genome genome;
 	HashMap<Exon, Exon.ExonSpliceType> typeByExon;
 	CountByType countByType = new CountByType();
 
-	public static void main(String[] args) {
-		Timer.showStdErr("Start");
-		//String genome = "testHg3765Chr22";
-		String genome = "hg19";
-		new ExonSpliceCaracterizer(genome);
-		Timer.showStdErr("Done");
-	}
-
 	public ExonSpliceCaracterizer(Genome genome) {
 		this.genome = genome;
-		run();
 	}
 
 	public ExonSpliceCaracterizer(String genomeVer) {
-		Timer.showStdErr("Loading dataabse");
+		if (verbose) Timer.showStdErr("Loading dataabse");
 		Config config = new Config(genomeVer);
 		SnpEffectPredictor snpEffectPredictor = config.loadSnpEffectPredictor();
 		genome = snpEffectPredictor.getGenome();
-		Timer.showStdErr("done.");
+		if (verbose) Timer.showStdErr("done.");
+	}
 
-		run();
+	/**
+	 * Caracterize all exons
+	 */
+	public CountByType caracterize(boolean verbose) {
+		this.verbose = verbose;
+
+		if (verbose) Timer.showStdErr("Run");
+		typeByExon = new HashMap<Exon, Exon.ExonSpliceType>();
+		type();
+		if (verbose) Timer.showStdErr("Done.\n\tTotal exons  : " + countExons() + "\n\tExons marked : " + typeByExon.size() + "\n" + countByType);
+		return countByType;
 	}
 
 	/**
@@ -152,10 +153,7 @@ public class ExonSpliceCaracterizer {
 				}
 
 				// XOR is true? => Mutually exclusive
-				if (xor) {
-					if (debug) Gpr.debug("MUTEX:\t" + exon.getChromosomeName() + ":" + (Math.min(exon.getStart(), e.getStart()) - 100) + "-" + (Math.max(exon.getEnd(), e.getEnd()) + 100) + "\t" + key(exon) + "\tTr: " + exonTr.getId() + "\t" + key(e) + "\tTr: " + e.getParent().getId());
-					return true;
-				}
+				if (xor) return true;
 			}
 		}
 
@@ -169,17 +167,6 @@ public class ExonSpliceCaracterizer {
 	 */
 	String key(Marker m) {
 		return m.getChromosomeName() + ":" + m.getStart() + "-" + m.getEnd();
-	}
-
-	/**
-	 * Caracterize all exons
-	 */
-	void run() {
-		Timer.showStdErr("Run");
-		typeByExon = new HashMap<Exon, Exon.ExonSpliceType>();
-		type();
-		Timer.showStdErr("Total exons  : " + countExons());
-		Timer.showStdErr("Exons marked : " + typeByExon.size() + "\n" + countByType);
 	}
 
 	/**
@@ -206,9 +193,13 @@ public class ExonSpliceCaracterizer {
 					else {
 						if (isAlt3ss(e, g)) type(e, Exon.ExonSpliceType.ALTTENATIVE_3SS);
 						else if (isAlt5ss(e, g)) type(e, Exon.ExonSpliceType.ALTTENATIVE_5SS);
-						else if (e.getRank() == 1) type(e, Exon.ExonSpliceType.ALTTENATIVE_PROMOMOTER);
-						else if (e.getRank() == tr.numChilds()) type(e, Exon.ExonSpliceType.ALTTENATIVE_POLY_A);
-						else type(e, Exon.ExonSpliceType.SKIPPED);
+						else if (tr.numChilds() > 1) {
+							if (e.getRank() == 1) type(e, Exon.ExonSpliceType.ALTTENATIVE_PROMOMOTER);
+							else if (e.getRank() == tr.numChilds()) {
+								Gpr.debug("ALTTENATIVE_POLY_A: " + e.getId() + "\n" + tr);
+								type(e, Exon.ExonSpliceType.ALTTENATIVE_POLY_A);
+							} else type(e, Exon.ExonSpliceType.SKIPPED);
+						}
 					}
 				}
 			}
@@ -234,7 +225,7 @@ public class ExonSpliceCaracterizer {
 	 * @param type
 	 */
 	void type(Exon e, Exon.ExonSpliceType type) {
-		// Gpr.debug("Exon: " + e.getId() + "\tType: " + type);
+		e.spliceType = type;
 		countByType.inc(type.toString());
 		typeByExon.put(e, type);
 	}

@@ -39,6 +39,7 @@ public class Exon extends Marker {
 	DnaSequence sequence;
 	SpliceSiteAcceptor spliceSiteAcceptor;
 	SpliceSiteDonor spliceSiteDonor;
+	ExonSpliceType spliceType;
 
 	protected Exon() {
 		super();
@@ -146,6 +147,10 @@ public class Exon extends Marker {
 
 	public SpliceSiteDonor getSpliceSiteDonor() {
 		return spliceSiteDonor;
+	}
+
+	public ExonSpliceType getSpliceType() {
+		return spliceType;
 	}
 
 	@Override

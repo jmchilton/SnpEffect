@@ -11,10 +11,12 @@ import java.util.Random;
 import ca.mcgill.mcb.pcingola.fileIterator.FastaFileIterator;
 import ca.mcgill.mcb.pcingola.interval.Chromosome;
 import ca.mcgill.mcb.pcingola.interval.Exon;
+import ca.mcgill.mcb.pcingola.interval.ExonSpliceCaracterizer;
 import ca.mcgill.mcb.pcingola.interval.Gene;
 import ca.mcgill.mcb.pcingola.interval.Transcript;
 import ca.mcgill.mcb.pcingola.motif.MotifLogo;
 import ca.mcgill.mcb.pcingola.motif.Pwm;
+import ca.mcgill.mcb.pcingola.probablility.FisherExactTest;
 import ca.mcgill.mcb.pcingola.snpEffect.Config;
 import ca.mcgill.mcb.pcingola.snpEffect.commandLine.SnpEff;
 import ca.mcgill.mcb.pcingola.stats.CountByType;
@@ -39,6 +41,7 @@ public class SpliceAnalysis extends SnpEff {
 		String name;
 		Pwm pwmAcc, pwmDonor;
 		CountByType countMotif;
+		CountByType countExonTypes;
 		IntStats lenStats;
 		int motifMatchedBases = 0, motifMatchedStr = 0;
 		int updates = 0;
@@ -50,6 +53,7 @@ public class SpliceAnalysis extends SnpEff {
 			pwmDonor = new Pwm(2 * SIZE_SPLICE + 1);
 			lenStats = new IntStats();
 			countMotif = new CountByType();
+			countExonTypes = new CountByType();
 		}
 
 		@Override
@@ -59,12 +63,50 @@ public class SpliceAnalysis extends SnpEff {
 			return name.compareTo(ps.name);
 		}
 
+		void incExonTypes(String exonTypes) {
+			countExonTypes.inc(exonTypes);
+		}
+
 		void incU12() {
 			countU12++;
 		}
 
 		void len(int len) {
 			lenStats.sample(len);
+		}
+
+		String pExonTypes() {
+			StringBuilder out = new StringBuilder();
+
+			for (String type : countExonTypes.getTypeList())
+				out.append(pExonTypes(type));
+
+			return out.toString();
+		}
+
+		String pExonTypes(String category) {
+			int countBlackDrawn = 0;
+			for (String type : countExonTypes.getTypeList())
+				if (!type.equals(category)) countBlackDrawn += countExonTypes.get(type);
+			int countWhiteDrawn = (int) countExonTypes.get(category);
+
+			// Get 'all' counts
+			PwmSet pwmSet = getPwmSet(" ALL");
+			CountByType countExonTypesAll = pwmSet.countExonTypes;
+			int countBlack = 0;
+			for (String type : countExonTypesAll.getTypeList())
+				if (!type.equals(category)) countBlack += countExonTypesAll.get(type);
+			int countWhite = (int) countExonTypesAll.get(category);
+
+			String out = "";
+
+			double pDown = FisherExactTest.get().fisherExactTestDown(countWhiteDrawn, countBlack + countWhite, countWhite, countBlackDrawn + countWhiteDrawn);
+			if (pDown < P_VALUE_THRESHOLD) out += "p-value Down (" + category + ") : " + pDown + "\n";
+
+			double pUp = FisherExactTest.get().fisherExactTestUp(countWhiteDrawn, countBlack + countWhite, countWhite, countBlackDrawn + countWhiteDrawn);
+			if (pUp < P_VALUE_THRESHOLD) out += "p-value Up   (" + category + ") : " + pUp + "\n";
+
+			return out;
 		}
 
 		@Override
@@ -98,9 +140,15 @@ public class SpliceAnalysis extends SnpEff {
 			out.append(mlAcc.toStringHtml(HTML_WIDTH, HTML_HEIGHT));
 			out.append("\t</td>\n");
 
-			// Intrin length stats
+			// Intron length stats
 			out.append("\t<td> <pre>\n");
 			out.append(lenStats.toString());
+			out.append("\t</pre></td>\n");
+
+			// Count exon types
+			out.append("\t<td> <pre>\n");
+			out.append(countExonTypes);
+			out.append("\n" + pExonTypes());
 			out.append("\t</pre></td>\n");
 
 			out.append("</tr>\n");
@@ -115,6 +163,8 @@ public class SpliceAnalysis extends SnpEff {
 
 		}
 	}
+
+	static double P_VALUE_THRESHOLD = 0.001;
 
 	public static int SIZE_SPLICE = 10;
 	public static int SIZE_CONSENSUS_DONOR = 2;
@@ -395,6 +445,11 @@ public class SpliceAnalysis extends SnpEff {
 
 		// Load data
 		load();
+
+		// Get exon caracteristics
+		Timer.showStdErr("Categorizing exons");
+		ExonSpliceCaracterizer esc = new ExonSpliceCaracterizer(config.getGenome());
+		esc.caracterize(verbose);
 	}
 
 	/**
@@ -498,6 +553,7 @@ public class SpliceAnalysis extends SnpEff {
 			if (gene.getChromosomeName().equals(chrName)) { // Same chromosome
 				for (Transcript tr : gene) {
 					int prev = -1;
+					Exon exPrev = null;
 					for (Exon ex : tr.sorted()) {
 						countEx++;
 
@@ -508,12 +564,18 @@ public class SpliceAnalysis extends SnpEff {
 								int end = ex.getStart();
 								String key = chrName + ":" + start + "-" + end;
 
-								if (!done.contains(key)) updatePwm(tr, chrSeq, start, end);
+								// Get exon splice type
+								String exPrevType = exPrev != null ? exPrev.getSpliceType().toString() : "";
+								String exType = ex != null ? ex.getSpliceType().toString() : "";
+								String exonTypes = exPrevType + "-" + exType;
 
+								// Do not analyze this Intron if it was already analyzed
+								if (!done.contains(key)) updatePwm(tr, chrSeq, start, end, exonTypes);
 								done.add(key);
 							}
 						}
 
+						exPrev = ex;
 						prev = ex.getEnd();
 					}
 				}
@@ -686,7 +748,7 @@ public class SpliceAnalysis extends SnpEff {
 	 * @param intronStart
 	 * @param intronEnd
 	 */
-	void updatePwm(Transcript tr, String chrSeq, int intronStart, int intronEnd) {
+	void updatePwm(Transcript tr, String chrSeq, int intronStart, int intronEnd, String exonTypes) {
 		countIntrons++;
 
 		int len = intronEnd - intronStart;
@@ -784,11 +846,13 @@ public class SpliceAnalysis extends SnpEff {
 		PwmSet pwmSet = getPwmSet(consensus);
 		pwmSet.update(accStr, donorStr);
 		pwmSet.len(len);
+		pwmSet.incExonTypes(exonTypes);
 		if (bu12score >= thresholdU12Score) pwmSet.incU12();
 
 		// Update total counts
 		pwmSet = getPwmSet(" ALL");
 		pwmSet.update(accStr, donorStr);
+		pwmSet.incExonTypes(exonTypes);
 		pwmSet.len(len);
 
 	}
