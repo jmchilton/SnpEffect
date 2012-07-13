@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 
 import ca.mcgill.mcb.pcingola.interval.tree.IntervalForest;
 import ca.mcgill.mcb.pcingola.util.Gpr;
@@ -19,7 +20,8 @@ public class Markers implements Iterable<Marker>, Serializable {
 
 	private static final long serialVersionUID = 259791388087691277L;
 	boolean verbose = true;
-	ArrayList<Marker> intervals;
+	ArrayList<Marker> markers;
+	String name = "";
 
 	/**
 	 * Read intervals from a file using a simplt TXT format
@@ -48,7 +50,12 @@ public class Markers implements Iterable<Marker>, Serializable {
 	}
 
 	public Markers() {
-		intervals = new ArrayList<Marker>();
+		markers = new ArrayList<Marker>();
+	}
+
+	public Markers(String name) {
+		this.name = name;
+		markers = new ArrayList<Marker>();
 	}
 
 	/**
@@ -56,7 +63,7 @@ public class Markers implements Iterable<Marker>, Serializable {
 	 * @param marker
 	 */
 	public void add(Marker marker) {
-		intervals.add(marker);
+		markers.add(marker);
 	}
 
 	/**
@@ -64,7 +71,7 @@ public class Markers implements Iterable<Marker>, Serializable {
 	 * @param intervalsMarkerIntervaloAdd
 	 */
 	public void add(Markers intervalsMarkerIntervaloAdd) {
-		intervals.addAll(intervalsMarkerIntervaloAdd.intervals);
+		markers.addAll(intervalsMarkerIntervaloAdd.markers);
 	}
 
 	/**
@@ -92,6 +99,14 @@ public class Markers implements Iterable<Marker>, Serializable {
 		return true;
 	}
 
+	public List<Marker> getMarkers() {
+		return markers;
+	}
+
+	public String getName() {
+		return name;
+	}
+
 	/**
 	 * MarkerIntervalhis is a brute force implementation of 'intersect'.
 	 * 
@@ -109,12 +124,12 @@ public class Markers implements Iterable<Marker>, Serializable {
 	}
 
 	public boolean isEmpty() {
-		return intervals.isEmpty();
+		return markers.isEmpty();
 	}
 
 	@Override
 	public Iterator<Marker> iterator() {
-		return intervals.iterator();
+		return markers.iterator();
 	}
 
 	public Markers merge() {
@@ -228,8 +243,8 @@ public class Markers implements Iterable<Marker>, Serializable {
 	 * @return
 	 */
 	public Interval rand() {
-		int idx = (int) (Math.random() * intervals.size());
-		return intervals.get(idx);
+		int idx = (int) (Math.random() * markers.size());
+		return markers.get(idx);
 	}
 
 	public void setVerbose(boolean verbose) {
@@ -237,7 +252,7 @@ public class Markers implements Iterable<Marker>, Serializable {
 	}
 
 	public int size() {
-		return intervals.size();
+		return markers.size();
 	}
 
 	/**
@@ -246,8 +261,8 @@ public class Markers implements Iterable<Marker>, Serializable {
 	 * @param reverse : Reverse order
 	 */
 	public void sort(boolean byEnd, boolean reverse) {
-		if (byEnd) Collections.sort(intervals, new IntervalComparatorByEnd(reverse));
-		else Collections.sort(intervals, new IntervalComparatorByStart(reverse));
+		if (byEnd) Collections.sort(markers, new IntervalComparatorByEnd(reverse));
+		else Collections.sort(markers, new IntervalComparatorByStart(reverse));
 	}
 
 	@Override
