@@ -18,13 +18,16 @@ import ca.mcgill.mcb.pcingola.util.Timer;
  */
 public class ExonSpliceCaracterizer {
 
+	boolean debug = false;
+
 	Genome genome;
 	HashMap<Exon, Exon.ExonSpliceType> typeByExon;
 	CountByType countByType = new CountByType();
 
 	public static void main(String[] args) {
 		Timer.showStdErr("Start");
-		String genome = "testHg3765Chr22";
+		//String genome = "testHg3765Chr22";
+		String genome = "hg19";
 		new ExonSpliceCaracterizer(genome);
 		Timer.showStdErr("Done");
 	}
@@ -143,17 +146,14 @@ public class ExonSpliceCaracterizer {
 			if (type == Exon.ExonSpliceType.SKIPPED) { // Only check for these exons (avoid all ALT*)
 				boolean xor = true;
 				for (Transcript tr : gene) {
-					if (exonTr.intersects(tr)) { // Do not analyze transcripts that do not overlap
+					if (exonTr.intersects(tr) && exon.intersects(tr) && e.intersects(exonTr)) { // Make sure both exons intersect both transcripts (otherwise they cannot be mutually exclusive)
 						xor &= intersectsAnyExon(e, tr) ^ intersectsAnyExon(exon, tr);
-					}
+					} else xor = false;
 				}
 
 				// XOR is true? => Mutually exclusive
 				if (xor) {
-					Gpr.debug("MUTEX:\t" + exon.getChromosomeName() + ":" + (Math.min(exon.getStart(), e.getStart()) - 100) + "-" + (Math.max(exon.getEnd(), e.getEnd()) + 100) //
-							+ "\t" + key(exon) + "\tTr: " + exonTr.getId() //
-							+ "\t" + key(e) + "\tTr: " + e.getParent().getId() //
-					);
+					if (debug) Gpr.debug("MUTEX:\t" + exon.getChromosomeName() + ":" + (Math.min(exon.getStart(), e.getStart()) - 100) + "-" + (Math.max(exon.getEnd(), e.getEnd()) + 100) + "\t" + key(exon) + "\tTr: " + exonTr.getId() + "\t" + key(e) + "\tTr: " + e.getParent().getId());
 					return true;
 				}
 			}
