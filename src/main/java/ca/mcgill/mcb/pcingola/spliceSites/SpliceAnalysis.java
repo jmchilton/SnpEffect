@@ -113,7 +113,7 @@ public class SpliceAnalysis extends SnpEff {
 		public String toString() {
 			StringBuilder out = new StringBuilder();
 
-			out.append("<tr>\n");
+			//out.append("<tr>\n");
 			out.append("\t<td> <b>" + name + "</b> </td>\n");
 			out.append("\t<td> " + updates + "</td>\n");
 
@@ -148,10 +148,14 @@ public class SpliceAnalysis extends SnpEff {
 			// Count exon types
 			out.append("\t<td> <pre>\n");
 			out.append(countExonTypes);
-			out.append("\n" + pExonTypes());
 			out.append("\t</pre></td>\n");
 
-			out.append("</tr>\n");
+			// p-Values
+			out.append("\t<td> <pre>\n");
+			out.append(pExonTypes());
+			out.append("\t</pre></td>\n");
+
+			// out.append("</tr>\n");
 
 			return out.toString();
 		}
@@ -512,6 +516,66 @@ public class SpliceAnalysis extends SnpEff {
 	}
 
 	/**
+	 * Get acceptor sequence
+	 * @param tr
+	 * @param chrSeq
+	 * @param intronStart
+	 * @param intronEnd
+	 * @return
+	 */
+	String seqAcceptor(Transcript tr, String chrSeq, int intronStart, int intronEnd) {
+		if (tr.isStrandPlus()) {
+			int splAccStart = intronEnd - SIZE_SPLICE;
+			int splAccEnd = intronEnd + SIZE_SPLICE;
+			return chrSeq.substring(splAccStart, splAccEnd + 1).toUpperCase();
+		}
+
+		int splAccStart = intronStart - SIZE_SPLICE;
+		int splAccEnd = intronStart + SIZE_SPLICE;
+		return GprSeq.reverseWc(chrSeq.substring(splAccStart, splAccEnd + 1).toUpperCase());
+	}
+
+	/**
+	 * Get branch sequence (a few bases before intron ends)
+	 * @param tr
+	 * @param chrSeq
+	 * @param intronStart
+	 * @param intronEnd
+	 * @return
+	 */
+	String seqBranch(Transcript tr, String chrSeq, int intronStart, int intronEnd) {
+		if (tr.isStrandPlus()) {
+			int splBranchStart = intronEnd - SIZE_BRANCH + 1;
+			int splBranchEnd = intronEnd;
+			return chrSeq.substring(splBranchStart, splBranchEnd).toUpperCase();
+		}
+
+		int splBranchStart = intronStart + 1;
+		int splBranchEnd = intronStart + SIZE_BRANCH;
+		return GprSeq.reverseWc(chrSeq.substring(splBranchStart, splBranchEnd).toUpperCase());
+	}
+
+	/**
+	 * Get donor sequence
+	 * @param tr
+	 * @param chrSeq
+	 * @param intronStart
+	 * @param intronEnd
+	 * @return
+	 */
+	String seqDonor(Transcript tr, String chrSeq, int intronStart, int intronEnd) {
+		if (tr.isStrandPlus()) {
+			int splDonorStart = intronStart - SIZE_SPLICE;
+			int splDonorEnd = intronStart + SIZE_SPLICE;
+			return chrSeq.substring(splDonorStart, splDonorEnd + 1).toUpperCase();
+		}
+
+		int splDonorStart = intronEnd - SIZE_SPLICE;
+		int splDonorEnd = intronEnd + SIZE_SPLICE;
+		return GprSeq.reverseWc(chrSeq.substring(splDonorStart, splDonorEnd + 1).toUpperCase());
+	}
+
+	/**
 	 * Find donor-acceptor pairs
 	 */
 	void spliceDonoAcceptorPairs() {
@@ -591,9 +655,10 @@ public class SpliceAnalysis extends SnpEff {
 		pwmsets.addAll(pwmSetsByName.values());
 		Collections.sort(pwmsets);
 		out("<table border=1>\n");
-		out("<tr> <th> Donor-Acceptor </th>  <th> Count </th>  <th> Donor Motif </th> <th> U12 matches (Observed / Expected) </th> <th> Acceptor Motif </th> <th> Intron length </th> </tr>\n");
+		out("<tr> <th> Rank </th> <th> Donor-Acceptor </th>  <th> Count </th>  <th> Donor Motif </th> <th> U12 matches (Observed / Expected) </th> <th> Acceptor Motif </th> <th> Intron length </th> <th> Intron Type Count </th> <th> Intron Type p-values </th> </tr>\n");
+		int count = 0;
 		for (PwmSet pwmset : pwmsets)
-			if (pwmset.updates > threshold) out(pwmset);
+			if (pwmset.updates > threshold) out("<tr> <td> " + (count++) + " </td> " + pwmset + "</tr>\n");
 		out("</table>\n");
 
 		String fileName = outputDir + "/" + genomeVer + ".branchDonorScore.txt";
@@ -613,31 +678,34 @@ public class SpliceAnalysis extends SnpEff {
 		for (Gene gene : config.getGenome().getGenes()) {
 			if (gene.getChromosomeName().equals(chrName)) { // Same chromosome
 				for (Transcript tr : gene) {
-					int prev = -1;
 					Exon exPrev = null;
-					for (Exon ex : tr.sorted()) {
+					for (Exon ex : tr.sortedStrand()) {
 						countEx++;
 
-						if (prev >= 0) {
-							if (prev > ex.getStart()) System.err.println("WARNINIG: Exon check failed. Skipping: " + ex);
-							else {
-								int start = prev;
-								int end = ex.getStart();
-								String key = chrName + ":" + start + "-" + end;
+						if (exPrev != null) { // Not for first exon (it has no 'previous' intron)
+							int start, end;
+							if (tr.isStrandPlus()) {
+								start = exPrev.getEnd();
+								end = ex.getStart();
+							} else {
+								start = ex.getEnd();
+								end = exPrev.getStart();
+							}
 
-								// Get exon splice type
-								String exPrevType = exPrev != null ? exPrev.getSpliceType().toString() : "";
-								String exType = ex != null ? ex.getSpliceType().toString() : "";
-								String exonTypes = exPrevType + "-" + exType;
+							// Get exon splice type
+							String exPrevType = exPrev != null ? exPrev.getSpliceType().toString() : "";
+							String exType = ex != null ? ex.getSpliceType().toString() : "";
+							String exonTypes = exPrevType + "-" + exType;
 
-								// Do not analyze this Intron if it was already analyzed
-								if (!done.contains(key)) updatePwm(tr, chrSeq, start, end, exonTypes);
+							// Do not analyze this Intron if it was already analyzed
+							String key = chrName + ":" + start + "-" + end;
+							if (!done.contains(key)) {
+								updatePwm(tr, chrSeq, start, end, exonTypes);
 								done.add(key);
 							}
 						}
 
 						exPrev = ex;
-						prev = ex.getEnd();
 					}
 				}
 			}
@@ -669,30 +737,32 @@ public class SpliceAnalysis extends SnpEff {
 		int countEx = 0;
 		HashSet<String> done = new HashSet<String>();
 
-		new StringBuilder();
-
 		for (Gene gene : config.getGenome().getGenes()) {
 			if (gene.getChromosomeName().equals(chrName)) { // Same chromosome
 				for (Transcript tr : gene) {
-					int prev = -1;
-					for (Exon ex : tr.sorted()) {
+					Exon exPrev = null;
+					for (Exon ex : tr.sortedStrand()) {
 						countEx++;
 
-						if (prev >= 0) {
-							if (prev > ex.getStart()) System.err.println("WARNINIG: Exon check failed. Skipping: " + ex);
-							else {
-								int start = prev;
-								int end = ex.getStart();
-								String key = chrName + ":" + start + "-" + end;
+						if (exPrev != null) { // Not for first exon (it has no 'previous' intron)
+							int start, end;
+							if (tr.isStrandPlus()) {
+								start = exPrev.getEnd();
+								end = ex.getStart();
+							} else {
+								start = ex.getEnd();
+								end = exPrev.getStart();
+							}
 
-								// Already added? (do not add twice)
-								if (!done.contains(key)) spliceSequences(tr, chrSeq, start, end);
-
+							// Already added? (do not add twice)
+							String key = chrName + ":" + start + "-" + end;
+							if (!done.contains(key)) {
+								spliceSequences(tr, chrSeq, start, end);
 								done.add(key);
 							}
 						}
 
-						prev = ex.getEnd();
+						exPrev = ex;
 					}
 				}
 			}
@@ -705,35 +775,9 @@ public class SpliceAnalysis extends SnpEff {
 	 * Find splice sequences for this intron
 	 */
 	void spliceSequences(Transcript tr, String chrSeq, int intronStart, int intronEnd) {
-		//---
-		// Get donor and acceptor coordinates and strings
-		//---
-		int splDonorStart = intronStart - SIZE_SPLICE;
-		int splDonorEnd = intronStart + SIZE_SPLICE;
-		int splAccStart = intronEnd - SIZE_SPLICE;
-		int splAccEnd = intronEnd + SIZE_SPLICE;
-		int splBranchStart = intronEnd - SIZE_BRANCH + 1;
-		int splBranchEnd = intronEnd;
-
-		// Get strings
-		if (tr.isStrandMinus()) {
-			splDonorStart = intronEnd - SIZE_SPLICE;
-			splDonorEnd = intronEnd + SIZE_SPLICE;
-			splAccStart = intronStart - SIZE_SPLICE;
-			splAccEnd = intronStart + SIZE_SPLICE;
-			splBranchStart = intronStart + 1;
-			splBranchEnd = intronStart + SIZE_BRANCH;
-		}
-
-		String donorStr = chrSeq.substring(splDonorStart, splDonorEnd + 1).toUpperCase();
-		String accStr = chrSeq.substring(splAccStart, splAccEnd + 1).toUpperCase();
-		String branchStr = chrSeq.substring(splBranchStart, splBranchEnd).toUpperCase();
-
-		if (tr.isStrandMinus()) {
-			donorStr = GprSeq.reverseWc(donorStr);
-			accStr = GprSeq.reverseWc(accStr);
-			branchStr = GprSeq.reverseWc(branchStr);
-		}
+		String donorStr = seqDonor(tr, chrSeq, intronStart, intronEnd);
+		String accStr = seqAcceptor(tr, chrSeq, intronStart, intronEnd);
+		String branchStr = seqBranch(tr, chrSeq, intronStart, intronEnd);
 
 		String intronSeqDonor = donorStr.substring(SIZE_SPLICE + 1);
 		String intronSeqAcc = accStr.substring(0, SIZE_SPLICE);
@@ -753,42 +797,14 @@ public class SpliceAnalysis extends SnpEff {
 	 * @param intronEnd
 	 */
 	void updatePwm(Transcript tr, String chrSeq, int intronStart, int intronEnd, String exonTypes) {
-		countIntrons++;
-
 		int len = intronEnd - intronStart;
-
-		//---
-		// Get donor and acceptor coordinates and strings
-		//---
-		int splDonorStart = intronStart - SIZE_SPLICE;
-		int splDonorEnd = intronStart + SIZE_SPLICE;
-		int splAccStart = intronEnd - SIZE_SPLICE;
-		int splAccEnd = intronEnd + SIZE_SPLICE;
-		int splBranchStart = intronEnd - SIZE_BRANCH + 1;
-		int splBranchEnd = intronEnd;
-
-		// Get strings
-		if (tr.isStrandMinus()) {
-			splDonorStart = intronEnd - SIZE_SPLICE;
-			splDonorEnd = intronEnd + SIZE_SPLICE;
-			splAccStart = intronStart - SIZE_SPLICE;
-			splAccEnd = intronStart + SIZE_SPLICE;
-			splBranchStart = intronStart + 1;
-			splBranchEnd = intronStart + SIZE_BRANCH;
-		}
-
-		String donorStr = chrSeq.substring(splDonorStart, splDonorEnd + 1).toUpperCase();
-		String accStr = chrSeq.substring(splAccStart, splAccEnd + 1).toUpperCase();
-		String branchStr = chrSeq.substring(splBranchStart, splBranchEnd).toUpperCase();
-
-		if (tr.isStrandMinus()) {
-			donorStr = GprSeq.reverseWc(donorStr);
-			accStr = GprSeq.reverseWc(accStr);
-			branchStr = GprSeq.reverseWc(branchStr);
-		}
-
+		String donorStr = seqDonor(tr, chrSeq, intronStart, intronEnd);
+		String accStr = seqAcceptor(tr, chrSeq, intronStart, intronEnd);
+		String branchStr = seqBranch(tr, chrSeq, intronStart, intronEnd);
 		String intronSeqDonor = donorStr.substring(SIZE_SPLICE + 1);
 		String intronSeqAcc = accStr.substring(0, SIZE_SPLICE);
+
+		countIntrons++;
 
 		//---
 		// PWM scores based on bases after the donor splice site
