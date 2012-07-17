@@ -493,11 +493,12 @@ public class SpliceAnalysis extends SnpEff {
 		spliceDonoAcceptorPairs();
 		acgtTreeDonors = acgtTreeAcc = null; // Free some unused objects
 
-		branchU12Threshold();
-		createSpliceFasta();
+		branchU12Threshold(); // Find U12 branch points
+		createSpliceFasta(); // Create fasta files for splice sites
+		donorsList = acceptorsList = branchesList = geneList = null; // Free some unused memory
 
 		// Splice site PWM analysis
-		spliceAnalysis();
+		splicePwmAnalysis();
 
 		//---
 		// Save output
@@ -508,81 +509,6 @@ public class SpliceAnalysis extends SnpEff {
 
 		Timer.showStdErr("Finished!");
 		return true;
-	}
-
-	void spliceAnalysis() {
-		Timer.showStdErr("Splice analysis (PWM). Reading fasta file: " + genomeFasta);
-
-		out("<pre>\n");
-
-		// Iterate over all chromosomes
-		FastaFileIterator ffi = new FastaFileIterator(genomeFasta);
-		for (String chrSeq : ffi) {
-			String chrName = Chromosome.simpleName(ffi.getName());
-			spliceAnalysis(chrName, chrSeq);
-		}
-		out("</pre>\n");
-
-		// Show PwmSets
-		int threshold = (int) (MIN_UPDATES_PERC * countIntrons);
-		Timer.showStdErr("Filter out low count splice sites. Exons: " + countIntrons + "\tThreshold: " + threshold);
-		ArrayList<PwmSet> pwmsets = new ArrayList<PwmSet>();
-		pwmsets.addAll(pwmSetsByName.values());
-		Collections.sort(pwmsets);
-		out("<table border=1>\n");
-		out("<tr> <th> Donor type </th>  <th> Count </th>  <th> Donor Motif </th> <th> U12 matches (Observed / Expected) </th> <th> Acceptor Motif </th> <th> Intron length </th> </tr>\n");
-		for (PwmSet pwmset : pwmsets)
-			if (pwmset.updates > threshold) out(pwmset);
-		out("</table>\n");
-
-		String fileName = outputDir + "/" + genomeVer + ".branchDonorScore.txt";
-		Timer.showStdErr("Saving scores file to :" + fileName);
-		Gpr.toFile(fileName, sbScore);
-	}
-
-	/**
-	 * Run analysis for one chromosome
-	 * @param chrName
-	 * @param chrSeq
-	 */
-	void spliceAnalysis(String chrName, String chrSeq) {
-		int countEx = 0;
-		HashSet<String> done = new HashSet<String>();
-
-		for (Gene gene : config.getGenome().getGenes()) {
-			if (gene.getChromosomeName().equals(chrName)) { // Same chromosome
-				for (Transcript tr : gene) {
-					int prev = -1;
-					Exon exPrev = null;
-					for (Exon ex : tr.sorted()) {
-						countEx++;
-
-						if (prev >= 0) {
-							if (prev > ex.getStart()) System.err.println("WARNINIG: Exon check failed. Skipping: " + ex);
-							else {
-								int start = prev;
-								int end = ex.getStart();
-								String key = chrName + ":" + start + "-" + end;
-
-								// Get exon splice type
-								String exPrevType = exPrev != null ? exPrev.getSpliceType().toString() : "";
-								String exType = ex != null ? ex.getSpliceType().toString() : "";
-								String exonTypes = exPrevType + "-" + exType;
-
-								// Do not analyze this Intron if it was already analyzed
-								if (!done.contains(key)) updatePwm(tr, chrSeq, start, end, exonTypes);
-								done.add(key);
-							}
-						}
-
-						exPrev = ex;
-						prev = ex.getEnd();
-					}
-				}
-			}
-		}
-
-		Timer.showStdErr("\tChromosome: " + chrName + "\tGenes: " + config.getGenome().getGenes().size() + "\tExons: " + countEx);
 	}
 
 	/**
@@ -640,6 +566,84 @@ public class SpliceAnalysis extends SnpEff {
 
 			Timer.showStdErr("\t\t" + donorAcc.get(key) + "\t" + key);
 		}
+	}
+
+	/**
+	 * Run PWM analysis 
+	 */
+	void splicePwmAnalysis() {
+		Timer.showStdErr("Splice analysis (PWM). Reading fasta file: " + genomeFasta);
+
+		out("<pre>\n");
+
+		// Iterate over all chromosomes
+		FastaFileIterator ffi = new FastaFileIterator(genomeFasta);
+		for (String chrSeq : ffi) {
+			String chrName = Chromosome.simpleName(ffi.getName());
+			splicePwmAnalysis(chrName, chrSeq);
+		}
+		out("</pre>\n");
+
+		// Show PwmSets
+		int threshold = (int) (MIN_UPDATES_PERC * countIntrons);
+		Timer.showStdErr("Filter out low count splice sites. Exons: " + countIntrons + "\tThreshold: " + threshold);
+		ArrayList<PwmSet> pwmsets = new ArrayList<PwmSet>();
+		pwmsets.addAll(pwmSetsByName.values());
+		Collections.sort(pwmsets);
+		out("<table border=1>\n");
+		out("<tr> <th> Donor-Acceptor </th>  <th> Count </th>  <th> Donor Motif </th> <th> U12 matches (Observed / Expected) </th> <th> Acceptor Motif </th> <th> Intron length </th> </tr>\n");
+		for (PwmSet pwmset : pwmsets)
+			if (pwmset.updates > threshold) out(pwmset);
+		out("</table>\n");
+
+		String fileName = outputDir + "/" + genomeVer + ".branchDonorScore.txt";
+		Timer.showStdErr("Saving scores file to :" + fileName);
+		Gpr.toFile(fileName, sbScore);
+	}
+
+	/**
+	 * Run PWM analysis for one chromosome
+	 * @param chrName
+	 * @param chrSeq
+	 */
+	void splicePwmAnalysis(String chrName, String chrSeq) {
+		int countEx = 0;
+		HashSet<String> done = new HashSet<String>();
+
+		for (Gene gene : config.getGenome().getGenes()) {
+			if (gene.getChromosomeName().equals(chrName)) { // Same chromosome
+				for (Transcript tr : gene) {
+					int prev = -1;
+					Exon exPrev = null;
+					for (Exon ex : tr.sorted()) {
+						countEx++;
+
+						if (prev >= 0) {
+							if (prev > ex.getStart()) System.err.println("WARNINIG: Exon check failed. Skipping: " + ex);
+							else {
+								int start = prev;
+								int end = ex.getStart();
+								String key = chrName + ":" + start + "-" + end;
+
+								// Get exon splice type
+								String exPrevType = exPrev != null ? exPrev.getSpliceType().toString() : "";
+								String exType = ex != null ? ex.getSpliceType().toString() : "";
+								String exonTypes = exPrevType + "-" + exType;
+
+								// Do not analyze this Intron if it was already analyzed
+								if (!done.contains(key)) updatePwm(tr, chrSeq, start, end, exonTypes);
+								done.add(key);
+							}
+						}
+
+						exPrev = ex;
+						prev = ex.getEnd();
+					}
+				}
+			}
+		}
+
+		Timer.showStdErr("\tChromosome: " + chrName + "\tGenes: " + config.getGenome().getGenes().size() + "\tExons: " + countEx);
 	}
 
 	/**

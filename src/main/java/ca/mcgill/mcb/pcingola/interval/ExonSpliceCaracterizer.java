@@ -6,7 +6,6 @@ import ca.mcgill.mcb.pcingola.interval.Exon.ExonSpliceType;
 import ca.mcgill.mcb.pcingola.snpEffect.Config;
 import ca.mcgill.mcb.pcingola.snpEffect.SnpEffectPredictor;
 import ca.mcgill.mcb.pcingola.stats.CountByType;
-import ca.mcgill.mcb.pcingola.util.Gpr;
 import ca.mcgill.mcb.pcingola.util.Timer;
 
 /**
@@ -28,7 +27,7 @@ public class ExonSpliceCaracterizer {
 	}
 
 	public ExonSpliceCaracterizer(String genomeVer) {
-		if (verbose) Timer.showStdErr("Loading dataabse");
+		if (verbose) Timer.showStdErr("Loading database");
 		Config config = new Config(genomeVer);
 		SnpEffectPredictor snpEffectPredictor = config.loadSnpEffectPredictor();
 		genome = snpEffectPredictor.getGenome();
@@ -195,10 +194,8 @@ public class ExonSpliceCaracterizer {
 						else if (isAlt5ss(e, g)) type(e, Exon.ExonSpliceType.ALTTENATIVE_5SS);
 						else if (tr.numChilds() > 1) {
 							if (e.getRank() == 1) type(e, Exon.ExonSpliceType.ALTTENATIVE_PROMOMOTER);
-							else if (e.getRank() == tr.numChilds()) {
-								Gpr.debug("ALTTENATIVE_POLY_A: " + e.getId() + "\n" + tr);
-								type(e, Exon.ExonSpliceType.ALTTENATIVE_POLY_A);
-							} else type(e, Exon.ExonSpliceType.SKIPPED);
+							else if (e.getRank() == tr.numChilds()) type(e, Exon.ExonSpliceType.ALTTENATIVE_POLY_A);
+							else type(e, Exon.ExonSpliceType.SKIPPED);
 						}
 					}
 				}
