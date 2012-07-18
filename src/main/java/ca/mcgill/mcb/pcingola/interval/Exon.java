@@ -22,7 +22,7 @@ public class Exon extends Marker {
 	 * References: "Alternative splicing and evolution - diversification, exon definition and function"  (see Box 1)
 	 */
 	public enum ExonSpliceType {
-		RETAINED, // All transcripts have it
+		RETAINED, // All transcripts have this exon
 		SKIPPED, // Some transcripts skip it
 		ALTTENATIVE_3SS, // Some transcripts have and alternative 3' exon start 
 		ALTTENATIVE_5SS, // Some transcripts have and alternative 5' exon end
@@ -32,7 +32,7 @@ public class Exon extends Marker {
 	}
 
 	private static final long serialVersionUID = 5324352193278472543L;
-	public static final int SPLICE_SITE_SIZE = 2;;
+	public static final int SPLICE_SITE_SIZE = 2;
 
 	byte frame = 0;
 	int rank; // Exon rank in transcript
@@ -192,6 +192,7 @@ public class Exon extends Marker {
 		setSequence(markerSerializer.getNextField());
 		spliceSiteDonor = (SpliceSiteDonor) markerSerializer.getNextFieldMarker();
 		spliceSiteAcceptor = (SpliceSiteAcceptor) markerSerializer.getNextFieldMarker();
+		spliceType = ExonSpliceType.valueOf(markerSerializer.getNextField());
 	}
 
 	/**
@@ -209,6 +210,7 @@ public class Exon extends Marker {
 				+ "\t" + sequence //
 				+ "\t" + ssdId //
 				+ "\t" + ssaId //
+				+ "\t" + spliceType //				
 		;
 	}
 

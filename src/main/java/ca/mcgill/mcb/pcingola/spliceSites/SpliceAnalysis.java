@@ -453,7 +453,8 @@ public class SpliceAnalysis extends SnpEff {
 		// Get exon caracteristics
 		Timer.showStdErr("Categorizing exons");
 		ExonSpliceCaracterizer esc = new ExonSpliceCaracterizer(config.getGenome());
-		esc.caracterize(verbose);
+		CountByType countExonsByType = esc.caracterize();
+		if (verbose) Timer.showStdErr("Exon types:\n" + countExonsByType);
 	}
 
 	/**

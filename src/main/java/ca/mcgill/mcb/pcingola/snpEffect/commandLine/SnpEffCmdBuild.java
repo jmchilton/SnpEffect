@@ -8,6 +8,7 @@ import ca.mcgill.mcb.pcingola.RegulationFileConsensus;
 import ca.mcgill.mcb.pcingola.codons.FindRareAaIntervals;
 import ca.mcgill.mcb.pcingola.fileIterator.RegulationFileIterator;
 import ca.mcgill.mcb.pcingola.fileIterator.RegulationGffFileIterator;
+import ca.mcgill.mcb.pcingola.interval.ExonSpliceCaracterizer;
 import ca.mcgill.mcb.pcingola.interval.RareAminoAcid;
 import ca.mcgill.mcb.pcingola.snpEffect.Config;
 import ca.mcgill.mcb.pcingola.snpEffect.SnpEffectPredictor;
@@ -233,6 +234,11 @@ public class SnpEffCmdBuild extends SnpEff {
 		if (!onlyRegulation) {
 			SnpEffectPredictor snpEffectPredictor = createSnpEffPredictor();
 			config.setSnpEffectPredictor(snpEffectPredictor);
+
+			// Catacterize exons (if possible)
+			if (verbose) Timer.showStdErr("Caracterizig exons by splicing.");
+			ExonSpliceCaracterizer exonSpliceCaracterizer = new ExonSpliceCaracterizer(snpEffectPredictor.getGenome());
+			exonSpliceCaracterizer.caracterize();
 
 			// Add read rare codons annotations, if possible
 			rareAa(snpEffectPredictor);

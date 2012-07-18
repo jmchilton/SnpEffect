@@ -17,33 +17,28 @@ import ca.mcgill.mcb.pcingola.util.Timer;
  */
 public class ExonSpliceCaracterizer {
 
-	boolean verbose = false;
+	//	boolean verbose = false;
 	Genome genome;
 	HashMap<Exon, Exon.ExonSpliceType> typeByExon;
 	CountByType countByType = new CountByType();
 
 	public ExonSpliceCaracterizer(Genome genome) {
 		this.genome = genome;
+		typeByExon = new HashMap<Exon, Exon.ExonSpliceType>();
 	}
 
 	public ExonSpliceCaracterizer(String genomeVer) {
-		if (verbose) Timer.showStdErr("Loading database");
 		Config config = new Config(genomeVer);
 		SnpEffectPredictor snpEffectPredictor = config.loadSnpEffectPredictor();
 		genome = snpEffectPredictor.getGenome();
-		if (verbose) Timer.showStdErr("done.");
+		typeByExon = new HashMap<Exon, Exon.ExonSpliceType>();
 	}
 
 	/**
 	 * Caracterize all exons
 	 */
-	public CountByType caracterize(boolean verbose) {
-		this.verbose = verbose;
-
-		if (verbose) Timer.showStdErr("Run");
-		typeByExon = new HashMap<Exon, Exon.ExonSpliceType>();
+	public CountByType caracterize() {
 		type();
-		if (verbose) Timer.showStdErr("Done.\n\tTotal exons  : " + countExons() + "\n\tExons marked : " + typeByExon.size() + "\n" + countByType);
 		return countByType;
 	}
 
