@@ -11,7 +11,6 @@ import java.util.Random;
 import ca.mcgill.mcb.pcingola.fileIterator.FastaFileIterator;
 import ca.mcgill.mcb.pcingola.interval.Chromosome;
 import ca.mcgill.mcb.pcingola.interval.Exon;
-import ca.mcgill.mcb.pcingola.interval.ExonSpliceCaracterizer;
 import ca.mcgill.mcb.pcingola.interval.Gene;
 import ca.mcgill.mcb.pcingola.interval.Transcript;
 import ca.mcgill.mcb.pcingola.motif.MotifLogo;
@@ -449,12 +448,6 @@ public class SpliceAnalysis extends SnpEff {
 
 		// Load data
 		load();
-
-		// Get exon caracteristics
-		Timer.showStdErr("Categorizing exons");
-		ExonSpliceCaracterizer esc = new ExonSpliceCaracterizer(config.getGenome());
-		CountByType countExonsByType = esc.caracterize();
-		if (verbose) Timer.showStdErr("Exon types:\n" + countExonsByType);
 	}
 
 	/**

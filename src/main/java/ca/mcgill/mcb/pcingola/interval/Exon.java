@@ -192,7 +192,9 @@ public class Exon extends Marker {
 		setSequence(markerSerializer.getNextField());
 		spliceSiteDonor = (SpliceSiteDonor) markerSerializer.getNextFieldMarker();
 		spliceSiteAcceptor = (SpliceSiteAcceptor) markerSerializer.getNextFieldMarker();
-		spliceType = ExonSpliceType.valueOf(markerSerializer.getNextField());
+
+		String exType = markerSerializer.getNextField();
+		if ((exType != null) && !exType.isEmpty()) spliceType = ExonSpliceType.valueOf(exType);
 	}
 
 	/**
@@ -210,7 +212,7 @@ public class Exon extends Marker {
 				+ "\t" + sequence //
 				+ "\t" + ssdId //
 				+ "\t" + ssaId //
-				+ "\t" + spliceType //				
+				+ "\t" + (spliceType != null ? spliceType.toString() : "")//				
 		;
 	}
 
