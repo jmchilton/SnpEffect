@@ -10,4 +10,5 @@
 ./addFrame.pl index_frame.html download_content.html > download.html
 ./addFrame.pl index_frame.html SnpSift_content.html > SnpSift.html
 ./addFrame.pl index_frame.html morebs_content.html > morebs.html
+./addFrame.pl index_frame.html examples_content.html > examples.html
 

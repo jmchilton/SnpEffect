@@ -621,9 +621,11 @@ public class SnpEffCmdEff extends SnpEff {
 		config.getSnpEffectPredictor().setUpDownStreamLength(upDownStreamLength);
 
 		// Filter canonical transcripts
-		if (verbose) Timer.showStdErr("Filtering out non-canonical transcripts.");
-		if (canonical) config.getSnpEffectPredictor().removeNonCanonical();
-		if (verbose) Timer.showStdErr("done.");
+		if (canonical) {
+			if (verbose) Timer.showStdErr("Filtering out non-canonical transcripts.");
+			config.getSnpEffectPredictor().removeNonCanonical();
+			if (verbose) Timer.showStdErr("done.");
+		}
 
 		// Build tree
 		if (verbose) Timer.showStdErr("Building interval forest");

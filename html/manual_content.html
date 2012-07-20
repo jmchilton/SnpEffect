@@ -21,35 +21,38 @@ Input file: Default is STDIN
 
 Options:
 	-a , -around            : Show N codons and amino acids around change (only in coding regions). Default is 0 codons.
-	-chr                    : Prepend 'chr' to chromosome name (e.g. 'chr1' instead of '1')
-	-i {format}             : Input format [ vcf, txt, pileup, bed ]. Default: VCF.
+	-i format               : Input format [ vcf, txt, pileup, bed ]. Default: VCF.
+	-o format               : Ouput format [ txt, vcf, bed, bedAnn ]. Default: VCF.
 	-interval               : Use a custom interval file (you may use this option many times)
-	-o {format}             : Ouput format [ txt, vcf, bed, bedAnn ]. Default: TXT.
+	-chr string             : Prepend 'string' to chromosome name (e.g. 'chr1' instead of '1'). Only on TXT output.
 	-s,  -stats             : Name of stats file (summary). Default is 'snpEff_summary.html'
 	-t                      : Use multiple threads (implies '-noStats'). Default 'off'
 
 Sequence change filter options:
 	-del                    : Analyze deletions only
 	-ins                    : Analyze insertions only
-	-hom                    : Analyze homozygous sequence changes only
-	-het                    : Analyze heterozygous sequence changes only
-	-minQ X, -minQuality X  : Filter out sequence changes with quality lower than X
-	-maxQ X, -maxQuality X  : Filter out sequence changes with quality higher than X
-	-minC X, -minCoverage X : Filter out sequence changes with coverage lower than X
-	-maxC X, -maxCoverage X : Filter out sequence changes with coverage higher than X
-	-mnp                    : Only MNPs (multiple nucleotide polymorphisms)
+	-hom                    : Analyze homozygous variants only
+	-het                    : Analyze heterozygous variants only
+	-minQ X, -minQuality X  : Filter out variants with quality lower than X
+	-maxQ X, -maxQuality X  : Filter out variants with quality higher than X
+	-minC X, -minCoverage X : Filter out variants with coverage lower than X
+	-maxC X, -maxCoverage X : Filter out variants with coverage higher than X
+	-nmp                    : Only MNPs (multiple nucleotide polymorphisms)
 	-snp                    : Only SNPs (single nucleotide polymorphisms)
 
 Results filter options:
-	-fi {bedFile}                   : Only analyze changes that intersect with the intervals specified in this file (you may use this option many times)
+	-fi bedFile                     : Only analyze changes that intersect with the intervals specified in this file (you may use this option many times)
 	-no-downstream                  : Do not show DOWNSTREAM changes
 	-no-intergenic                  : Do not show INTERGENIC changes
 	-no-intron                      : Do not show INTRON changes
 	-no-upstream                    : Do not show UPSTREAM changes
 	-no-utr                         : Do not show 5_PRIME_UTR or 3_PRIME_UTR changes
+
+Annotations filter options:
+	-canon                          : Only use canonical transcripts.
 	-onlyReg                        : Only use regulation tracks.
-	-reg {name}                     : Regulation track to use (this option can be used add several times).
-	-treatAllAsProteinCoding {bool} : If true, all transcript are treated as if they were protein conding. Default: Auto
+	-reg name                       : Regulation track to use (this option can be used add several times).
+	-treatAllAsProteinCoding bool   : If true, all transcript are treated as if they were protein conding. Default: Auto
 	-ud, -upDownStreamLen           : Set upstream downstream interval length (in bases)
 
 Generic options:
@@ -60,9 +63,10 @@ Generic options:
 	-if, -inOffset          : Offset input by a number of bases. E.g. '-inOffset 1' for one-based input files
 	-of, -outOffset         : Offset output by a number of bases. E.g. '-outOffset 1' for one-based output files
 	-noLog                  : Do not report usage statistics to server
+	-noStats                : Do not create stats (summary) file
 	-q , -quiet             : Quiet mode (do not show any messages or errors)
 	-v , -verbose           : Verbose mode
-				</pre>
+</pre>
 
 <b>Options</b><p>
 <table border=0>
@@ -118,13 +122,19 @@ Generic options:
 	<tr bgcolor=eeeeee> <td style="white-space: nowrap">-no-intron  </td><td> Do not show INTRON changes</td></tr>
 	<tr bgcolor=dddddd> <td style="white-space: nowrap">-no-upstream  </td><td> Do not show UPSTREAM changes</td></tr>
 	<tr bgcolor=eeeeee> <td style="white-space: nowrap">-no-utr  </td><td> Do not show 5_PRIME_UTR or 3_PRIME_UTR changes</td></tr>
+</table>
+<p>
+
+<b>Annotations filter options</b><p>
+<table border=0>
+	<tr bgcolor=aaaaaa> <th style="white-space: nowrap"> Option </th><th> Note </th></tr>
+	<tr bgcolor=eeeeee> <td style="white-space: nowrap">-canon  </td><td>Only annotate using "canonical" transcripts. Canonical transcripts are defined as the transcript having the longest CDS.</td></tr>
 	<tr bgcolor=dddddd> <td style="white-space: nowrap">-treatAllAsProteinCoding {val} </td><td>If value is 'true', report all transcript as if they were conding. Default: Auto, i.e. if transcripts any marked as 'protein_coding' the set to 'false', if no transcripts are marked as 'protein_coding' then set to 'true'.</td></tr>
 	<tr bgcolor=eeeeee> <td style="white-space: nowrap">-ud, -upDownStreamLen </td><td>Set upstream downstream interval length (in bases). If set to zero or negative, then no UPSTREAM or DOWNSTREAM effects are reported.</td></tr>
 	<tr bgcolor=dddddd> <td style="white-space: nowrap">-onlyReg </td><td>Only use regulation tracks</td></tr>
 	<tr bgcolor=eeeeee> <td style="white-space: nowrap">-reg {name}</td><td>Regulation track to use (this option can be used add several times).</td></tr>
 </table>
 <p>
-
 <b>Generic options</b><p>
 <table border=0>
 	<tr bgcolor=aaaaaa> <th style="white-space: nowrap"> Option </th><th> Note </th></tr>
@@ -167,10 +177,15 @@ If you type the command without any arguments, it shows all available options ("
 Usage: snpEff build [options] genome_version
 
 Build DB options:
-	-gff2                   : Use GFF2 format (obsolete). It implies '-1'.
-	-gff3                   : Use GFF3 format. It implies '-1'
-	-gtf22                  : Use GTF 2.2 format. It implies '-1'.
-	-refseq                 : Use RefSeq table from UCSC. It implies '-0'.
+	-embl                   : Use Embl format.
+	-genbank                : Use GenBank format.
+	-gff2                   : Use GFF2 format (obsolete).
+	-gff3                   : Use GFF3 format.
+	-gtf22                  : Use GTF 2.2 format.
+	-refseq                 : Use RefSeq table from UCSC.
+	-txt                    : Use TXT format (obsolete).
+	-onlyReg                : Only build regulation tracks.
+	-cellType type          : Only build regulation tracks for cellType "type".
 
 Generic options:
 	-0                      : File positions are zero-based (same as '-inOffset 0 -outOffset 0')
@@ -185,10 +200,12 @@ Generic options:
 </pre>
 <table border=0>
 	<tr bgcolor=aaaaaa> <th style="white-space: nowrap"> Option </th><th> Note </th></tr>
-	<tr bgcolor=dddddd> <td>-gff3</td><td>Use GFF3 format. It will look gene information in a file called './data/GENOME/genes.gff' which is assumed to be in GFF3 format (assuming 'data_dir=./data/' in your snpEff.config file). This option implies one-based files (i.e. implicitly activated '-1').</td></tr>
-	<tr bgcolor=eeeeee> <td>-gff2</td><td>Use GFF2 format. It will look gene information in a file called './data/GENOME/genes.gff' which is assumed to be in GFF2 format (assuming 'data_dir=./data/' in your snpEff.config file). This option implies one-based files (i.e. implicitly activated '-1').<br>WARNING: GFF2 format is obsolete and should not be used.</td></tr>
-	<tr bgcolor=dddddd> <td>-gtf22</td><td>Use GFT 2.2 format. It will look gene information in a file called './data/GENOME/genes.gtf' which is assumed to be in GTF 2.2 format (assuming 'data_dir=./data/' in your snpEff.config file). This option implies one-based files (i.e. implicitly activated '-1').</td></tr>
-	<tr bgcolor=dddddd> <td>-refseq</td><td>Use refSeq table. It will look gene information in a file called './data/GENOME/genes.txt' which is assumed to be a RefSeq table from UCSC (assuming 'data_dir=./data/' in your snpEff.config file). This option implies zero-based files (i.e. implicitly activated '-0').</td></tr>
+	<tr bgcolor=dddddd> <td>-embl</td><td>Use Embl format. It will look gene information in a file called './data/GENOME/genes.embl' which is assumed to be in EMBL format (assuming 'data_dir=./data/' in your snpEff.config file).</td></tr>
+	<tr bgcolor=eeeeee> <td>-genbank</td><td>Use GenBank format. It will look gene information in a file called './data/GENOME/genes.gb' which is assumed to be in GenBank format (assuming 'data_dir=./data/' in your snpEff.config file).</tr>
+	<tr bgcolor=dddddd> <td>-gff3</td><td>Use GFF3 format. It will look gene information in a file called './data/GENOME/genes.gff' which is assumed to be in GFF3 format (assuming 'data_dir=./data/' in your snpEff.config file).</td></tr>
+	<tr bgcolor=eeeeee> <td>-gff2</td><td>Use GFF2 format. It will look gene information in a file called './data/GENOME/genes.gff' which is assumed to be in GFF2 format (assuming 'data_dir=./data/' in your snpEff.config file).<br>WARNING: GFF2 format is obsolete and should not be used.</td></tr>
+	<tr bgcolor=dddddd> <td>-gtf22</td><td>Use GFT 2.2 format. It will look gene information in a file called './data/GENOME/genes.gtf' which is assumed to be in GTF 2.2 format (assuming 'data_dir=./data/' in your snpEff.config file).</td></tr>
+	<tr bgcolor=dddddd> <td>-refseq</td><td>Use refSeq table. It will look gene information in a file called './data/GENOME/genes.txt' which is assumed to be a RefSeq table from UCSC (assuming 'data_dir=./data/' in your snpEff.config file).</td></tr>
 </table>
 <p>
 
