@@ -99,22 +99,32 @@ public class Exon extends Marker {
 		}
 	}
 
-	public SpliceSiteAcceptor createSpliceSiteAcceptor(int maxSize) {
-		maxSize = Math.min(SPLICE_SITE_SIZE, maxSize) - 1;
-		if (maxSize < 0) return null;
+	/**
+	 * Create a splice site acceptor of 'maxSize' length
+	 * @param size
+	 * @return
+	 */
+	public SpliceSiteAcceptor createSpliceSiteAcceptor(int size) {
+		size = size - 1;
+		if (size < 0) return null;
 
-		if (strand >= 0) spliceSiteAcceptor = new SpliceSiteAcceptor(this, start - 1 - maxSize, start - 1, strand, id);
-		else spliceSiteAcceptor = new SpliceSiteAcceptor(this, end + 1, end + 1 + maxSize, strand, id);
+		if (strand >= 0) spliceSiteAcceptor = new SpliceSiteAcceptor(this, start - 1 - size, start - 1, strand, id);
+		else spliceSiteAcceptor = new SpliceSiteAcceptor(this, end + 1, end + 1 + size, strand, id);
 
 		return spliceSiteAcceptor;
 	}
 
-	public SpliceSiteDonor createSpliceSiteDonor(int maxSize) {
-		maxSize = Math.min(SPLICE_SITE_SIZE, maxSize) - 1;
-		if (maxSize < 0) return null;
+	/**
+	 * Create a splice site donor of 'maxSize' length
+	 * @param size
+	 * @return
+	 */
+	public SpliceSiteDonor createSpliceSiteDonor(int size) {
+		size = size - 1;
+		if (size < 0) return null;
 
-		if (strand >= 0) spliceSiteDonor = new SpliceSiteDonor(this, end + 1, end + 1 + maxSize, strand, id);
-		else spliceSiteDonor = new SpliceSiteDonor(this, start - 1 - maxSize, start - 1, strand, id);
+		if (strand >= 0) spliceSiteDonor = new SpliceSiteDonor(this, end + 1, end + 1 + size, strand, id);
+		else spliceSiteDonor = new SpliceSiteDonor(this, start - 1 - size, start - 1, strand, id);
 
 		return spliceSiteDonor;
 	}

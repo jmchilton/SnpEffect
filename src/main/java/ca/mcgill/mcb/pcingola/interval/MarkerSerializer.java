@@ -65,6 +65,7 @@ public class MarkerSerializer {
 	}
 
 	protected String getNextField() {
+		if (fields.length <= parsedField) return "";
 		return fields[parsedField++];
 	}
 
