@@ -26,10 +26,9 @@ import ca.mcgill.mcb.pcingola.util.Timer;
 public class SnpEffCmdDownload extends SnpEff {
 
 	public static boolean debug = false;
+	private static int BUFFER_SIZE = 10480;
 
 	String version = SnpEff.VERSION_MAJOR;
-
-	private static int BUFFER_SIZE = 10480;
 
 	public SnpEffCmdDownload() {
 		super();

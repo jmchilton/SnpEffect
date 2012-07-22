@@ -136,7 +136,7 @@ public class SnpEffectPredictor implements Serializable {
 			add(m);
 
 		// Add splice site intervals
-		for (Marker m : genome.getGenes().createSpliceSites())
+		for (Marker m : genome.getGenes().findSpliceSites(true))
 			add(m);
 
 		intervalForest.add(markers); // Add all 'markers' to forest (includes custom intervals)
@@ -320,7 +320,7 @@ public class SnpEffectPredictor implements Serializable {
 	 * Save predictor to a binary file (specified by the configuration)
 	 */
 	public void save(Config config) {
-		String databaseFile = config.getDirData() + "/" + config.getGenome().getVersion() + "/snpEffectPredictor.bin";
+		String databaseFile = config.getFileSnpEffectPredictor();
 		MarkerSerializer markerSerializer = new MarkerSerializer();
 		markerSerializer.save(databaseFile, this);
 	}

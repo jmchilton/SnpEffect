@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 
 import ca.mcgill.mcb.pcingola.fileIterator.FastaFileIterator;
 import ca.mcgill.mcb.pcingola.interval.Chromosome;
@@ -34,6 +35,7 @@ public class SpliceTypes {
 	Config config;
 	HashMap<String, String> donorsByIntron = new HashMap<String, String>();
 	HashMap<String, String> acceptorsByIntron = new HashMap<String, String>();
+	HashMap<String, String> branchByIntron = new HashMap<String, String>();
 	ArrayList<String> donorAccPairDonor = new ArrayList<String>();
 	ArrayList<String> donorAccPairAcc = new ArrayList<String>();
 	AcgtTree acgtTreeDonors = new AcgtTree();
@@ -87,10 +89,10 @@ public class SpliceTypes {
 	}
 
 	/**
-	 * RUn the analyziz
+	 * Analyze and create conserved splice sites donor-acceptor pairs.
 	 * @return
 	 */
-	public boolean analyze() {
+	public boolean analyzeAndCreate() {
 		if (verbose) Timer.showStdErr("Splice site sequence conservation analysis: Start");
 		load(); // Load data
 		spliceSequences(); // Find splice sequences
@@ -124,6 +126,45 @@ public class SpliceTypes {
 	}
 
 	/**
+	 * Find the best score for PWM matrix in U12 branch points
+	 * @param seq
+	 * @return
+	 */
+	double bestU12Score(String seq) {
+		int max = seq.length() - pwmU12.length();
+		double best = 0;
+		for (int i = 0; i < max; i++) {
+			String sub = seq.substring(i, i + pwmU12.length());
+			if (sub.indexOf('N') < 0) {
+				double score = pwmU12.score(sub);
+				best = Math.max(best, score);
+			}
+		}
+
+		return best;
+	}
+
+	/**
+	 * Calculate threshold of U12 PWM scores  
+	 */
+	public double branchU12Threshold(double thresholdU12Score) {
+		Timer.showStdErr("Finding U12 PWM score distribution and threshold.");
+		ArrayList<Double> scores = new ArrayList<Double>();
+
+		//for (String branch : branchesList) {
+		for (String branch : branchByIntron.values()) {
+			double bestScore = bestU12Score(branch);
+			scores.add(bestScore);
+		}
+
+		// Get quantile
+		Collections.sort(scores);
+		int index = (int) (thresholdU12Score * scores.size());
+		double scoreTh = scores.get(index);
+		return scoreTh;
+	}
+
+	/**
 	 * Count how many entries that have both 'donor' and 'acceptor' 
 	 * @param donor
 	 * @param acceptor
@@ -138,6 +179,46 @@ public class SpliceTypes {
 			if (d.startsWith(donor) && a.endsWith(acceptor)) count++;
 		}
 		return count;
+	}
+
+	/**
+	 * Create one fasta file for each donor-acceptor pair
+	 */
+	public void createSpliceFasta(String outputDir) {
+		if (verbose) Timer.showStdErr("Creating FASTA files for each dono-acceptor pair.");
+
+		for (int i = 0; i < getDonorAccPairSize(); i++) {
+			String d = getDonor(i);
+			String a = getAcceptor(i);
+			String fastaFile = outputDir + "/" + config.getGenome().getId() + "." + d + "-" + a + ".fa";
+			createSpliceFasta(fastaFile, d, a);
+		}
+	}
+
+	/**
+	 * Count branch motifs in entries that have both 'donor' and 'acceptor' 
+	 * @param donor
+	 * @param acceptor
+	 * @return
+	 */
+	void createSpliceFasta(String fastaFile, String donor, String acceptor) {
+		StringBuilder fasta = new StringBuilder();
+
+		int fastaId = 0;
+		for (String intronKey : getIntronKeySet()) {
+			String d = getDonorByIntron(intronKey);
+			String a = getAcceptorsByIntron(intronKey);
+
+			if (d.startsWith(donor) && a.endsWith(acceptor)) {
+				String branch = getAcceptorsByIntron(intronKey);
+				fasta.append(">id_" + fastaId + "\n" + branch.subSequence(0, branch.length() - acceptor.length()) + "\n");
+				fastaId++;
+			}
+		}
+
+		// Write fasta file 
+		if (verbose) Timer.showStdErr("\tWriting fasta sequences to file: " + fastaFile);
+		Gpr.toFile(fastaFile, fasta);
 	}
 
 	/**
@@ -242,6 +323,34 @@ public class SpliceTypes {
 		return values.get(index);
 	}
 
+	public String getAcceptor(int i) {
+		return donorAccPairAcc.get(i);
+	}
+
+	public String getAcceptorsByIntron(String intronKey) {
+		return acceptorsByIntron.get(intronKey);
+	}
+
+	public String getBranchByIntron(String intronKey) {
+		return branchByIntron.get(intronKey);
+	}
+
+	public String getDonor(int i) {
+		return donorAccPairDonor.get(i);
+	}
+
+	public int getDonorAccPairSize() {
+		return donorAccPairDonor.size();
+	}
+
+	public String getDonorByIntron(String intronKey) {
+		return donorsByIntron.get(intronKey);
+	}
+
+	public Set<String> getIntronKeySet() {
+		return donorsByIntron.keySet();
+	}
+
 	/**
 	 * Lad data from files
 	 */
@@ -266,6 +375,8 @@ public class SpliceTypes {
 	 * @return
 	 */
 	String seqAcceptor(Transcript tr, String chrSeq, int intronStart, int intronEnd) {
+		if ((intronEnd - intronStart) < MAX_SPLICE_SIZE) return "";
+
 		if (tr.isStrandPlus()) {
 			int splAccStart = intronEnd - MAX_SPLICE_SIZE;
 			int splAccEnd = intronEnd + MAX_SPLICE_SIZE;
@@ -286,6 +397,8 @@ public class SpliceTypes {
 	 * @return
 	 */
 	String seqBranch(Transcript tr, String chrSeq, int intronStart, int intronEnd) {
+		if ((intronEnd - intronStart) < SIZE_BRANCH) return "";
+
 		if (tr.isStrandPlus()) {
 			int splBranchStart = intronEnd - SIZE_BRANCH + 1;
 			int splBranchEnd = intronEnd;
@@ -306,6 +419,8 @@ public class SpliceTypes {
 	 * @return
 	 */
 	String seqDonor(Transcript tr, String chrSeq, int intronStart, int intronEnd) {
+		if ((intronEnd - intronStart) < MAX_SPLICE_SIZE) return "";
+
 		if (tr.isStrandPlus()) {
 			int splDonorStart = intronStart - MAX_SPLICE_SIZE;
 			int splDonorEnd = intronStart + MAX_SPLICE_SIZE;
@@ -370,11 +485,13 @@ public class SpliceTypes {
 		});
 
 		for (String key : keys) {
-			String da[] = key.trim().split("\\s+");
-			donorAccPairDonor.add(da[0]);
-			donorAccPairAcc.add(da[1]);
+			if (donorAcc.get(key) > THRESHOLD_COUNT) {
+				String da[] = key.trim().split("\\s+");
+				donorAccPairDonor.add(da[0]);
+				donorAccPairAcc.add(da[1]);
 
-			if (verbose) Timer.showStdErr("\t\t\t" + donorAcc.get(key) + "\t" + key);
+				if (verbose) Timer.showStdErr("\t\t\t" + donorAcc.get(key) + "\t" + key);
+			}
 		}
 	}
 
@@ -441,12 +558,15 @@ public class SpliceTypes {
 
 		String donorStr = seqDonor(tr, chrSeq, intronStart, intronEnd);
 		String accStr = seqAcceptor(tr, chrSeq, intronStart, intronEnd);
+		String branchStr = seqBranch(tr, chrSeq, intronStart, intronEnd);
 
-		String intronSeqDonor = donorStr.substring(MAX_SPLICE_SIZE + 1);
-		String intronSeqAcc = accStr.substring(0, MAX_SPLICE_SIZE);
+		String intronSeqDonor = donorStr.isEmpty() ? "" : donorStr.substring(MAX_SPLICE_SIZE + 1);
+		String intronSeqAcc = accStr.isEmpty() ? "" : accStr.substring(0, MAX_SPLICE_SIZE);
 
 		// Add to arrays
 		donorsByIntron.put(key, intronSeqDonor);
 		acceptorsByIntron.put(key, intronSeqAcc);
+		branchByIntron.put(key, branchStr);
 	}
+
 }

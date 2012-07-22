@@ -119,7 +119,7 @@ public class TestCasesGff3 extends TestCase {
 		// Make sure no splice site is added
 		Gene gene = sep.getGenome().getGenes().iterator().next();
 		Transcript tr = gene.iterator().next();
-		List<SpliceSite> spliceSites = tr.createSpliceSites();
+		List<SpliceSite> spliceSites = tr.findSpliceSites(true);
 		Assert.assertEquals(0, spliceSites.size());
 	}
 

@@ -36,29 +36,6 @@ public class Genes implements Iterable<Gene>, Serializable {
 	}
 
 	/**
-	 * Creates a list of splice sites intervals
-	 * For a definition of splice site, see comments at the beginning of SpliceSite.java
-	 */
-	public Collection<Marker> createSpliceSites() {
-		HashMap<String, Marker> map = new HashMap<String, Marker>(); // Use a map in order to remove repeated splice sites (different transcripts may have the same exons)
-
-		// For each gene, transcript and exon
-		for (Gene gene : this) {
-			for (Transcript tr : gene) {
-				List<SpliceSite> slist = tr.createSpliceSites();
-
-				// Store all markers in hash
-				for (SpliceSite ss : slist) {
-					String key = ss.getClass().getSimpleName() + " " + ss.getChromosomeName() + ":" + ss.getStart() + "-" + ss.getEnd() + "_" + ss.getId();
-					map.put(key, ss);
-				}
-			}
-		}
-
-		return map.values();
-	}
-
-	/**
 	 * Creates a list of UP/DOWN stream regions (for each transcript)
 	 * Upstream (downstream) stream is defined as upDownLength before (after) transcript
 	 * 
@@ -77,6 +54,32 @@ public class Genes implements Iterable<Gene>, Serializable {
 			}
 		}
 		return list;
+	}
+
+	/**
+	 * Find all splice sites.
+	 * 
+	 * @param createIfMissing : If true, create canonical splice sites if they are missing.
+	 * 
+	 * For a definition of splice site, see comments at the beginning of SpliceSite.java
+	 */
+	public Collection<Marker> findSpliceSites(boolean createIfMissing) {
+		HashMap<String, Marker> map = new HashMap<String, Marker>(); // Use a map in order to remove repeated splice sites (different transcripts may have the same exons)
+
+		// For each gene, transcript and exon
+		for (Gene gene : this) {
+			for (Transcript tr : gene) {
+				List<SpliceSite> slist = tr.findSpliceSites(createIfMissing);
+
+				// Store all markers in hash
+				for (SpliceSite ss : slist) {
+					String key = ss.getClass().getSimpleName() + " " + ss.getChromosomeName() + ":" + ss.getStart() + "-" + ss.getEnd() + "_" + ss.getId();
+					map.put(key, ss);
+				}
+			}
+		}
+
+		return map.values();
 	}
 
 	/**

@@ -15,6 +15,6 @@ public class Zzz {
 
 		SpliceTypes spliceTypes = new SpliceTypes(config);
 		spliceTypes.setVerbose(true);
-		spliceTypes.analyze();
+		spliceTypes.analyzeAndCreate();
 	}
 }

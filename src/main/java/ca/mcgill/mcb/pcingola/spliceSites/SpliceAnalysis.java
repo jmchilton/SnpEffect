@@ -2,7 +2,6 @@ package ca.mcgill.mcb.pcingola.spliceSites;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -21,7 +20,6 @@ import ca.mcgill.mcb.pcingola.snpEffect.commandLine.SnpEff;
 import ca.mcgill.mcb.pcingola.stats.CountByType;
 import ca.mcgill.mcb.pcingola.stats.IntStats;
 import ca.mcgill.mcb.pcingola.util.Gpr;
-import ca.mcgill.mcb.pcingola.util.GprSeq;
 import ca.mcgill.mcb.pcingola.util.Timer;
 
 /**
@@ -48,8 +46,8 @@ public class SpliceAnalysis extends SnpEff {
 
 		public PwmSet(String name) {
 			this.name = name;
-			pwmAcc = new Pwm(2 * SIZE_SPLICE + 1);
-			pwmDonor = new Pwm(2 * SIZE_SPLICE + 1);
+			pwmAcc = new Pwm(2 * SpliceTypes.MAX_SPLICE_SIZE + 1);
+			pwmDonor = new Pwm(2 * SpliceTypes.MAX_SPLICE_SIZE + 1);
 			lenStats = new IntStats();
 			countMotif = new CountByType();
 			countExonTypes = new CountByType();
@@ -169,42 +167,22 @@ public class SpliceAnalysis extends SnpEff {
 
 	static double P_VALUE_THRESHOLD = 0.001;
 
-	public static int SIZE_SPLICE = 10;
 	public static int SIZE_CONSENSUS_DONOR = 2;
 	public static int SIZE_CONSENSUS_ACCEPTOR = 2;
-	public static int SIZE_BRANCH = 60;
 	public static final double THRESHOLD_ENTROPY = 0.05;
 	public static final int THRESHOLD_COUNT = 100;
 	public static final double THRESHOLD_P = 0.95;
 	public static final double THRESHOLD_BRANCH_U12_SCORE = 0.95;
-	public static final int BRANCH_SIZE = 5;
-	public static final int ACCEPTOR_SIZE = 5;
-	public static final double MIN_OE_BRANCH = 5.0;
 	public static int HTML_WIDTH = 20;
 	public static int HTML_HEIGHT = 100;
-	public static double MIN_UPDATES_PERC = 0.0001; // Don't show if there are less than this number on the whole genome
-	public static final String U12_PATTERN = "TCCTT";
 
 	String outputDir = ".";
 	String genomeVer;
 	String genomeFasta;
 	StringBuilder out = new StringBuilder();
-
 	Config config;
-
-	ArrayList<String> donorsList = new ArrayList<String>();
-	ArrayList<String> acceptorsList = new ArrayList<String>();
-	ArrayList<String> branchesList = new ArrayList<String>();
+	SpliceTypes spliceTypes;
 	ArrayList<String> geneList = new ArrayList<String>();
-
-	ArrayList<String> donorAccPairDonor = new ArrayList<String>();
-	ArrayList<String> donorAccPairAcc = new ArrayList<String>();
-
-	AcgtTree acgtTreeDonors = new AcgtTree();
-	AcgtTree acgtTreeAcc = new AcgtTree();
-
-	Pwm pwmU12;
-	HashMap<String, Integer> donorAcc = new HashMap<String, Integer>();
 	HashMap<String, PwmSet> pwmSetsByName = new HashMap<String, PwmSet>();
 
 	double thresholdPDonor;
@@ -223,95 +201,6 @@ public class SpliceAnalysis extends SnpEff {
 	}
 
 	/**
-	 * Find acceptors for this donor
-	 * @param donorSeq
-	 */
-	void acc4donor(String donorSeq) {
-		// Create a new tree using all these sequences
-		AcgtTree tree = new AcgtTree();
-		for (int i = 0; i < donorsList.size(); i++) {
-			String donor = donorsList.get(i);
-			if (donor.startsWith(donorSeq)) {
-				String acc = GprSeq.reverse(acceptorsList.get(i));
-				if (acc.indexOf('N') < 0) tree.add(acc);
-			}
-		}
-
-		// Show them
-		for (String accSeq : tree.findNodeNames(thresholdEntropyAcc, thresholdPAcc, THRESHOLD_COUNT)) {
-			if (accSeq.length() > 1) {
-				accSeq = GprSeq.reverse(accSeq);
-				add(donorSeq, accSeq);
-			}
-		}
-	}
-
-	void add(String donor, String acceptor) {
-		String key = String.format("%-10s\t%10s", donor, acceptor);
-		int count = countDonorAcc(donor, acceptor);
-		donorAcc.put(key, count);
-	}
-
-	/**
-	 * Find the best score for PWM matrix in U12 branch points
-	 * @param seq
-	 * @return
-	 */
-	double bestU12Score(String seq) {
-		int max = seq.length() - pwmU12.length();
-		double best = 0;
-		for (int i = 0; i < max; i++) {
-			String sub = seq.substring(i, i + pwmU12.length());
-			if (sub.indexOf('N') < 0) {
-				double score = pwmU12.score(sub);
-				best = Math.max(best, score);
-			}
-		}
-
-		return best;
-	}
-
-	double bestU2Score(String donor, String seq) {
-		if (donor.indexOf('N') >= 0) return -1;
-
-		// Create a match for this donor
-		Pwm pwm = new Pwm(donor.length());
-		pwm.set(donor);
-
-		int max = seq.length() - pwm.length();
-		double best = 0;
-		for (int i = 0; i < max; i++) {
-			String sub = seq.substring(i, i + pwm.length());
-			if (sub.indexOf('N') < 0) {
-				double score = pwm.score(sub);
-				best = Math.max(best, score);
-			}
-		}
-
-		return best;
-	}
-
-	/**
-	 * Calculate threshold of U12 PWM scores  
-	 */
-	void branchU12Threshold() {
-		Timer.showStdErr("Finding U12 PWM score distribution and threshold.");
-		ArrayList<Double> scores = new ArrayList<Double>();
-
-		//for (String branch : branchesList) {
-		for (int i = 0; i < branchesList.size(); i++) {
-			String branch = branchesList.get(i);
-			double bestScore = bestU12Score(branch);
-			scores.add(bestScore);
-		}
-
-		// Get quantile
-		Collections.sort(scores);
-		int index = (int) (THRESHOLD_BRANCH_U12_SCORE * scores.size());
-		thresholdU12Score = scores.get(index);
-	}
-
-	/**
 	 * Count how many entries that have both 'donor' and 'acceptor' 
 	 * @param donor
 	 * @param acceptor
@@ -319,87 +208,13 @@ public class SpliceAnalysis extends SnpEff {
 	 */
 	int countDonorAcc(String donor, String acceptor) {
 		int count = 0;
-		for (int i = 0; i < donorsList.size(); i++) {
-			String d = donorsList.get(i);
-			String a = acceptorsList.get(i);
+		for (int i = 0; i < spliceTypes.getDonorAccPairSize(); i++) {
+			String d = spliceTypes.getDonor(i);
+			String a = spliceTypes.getAcceptor(i);
 
 			if (d.startsWith(donor) && a.endsWith(acceptor)) count++;
 		}
 		return count;
-	}
-
-	/**
-	 * Create one fasta file for each donor-acceptor pair
-	 */
-	void createSpliceFasta() {
-		Timer.showStdErr("Creating FASTA files for each dono-acceptor pair.");
-
-		for (int i = 0; i < donorAccPairDonor.size(); i++) {
-			String donor = donorAccPairDonor.get(i);
-			String acceptor = donorAccPairAcc.get(i);
-			createSpliceFasta(donor, acceptor);
-		}
-	}
-
-	/**
-	 * Count branch motifs in entries that have both 'donor' and 'acceptor' 
-	 * @param donor
-	 * @param acceptor
-	 * @return
-	 */
-	void createSpliceFasta(String donor, String acceptor) {
-		StringBuilder fasta = new StringBuilder();
-		StringBuilder genes = new StringBuilder();
-		HashSet<String> geneSet = new HashSet<String>();
-
-		int fastaId = 0;
-		for (int i = 0; i < donorsList.size(); i++) {
-			String d = donorsList.get(i);
-			String a = acceptorsList.get(i);
-
-			if (d.startsWith(donor) && a.endsWith(acceptor)) {
-				String branch = branchesList.get(i);
-				fasta.append(">id_" + fastaId + "\n" + branch.subSequence(0, branch.length() - acceptor.length()) + "\n");
-				fastaId++;
-
-				String gene = geneList.get(i);
-				geneSet.add(gene);
-			}
-		}
-
-		// Write fasta file 
-		String fastaFile = outputDir + "/" + genomeVer + "." + donor + "-" + acceptor + ".fa";
-		Timer.showStdErr("\tWriting fasta sequences to file: " + fastaFile);
-		Gpr.toFile(fastaFile, fasta);
-
-		// Write genes file
-		for (String gene : geneSet)
-			genes.append(gene + "\n");
-		String genesFile = outputDir + "/" + genomeVer + "." + donor + "-" + acceptor + ".genes.txt";
-		Timer.showStdErr("\tWriting genes list to file: " + genesFile);
-		Gpr.toFile(genesFile, genes);
-
-	}
-
-	/**
-	 * Find donors for this acceptor
-	 * @param accSeq
-	 */
-	void donor4acc(String accSeq) {
-		// Create a new tree using all these sequences
-		AcgtTree tree = new AcgtTree();
-		for (int i = 0; i < acceptorsList.size(); i++) {
-			String acc = GprSeq.reverse(acceptorsList.get(i));
-			if (acc.endsWith(accSeq)) {
-				String donor = donorsList.get(i);
-				if (donor.indexOf('N') < 0) tree.add(donor);
-			}
-		}
-
-		// Show them
-		for (String donorSeq : tree.findNodeNames(thresholdEntropyDonor, thresholdPDonor, THRESHOLD_COUNT))
-			if (donorSeq.length() > 1) add(donorSeq, accSeq);
-
 	}
 
 	/**
@@ -439,7 +254,7 @@ public class SpliceAnalysis extends SnpEff {
 	 * Initialize
 	 */
 	void init() {
-		Timer.showStdErr("Initializing");
+		if (verbose) Timer.showStdErr("Initializing");
 		config = new Config(genomeVer);
 		genomeFasta = config.getFileNameGenomeFasta();
 		if (genomeFasta == null) throw new RuntimeException("Cannot find reference genome: " + config.getFileListGenomeFasta());
@@ -454,14 +269,9 @@ public class SpliceAnalysis extends SnpEff {
 	 * Lad data from files
 	 */
 	void load() {
-		String u12file = config.getDirData() + "/spliceSites/u12_branch.pwm";
-		Timer.showStdErr("Loading U12 PWM form file '" + u12file + "'");
-		pwmU12 = new Pwm(u12file);
-		Gpr.debug(pwmU12);
-
-		Timer.showStdErr("Loading: " + genomeVer);
+		if (verbose) Timer.showStdErr("Loading: " + genomeVer);
 		config.loadSnpEffectPredictor();
-		Timer.showStdErr("done");
+		if (verbose) Timer.showStdErr("done");
 	}
 
 	/**
@@ -476,24 +286,32 @@ public class SpliceAnalysis extends SnpEff {
 
 	@Override
 	public void parseArgs(String[] args) {
-		if (args.length != 1) usage("Missing genome");
-		genomeVer = args[0];
+		if (args.length == 0) usage(null);
+		int idx = 0;
+
+		if (args[idx].equals("-v")) {
+			verbose = true;
+			idx++;
+		}
+
+		if ((args.length - idx) != 1) usage("Missing genome");
+		genomeVer = args[idx];
 	}
 
 	@Override
 	public boolean run() {
 		init();
 
-		// Find splice sequences
-		spliceSequences();
+		spliceTypes = new SpliceTypes(config);
+		spliceTypes.setVerbose(verbose);
+		spliceTypes.analyzeAndCreate();
 
-		// Find donor acceptor pairs
-		spliceDonoAcceptorPairs();
-		acgtTreeDonors = acgtTreeAcc = null; // Free some unused objects
+		if (verbose) Timer.showStdErr("Saving database to file: " + config.getFileSnpEffectPredictor());
+		config.getSnpEffectPredictor().save(config);
+		if (verbose) Timer.showStdErr("Done.");
 
-		branchU12Threshold(); // Find U12 branch points
-		createSpliceFasta(); // Create fasta files for splice sites
-		donorsList = acceptorsList = branchesList = geneList = null; // Free some unused memory
+		thresholdU12Score = spliceTypes.branchU12Threshold(THRESHOLD_BRANCH_U12_SCORE); // Find U12 branch points
+		spliceTypes.createSpliceFasta(outputDir); // Create fasta files for splice sites
 
 		// Splice site PWM analysis
 		splicePwmAnalysis();
@@ -502,135 +320,18 @@ public class SpliceAnalysis extends SnpEff {
 		// Save output
 		//---
 		String outputFile = outputDir + "/" + this.getClass().getSimpleName() + "_" + genomeVer + ".html";
-		Timer.showStdErr("Saving output to: " + outputFile);
+		if (verbose) Timer.showStdErr("Saving output to: " + outputFile);
 		Gpr.toFile(outputFile, out);
 
-		Timer.showStdErr("Finished!");
+		if (verbose) Timer.showStdErr("Finished!");
 		return true;
-	}
-
-	/**
-	 * Get acceptor sequence
-	 * @param tr
-	 * @param chrSeq
-	 * @param intronStart
-	 * @param intronEnd
-	 * @return
-	 */
-	String seqAcceptor(Transcript tr, String chrSeq, int intronStart, int intronEnd) {
-		if (tr.isStrandPlus()) {
-			int splAccStart = intronEnd - SIZE_SPLICE;
-			int splAccEnd = intronEnd + SIZE_SPLICE;
-			return chrSeq.substring(splAccStart, splAccEnd + 1).toUpperCase();
-		}
-
-		int splAccStart = intronStart - SIZE_SPLICE;
-		int splAccEnd = intronStart + SIZE_SPLICE;
-		return GprSeq.reverseWc(chrSeq.substring(splAccStart, splAccEnd + 1).toUpperCase());
-	}
-
-	/**
-	 * Get branch sequence (a few bases before intron ends)
-	 * @param tr
-	 * @param chrSeq
-	 * @param intronStart
-	 * @param intronEnd
-	 * @return
-	 */
-	String seqBranch(Transcript tr, String chrSeq, int intronStart, int intronEnd) {
-		if (tr.isStrandPlus()) {
-			int splBranchStart = intronEnd - SIZE_BRANCH + 1;
-			int splBranchEnd = intronEnd;
-			return chrSeq.substring(splBranchStart, splBranchEnd).toUpperCase();
-		}
-
-		int splBranchStart = intronStart + 1;
-		int splBranchEnd = intronStart + SIZE_BRANCH;
-		return GprSeq.reverseWc(chrSeq.substring(splBranchStart, splBranchEnd).toUpperCase());
-	}
-
-	/**
-	 * Get donor sequence
-	 * @param tr
-	 * @param chrSeq
-	 * @param intronStart
-	 * @param intronEnd
-	 * @return
-	 */
-	String seqDonor(Transcript tr, String chrSeq, int intronStart, int intronEnd) {
-		if (tr.isStrandPlus()) {
-			int splDonorStart = intronStart - SIZE_SPLICE;
-			int splDonorEnd = intronStart + SIZE_SPLICE;
-			return chrSeq.substring(splDonorStart, splDonorEnd + 1).toUpperCase();
-		}
-
-		int splDonorStart = intronEnd - SIZE_SPLICE;
-		int splDonorEnd = intronEnd + SIZE_SPLICE;
-		return GprSeq.reverseWc(chrSeq.substring(splDonorStart, splDonorEnd + 1).toUpperCase());
-	}
-
-	/**
-	 * Find donor-acceptor pairs
-	 */
-	void spliceDonoAcceptorPairs() {
-		//---
-		// Create trees
-		//---
-		Timer.showStdErr("Finding donor-acceptor pairs: Creating quaternary trees");
-		for (String donor : donorsList)
-			if (donor.indexOf('N') < 0) acgtTreeDonors.add(donor);
-
-		for (String acc : acceptorsList)
-			if (acc.indexOf('N') < 0) acgtTreeAcc.add(GprSeq.reverse(acc));
-
-		//---
-		// Find donor - acceptor pairs
-		//---
-		Timer.showStdErr("Calculate thresholds");
-		thresholdPDonor = findPthreshold(acgtTreeDonors);
-		thresholdEntropyDonor = findEntropyThreshold(acgtTreeDonors);
-		thresholdPAcc = findPthreshold(acgtTreeAcc);
-		thresholdEntropyAcc = findEntropyThreshold(acgtTreeAcc);
-
-		Timer.showStdErr("Donors Thresholds:\n\t\t\tEntropy: " + thresholdEntropyDonor + "\n\t\t\tProbability: " + thresholdPDonor);
-		for (String seq : acgtTreeDonors.findNodeNames(thresholdEntropyDonor, thresholdPDonor, THRESHOLD_COUNT)) {
-			if (seq.length() > 1) acc4donor(seq);
-		}
-
-		Timer.showStdErr("Find acceptors");
-		Timer.showStdErr("Acceptors Thresholds:\n\t\t\tEntropy: " + thresholdEntropyAcc + "\n\t\t\tProbability: " + thresholdPAcc);
-		for (String seq : acgtTreeAcc.findNodeNames(thresholdEntropyAcc, thresholdPAcc, THRESHOLD_COUNT)) {
-			if (seq.length() > 1) donor4acc(GprSeq.reverse(seq));
-		}
-
-		//---
-		// Show all donor - acc pairs (sort by number of matches)
-		//---
-		Timer.showStdErr("Add Donor - Acceptors pairs: ");
-		ArrayList<String> keys = new ArrayList<String>();
-		keys.addAll(donorAcc.keySet());
-		Collections.sort(keys, new Comparator<String>() {
-
-			@Override
-			public int compare(String arg0, String arg1) {
-				return donorAcc.get(arg1) - donorAcc.get(arg0);
-			}
-		});
-
-		for (String key : keys) {
-			String da[] = key.trim().split("\\s+");
-			donorAccPairDonor.add(da[0]);
-			donorAccPairAcc.add(da[1]);
-
-			Timer.showStdErr("\t\t" + donorAcc.get(key) + "\t" + key);
-		}
 	}
 
 	/**
 	 * Run PWM analysis 
 	 */
 	void splicePwmAnalysis() {
-		Timer.showStdErr("Splice analysis (PWM). Reading fasta file: " + genomeFasta);
+		if (verbose) Timer.showStdErr("Splice analysis (PWM). Reading fasta file: " + genomeFasta);
 
 		out("<pre>\n");
 
@@ -643,8 +344,7 @@ public class SpliceAnalysis extends SnpEff {
 		out("</pre>\n");
 
 		// Show PwmSets
-		int threshold = (int) (MIN_UPDATES_PERC * countIntrons);
-		Timer.showStdErr("Filter out low count splice sites. Exons: " + countIntrons + "\tThreshold: " + threshold);
+		if (verbose) Timer.showStdErr("Filter out low count splice sites. Exons: " + countIntrons + "\tThreshold: " + THRESHOLD_COUNT);
 		ArrayList<PwmSet> pwmsets = new ArrayList<PwmSet>();
 		pwmsets.addAll(pwmSetsByName.values());
 		Collections.sort(pwmsets);
@@ -652,11 +352,11 @@ public class SpliceAnalysis extends SnpEff {
 		out("<tr> <th> Rank </th> <th> Donor-Acceptor </th>  <th> Count </th>  <th> Donor Motif </th> <th> U12 matches (Observed / Expected) </th> <th> Acceptor Motif </th> <th> Intron length </th> <th> Intron Type Count </th> <th> Intron Type p-values </th> </tr>\n");
 		int count = 0;
 		for (PwmSet pwmset : pwmsets)
-			if (pwmset.updates > threshold) out("<tr> <td> " + (count++) + " </td> " + pwmset + "</tr>\n");
+			if (pwmset.updates >= THRESHOLD_COUNT) out("<tr> <td> " + (count++) + " </td> " + pwmset + "</tr>\n");
 		out("</table>\n");
 
 		String fileName = outputDir + "/" + genomeVer + ".branchDonorScore.txt";
-		Timer.showStdErr("Saving scores file to :" + fileName);
+		if (verbose) Timer.showStdErr("Saving scores file to :" + fileName);
 		Gpr.toFile(fileName, sbScore);
 	}
 
@@ -705,83 +405,7 @@ public class SpliceAnalysis extends SnpEff {
 			}
 		}
 
-		Timer.showStdErr("\tChromosome: " + chrName + "\tGenes: " + config.getGenome().getGenes().size() + "\tExons: " + countEx);
-	}
-
-	/**
-	 * Find splice sequences for this genome
-	 */
-	void spliceSequences() {
-		Timer.showStdErr("Finding splice sequences. Reading fasta file: " + genomeFasta);
-
-		// Iterate over all chromosomes
-		FastaFileIterator ffi = new FastaFileIterator(genomeFasta);
-		for (String chrSeq : ffi) {
-			String chrName = Chromosome.simpleName(ffi.getName());
-			spliceSequences(chrName, chrSeq);
-		}
-	}
-
-	/**
-	 * Find splice sequences for this cromosome
-	 * @param chrName
-	 * @param chrSeq
-	 */
-	void spliceSequences(String chrName, String chrSeq) {
-		int countEx = 0;
-		HashSet<String> done = new HashSet<String>();
-
-		for (Gene gene : config.getGenome().getGenes()) {
-			if (gene.getChromosomeName().equals(chrName)) { // Same chromosome
-				for (Transcript tr : gene) {
-					Exon exPrev = null;
-					for (Exon ex : tr.sortedStrand()) {
-						countEx++;
-
-						if (exPrev != null) { // Not for first exon (it has no 'previous' intron)
-							int start, end;
-							if (tr.isStrandPlus()) {
-								start = exPrev.getEnd();
-								end = ex.getStart();
-							} else {
-								start = ex.getEnd();
-								end = exPrev.getStart();
-							}
-
-							// Already added? (do not add twice)
-							String key = chrName + ":" + start + "-" + end;
-							if (!done.contains(key)) {
-								spliceSequences(tr, chrSeq, start, end);
-								done.add(key);
-							}
-						}
-
-						exPrev = ex;
-					}
-				}
-			}
-		}
-
-		Timer.showStdErr("\tChromosome: " + chrName + "\tGenes: " + config.getGenome().getGenes().size() + "\tExons: " + countEx);
-	}
-
-	/**
-	 * Find splice sequences for this intron
-	 */
-	void spliceSequences(Transcript tr, String chrSeq, int intronStart, int intronEnd) {
-		String donorStr = seqDonor(tr, chrSeq, intronStart, intronEnd);
-		String accStr = seqAcceptor(tr, chrSeq, intronStart, intronEnd);
-		String branchStr = seqBranch(tr, chrSeq, intronStart, intronEnd);
-
-		String intronSeqDonor = donorStr.substring(SIZE_SPLICE + 1);
-		String intronSeqAcc = accStr.substring(0, SIZE_SPLICE);
-
-		// Add to arrays
-		Gene gene = (Gene) tr.getParent();
-		donorsList.add(intronSeqDonor);
-		acceptorsList.add(intronSeqAcc);
-		branchesList.add(branchStr);
-		geneList.add(gene.getGeneName());
+		if (verbose) Timer.showStdErr("\tChromosome: " + chrName + "\tGenes: " + config.getGenome().getGenes().size() + "\tExons: " + countEx);
 	}
 
 	/**
@@ -792,11 +416,11 @@ public class SpliceAnalysis extends SnpEff {
 	 */
 	void updatePwm(Transcript tr, String chrSeq, int intronStart, int intronEnd, String exonTypes) {
 		int len = intronEnd - intronStart;
-		String donorStr = seqDonor(tr, chrSeq, intronStart, intronEnd);
-		String accStr = seqAcceptor(tr, chrSeq, intronStart, intronEnd);
-		String branchStr = seqBranch(tr, chrSeq, intronStart, intronEnd);
-		String intronSeqDonor = donorStr.substring(SIZE_SPLICE + 1);
-		String intronSeqAcc = accStr.substring(0, SIZE_SPLICE);
+		String donorStr = spliceTypes.seqDonor(tr, chrSeq, intronStart, intronEnd);
+		String accStr = spliceTypes.seqAcceptor(tr, chrSeq, intronStart, intronEnd);
+		String branchStr = spliceTypes.seqBranch(tr, chrSeq, intronStart, intronEnd);
+		String intronSeqDonor = donorStr.substring(SpliceTypes.MAX_SPLICE_SIZE + 1);
+		String intronSeqAcc = accStr.substring(0, SpliceTypes.MAX_SPLICE_SIZE);
 
 		countIntrons++;
 
@@ -804,40 +428,40 @@ public class SpliceAnalysis extends SnpEff {
 		// PWM scores based on bases after the donor splice site
 		//---
 
-		// Be careful not to update if the branch string overlaps with the donor splice site
-		if (len > (SIZE_BRANCH + SIZE_SPLICE)) {
-			String pwmTest = intronSeqDonor.substring(3);
-			if (pwmTest.indexOf(U12_PATTERN) < 0) { // Make sure it's not U12
-				double score = bestU2Score(pwmTest, branchStr);
-
-				// Random matrix (null distribution)
-				String randSeq = GprSeq.randSequence(random, pwmTest.length());
-				double scoreRand = bestU2Score(randSeq, branchStr);
-
-				// Random matrix (null distribution)
-				String randSeq2 = GprSeq.randSequence(random, pwmTest.length());
-				double scoreRand2 = bestU2Score(randSeq2, branchStr);
-
-				if ((score >= 0) && (scoreRand >= 0) && (scoreRand2 >= 0)) sbScore.append(score + "\t" + scoreRand + "\t" + scoreRand2 + "\n"); // Save scores
-			}
-		}
+		//		// Be careful not to update if the branch string overlaps with the donor splice site
+		//		if (len > (SIZE_BRANCH + SIZE_SPLICE)) {
+		//			String pwmTest = intronSeqDonor.substring(3);
+		//			if (pwmTest.indexOf(U12_PATTERN) < 0) { // Make sure it's not U12
+		//				double score = bestU2Score(pwmTest, branchStr);
+		//
+		//				// Random matrix (null distribution)
+		//				String randSeq = GprSeq.randSequence(random, pwmTest.length());
+		//				double scoreRand = bestU2Score(randSeq, branchStr);
+		//
+		//				// Random matrix (null distribution)
+		//				String randSeq2 = GprSeq.randSequence(random, pwmTest.length());
+		//				double scoreRand2 = bestU2Score(randSeq2, branchStr);
+		//
+		//				if ((score >= 0) && (scoreRand >= 0) && (scoreRand2 >= 0)) sbScore.append(score + "\t" + scoreRand + "\t" + scoreRand2 + "\n"); // Save scores
+		//			}
+		//		}
 
 		//---
 		// Group by donor type
 		//---
 
 		// Donor consensus ('GT' or 'GC'?)
-		String donorConsensus = donorStr.substring(SIZE_SPLICE + 1, SIZE_SPLICE + 1 + SIZE_CONSENSUS_DONOR);
+		String donorConsensus = donorStr.substring(SpliceTypes.MAX_SPLICE_SIZE + 1, SpliceTypes.MAX_SPLICE_SIZE + 1 + SIZE_CONSENSUS_DONOR);
 		if (donorConsensus.indexOf('N') >= 0) return; // Ignore if there is an 'N'
 
 		// Use long consensus? U12
-		String accConsensus = accStr.substring(SIZE_SPLICE - SIZE_CONSENSUS_ACCEPTOR, SIZE_SPLICE);
+		String accConsensus = accStr.substring(SpliceTypes.MAX_SPLICE_SIZE - SIZE_CONSENSUS_ACCEPTOR, SpliceTypes.MAX_SPLICE_SIZE);
 		if (donorConsensus.indexOf('N') >= 0) return; // Ignore if there is an 'N'
 
 		int maxLenDa = 0;
-		for (int i = 0; i < donorAccPairDonor.size(); i++) {
-			String don = donorAccPairDonor.get(i);
-			String ac = donorAccPairAcc.get(i);
+		for (int i = 0; i < spliceTypes.getDonorAccPairSize(); i++) {
+			String don = spliceTypes.getDonor(i);
+			String ac = spliceTypes.getAcceptor(i);
 			if (intronSeqDonor.startsWith(don) && intronSeqAcc.endsWith(ac)) {
 				int lenda = don.length() + ac.length();
 				if (lenda > maxLenDa) {
@@ -852,7 +476,7 @@ public class SpliceAnalysis extends SnpEff {
 		//---
 		// Branch U12 score
 		//---
-		double bu12score = bestU12Score(branchStr);
+		double bu12score = spliceTypes.bestU12Score(branchStr);
 
 		//---
 		// Update PWM

@@ -153,6 +153,12 @@ public class MarkerSerializer {
 			case RARE_AMINO_ACID:
 				m = new RareAminoAcid();
 				break;
+			case SPLICE_SITE_ACCEPTOR:
+				m = new SpliceSiteAcceptor();
+				break;
+			case SPLICE_SITE_DONOR:
+				m = new SpliceSiteDonor();
+				break;
 			default:
 				throw new RuntimeException("Unimplemented for type '" + type + "'");
 			}

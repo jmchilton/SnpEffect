@@ -325,59 +325,6 @@ public class Transcript extends IntervalAndSubIntervals<Exon> {
 	}
 
 	/**
-	 * Create splice sites for this transcript
-	 * @return
-	 */
-	public List<SpliceSite> createSpliceSites() {
-		List<SpliceSite> list = new LinkedList<SpliceSite>();
-
-		// For each gene, transcript and exon
-		ArrayList<Exon> exons = new ArrayList<Exon>();
-		exons.addAll(sortedStrand());
-
-		if (exons.size() > 0) {
-			for (int i = 0; i < exons.size(); i++) {
-
-				Exon exon = exons.get(i);
-				Exon prev = (i >= 1 ? exons.get(i - 1) : null);
-				Exon next = (i < exons.size() - 1 ? exons.get(i + 1) : null);
-
-				//---
-				// Distance to previous exon
-				//---
-				if (prev != null) {
-					int dist = 0;
-					if (strand >= 0) dist = exon.getStart() - prev.getEnd() - 1;
-					else dist = prev.getStart() - exon.getEnd() - 1;
-
-					// Acceptor splice site: before exon start, but not before first exon
-					SpliceSite ss = exon.createSpliceSiteAcceptor(Math.min(Exon.SPLICE_SITE_SIZE, dist));
-					if (ss != null) list.add(ss);
-				}
-
-				//---
-				// Distance to next exon
-				//---
-				if (next != null) {
-					int dist = 0;
-					if (strand >= 0) dist = next.getStart() - exon.getEnd() - 1;
-					else dist = exon.getStart() - next.getEnd() - 1;
-
-					// Donor splice site: after exon end, but not after last exon
-					SpliceSite ss = exon.createSpliceSiteDonor(Math.min(Exon.SPLICE_SITE_SIZE, dist));
-					if (ss != null) list.add(ss);
-				}
-
-				// Sanity check
-				int rank = i + 1;
-				if (exon.getRank() != rank) throw new RuntimeException("Rank numbers do not march: " + rank + " != " + exon.getRank());
-			}
-		}
-
-		return list;
-	}
-
-	/**
 	 * Creates a list of UP/DOWN stream regions (for each transcript)
 	 * Upstream (downstream) stream is defined as upDownLength before (after) transcript
 	 */
@@ -415,6 +362,64 @@ public class Transcript extends IntervalAndSubIntervals<Exon> {
 		toDelete = MarkerUtil.redundant(utrs);
 		for (Marker utr : toDelete)
 			utrs.remove(utr);
+	}
+
+	/**
+	 * Find all splice sites.
+	 * 
+	 * @param createIfMissing : If true, create canonical splice sites if they are missing.
+	 * 
+	 * @return
+	 */
+	public List<SpliceSite> findSpliceSites(boolean createIfMissing) {
+		List<SpliceSite> list = new LinkedList<SpliceSite>();
+
+		// For each gene, transcript and exon
+		ArrayList<Exon> exons = new ArrayList<Exon>();
+		exons.addAll(sortedStrand());
+
+		if (exons.size() > 0) {
+			for (int i = 0; i < exons.size(); i++) {
+
+				Exon exon = exons.get(i);
+				Exon prev = (i >= 1 ? exons.get(i - 1) : null);
+				Exon next = (i < exons.size() - 1 ? exons.get(i + 1) : null);
+
+				//---
+				// Distance to previous exon
+				//---
+				if (prev != null) {
+					int dist = 0;
+					if (strand >= 0) dist = exon.getStart() - prev.getEnd() - 1;
+					else dist = prev.getStart() - exon.getEnd() - 1;
+
+					// Acceptor splice site: before exon start, but not before first exon
+					SpliceSite ss = exon.getSpliceSiteAcceptor();
+					if ((ss == null) && createIfMissing) ss = exon.createSpliceSiteAcceptor(Math.min(Exon.SPLICE_SITE_SIZE, dist));
+					if (ss != null) list.add(ss);
+				}
+
+				//---
+				// Distance to next exon
+				//---
+				if (next != null) {
+					int dist = 0;
+					if (strand >= 0) dist = next.getStart() - exon.getEnd() - 1;
+					else dist = exon.getStart() - next.getEnd() - 1;
+
+					// Donor splice site: after exon end, but not after last exon
+					SpliceSite ss = exon.getSpliceSiteDonor();
+					if ((ss == null) && createIfMissing) ss = exon.createSpliceSiteDonor(Math.min(Exon.SPLICE_SITE_SIZE, dist));
+					if (ss != null) list.add(ss);
+				}
+
+				// Sanity check
+				int rank = i + 1;
+				if (exon.getRank() != rank) throw new RuntimeException("Rank numbers do not march: " + rank + " != " + exon.getRank());
+			}
+		}
+
+		return list;
 	}
 
 	/**
