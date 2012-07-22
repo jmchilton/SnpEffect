@@ -429,7 +429,7 @@ public class SpliceTypes {
 			}
 		}
 
-		if (verbose) Timer.showStdErr("\t\tChromosome: " + chrName + "\tGenes: " + countGenes + "\tExons: " + countEx);
+		if (verbose) Timer.showStdErr("\t\tChromosome: " + chrName + "\tGenes: " + countGenes + "\tExons: " + countEx + "\t" + donorsByIntron.size());
 	}
 
 	/**
