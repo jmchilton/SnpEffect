@@ -40,6 +40,7 @@ public class CodonChangeDel extends CodonChange {
 			 * 		Delete 'AC' pos 2:	AAC CGG GAA ACC CGG GAA ACC CGG G
 			 */
 			changeEffect.set(transcript, EffectType.FRAME_SHIFT, "");
+			changeEffect.setCodons("", "", codonNum, codonIndex);
 		} else if (codonIndex == 0) {
 			/**
 			 * Length multiple of CODON_SIZE and insertion happens at codon boundary => CODON_INSERTION

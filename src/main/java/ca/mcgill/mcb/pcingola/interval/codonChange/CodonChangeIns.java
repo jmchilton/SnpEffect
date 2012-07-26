@@ -38,6 +38,7 @@ public class CodonChangeIns extends CodonChange {
 			 * 		Insert 'TT' pos 1:	ATT AAC CCG GGA AAC CCG GGA AAC CCG GG
 			 * 		Insert 'TT' pos 2:	AAT TAC CCG GGA AAC CCG GGA AAC CCG GG
 			 */
+			changeEffect.setCodons("", netChange, codonNum, codonIndex);
 			changeEffect.set(transcript, EffectType.FRAME_SHIFT, "");
 		} else if (codonIndex == 0) {
 			/**

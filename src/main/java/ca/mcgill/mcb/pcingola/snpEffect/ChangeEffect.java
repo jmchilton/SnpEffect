@@ -145,14 +145,6 @@ public class ChangeEffect implements Cloneable {
 		String codonEffect = "";
 		if ((marker == null) || (codonNum < 0)) return codonEffect;
 
-		// WARNING: Ommited since 2.0.3 (this info is redundant with BioType)
-		//
-		//		// Is this a coding gene?
-		//		Gene gene = getGene();
-		//		if ((gene != null) && gene.getGenome().hasCodingInfo() && !gene.isProteinCoding()) {
-		//			codonEffect += "WITHIN_NON_CODING_GENE" + (showBioType ? "(" + gene.getBioType() + ")" : "") + ":";
-		//		}
-
 		// Add codon effect
 		codonEffect += effectType;
 
@@ -200,7 +192,10 @@ public class ChangeEffect implements Cloneable {
 	 * @return
 	 */
 	public String getAaChangeHgvs() {
-		if (aaOld.isEmpty() && aaNew.isEmpty()) return "";
+		if (aaOld.isEmpty() && aaNew.isEmpty()) {
+			if (codonNum >= 0) return "" + (codonNum + 1);
+			return "";
+		}
 		if (aaOld.equals(aaNew)) return aaNew + (codonNum + 1);
 		return aaOld + (codonNum + 1) + aaNew;
 	}
