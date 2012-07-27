@@ -142,12 +142,21 @@ public class Gene extends IntervalAndSubIntervals<Transcript> implements Seriali
 	 * Remove all non-canonical transcripts
 	 */
 	public void removeNonCanonical() {
-		// Find canonical transcript (longest CDS)
 		ArrayList<Transcript> toDelete = new ArrayList<Transcript>();
 		Transcript canonical = null;
-		for (Transcript t : this) {
-			if ((canonical == null) || (canonical.cds().length() < t.cds().length())) canonical = t;
-			toDelete.add(t);
+
+		if (isProteinCoding()) {
+			// Find canonical transcript (longest CDS)
+			for (Transcript t : this) {
+				if (t.isProteinCoding() && ((canonical == null) || (canonical.cds().length() < t.cds().length()))) canonical = t;
+				toDelete.add(t);
+			}
+		} else {
+			// Find canonical transcript (longest cDNA)
+			for (Transcript t : this) {
+				if ((canonical == null) || (canonical.cds().length() < t.cds().length())) canonical = t;
+				toDelete.add(t);
+			}
 		}
 
 		// Found canonical? => Remove all others
