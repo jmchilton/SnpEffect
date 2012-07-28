@@ -81,11 +81,11 @@ public class VcfOutputFormatter extends OutputFormatter {
 				effBuff.append(changeEffect.getCodonChange());
 				effBuff.append("|");
 
-				// Add amino acid length
+				// Add amino acid change
 				effBuff.append(changeEffect.getAaChangeHgvs());
 				effBuff.append("|");
 
-				// Add amino acid change
+				// Add amino acid length
 				int aalen = changeEffect.getAaLength();
 				effBuff.append(aalen > 0 ? aalen : "");
 				effBuff.append("|");

@@ -262,7 +262,7 @@ public class TestCasesDel extends TestCase {
 					if (aaNew.isEmpty()) aaNew = "-";
 
 					if (seqChange.includes(exon)) effectExpected = "EXON_DELETED";
-					else if (netChange.length() % 3 != 0) effectExpected = "FRAME_SHIFT";
+					else if (netChange.length() % 3 != 0) effectExpected = "FRAME_SHIFT(-)";
 					else {
 						if (cdsCodonPos == 0) effectExpected = "CODON_DELETION(" + aaOld + "/-)";
 						else {
@@ -316,7 +316,6 @@ public class TestCasesDel extends TestCase {
 					//---
 					// Check effect
 					//---
-					//Assert.assertEquals(1, effects.size()); // Only one effect
 					Assert.assertEquals(effectExpected, effStr);
 
 					// Check codons

@@ -132,7 +132,10 @@ public class TestCasesIns extends TestCase {
 						// Expected Effect
 						String effectExpected = "";
 						if (insLen % 3 != 0) {
-							effectExpected = "FRAME_SHIFT";
+							aaOld = "-";
+							codonNew = insPlus;
+							aaNew = codonTable.aa(codonNew);
+							effectExpected = "FRAME_SHIFT(" + aaOld + "/" + aaNew + ")";
 						} else {
 							if (cdsCodonPos == 0) {
 								codonOld = aaOld = "-";

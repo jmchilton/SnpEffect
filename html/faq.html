@@ -340,17 +340,18 @@ chr2L   878267  T       W       SNP     Het     228             WARNING: Base is
 				<center>
 				<table>
 					<tr bgcolor=aaaaaa> <th>  Sub-field </th> <th>  Notes </th> </tr>
-					<tr bgcolor=ffffff> <td>  Effect </td> <td>  Effect of this variant. See details below. </td> </tr>
-					<tr bgcolor=eeeeee> <td>  Effect impact </td> <td>  Effect impact {High, Moderate, Low, Modifier}. See details below. </td> </tr>
-					<tr bgcolor=ffffff> <td>  Codon_Change </td> <td>  Codon change: old_codon/new_codon  </td> </tr>
-					<tr bgcolor=eeeeee> <td>  Amino_Acid_change </td> <td>  Amino acid change: old_AA/new_AA  </td> </tr>
-					<tr bgcolor=ffffff> <td>  Warnings </td> <td>  Any warnings or errors. </td> </tr>
-					<tr bgcolor=eeeeee> <td>  Gene_name </td> <td>  Gene name </td> </tr>
-					<tr bgcolor=ffffff> <td>  Gene_BioType </td> <td>  BioType, as reported by ENSEMBL. </td> </tr>
-					<tr bgcolor=eeeeee> <td>  Coding </td> <td>  [CODING | NON_CODING]. If information reported by ENSEMBL (e.g. has 'protein_id' information in GTF file). </td> </tr>
-					<tr bgcolor=ffffff> <td>  Trancript </td> <td>  Transcript ID (usually ENSEMBL) </td> </tr>
-					<tr bgcolor=eeeeee> <td>  Exon </td> <td>  Exon ID (usually ENSEMBL) </td> </tr>
-					<tr bgcolor=ffffff> <td>  Warnings </td> <td>  Any warnings or errors (not shown if empty). </td> </tr>
+					<tr bgcolor=ffffff> <td>  Effect </td> <td>  Effect of this variant. See details <a class="body" href="#What_effects_are_predicted?">here</a>. </td> </tr>
+					<tr bgcolor=eeeeee> <td>  Effect impact </td> <td>  Effect impact {High, Moderate, Low, Modifier}. See details <a class="body" href="#How_is_impact_categorized?_(VCF_output)">here</a>. </td> </tr>
+					<tr bgcolor=ffffff> <td>  Functional class </td> <td>  Functional class {NONE, SILENT, MISSENSE, NONSENSE}. </td> </tr>
+					<tr bgcolor=eeeeee> <td>  Codon_Change </td> <td>  Codon change: old_codon/new_codon  </td> </tr>
+					<tr bgcolor=ffffff> <td>  Amino_Acid_change </td> <td>  Amino acid change: old_AA AA_position/new_AA (e.g. 'E30K') </td> </tr>
+					<tr bgcolor=eeeeee> <td>  Amino_Acid_length</td> <td>  Length of protein in amino acids (actually, transcription length divided by 3). </td> </tr>
+					<tr bgcolor=ffffff> <td>  Gene_name </td> <td>  Gene name </td> </tr>
+					<tr bgcolor=eeeeee> <td>  Transcript_bioType </td> <td>  Transcript bioType, if available. </td> </tr>
+					<tr bgcolor=ffffff> <td>  Gene_Coding </td> <td>  [CODING | NON_CODING]. This field is 'CODING' if any transcript of the gene is marked as protein codin. </td> </tr>
+					<tr bgcolor=eeeeee> <td>  Trancript </td> <td>  Transcript ID (usually ENSEMBL IDs) </td> </tr>
+					<tr bgcolor=ffffff> <td>  Exon </td> <td>  Exon ID (usually ENSEMBL IDs) </td> </tr>
+					<tr bgcolor=eeeeee> <td>  Warnings </td> <td>  Any warnings or errors (not shown if empty). </td> </tr>
 				</table>
 				</center>
 				<p>
@@ -358,7 +359,7 @@ chr2L   878267  T       W       SNP     Het     228             WARNING: Base is
 				<pre>
 ##SnpEffVersion="SnpEff program version"
 ##SnpEffCmd="Command line arguments used to run the program"
-##INFO=&lt;ID=EFF,Number=.,Type=String,Description="Predicted effects for this variant.Format: 'Effect ( Efefct_Impact | Codon_Change | Amino_Acid_change | Gene_Name | Gene_BioType | Coding | Transcript | Exon [ | ERRORS | WARNINGS ] )' "&gt;
+##INFO=&lt;ID=EFF,Number=.,Type=String,Description="Predicted effects for this variant.Format: 'Effect ( Effect_Impact | Functional_Class | Codon_Change | Amino_Acid_change| Amino_Acid_length | Gene_Name | Gene_BioType | Coding | Transcript | Exon [ | ERRORS | WARNINGS ] )' \"&gt;
 </pre>
 
 				<p style="font-size: 14pt"> <b> <a class="body" name="What_effects_are_predicted?"> What effects are predicted? </a> </b></p>
