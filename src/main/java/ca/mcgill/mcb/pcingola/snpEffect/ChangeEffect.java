@@ -15,6 +15,11 @@ import ca.mcgill.mcb.pcingola.interval.Transcript;
 /**
  * Object used to show results of a sequence change effect.
  * 
+ * TODO: Several things to improve in this class 
+ * 	- There should be a class called 'ChangeEffects' that accumulated multiple effects from a seqChange
+ * 	- 
+ * 
+ * 
  * @author pcingola
  */
 public class ChangeEffect implements Cloneable {
@@ -80,32 +85,19 @@ public class ChangeEffect implements Cloneable {
 
 	static final boolean COMPATIBLE_v1_8 = true; // Activate this in order to get the same out as version 1.8. This is only for testing & debugging 
 
-	//public static final ChangeEffect EMPTY = new ChangeEffect(null); // Empty result;
-
 	SeqChange seqChange = null;
-
 	EffectType effectType = EffectType.NONE;
 	EffectImpact effectImpact = null;
 	Marker marker = null;
 	Exon exon = null;
-	String error = "";
-	String warning = "";
-	String message = "";
-	// Codon change information
-	String codonsOld = "";
-
-	String codonsNew = "";
-	String codonsAroundOld = "";
-	String codonsAroundNew = "";
-	int codonNum = -1; // Numb
-	int codonIndex = -1;
-	int codonDegeneracy = -1;
-	// Amino acid changes
-	String aaOld = "";
-
-	String aaNew = "";
-	String aasAroundOld = "";
-	String aasAroundNew = "";
+	String error = "", warning = "", message = ""; // Any message, warning or error?
+	String codonsOld = "", codonsNew = ""; // Codon change information
+	String codonsAroundOld = "", codonsAroundNew = ""; // Codons arround
+	int codonNum = -1; // Codon number
+	int codonIndex = -1; // Index within a codon
+	int codonDegeneracy = -1; // Codon degeneracy
+	String aaOld = "", aaNew = ""; // Amino acid changes
+	String aasAroundOld = "", aasAroundNew = ""; // Amino acids arround
 
 	/**
 	 *  An empty list of results;
