@@ -17,7 +17,7 @@ public class CodonTables implements Iterable<CodonTable> {
 
 	// Standard codon table
 	public static final String STANDARD_TABLE = "TTT/F, TTC/F, TTA/L, TTG/L, TCT/S, TCC/S, TCA/S, TCG/S, TAT/Y, TAC/Y, TAA/*, TAG/*, TGT/C, TGC/C, TGA/*, TGG/W, CTT/L, CTC/L, CTA/L, CTG/L, CCT/P, CCC/P, CCA/P, CCG/P, CAT/H, CAC/H, CAA/Q, CAG/Q, CGT/R, CGC/R, CGA/R, CGG/R, ATT/I, ATC/I, ATA/I, ATG/M+, ACT/T, ACC/T, ACA/T, ACG/T, AAT/N, AAC/N, AAA/K, AAG/K, AGT/S, AGC/S, AGA/R, AGG/R, GTT/V, GTC/V, GTA/V, GTG/V, GCT/A, GCC/A, GCA/A, GCG/A, GAT/D, GAC/D, GAA/E, GAG/E, GGT/G, GGC/G, GGA/G, GGG/G";
-	public static final String STANDARD_NAME = "Standard";
+	public static final String STANDARD_TABLE_NAME = "Standard";
 	private static final CodonTables codonTables = new CodonTables();
 
 	HashMap<String, CodonTable> codonTableByName;
@@ -30,7 +30,7 @@ public class CodonTables implements Iterable<CodonTable> {
 	private CodonTables() {
 		codonTableByName = new HashMap<String, CodonTable>();
 		genChr2codonTable = new HashMap<String, CodonTable>();
-		CodonTable codonTable = new CodonTable(STANDARD_NAME, STANDARD_TABLE);
+		CodonTable codonTable = new CodonTable(STANDARD_TABLE_NAME, STANDARD_TABLE);
 		add(codonTable);
 	}
 
@@ -87,7 +87,7 @@ public class CodonTables implements Iterable<CodonTable> {
 	public CodonTable getTable(Genome genome, String chromosome) {
 		String key = genome.getId() + "_" + chromosome;
 		CodonTable codonTable = genChr2codonTable.get(key);
-		if (codonTable == null) return codonTables.getTable(STANDARD_NAME);
+		if (codonTable == null) return codonTables.getTable(STANDARD_TABLE_NAME);
 		return codonTable;
 	}
 

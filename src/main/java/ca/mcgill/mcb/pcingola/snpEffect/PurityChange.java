@@ -27,7 +27,7 @@ public class PurityChange {
 		}
 
 		// Create object and process file
-		CodonTable codonTable = CodonTables.getInstance().getTable(CodonTables.STANDARD_NAME); // We need a codon table (for humans, use default)
+		CodonTable codonTable = CodonTables.getInstance().getTable(CodonTables.STANDARD_TABLE_NAME); // We need a codon table (for humans, use default)
 		PurityChange purityChange = new PurityChange(codonTable);
 		purityChange.load(args[0]);
 	}

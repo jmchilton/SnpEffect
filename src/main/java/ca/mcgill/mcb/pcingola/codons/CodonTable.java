@@ -71,14 +71,12 @@ public class CodonTable {
 					for (int pos = 0; pos < 3; pos++) {
 						int count = 0;
 						for (char baseNew : DnaCoder.TO_BASE) {
-							if (baseNew != c[pos]) {
-								char codon[] = { base1, base2, base3 };
-								codon[pos] = baseNew;
-								String codonStrNew = new String(codon);
-								String aaNew = aa(codonStrNew);
+							char codon[] = { base1, base2, base3 };
+							codon[pos] = baseNew;
+							String codonStrNew = new String(codon);
+							String aaNew = aa(codonStrNew);
 
-								if (aaOld.equals(aaNew)) count++; // Not the same AA after changing base[pos]? => count (it's a degenerate)
-							}
+							if (aaOld.equals(aaNew)) count++; // Same AA after changing base[pos]? => count (it's a degenerate)
 						}
 
 						String key = codonStrOld.toUpperCase() + "_" + pos;

@@ -36,6 +36,9 @@ public class TestSuiteAll {
 		// Intervals
 		suite.addTestSuite(TestCasesIntervals.class);
 
+		// Codon tables
+		suite.addTestSuite(TestCasesCodonTable.class);
+
 		// SeqChange
 		suite.addTestSuite(TestCasesSeqChange.class);
 		suite.addTestSuite(TestCasesTranscript.class);
