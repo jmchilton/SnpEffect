@@ -74,8 +74,11 @@ public abstract class OutputFormatter {
 			sb = new StringBuilder();
 			// Add header?
 			if (showHeader && (sectionNum == 0)) {
-				sb.append(toStringHeader());
-				sb.append("\n");
+				String header = toStringHeader();
+				if (!header.isEmpty()) {
+					sb.append(header);
+					sb.append("\n");
+				}
 			}
 
 			// Add current line

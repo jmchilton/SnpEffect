@@ -64,7 +64,7 @@ public class MasterVcf<T> extends Master<VcfEntry, T> {
 				}
 
 				// Show header
-				System.out.println(vcfFileIterator.getHeader());
+				if (!vcfFileIterator.getHeader().isEmpty()) System.out.println(vcfFileIterator.getHeader());
 			}
 		} catch (Throwable t) {
 			t.printStackTrace();

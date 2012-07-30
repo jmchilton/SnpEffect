@@ -282,7 +282,7 @@ public class SnpEffCmdClosestExon extends SnpEff {
 				if (header) {
 					// Update and show header
 					addHeaderLines(vcf);
-					System.out.println(vcf.getHeader());
+					if (!vcf.getHeader().isEmpty()) System.out.println(vcf.getHeader());
 					header = false;
 				}
 
