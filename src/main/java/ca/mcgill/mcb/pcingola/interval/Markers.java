@@ -8,7 +8,6 @@ import java.util.Iterator;
 import java.util.List;
 
 import ca.mcgill.mcb.pcingola.interval.tree.IntervalForest;
-import ca.mcgill.mcb.pcingola.util.Gpr;
 
 /**
  * A collection of markers
@@ -19,35 +18,8 @@ import ca.mcgill.mcb.pcingola.util.Gpr;
 public class Markers implements Iterable<Marker>, Serializable {
 
 	private static final long serialVersionUID = 259791388087691277L;
-	boolean verbose = true;
-	ArrayList<Marker> markers;
-	String name = "";
-
-	/**
-	 * Read intervals from a file using a simplt TXT format
-	 * Format: 
-	 * 		chr \t start \t end \t id
-	 * 
-	 * Note: Zero-based positions
-	 * 
-	 * @param fileName
-	 */
-	public static Markers readTxt(String fileName, Genome genome) {
-		Markers markers = new Markers();
-		// Read file
-		String file = Gpr.readFile(fileName);
-
-		// Parse lines
-		String lines[] = file.split("\n");
-		int lineNum = 1;
-		for (String line : lines) {
-			Marker interval = new Marker(null, 0, 0, 0, "");
-			interval.readTxt(line, lineNum, genome, 0);
-			markers.add(interval);
-			lineNum++;
-		}
-		return markers;
-	}
+	protected ArrayList<Marker> markers;
+	protected String name = "";
 
 	public Markers() {
 		markers = new ArrayList<Marker>();
@@ -62,16 +34,18 @@ public class Markers implements Iterable<Marker>, Serializable {
 	 * Add an interval to the collection
 	 * @param marker
 	 */
-	public void add(Marker marker) {
+	public Markers add(Marker marker) {
 		markers.add(marker);
+		return this;
 	}
 
 	/**
 	 * Add all intervals
 	 * @param intervalsMarkerIntervaloAdd
 	 */
-	public void add(Markers intervalsMarkerIntervaloAdd) {
+	public Markers add(Markers intervalsMarkerIntervaloAdd) {
 		markers.addAll(intervalsMarkerIntervaloAdd.markers);
+		return this;
 	}
 
 	/**
@@ -108,19 +82,41 @@ public class Markers implements Iterable<Marker>, Serializable {
 	}
 
 	/**
-	 * MarkerIntervalhis is a brute force implementation of 'intersect'.
+	 * Perform the intersection of all overlapping intervals
 	 * 
-	 * WARNING: This method should only be used for debugging (or in very small collections) since it is extremely inefficient.
-	 * For an efficient implementation, use IntervalForest class.
+	 * For each marker, calculate all overlapping markers and create a new marker that contains them all.
+	 * Return a set of those new markers.
 	 * 
-	 * @param interval
+	 * @param markerIntervals
 	 * @return
 	 */
-	public Markers intersects(Marker interval) {
-		Markers ints = new Markers();
-		for (Marker i : this)
-			if (i.intersects(interval)) ints.add(i);
-		return ints;
+	public Markers intersect() {
+		Markers intersectOfOverlaps = new Markers();
+		IntervalForest forest = new IntervalForest(this);
+
+		HashSet<Marker> done = new HashSet<Marker>();
+		for (Marker mi : this) {
+			if (!done.contains(mi)) { // No added yet?
+				Markers query = forest.query(mi);
+
+				// Get intersect
+				Marker intersect = new Marker(mi.getParent(), mi.getStart(), mi.getEnd(), mi.getStrand(), "");
+				done.add(mi);
+				for (Marker m : query) {
+					if (intersect != null) {
+						if ((intersect.getStart() < m.getStart()) || (intersect.getEnd() > m.getEnd())) {
+							intersect = intersect.intersect(m);
+						}
+					}
+					done.add(m);
+				}
+
+				// Add union
+				if (intersect != null) intersectOfOverlaps.add(intersect);
+			}
+		}
+
+		return intersectOfOverlaps;
 	}
 
 	public boolean isEmpty() {
@@ -247,10 +243,6 @@ public class Markers implements Iterable<Marker>, Serializable {
 		return markers.get(idx);
 	}
 
-	public void setVerbose(boolean verbose) {
-		this.verbose = verbose;
-	}
-
 	public int size() {
 		return markers.size();
 	}
@@ -269,7 +261,7 @@ public class Markers implements Iterable<Marker>, Serializable {
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		for (Marker i : this)
-			sb.append(i + " ");
+			sb.append("\t" + i + "\n");
 		return sb.toString();
 	}
 
@@ -311,17 +303,6 @@ public class Markers implements Iterable<Marker>, Serializable {
 	}
 
 	/**
-	 * Create a new 'intervals' object containing the union of both intervals
-	 * @param intervalsById
-	 */
-	public Markers union(Markers intervalsForUnion) {
-		Markers ints = new Markers();
-		ints.add(this);
-		ints.add(intervalsForUnion);
-		return ints;
-	}
-
-	/**
 	 * Perform the union of all overlapping intervals
 	 * 
 	 * For each marker, calculate all overlapping markers and create a new marker that contains them all.
@@ -330,7 +311,7 @@ public class Markers implements Iterable<Marker>, Serializable {
 	 * @param markerIntervals
 	 * @return
 	 */
-	public Markers unionOfOverlaps() {
+	public Markers union() {
 		Markers unionOfOverlaps = new Markers();
 		IntervalForest forest = new IntervalForest(this);
 
@@ -343,17 +324,12 @@ public class Markers implements Iterable<Marker>, Serializable {
 				Marker union = new Marker(mi.getParent(), mi.getStart(), mi.getEnd(), mi.getStrand(), "");
 				done.add(mi);
 				for (Marker m : query) {
-					if ((union.getStart() > m.getStart()) || (union.getEnd() < m.getEnd())) {
-						// Create union result
-						int start = Math.min(union.getStart(), m.getStart());
-						int end = Math.max(union.getEnd(), m.getEnd());
-						union = new Marker(mi.getParent(), start, end, m.getStrand(), "");
-					}
+					if ((union != null) && (union.getStart() > m.getStart()) || (union.getEnd() < m.getEnd())) union = union.union(m);
 					done.add(m);
 				}
 
 				// Add union
-				unionOfOverlaps.add(union);
+				if (union != null) unionOfOverlaps.add(union);
 			}
 		}
 

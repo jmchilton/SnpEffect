@@ -60,7 +60,7 @@ public class IntervalTree implements Serializable, Iterable<Marker> {
 	 * Will not run if this is currently in sync
 	 */
 	public void build() {
-		if( !inSync ) {
+		if (!inSync) {
 			head = new IntervalNode(intervals);
 			inSync = true;
 			size = intervals.size();
@@ -87,18 +87,11 @@ public class IntervalTree implements Serializable, Iterable<Marker> {
 		return head.iterator();
 	}
 
-	/**
-	 * @return the number of entries in the interval list, equal to .size() if inSync()
-	 */
-	public int listSize() {
-		return intervals.size();
-	}
-
 	private String nodeString(IntervalNode node, int level) {
-		if( node == null ) return "";
+		if (node == null) return "";
 
 		StringBuffer sb = new StringBuffer();
-		for( int i = 0; i < level; i++ )
+		for (int i = 0; i < level; i++)
 			sb.append("\t");
 		sb.append(node + "\n");
 		sb.append(nodeString(node.getLeft(), level + 1));
@@ -114,6 +107,13 @@ public class IntervalTree implements Serializable, Iterable<Marker> {
 	public Markers query(Interval interval) {
 		build();
 		return head.query(interval);
+	}
+
+	/**
+	 * @return the number of entries in the interval list, equal to .size() if inSync()
+	 */
+	public int size() {
+		return intervals.size();
 	}
 
 	/**

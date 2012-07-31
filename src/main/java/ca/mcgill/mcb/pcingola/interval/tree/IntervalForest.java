@@ -34,7 +34,7 @@ public class IntervalForest implements Serializable, Iterable<IntervalTree> {
 	 * @param intervals
 	 */
 	public void add(Collection<? extends Marker> intervals) {
-		for( Marker i : intervals )
+		for (Marker i : intervals)
 			add(i);
 	}
 
@@ -43,7 +43,7 @@ public class IntervalForest implements Serializable, Iterable<IntervalTree> {
 	 * @param interval
 	 */
 	public void add(Marker interval) {
-		if( interval == null ) return;
+		if (interval == null) return;
 		String chName = Chromosome.simpleName(interval.getChromosomeName());
 		getTree(chName).add(interval); // Add interval to tree
 	}
@@ -53,7 +53,7 @@ public class IntervalForest implements Serializable, Iterable<IntervalTree> {
 	 * @param intervals
 	 */
 	public void add(Markers intervals) {
-		for( Marker i : intervals )
+		for (Marker i : intervals)
 			add(i);
 	}
 
@@ -61,7 +61,7 @@ public class IntervalForest implements Serializable, Iterable<IntervalTree> {
 	 * Build all trees
 	 */
 	public void build() {
-		for( IntervalTree tree : forest.values() )
+		for (IntervalTree tree : forest.values())
 			tree.build();
 	}
 
@@ -75,7 +75,7 @@ public class IntervalForest implements Serializable, Iterable<IntervalTree> {
 
 		// Retrieve (or create) interval tree
 		IntervalTree intervalTree = forest.get(chromo);
-		if( intervalTree == null ) {
+		if (intervalTree == null) {
 			intervalTree = new IntervalTree();
 			forest.put(chromo, intervalTree);
 		}
@@ -96,6 +96,11 @@ public class IntervalForest implements Serializable, Iterable<IntervalTree> {
 
 	/**
 	 * Return the intersection of 'markers' and this IntervalForest
+	 * 
+	 * For each marker 'm' in 'markers'
+	 * 		- query the tree to get all markers intersecting 'm'
+	 * 		- create a new interval which is the intersection of 'm' with all the resutls from the previous query.
+	 *   
 	 * @param interval
 	 * @return
 	 */
@@ -103,10 +108,10 @@ public class IntervalForest implements Serializable, Iterable<IntervalTree> {
 		Markers result = new Markers();
 
 		// Add all intersecting intervals
-		for( Marker mm : markers ) {
+		for (Marker mm : markers) {
 			Markers query = query(mm);
-			if( query != null ) {
-				for( Marker mq : query ) {
+			if (query != null) {
+				for (Marker mq : query) {
 					// Intersection between 'mm' and 'mq'
 					int start = Math.max(mq.getStart(), mm.getStart());
 					int end = Math.max(mq.getEnd(), mm.getEnd());
@@ -145,7 +150,7 @@ public class IntervalForest implements Serializable, Iterable<IntervalTree> {
 		Markers ints = new Markers();
 
 		// Add all intersecting intervals
-		for( Marker i : marker )
+		for (Marker i : marker)
 			ints.add(query(i));
 
 		return ints;
@@ -162,17 +167,17 @@ public class IntervalForest implements Serializable, Iterable<IntervalTree> {
 		HashSet<Marker> uniqueMarkers = new HashSet<Marker>();
 
 		// Add all intersecting intervals
-		for( Marker q : markers ) {
+		for (Marker q : markers) {
 			Markers results = query(q); // Query
 
-			for( Marker r : results )
+			for (Marker r : results)
 				// Add all results 
 				uniqueMarkers.add(r);
 		}
 
 		// Create markers
 		Markers ints = new Markers();
-		for( Marker r : uniqueMarkers )
+		for (Marker r : uniqueMarkers)
 			ints.add(r);
 
 		return ints;
@@ -200,7 +205,7 @@ public class IntervalForest implements Serializable, Iterable<IntervalTree> {
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 
-		for( String chromo : forest.keySet() ) {
+		for (String chromo : forest.keySet()) {
 			IntervalTree tree = getTree(chromo);
 			sb.append("chr" + chromo + ":\n" + tree + "\n");
 		}

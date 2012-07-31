@@ -190,6 +190,20 @@ public class Marker extends Interval {
 	}
 
 	/**
+	 * Intersect of two markers
+	 * @param m
+	 * @return A new marker which is the intersect of the two
+	 */
+	public Marker intersect(Marker m) {
+		if (!getChromosomeName().equals(m.getChromosomeName())) return null;
+
+		int istart = Math.max(start, m.getStart());
+		int iend = Math.min(end, m.getEnd());
+		if (iend < istart) return null;
+		return new Marker(getParent(), istart, iend, strand, "");
+	}
+
+	/**
 	 * Do the intervals intersect?
 	 * @return  return true if this intersects 'interval' 
 	 */
@@ -226,6 +240,33 @@ public class Marker extends Interval {
 	 */
 	protected boolean isShowWarningIfParentDoesNotInclude() {
 		return false;
+	}
+
+	/**
+	 * Return the difference between two markers
+	 * 
+	 * @param interval
+	 * @return A set of 'markers'. Note that the result can have zero, one or two markers
+	 */
+	public Markers minus(Marker interval) {
+		Markers ints = new Markers();
+		if (intersects(interval)) {
+			if ((interval.getStart() <= getStart()) && (getEnd() <= interval.getEnd())) {
+				// 'this' is included in 'interval' => Nothing left
+			} else if ((interval.getStart() <= getStart()) && (interval.getEnd() < getEnd())) {
+				// 'interval' overlaps left part of 'this' => Include right part of 'this'
+				ints.add(new Marker(getParent(), interval.getEnd() + 1, getEnd(), getStrand(), getId()));
+			} else if ((getStart() < interval.getStart()) && (getEnd() <= interval.getEnd())) {
+				// 'interval' overlaps right part of 'this' => Include left part of 'this'
+				ints.add(new Marker(getParent(), getStart(), interval.getStart() - 1, getStrand(), getId()));
+			} else if ((getStart() < interval.getStart()) && (interval.getEnd() < getEnd())) {
+				// 'interval' overlaps middle of 'this' => Include left and right part of 'this'
+				ints.add(new Marker(getParent(), getStart(), interval.getStart() - 1, getStrand(), getId()));
+				ints.add(new Marker(getParent(), interval.getEnd() + 1, getEnd(), getStrand(), getId()));
+			} else throw new RuntimeException("Interval intersection not analysed. This should nbever happen!");
+		} else ints.add(this); // No intersection => Just add 'this' interval
+
+		return ints;
 	}
 
 	/**
@@ -306,4 +347,18 @@ public class Marker extends Interval {
 				+ " " //
 				+ type + ((id != null) && (id.length() > 0) ? " '" + id + "'" : "");
 	}
+
+	/**
+	 * Union of two markers
+	 * @param m
+	 * @return A new marker which is the union of the two 
+	 */
+	public Marker union(Marker m) {
+		if (!getChromosomeName().equals(m.getChromosomeName())) return null;
+
+		int ustart = Math.min(start, m.getStart());
+		int uend = Math.max(end, m.getEnd());
+		return new Marker(getParent(), ustart, uend, strand, "");
+	}
+
 }

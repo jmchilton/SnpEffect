@@ -9,6 +9,7 @@ import ca.mcgill.mcb.pcingola.binseq.DnaSequence;
 import ca.mcgill.mcb.pcingola.interval.Chromosome;
 import ca.mcgill.mcb.pcingola.interval.Genome;
 import ca.mcgill.mcb.pcingola.interval.Marker;
+import ca.mcgill.mcb.pcingola.interval.MarkerUtil;
 import ca.mcgill.mcb.pcingola.interval.Markers;
 import ca.mcgill.mcb.pcingola.interval.SeqChange;
 import ca.mcgill.mcb.pcingola.interval.Transcript;
@@ -114,6 +115,13 @@ public class TestCasesIntervals extends TestCase {
 		rand = new Random(20100629);
 	}
 
+	public Markers intersects(Markers interval1, Marker intervals) {
+		Markers ints = new Markers();
+		for (Marker i : interval1)
+			if (i.intersects(intervals)) ints.add(i);
+		return ints;
+	}
+
 	/**
 	 * Create a random set of intervals
 	 * @param numIntervals
@@ -148,7 +156,7 @@ public class TestCasesIntervals extends TestCase {
 	 */
 	public void test_01() {
 		initRand();
-		Markers intervals = Markers.readTxt("tests/interval_data_100.txt", genome);
+		Markers intervals = MarkerUtil.readTxt("tests/interval_data_100.txt", genome, 0);
 		compareToFile(intervals.toStringTxt(), "tests/test_01.txt");
 	}
 
@@ -184,26 +192,30 @@ public class TestCasesIntervals extends TestCase {
 	}
 
 	/**
-	 * Union of 2 intervals
+	 * Adding intervals
 	 */
 	public void test_05() {
 		initRand();
 		// Create and perform union
 		Markers intervals = randomIntervals(5, maxLen, 10, 2);
 		Markers intervals2 = randomIntervals(5, maxLen, 10, 2);
-		Markers union = intervals.union(intervals2);
-		compareToFile(union.toStringTxt(), "tests/test_05.txt");
+
+		Markers add = new Markers();
+		add.add(intervals);
+		add.add(intervals2);
+
+		compareToFile(add.toStringTxt(), "tests/test_05.txt");
 
 		if (verbose) {
 			// Sort
 			intervals.sort(false, false);
 			intervals2.sort(false, false);
-			union.sort(false, false);
+			add.sort(false, false);
 
 			// Show
 			System.out.println("Intervals 1:\n" + intervals.toStringAsciiArt(maxLen));
 			System.out.println("Intervals 2:\n" + intervals2.toStringAsciiArt(maxLen));
-			System.out.println("Union :\n" + union.toStringAsciiArt(maxLen));
+			System.out.println("Union :\n" + add.toStringAsciiArt(maxLen));
 		}
 	}
 
@@ -232,7 +244,7 @@ public class TestCasesIntervals extends TestCase {
 			// We test one by one in order to compare individual results
 			for (Marker i : intervals2) {
 				Markers intersect = forest.query(i);
-				Markers intersectBf = intervals.intersects(i);
+				Markers intersectBf = intersects(intervals, i);
 
 				// Show
 				if (!intersect.equals(intersectBf)) {
