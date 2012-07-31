@@ -415,7 +415,10 @@ public class SpliceAnalysis extends SnpEff {
 	 * @param intronEnd
 	 */
 	void updatePwm(Transcript tr, String chrSeq, int intronStart, int intronEnd, String exonTypes) {
+		// We don't update if the intron is too short
 		int len = intronEnd - intronStart;
+		if (len < (2 * SpliceTypes.MAX_SPLICE_SIZE)) return;
+
 		String donorStr = spliceTypes.seqDonor(tr, chrSeq, intronStart, intronEnd);
 		String accStr = spliceTypes.seqAcceptor(tr, chrSeq, intronStart, intronEnd);
 		String branchStr = spliceTypes.seqBranch(tr, chrSeq, intronStart, intronEnd);
