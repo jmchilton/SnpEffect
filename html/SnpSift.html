@@ -49,6 +49,7 @@
 					<li> <a class="body" href="#extractFields"><b>Extract fields:</b></a> Extract fields from a VCF file to a TXT (tab separated) format.
 					<li> <a class="body" href="#varType"><b>Variant type:</b></a> Adds SNP/MNP/INS/DEL to info field. It also adds "HOM/HET" if there is only one sample.
 					<li> <a class="body" href="#gwasCat"><b>GWAS Catalog:</b></a> Annotate using GWAS Catalog.
+					<li> <a class="body" href="#dbnsfp"><b>dbNSFP:</b></a> Annotate using dbNSFP: The dbNSFP is an integrated database of functional predictions from multiple algorithms (SIFT, Polyphen2, LRT and MutationTaster, PhyloP and GERP++, etc.)
 				</ul>
 
 				<p>
@@ -317,12 +318,12 @@ rs71262673</pre>
 					<li> <b>CaseControlP</b>: A p-value (Fisher exact test) that the number of cases is N or more. E.g.: "CaseControl=4,0;CaseControlP=3.030303e-02" in this case the pValue of having 4 or more cases and zero controls is 0.03
 				</ul>
 				E.g. We have ten samples (which means ten genotype columns in the VCF file), the first four are 'case' and the last six are 'control', so the description string would be "++++------". Let's say we want to distinguish genotypes that are homozygous in 'case' and either homozygous or heterozygous in 'control':
-				<pre> java -jar ~/tools/SnpSift.jar caseControl hom any "++++------" variants.vcf > variants_case_control.vcf </pre>
+				<pre> java -jar ~/tools/SnpSift.jar caseControl hom any "++++------" variants.vcf &gt; variants_case_control.vcf </pre>
 
 				E.g. ...from the previous example, we want to filter the variants that have a p-value less than 0.05:
 				<pre> java -jar ~/tools/SnpSift.jar caseControl hom any "++++------" variants.vcf \
-	| java -jar SnpSift.jar filter "( CaseControlP < 0.05 )" \
-	> variants_case_control_filtered.vcf</pre>
+	| java -jar SnpSift.jar filter "( CaseControlP &lt; 0.05 )" \
+	&gt; variants_case_control_filtered.vcf</pre>
 
 
 				<a class="body" name="intervals"><p><hr><p style="font-size: 16pt"> <b> SnpSift Intervals</b></p></a>
@@ -461,6 +462,28 @@ $ java -jar SnpSift.jar gwasCat gwascatalog.txt test.vcf | tee test.gwas.vcf
 1   8046672 rs12727642  C   A   .   PASS    AF=0.101;GWASCAT=Celiac_disease 
 1   8422676 rs2252865   T   C   .   PASS    AF=0.771;GWASCAT=Schizophrenia  
 1   8526142 rs4908760   G   A   .   PASS    AF=0.630;GWASCAT=Vitiligo   
+</pre>
+
+				<a class="body" name="dbnsfp"><p><hr><p style="font-size: 16pt"> <b> Annotate dbNSFP database </b></p></a>
+				The dbNSFP is an integrated database of functional predictions from multiple algorithms (SIFT, Polyphen2, LRT and MutationTaster, PhyloP and GERP++, etc.).
+				One of the main advantages is that you can annotate using multiple prediction tools with just one command.
+				<a class="body" href="https://sites.google.com/site/jpopgen/dbNSFP">Here</a> is the link to dbNSFP database website.
+				<p>
+
+				In order to use this command, you need to download the dbNSFP database file from our <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/">'databases' directory</a>.
+				The file is named 'dbNSFP-version.txt.gz', where 'version' is the version number (e.g. 'dbNSFP2.0b3.txt.gz').<br>
+				Another option is to download from the original <a class="body" href="https://sites.google.com/site/jpopgen/dbNSFP">dbNSFP</a> site, and create a single file from the individual chromosome files (a simple 'cat dbNSFP2.0b3_variant.chr* &gt; dbNSFP2.0b3.txt' command will be enough).
+				<p>
+
+				Here is a full example how to perform annotations:
+<pre>
+# Donload and uncompress database (you need to do this only once):
+# WARNING: The database is 3Gb when compressed and 30Gb uncompressed.
+wget http://sourceforge.net/projects/snpeff/files/databases/dbNSFP2.0b3.txt.gz
+gunzip dbNSFP2.0b3.txt.gz
+
+# Annotate using dbNSFP
+java -jar SnpSift.jar -v dbNSFP2.0b3.txt myFile.vcf > myFile.annotated.vcf
 </pre>
 		</div> 
 
