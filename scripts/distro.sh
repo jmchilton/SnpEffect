@@ -14,7 +14,7 @@ rm -rvf $DIR
 mkdir $DIR
 
 # Copy core files
-cp snpEff.config snpEff.jar $DIR
+cp snpEff.config snpEff.jar SnpSift.jar $DIR
 cp -rvfH galaxy scripts $DIR
 
 cd $DIR
