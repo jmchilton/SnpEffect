@@ -312,12 +312,15 @@ public class VcfFileIndexIntervals {
 	 */
 	void indexChromos(long start, String lineStart, long end, String lineEnd) {
 		if (debug) Gpr.debug("Index:"//
-				+ "\n\t" + start + " :\t" + s(lineStart) //
-				+ "\n\t" + end + " :\t" + s(lineEnd));
+				+ "\n\t" + start + "(" + (((double) start) / size()) + ") :\t" + s(lineStart) //
+				+ "\n\t" + end + "(" + (((double) start) / size()) + ") :\t" + s(lineEnd));
+
+		if (start > end) throw new RuntimeException("This should never happen! Start: " + start + "\tEnd: " + end);
 
 		String chrStart = chromo(lineStart);
 		String chrEnd = chromo(lineEnd);
 
+		//if ((chrStart != null) && (chrEnd != null)) return;
 		if (chrStart.equals(chrEnd)) return;
 
 		if ((start + lineStart.length() + 1) >= end) {

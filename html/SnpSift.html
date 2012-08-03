@@ -472,7 +472,7 @@ $ java -jar SnpSift.jar gwasCat gwascatalog.txt test.vcf | tee test.gwas.vcf
 
 				In order to use this command, you need to download the dbNSFP database file from our <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/">'databases' directory</a>.
 				The file is named 'dbNSFP-version.txt.gz', where 'version' is the version number (e.g. 'dbNSFP2.0b3.txt.gz').<br>
-				Another option is to download from the original <a class="body" href="https://sites.google.com/site/jpopgen/dbNSFP">dbNSFP</a> site, and create a single file from the individual chromosome files (a simple 'cat dbNSFP2.0b3_variant.chr* &gt; dbNSFP2.0b3.txt' command will be enough).
+				Another option is to download from the original <a class="body" href="https://sites.google.com/site/jpopgen/dbNSFP">dbNSFP</a> site, and create a single file from the individual chromosome files (a simple 'cat dbNSFP2.0b3_variant.chr* | grep -v "^#" &gt; dbNSFP2.0b3.txt' command will be enough).
 				<p>
 
 				Here is a full example how to perform annotations:
@@ -483,7 +483,7 @@ wget http://sourceforge.net/projects/snpeff/files/databases/dbNSFP2.0b3.txt.gz
 gunzip dbNSFP2.0b3.txt.gz
 
 # Annotate using dbNSFP
-java -jar SnpSift.jar -v dbNSFP2.0b3.txt myFile.vcf > myFile.annotated.vcf
+java -jar SnpSift.jar dbnsfp -v dbNSFP2.0b3.txt myFile.vcf > myFile.annotated.vcf
 </pre>
 		</div> 
 
