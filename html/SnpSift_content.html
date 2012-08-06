@@ -17,10 +17,11 @@
 					<li> <a class="body" href="#dbnsfp"><b>dbNSFP:</b></a> Annotate using dbNSFP: The dbNSFP is an integrated database of functional predictions from multiple algorithms (SIFT, Polyphen2, LRT and MutationTaster, PhyloP and GERP++, etc.)
 				</ul>
 
-				<p>
-				<b>Citing SnpSift</b>: "Using Drosophila melanogaster as a model for genotoxic chemical mutational studies with a new program, SnpSift", Cingolani, P., et. al., Frontiers in Genetics, 3, 2012.
-				<p>
-				BibTex: <pre>
+				<p> <hr> <p>
+
+				<b>Citing SnpSift</b>: "Using Drosophila melanogaster as a model for genotoxic chemical mutational studies with a new program, SnpSift", Cingolani, P., et. al., Frontiers in Genetics, 3, 2012.<br>
+				BibTex entry: 
+<pre>
 @article{cingolani2012using,
   title={Using Drosophila melanogaster as a model for genotoxic chemical mutational studies with a new program, SnpSift},
   author={Cingolani, P. and Patel, V.M. and Coon, M. and Nguyen, T. and Land, S.J. and Ruden, D.M. and Lu, X.},
@@ -30,6 +31,13 @@
   publisher={Frontiers Media SA}
 }
 </pre>
+				
+				<p> <b> Source code:</b> The project is hosted at SourceForge. <br>
+				Here is the SVN command to check out the development version of the code:
+<pre>
+svn co https://snpeff.svn.sourceforge.net/svnroot/snpeff/SnpSift/trunk
+</pre>
+
 
 				<a class="body" name="filter"> <p><hr><p style="font-size: 16pt"> <b> SnpSift filter</b></p> </a>
 				Using SnpSift filter you can filter using arbitrary expressions, for instance "(QUAL &gt; 30) | (exists INDEL) | ( countHet() &gt; 2 )". The actual expressions can be quite complex, so it allows for a lot of flexibility.<p>
