@@ -493,6 +493,9 @@ gunzip dbNSFP2.0b3.txt.gz
 # Annotate using dbNSFP
 java -jar SnpSift.jar dbnsfp -v dbNSFP2.0b3.txt myFile.vcf > myFile.annotated.vcf
 </pre>
+
+			<b>Note:</b> You can now specify which fields you want to use for annotation using the '-f' command line option followed by a comma separated list of field names.<br>
+			The default is "Ensembl_transcriptid,Uniprot_acc,Interpro_domain,SIFT_score,Polyphen2_HVAR_pred,GERP++_NR,GERP++_RS,29way_logOdds,1000Gp1_AF,1000Gp1_AFR_AF,1000Gp1_EUR_AF,1000Gp1_AMR_AF,1000Gp1_ASN_AF,ESP5400_AA_AF,ESP5400_EA_AF".
 		</div> 
 
 

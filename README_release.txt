@@ -47,8 +47,8 @@ Check that databases have been built correctly:
 		scp snpEff_v3_0_*.zip pcingola,snpeff@frs.sourceforge.net:/home/frs/project/s/sn/snpeff/databases/v3_0/
 		
 		# SnpSift
-		scp SnpSift_v1_7.jar pcingola,snpeff@frs.sourceforge.net:/home/frs/project/s/sn/snpeff/
-		scp SnpSift_v1_7.jar pcingola,snpeff@frs.sourceforge.net:/home/frs/project/s/sn/snpeff/SnpSift_latest.jar
+		scp SnpSift.jar pcingola,snpeff@frs.sourceforge.net:/home/frs/project/s/sn/snpeff/SnpSift_v1_7.jar
+		scp SnpSift.jar pcingola,snpeff@frs.sourceforge.net:/home/frs/project/s/sn/snpeff/SnpSift_latest.jar
 		
 		
 - Update snpEff pages (at least download link). 
