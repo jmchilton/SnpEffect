@@ -184,17 +184,14 @@ public class SpliceAnalysis extends SnpEff {
 	SpliceTypes spliceTypes;
 	ArrayList<String> geneList = new ArrayList<String>();
 	HashMap<String, PwmSet> pwmSetsByName = new HashMap<String, PwmSet>();
-
+	HashMap<String, PwmSet> pwmSetsExonTypeByName = new HashMap<String, PwmSet>();
 	double thresholdPDonor;
 	double thresholdEntropyDonor;
 	double thresholdPAcc;
 	double thresholdEntropyAcc;
 	double thresholdU12Score;
-
 	int countIntrons = 0;
-
 	Random random = new Random();
-	StringBuilder sbScore = new StringBuilder();
 
 	public SpliceAnalysis() {
 		super();
@@ -246,6 +243,15 @@ public class SpliceAnalysis extends SnpEff {
 		if (ps == null) {
 			ps = new PwmSet(key);
 			pwmSetsByName.put(key, ps);
+		}
+		return ps;
+	}
+
+	PwmSet getPwmSetExonType(String key) {
+		PwmSet ps = pwmSetsExonTypeByName.get(key);
+		if (ps == null) {
+			ps = new PwmSet(key);
+			pwmSetsExonTypeByName.put(key, ps);
 		}
 		return ps;
 	}
@@ -348,16 +354,23 @@ public class SpliceAnalysis extends SnpEff {
 		ArrayList<PwmSet> pwmsets = new ArrayList<PwmSet>();
 		pwmsets.addAll(pwmSetsByName.values());
 		Collections.sort(pwmsets);
-		out("<table border=1>\n");
+		out("<p><center><h3>Analysis by Donnor-Acceptor type</h3></center><p><table border=1>\n");
 		out("<tr> <th> Rank </th> <th> Donor-Acceptor </th>  <th> Count </th>  <th> Donor Motif </th> <th> U12 matches (Observed / Expected) </th> <th> Acceptor Motif </th> <th> Intron length </th> <th> Intron Type Count </th> <th> Intron Type p-values </th> </tr>\n");
 		int count = 0;
 		for (PwmSet pwmset : pwmsets)
 			if (pwmset.updates >= THRESHOLD_COUNT) out("<tr> <td> " + (count++) + " </td> " + pwmset + "</tr>\n");
 		out("</table>\n");
 
-		String fileName = outputDir + "/" + genomeVer + ".branchDonorScore.txt";
-		if (verbose) Timer.showStdErr("Saving scores file to :" + fileName);
-		Gpr.toFile(fileName, sbScore);
+		// Show PwmSetsExonType
+		pwmsets = new ArrayList<PwmSet>();
+		pwmsets.addAll(pwmSetsExonTypeByName.values());
+		Collections.sort(pwmsets);
+		out("<p><hr><p><center><h3>Analysis by Exon-Exon types</h3></center><p><table border=1>\n");
+		out("<tr> <th> Rank </th> <th> Exon_Type --- Exon_Type</th>  <th> Count </th>  <th> Donor Motif </th> <th> U12 matches (Observed / Expected) </th> <th> Acceptor Motif </th> <th> Intron length </th> <th> Intron Type Count </th> <th> Intron Type p-values </th> </tr>\n");
+		count = 0;
+		for (PwmSet pwmset : pwmsets)
+			if (pwmset.updates >= THRESHOLD_COUNT) out("<tr> <td> " + (count++) + " </td> " + pwmset + "</tr>\n");
+		out("</table>\n");
 	}
 
 	/**
@@ -428,28 +441,6 @@ public class SpliceAnalysis extends SnpEff {
 		countIntrons++;
 
 		//---
-		// PWM scores based on bases after the donor splice site
-		//---
-
-		//		// Be careful not to update if the branch string overlaps with the donor splice site
-		//		if (len > (SIZE_BRANCH + SIZE_SPLICE)) {
-		//			String pwmTest = intronSeqDonor.substring(3);
-		//			if (pwmTest.indexOf(U12_PATTERN) < 0) { // Make sure it's not U12
-		//				double score = bestU2Score(pwmTest, branchStr);
-		//
-		//				// Random matrix (null distribution)
-		//				String randSeq = GprSeq.randSequence(random, pwmTest.length());
-		//				double scoreRand = bestU2Score(randSeq, branchStr);
-		//
-		//				// Random matrix (null distribution)
-		//				String randSeq2 = GprSeq.randSequence(random, pwmTest.length());
-		//				double scoreRand2 = bestU2Score(randSeq2, branchStr);
-		//
-		//				if ((score >= 0) && (scoreRand >= 0) && (scoreRand2 >= 0)) sbScore.append(score + "\t" + scoreRand + "\t" + scoreRand2 + "\n"); // Save scores
-		//			}
-		//		}
-
-		//---
 		// Group by donor type
 		//---
 
@@ -496,6 +487,13 @@ public class SpliceAnalysis extends SnpEff {
 		pwmSet.incExonTypes(exonTypes);
 		pwmSet.len(len);
 
+		//---
+		// Update PWM for exon type
+		//---
+		pwmSet = getPwmSetExonType(exonTypes);
+		pwmSet.update(accStr, donorStr);
+		pwmSet.len(len);
+		if (bu12score >= thresholdU12Score) pwmSet.incU12();
 	}
 
 	@Override

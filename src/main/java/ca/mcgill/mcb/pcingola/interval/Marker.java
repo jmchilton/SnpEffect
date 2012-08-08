@@ -288,11 +288,13 @@ public class Marker extends Interval {
 				parent = chromo;
 				start = Gpr.parseIntSafe(fields[1]) - positionBase;
 				end = Gpr.parseIntSafe(fields[2]) - positionBase;
+				id = "";
 
 				if (fields.length >= 4) {
 					// Join all ids using a space character (and remove all spaces)
 					for (int t = 3; t < fields.length; t++)
 						id += fields[t].trim() + " ";
+
 					id = id.trim();
 				}
 			} else throw new RuntimeException("Error line " + lineNum + " (number of fields is " + fields.length + "):\t" + line);
