@@ -24,7 +24,7 @@ public class Utr5prime extends Utr {
 		type = EffectType.UTR_5_PRIME;
 	}
 
-	public Utr5prime(Marker parent, int start, int end, int strand, String id) {
+	public Utr5prime(Exon parent, int start, int end, int strand, String id) {
 		super(parent, start, end, strand, id);
 		type = EffectType.UTR_5_PRIME;
 	}

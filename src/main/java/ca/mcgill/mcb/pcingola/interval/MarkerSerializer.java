@@ -57,7 +57,9 @@ public class MarkerSerializer {
 	}
 
 	protected int getIdByMarker(Marker m) {
-		return idByMarker.get(m);
+		Integer id = idByMarker.get(m);
+		if (id == null) { throw new RuntimeException("Marker has no numeric ID. \n\tClass: " + m.getClass().getSimpleName() + "\n\tMarker ID: '" + m.getId() + "'\n\t" + m); }
+		return id;
 	}
 
 	protected Marker getMarkerById(int id) {
@@ -196,9 +198,14 @@ public class MarkerSerializer {
 		return markers;
 	}
 
-	protected String save(Iterable<Marker> markersCol) {
+	/**
+	 * Save all markers
+	 * @param markersCollection
+	 * @return
+	 */
+	protected String save(Iterable<Marker> markersCollection) {
 		StringBuilder idStr = new StringBuilder();
-		for (Marker m : markersCol) {
+		for (Marker m : markersCollection) {
 			int id = save(m);
 			if (idStr.length() > 0) idStr.append(",");
 			idStr.append(id);

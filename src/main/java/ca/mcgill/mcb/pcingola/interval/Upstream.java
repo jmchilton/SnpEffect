@@ -15,7 +15,7 @@ public class Upstream extends Marker {
 
 	private static final long serialVersionUID = 1636197649250882952L;
 
-	public Upstream(Marker parent, int start, int end, int strand, String id) {
+	public Upstream(Transcript parent, int start, int end, int strand, String id) {
 		super(parent, start, end, strand, id);
 		type = EffectType.UPSTREAM;
 	}

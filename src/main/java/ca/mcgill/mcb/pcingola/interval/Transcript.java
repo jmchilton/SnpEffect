@@ -1,9 +1,9 @@
 package ca.mcgill.mcb.pcingola.interval;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import ca.mcgill.mcb.pcingola.interval.codonChange.CodonChange;
 import ca.mcgill.mcb.pcingola.snpEffect.ChangeEffect;
@@ -47,7 +47,7 @@ public class Transcript extends IntervalAndSubIntervals<Exon> {
 		type = EffectType.TRANSCRIPT;
 	}
 
-	public Transcript(Marker gene, int start, int end, int strand, String id) {
+	public Transcript(Gene gene, int start, int end, int strand, String id) {
 		super(gene, start, end, strand, id);
 		utrs = new ArrayList<Utr>();
 		cdss = new ArrayList<Cds>();
@@ -98,10 +98,10 @@ public class Transcript extends IntervalAndSubIntervals<Exon> {
 
 			if (isStrandPlus()) {
 				if (mu.getEnd() <= minCds) toAdd = new Utr5prime(eint, mu.getStart(), mu.getEnd(), strand, mu.getId());
-				else if (mu.getStart() >= maxCds) toAdd = new Utr3prime(this, mu.getStart(), mu.getEnd(), strand, mu.getId());
+				else if (mu.getStart() >= maxCds) toAdd = new Utr3prime(eint, mu.getStart(), mu.getEnd(), strand, mu.getId());
 			} else {
 				if (mu.getStart() >= maxCds) toAdd = new Utr5prime(eint, mu.getStart(), mu.getEnd(), strand, mu.getId());
-				else if (mu.getEnd() <= minCds) toAdd = new Utr3prime(this, mu.getStart(), mu.getEnd(), strand, mu.getId());
+				else if (mu.getEnd() <= minCds) toAdd = new Utr3prime(eint, mu.getStart(), mu.getEnd(), strand, mu.getId());
 			}
 
 			// OK?
@@ -115,6 +115,10 @@ public class Transcript extends IntervalAndSubIntervals<Exon> {
 		return retVal;
 	}
 
+	/**
+	 * Adjust trancript coordiantes
+	 * @return
+	 */
 	public boolean adjust() {
 		boolean changed = false;
 		int strandSumTr = 0;
@@ -348,19 +352,34 @@ public class Transcript extends IntervalAndSubIntervals<Exon> {
 	   Does the same for UTRs.
 	 */
 	public void deleteRedundant() {
+		//---
 		// Delete redundant exons
-		Collection<Marker> toDelete = MarkerUtil.redundant(subintervals());
-		for (Marker exon : toDelete)
+		//---
+		Map<Marker, Marker> includedIn = MarkerUtil.redundant(subintervals());
+		for (Marker exon : includedIn.keySet()) {
 			subIntervals.remove(exon.getId());
 
+			// Change parent exon in UTRs
+			for (Marker m : getUtrs()) {
+				Utr utr = (Utr) m;
+				if (utr.getParent() == exon) {
+					utr.setParent(includedIn.get(exon));
+				}
+			}
+		}
+
+		//---
 		// Delete redundant CDS
-		toDelete = MarkerUtil.redundant(cdss);
-		for (Marker cds : toDelete)
+		//---
+		includedIn = MarkerUtil.redundant(cdss);
+		for (Marker cds : includedIn.keySet())
 			cdss.remove(cds);
 
+		//---
 		// Delete redundant CDS
-		toDelete = MarkerUtil.redundant(utrs);
-		for (Marker utr : toDelete)
+		//---
+		includedIn = MarkerUtil.redundant(utrs);
+		for (Marker utr : includedIn.keySet())
 			utrs.remove(utr);
 	}
 

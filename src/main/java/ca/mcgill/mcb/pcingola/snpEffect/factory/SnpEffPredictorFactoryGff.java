@@ -229,9 +229,9 @@ public abstract class SnpEffPredictorFactoryGff extends SnpEffPredictorFactory {
 				if (line.equals(FASTA_DELIMITER)) {
 					mainFileHasFasta = true;
 					break;
-				}
-
-				if (parse(line, typeToRead)) {
+				} else if (line.startsWith("#")) {
+					// Ignore this line
+				} else if (parse(line, typeToRead)) {
 					count++;
 					Gpr.showMark(count, MARK);
 				}

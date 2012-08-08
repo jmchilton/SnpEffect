@@ -49,7 +49,7 @@ public class Exon extends Marker {
 		type = EffectType.EXON;
 	}
 
-	public Exon(Marker parent, int start, int end, int strand, String id, int rank) {
+	public Exon(Transcript parent, int start, int end, int strand, String id, int rank) {
 		super(parent, start, end, strand, id);
 		this.strand = (byte) strand;
 		this.rank = rank;

@@ -2,7 +2,8 @@ package ca.mcgill.mcb.pcingola.interval;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
+import java.util.HashMap;
+import java.util.Map;
 
 import ca.mcgill.mcb.pcingola.fileIterator.LineFileIterator;
 
@@ -43,10 +44,10 @@ public class MarkerUtil {
 	/**
 	 * Redundant markers in a list: Find intervals that are totally included in other intervals in the list
 	 * @param markersOri
-	 * @return A list of markers that are totally included in other markers in the list
+	 * @return A map  markerIncluded -> markerLarge, where  markerIncluded in completely included in markerLarge
 	 */
-	public static Collection<Marker> redundant(Collection<? extends Marker> markersOri) {
-		HashSet<Marker> redundant = new HashSet<Marker>();
+	public static Map<Marker, Marker> redundant(Collection<? extends Marker> markersOri) {
+		Map<Marker, Marker> redundant = new HashMap<Marker, Marker>();
 
 		// Find which markers are redundant?
 		ArrayList<Marker> markers = new ArrayList<Marker>();
@@ -58,15 +59,19 @@ public class MarkerUtil {
 			Marker mi = markers.get(i);
 
 			// Is marker 'mi' included in any other marker?
-			boolean included = false;
-			for (int j = 0; (j < size) && (!included); j++) {
+			Marker markerLarge = null;
+			for (int j = 0; (j < size) && (markerLarge == null); j++) {
 				Marker mj = markers.get(j);
-				if ((i != j) && (!redundant.contains(mj))) {
-					included = mj.includes(mi);
+				if ((i != j) && (mj.includes(mi))) { // Not the same interval and it is fully included? 
+					if (mi.includes(mj) && (i > j)) {
+						// If they are included both ways, it means that they are exactly the same.
+						// We have to avoid deleting both of them twice, so we arbitrarely don't add them if (i > j) 
+					} else markerLarge = mj;
 				}
 			}
 
-			if (included) redundant.add(mi); // Add to redundant list
+			// Add to redundant marker
+			if (markerLarge != null) redundant.put(mi, markerLarge);
 		}
 
 		return redundant;
