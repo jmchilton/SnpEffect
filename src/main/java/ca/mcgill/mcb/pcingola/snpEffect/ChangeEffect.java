@@ -41,6 +41,7 @@ public class ChangeEffect implements Cloneable {
 		, UTR_5_DELETED //		
 		, START_GAINED //
 		, SPLICE_SITE_ACCEPTOR //
+		, SPLICE_SITE_BRANCH_U12 //
 		, SPLICE_SITE_DONOR //
 		, START_LOST // 
 		, SYNONYMOUS_START //
@@ -271,6 +272,7 @@ public class ChangeEffect implements Cloneable {
 			case CODON_DELETION:
 			case CODON_INSERTION:
 			case NON_SYNONYMOUS_CODING:
+			case SPLICE_SITE_BRANCH_U12:
 			case UTR_3_DELETED:
 			case UTR_5_DELETED:
 				effectImpact = EffectImpact.MODERATE;
@@ -365,6 +367,8 @@ public class ChangeEffect implements Cloneable {
 			return EffectType.UTR_5_PRIME.toString();
 		case SPLICE_SITE_ACCEPTOR:
 			return EffectType.SPLICE_SITE_ACCEPTOR.toString();
+		case SPLICE_SITE_BRANCH_U12:
+			return EffectType.SPLICE_SITE_BRANCH_U12.toString();
 		case SPLICE_SITE_DONOR:
 			return EffectType.SPLICE_SITE_DONOR.toString();
 		case INTRAGENIC:
@@ -483,7 +487,7 @@ public class ChangeEffect implements Cloneable {
 	}
 
 	public boolean isSpliceSite() {
-		return (effectType == EffectType.SPLICE_SITE_DONOR) || (effectType == EffectType.SPLICE_SITE_ACCEPTOR);
+		return (effectType == EffectType.SPLICE_SITE_DONOR) || (effectType == EffectType.SPLICE_SITE_ACCEPTOR) || (effectType == EffectType.SPLICE_SITE_BRANCH_U12);
 	}
 
 	public boolean isStartGained() {

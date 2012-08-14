@@ -11,12 +11,14 @@ import ca.mcgill.mcb.pcingola.fileIterator.FastaFileIterator;
 import ca.mcgill.mcb.pcingola.interval.Chromosome;
 import ca.mcgill.mcb.pcingola.interval.Exon;
 import ca.mcgill.mcb.pcingola.interval.Gene;
+import ca.mcgill.mcb.pcingola.interval.SpliceSiteBranchU12;
 import ca.mcgill.mcb.pcingola.interval.Transcript;
 import ca.mcgill.mcb.pcingola.motif.Pwm;
 import ca.mcgill.mcb.pcingola.snpEffect.Config;
 import ca.mcgill.mcb.pcingola.util.Gpr;
 import ca.mcgill.mcb.pcingola.util.GprSeq;
 import ca.mcgill.mcb.pcingola.util.Timer;
+import ca.mcgill.mcb.pcingola.util.Tuple;
 
 /**
  * Analyze sequences from splice sites
@@ -38,10 +40,11 @@ public class SpliceTypes {
 	HashMap<String, String> branchByIntron = new HashMap<String, String>();
 	ArrayList<String> donorAccPairDonor = new ArrayList<String>();
 	ArrayList<String> donorAccPairAcc = new ArrayList<String>();
+	ArrayList<SpliceSiteBranchU12> branchU12 = new ArrayList<SpliceSiteBranchU12>();
+	HashMap<String, Integer> donorAcc = new HashMap<String, Integer>();
 	AcgtTree acgtTreeDonors = new AcgtTree();
 	AcgtTree acgtTreeAcc = new AcgtTree();
 	Pwm pwmU12;
-	HashMap<String, Integer> donorAcc = new HashMap<String, Integer>();
 
 	double thresholdPDonor;
 	double thresholdEntropyDonor;
@@ -89,6 +92,33 @@ public class SpliceTypes {
 	}
 
 	/**
+	 * Calculate the best U12 score.
+	 * If the score is higher than 'thresholdU12Score' then add the chr:pos data to a list
+	 * 
+	 * @param seq
+	 * @return A Tuple<Double, Integer> having the best score and best position
+	 */
+	public Tuple<Double, Integer> addBestU12Score(Transcript tr, String chrSeq, int intronStart, int intronEnd) {
+		// Get branch site string: SIZE_BRANCH bases before intron ends.
+		String branchStr = seqBranch(tr, chrSeq, intronStart, intronEnd);
+
+		// Calculate best score and position (position in 'branchStr') 
+		Tuple<Double, Integer> bestU12 = bestU12Score(branchStr);
+
+		// Calculate chomosome position 
+		int bestU12Pos = bestU12.second;
+		if (tr.isStrandPlus()) bestU12Pos = intronEnd - SpliceTypes.SIZE_BRANCH + 1 + bestU12Pos;
+		else bestU12Pos = intronStart + SpliceTypes.SIZE_BRANCH - bestU12Pos;
+
+		// Add to a collection
+		SpliceSiteBranchU12 ssu12 = new SpliceSiteBranchU12(tr, bestU12Pos, bestU12Pos, tr.getStrand(), "");
+		branchU12.add(ssu12);
+		Gpr.debug("ADDING: " + ssu12);
+
+		return bestU12;
+	}
+
+	/**
 	 * Analyze and create conserved splice sites donor-acceptor pairs.
 	 * @return
 	 */
@@ -128,40 +158,47 @@ public class SpliceTypes {
 	/**
 	 * Find the best score for PWM matrix in U12 branch points
 	 * @param seq
-	 * @return
+	 * @return A Tuple<Double, Integer> having the best score and best position
 	 */
-	double bestU12Score(String seq) {
+	public Tuple<Double, Integer> bestU12Score(String seq) {
 		int max = seq.length() - pwmU12.length();
-		double best = 0;
+		double bestScore = 0;
+		int bestPos = -1;
 		for (int i = 0; i < max; i++) {
 			String sub = seq.substring(i, i + pwmU12.length());
 			if (sub.indexOf('N') < 0) {
 				double score = pwmU12.score(sub);
-				best = Math.max(best, score);
+				if (bestScore < score) {
+					bestScore = score;
+					bestPos = i;
+				}
 			}
 		}
 
-		return best;
+		return new Tuple<Double, Integer>(bestScore, bestPos);
 	}
 
 	/**
 	 * Calculate threshold of U12 PWM scores  
+	 * Pick the score that gives a 'thresholdU12Percentile'. 
+	 * E.g. branchU12Threshold(0.95) gives the 95% percentile threshold
 	 */
-	public double branchU12Threshold(double thresholdU12Score) {
+	public double branchU12Threshold(double thresholdU12Percentile) {
 		Timer.showStdErr("Finding U12 PWM score distribution and threshold.");
 		ArrayList<Double> scores = new ArrayList<Double>();
 
 		//for (String branch : branchesList) {
 		for (String branch : branchByIntron.values()) {
-			double bestScore = bestU12Score(branch);
+			Tuple<Double, Integer> best = bestU12Score(branch);
+			double bestScore = best.first;
 			scores.add(bestScore);
 		}
 
 		// Get quantile
 		Collections.sort(scores);
-		int index = (int) (thresholdU12Score * scores.size());
-		double scoreTh = scores.get(index);
-		return scoreTh;
+		int index = (int) (thresholdU12Percentile * scores.size());
+		thresholdU12Score = scores.get(index);
+		return thresholdU12Score;
 	}
 
 	/**
@@ -383,6 +420,7 @@ public class SpliceTypes {
 			return chrSeq.substring(splAccStart, splAccEnd + 1).toUpperCase();
 		}
 
+		// Negative strand
 		int splAccStart = intronStart - MAX_SPLICE_SIZE;
 		int splAccEnd = intronStart + MAX_SPLICE_SIZE;
 		return GprSeq.reverseWc(chrSeq.substring(splAccStart, splAccEnd + 1).toUpperCase());
@@ -405,6 +443,7 @@ public class SpliceTypes {
 			return chrSeq.substring(splBranchStart, splBranchEnd).toUpperCase();
 		}
 
+		// Negative strand
 		int splBranchStart = intronStart + 1;
 		int splBranchEnd = intronStart + SIZE_BRANCH;
 		return GprSeq.reverseWc(chrSeq.substring(splBranchStart, splBranchEnd).toUpperCase());
@@ -427,6 +466,7 @@ public class SpliceTypes {
 			return chrSeq.substring(splDonorStart, splDonorEnd + 1).toUpperCase();
 		}
 
+		// Negative strand
 		int splDonorStart = intronEnd - MAX_SPLICE_SIZE;
 		int splDonorEnd = intronEnd + MAX_SPLICE_SIZE;
 		return GprSeq.reverseWc(chrSeq.substring(splDonorStart, splDonorEnd + 1).toUpperCase());

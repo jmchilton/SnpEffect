@@ -33,6 +33,10 @@ public abstract class SpliceSite extends Marker {
 		super(parent, start, end, strand, id);
 	}
 
+	public SpliceSite(Transcript parent, int start, int end, int strand, String id) {
+		super(parent, start, end, strand, id);
+	}
+
 	/**
 	 * Splice sites are no included in Exons, by definition.
 	 */

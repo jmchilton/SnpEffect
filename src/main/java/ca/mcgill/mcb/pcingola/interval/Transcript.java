@@ -30,6 +30,7 @@ public class Transcript extends IntervalAndSubIntervals<Exon> {
 
 	private static final long serialVersionUID = -2665025617916107311L;
 
+	ArrayList<SpliceSiteBranchU12> spliceBranchU12Sites;
 	ArrayList<Utr> utrs;
 	ArrayList<Cds> cdss; // Sometimes we have additional CDS information
 	Upstream upstream;
@@ -42,6 +43,7 @@ public class Transcript extends IntervalAndSubIntervals<Exon> {
 
 	protected Transcript() {
 		super();
+		spliceBranchU12Sites = new ArrayList<SpliceSiteBranchU12>();
 		utrs = new ArrayList<Utr>();
 		cdss = new ArrayList<Cds>();
 		type = EffectType.TRANSCRIPT;
@@ -49,6 +51,7 @@ public class Transcript extends IntervalAndSubIntervals<Exon> {
 
 	public Transcript(Gene gene, int start, int end, int strand, String id) {
 		super(gene, start, end, strand, id);
+		spliceBranchU12Sites = new ArrayList<SpliceSiteBranchU12>();
 		utrs = new ArrayList<Utr>();
 		cdss = new ArrayList<Cds>();
 		type = EffectType.TRANSCRIPT;
@@ -61,6 +64,14 @@ public class Transcript extends IntervalAndSubIntervals<Exon> {
 	public void add(Cds cdsInt) {
 		cdss.add(cdsInt);
 		cds = null;
+	}
+
+	/**
+	 * Add a SpliceSiteBranchU12
+	 * @param branchU12
+	 */
+	public void add(SpliceSiteBranchU12 branchU12) {
+		spliceBranchU12Sites.add(branchU12);
 	}
 
 	/**
@@ -487,6 +498,10 @@ public class Transcript extends IntervalAndSubIntervals<Exon> {
 		return downstream;
 	}
 
+	public ArrayList<SpliceSiteBranchU12> getSpliceBranchU12Sites() {
+		return spliceBranchU12Sites;
+	}
+
 	public Upstream getUpstream() {
 		return upstream;
 	}
@@ -693,6 +708,9 @@ public class Transcript extends IntervalAndSubIntervals<Exon> {
 
 		for (Marker m : markerSerializer.getNextFieldMarkers())
 			cdss.add((Cds) m);
+
+		for (Marker m : markerSerializer.getNextFieldMarkers())
+			spliceBranchU12Sites.add((SpliceSiteBranchU12) m);
 	}
 
 	/**
@@ -708,6 +726,7 @@ public class Transcript extends IntervalAndSubIntervals<Exon> {
 				+ "\t" + markerSerializer.save(downstream) //
 				+ "\t" + markerSerializer.save((Iterable) utrs)//
 				+ "\t" + markerSerializer.save((Iterable) cdss)//
+				+ "\t" + markerSerializer.save((Iterable) spliceBranchU12Sites)//
 		;
 	}
 

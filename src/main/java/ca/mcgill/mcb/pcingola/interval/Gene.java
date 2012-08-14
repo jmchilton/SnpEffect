@@ -290,6 +290,13 @@ public class Gene extends IntervalAndSubIntervals<Transcript> implements Seriali
 					if (ex.getSpliceSiteAcceptor() != null) all.add(ex.getSpliceSiteAcceptor());
 			break;
 
+		case SPLICE_SITE_BRANCH_U12:
+			// Add all exons
+			for (Transcript tr : this)
+				for (SpliceSiteBranchU12 ssu12 : tr.getSpliceBranchU12Sites())
+					all.add(ssu12);
+			break;
+
 		case SPLICE_SITE_DONOR:
 			// Add all exons
 			for (Transcript tr : this)

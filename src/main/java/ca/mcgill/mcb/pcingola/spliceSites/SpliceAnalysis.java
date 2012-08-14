@@ -21,6 +21,7 @@ import ca.mcgill.mcb.pcingola.stats.CountByType;
 import ca.mcgill.mcb.pcingola.stats.IntStats;
 import ca.mcgill.mcb.pcingola.util.Gpr;
 import ca.mcgill.mcb.pcingola.util.Timer;
+import ca.mcgill.mcb.pcingola.util.Tuple;
 
 /**
  * Analyze sequences from splice sites
@@ -65,7 +66,7 @@ public class SpliceAnalysis extends SnpEff {
 		}
 
 		void incU12() {
-			countU12++;
+			countU12++; // Update count
 		}
 
 		void len(int len) {
@@ -121,7 +122,7 @@ public class SpliceAnalysis extends SnpEff {
 			out.append("\t</td>\n");
 
 			// U12 count
-			double expected = updates * (1.0 - THRESHOLD_BRANCH_U12_SCORE);
+			double expected = updates * (1.0 - THRESHOLD_BRANCH_U12_PERCENTILE);
 			double oe = countU12 / expected; // ratio = Observed / expected
 
 			// U12 Colors
@@ -165,14 +166,13 @@ public class SpliceAnalysis extends SnpEff {
 		}
 	}
 
-	static double P_VALUE_THRESHOLD = 0.001;
-
+	public static double P_VALUE_THRESHOLD = 0.001;
 	public static int SIZE_CONSENSUS_DONOR = 2;
 	public static int SIZE_CONSENSUS_ACCEPTOR = 2;
 	public static final double THRESHOLD_ENTROPY = 0.05;
 	public static final int THRESHOLD_COUNT = 100;
 	public static final double THRESHOLD_P = 0.95;
-	public static final double THRESHOLD_BRANCH_U12_SCORE = 0.95;
+	public static final double THRESHOLD_BRANCH_U12_PERCENTILE = 0.95;
 	public static int HTML_WIDTH = 20;
 	public static int HTML_HEIGHT = 100;
 
@@ -316,7 +316,7 @@ public class SpliceAnalysis extends SnpEff {
 		config.getSnpEffectPredictor().save(config);
 		if (verbose) Timer.showStdErr("Done.");
 
-		thresholdU12Score = spliceTypes.branchU12Threshold(THRESHOLD_BRANCH_U12_SCORE); // Find U12 branch points
+		thresholdU12Score = spliceTypes.branchU12Threshold(THRESHOLD_BRANCH_U12_PERCENTILE); // Find U12 branch points
 		spliceTypes.createSpliceFasta(outputDir); // Create fasta files for splice sites
 
 		// Splice site PWM analysis
@@ -355,6 +355,7 @@ public class SpliceAnalysis extends SnpEff {
 		pwmsets.addAll(pwmSetsByName.values());
 		Collections.sort(pwmsets);
 		out("<p><center><h3>Analysis by Donnor-Acceptor type</h3></center><p><table border=1>\n");
+		out("<p><b>U12 PWM score threshold:</b> " + thresholdU12Score + "<p>\n");
 		out("<tr> <th> Rank </th> <th> Donor-Acceptor </th>  <th> Count </th>  <th> Donor Motif </th> <th> U12 matches (Observed / Expected) </th> <th> Acceptor Motif </th> <th> Intron length </th> <th> Intron Type Count </th> <th> Intron Type p-values </th> </tr>\n");
 		int count = 0;
 		for (PwmSet pwmset : pwmsets)
@@ -434,7 +435,7 @@ public class SpliceAnalysis extends SnpEff {
 
 		String donorStr = spliceTypes.seqDonor(tr, chrSeq, intronStart, intronEnd);
 		String accStr = spliceTypes.seqAcceptor(tr, chrSeq, intronStart, intronEnd);
-		String branchStr = spliceTypes.seqBranch(tr, chrSeq, intronStart, intronEnd);
+		// String branchStr = spliceTypes.seqBranch(tr, chrSeq, intronStart, intronEnd);
 		String intronSeqDonor = donorStr.substring(SpliceTypes.MAX_SPLICE_SIZE + 1);
 		String intronSeqAcc = accStr.substring(0, SpliceTypes.MAX_SPLICE_SIZE);
 
@@ -470,7 +471,8 @@ public class SpliceAnalysis extends SnpEff {
 		//---
 		// Branch U12 score
 		//---
-		double bu12score = spliceTypes.bestU12Score(branchStr);
+		Tuple<Double, Integer> bestU12 = spliceTypes.addBestU12Score(tr, chrSeq, intronStart, intronEnd);
+		double bestU12score = bestU12.first;
 
 		//---
 		// Update PWM
@@ -479,7 +481,7 @@ public class SpliceAnalysis extends SnpEff {
 		pwmSet.update(accStr, donorStr);
 		pwmSet.len(len);
 		pwmSet.incExonTypes(exonTypes);
-		if (bu12score >= thresholdU12Score) pwmSet.incU12();
+		if (bestU12score >= thresholdU12Score) pwmSet.incU12();
 
 		// Update total counts
 		pwmSet = getPwmSet(" ALL");
@@ -493,7 +495,7 @@ public class SpliceAnalysis extends SnpEff {
 		pwmSet = getPwmSetExonType(exonTypes);
 		pwmSet.update(accStr, donorStr);
 		pwmSet.len(len);
-		if (bu12score >= thresholdU12Score) pwmSet.incU12();
+		if (bestU12score >= thresholdU12Score) pwmSet.incU12();
 	}
 
 	@Override
