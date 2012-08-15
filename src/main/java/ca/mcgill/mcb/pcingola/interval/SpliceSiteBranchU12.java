@@ -7,7 +7,9 @@ import ca.mcgill.mcb.pcingola.snpEffect.ChangeEffect.EffectType;
  * 
  * @author pablocingolani
  */
-public class SpliceSiteBranchU12 extends SpliceSite {
+public class SpliceSiteBranchU12 extends SpliceSiteBranch {
+
+	private static final long serialVersionUID = 7903892379174750342L;
 
 	public SpliceSiteBranchU12() {
 		super();

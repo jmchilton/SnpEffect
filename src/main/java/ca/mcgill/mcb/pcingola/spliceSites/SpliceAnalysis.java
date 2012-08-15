@@ -11,6 +11,8 @@ import ca.mcgill.mcb.pcingola.fileIterator.FastaFileIterator;
 import ca.mcgill.mcb.pcingola.interval.Chromosome;
 import ca.mcgill.mcb.pcingola.interval.Exon;
 import ca.mcgill.mcb.pcingola.interval.Gene;
+import ca.mcgill.mcb.pcingola.interval.Intron;
+import ca.mcgill.mcb.pcingola.interval.SpliceSiteBranchU12;
 import ca.mcgill.mcb.pcingola.interval.Transcript;
 import ca.mcgill.mcb.pcingola.motif.MotifLogo;
 import ca.mcgill.mcb.pcingola.motif.Pwm;
@@ -59,6 +61,16 @@ public class SpliceAnalysis extends SnpEff {
 			int diff = ps.updates - updates;
 			if (diff != 0) return diff;
 			return name.compareTo(ps.name);
+		}
+
+		/**
+		 * Count U12 ratio = Observed / expected
+		 * @return
+		 */
+		public double countU12ObsExp() {
+			double expected = updates * (1.0 - THRESHOLD_BRANCH_U12_PERCENTILE);
+			double oe = countU12 / expected;
+			return oe;
 		}
 
 		void incExonTypes(String exonTypes) {
@@ -122,12 +134,11 @@ public class SpliceAnalysis extends SnpEff {
 			out.append("\t</td>\n");
 
 			// U12 count
-			double expected = updates * (1.0 - THRESHOLD_BRANCH_U12_PERCENTILE);
-			double oe = countU12 / expected; // ratio = Observed / expected
+			double oe = countU12ObsExp();
 
 			// U12 Colors
 			String bg = "ffffff";
-			if (oe > 10) bg = "ff0000";
+			if (oe > 5) bg = "ff0000";
 			else if (oe > 2) bg = "ff8888";
 			else if (oe > 1.2) bg = "ffcccc";
 			out.append(String.format("\t<td bgcolor=%s> <center> %d (%1.2f)" + " </center> </td>\n", bg, countU12, oe));
@@ -173,6 +184,7 @@ public class SpliceAnalysis extends SnpEff {
 	public static final int THRESHOLD_COUNT = 100;
 	public static final double THRESHOLD_P = 0.95;
 	public static final double THRESHOLD_BRANCH_U12_PERCENTILE = 0.95;
+	public static final double THRESHOLD_U12_OBSERVED_EXPECTED = 5;
 	public static int HTML_WIDTH = 20;
 	public static int HTML_HEIGHT = 100;
 
@@ -185,6 +197,7 @@ public class SpliceAnalysis extends SnpEff {
 	ArrayList<String> geneList = new ArrayList<String>();
 	HashMap<String, PwmSet> pwmSetsByName = new HashMap<String, PwmSet>();
 	HashMap<String, PwmSet> pwmSetsExonTypeByName = new HashMap<String, PwmSet>();
+	HashMap<String, Intron> intronsByStr = new HashMap<String, Intron>();
 	double thresholdPDonor;
 	double thresholdEntropyDonor;
 	double thresholdPAcc;
@@ -310,24 +323,25 @@ public class SpliceAnalysis extends SnpEff {
 
 		spliceTypes = new SpliceTypes(config);
 		spliceTypes.setVerbose(verbose);
+
+		// Splice site conservation
 		spliceTypes.analyzeAndCreate();
-
-		if (verbose) Timer.showStdErr("Saving database to file: " + config.getFileSnpEffectPredictor());
-		config.getSnpEffectPredictor().save(config);
-		if (verbose) Timer.showStdErr("Done.");
-
 		thresholdU12Score = spliceTypes.branchU12Threshold(THRESHOLD_BRANCH_U12_PERCENTILE); // Find U12 branch points
 		spliceTypes.createSpliceFasta(outputDir); // Create fasta files for splice sites
 
-		// Splice site PWM analysis
+		// Splice site PWM analysis, create BranchPoints U12
 		splicePwmAnalysis();
 
 		//---
-		// Save output
+		// Save 
 		//---
 		String outputFile = outputDir + "/" + this.getClass().getSimpleName() + "_" + genomeVer + ".html";
 		if (verbose) Timer.showStdErr("Saving output to: " + outputFile);
 		Gpr.toFile(outputFile, out);
+
+		if (verbose) Timer.showStdErr("Saving database to file: " + config.getFileSnpEffectPredictor());
+		config.getSnpEffectPredictor().save(config);
+		if (verbose) Timer.showStdErr("Done.");
 
 		if (verbose) Timer.showStdErr("Finished!");
 		return true;
@@ -339,17 +353,52 @@ public class SpliceAnalysis extends SnpEff {
 	void splicePwmAnalysis() {
 		if (verbose) Timer.showStdErr("Splice analysis (PWM). Reading fasta file: " + genomeFasta);
 
-		out("<pre>\n");
-
-		// Iterate over all chromosomes
+		//---
+		// Main analysis: Iterate over all chromosomes
+		//---
 		FastaFileIterator ffi = new FastaFileIterator(genomeFasta);
+		out("<pre>\n");
 		for (String chrSeq : ffi) {
 			String chrName = Chromosome.simpleName(ffi.getName());
 			splicePwmAnalysis(chrName, chrSeq);
 		}
 		out("</pre>\n");
 
-		// Show PwmSets
+		//---
+		// Create U12 sites
+		//---
+		for (String donorAcc : pwmSetsByName.keySet()) {
+			PwmSet pwmSet = getPwmSet(donorAcc);
+
+			// Is it over threshold?
+			if ((pwmSet.updates >= THRESHOLD_COUNT) && (pwmSet.countU12ObsExp() > THRESHOLD_U12_OBSERVED_EXPECTED)) {
+				List<SpliceSiteBranchU12> ssbu12sites = spliceTypes.getBranchU12(donorAcc);
+
+				// Add sites to transcript
+				for (SpliceSiteBranchU12 bu12 : ssbu12sites) {
+					Transcript tr = (Transcript) bu12.getParent();
+					tr.add(bu12);
+					Gpr.debug("Adding BranchU12 '" + bu12 + "' to transcript " + tr.getId() + "\tDonor-acceptor pair: " + donorAcc + "\tObs/Expected: " + getPwmSet(donorAcc).countU12ObsExp());
+				}
+			}
+		}
+
+		//---
+		// Create a BED file showing all introns
+		//---
+		StringBuilder sb = new StringBuilder();
+		String bedFile = outputDir + "/" + this.getClass().getSimpleName() + "_" + genomeVer + "_introns.bed";
+		if (verbose) Timer.showStdErr("Writing Introns BED file to '" + bedFile + "'");
+		ArrayList<Intron> introns = new ArrayList<Intron>();
+		introns.addAll(intronsByStr.values());
+		Collections.sort(introns);
+		for (Intron i : introns)
+			sb.append(i.getChromosomeName() + "\t" + (i.getStart() + 1) + "\t" + (i.getEnd() + 1) + "\t" + i.getId() + "\n");
+		Gpr.toFile(bedFile, sb);
+
+		//---
+		// Show results
+		//---
 		if (verbose) Timer.showStdErr("Filter out low count splice sites. Exons: " + countIntrons + "\tThreshold: " + THRESHOLD_COUNT);
 		ArrayList<PwmSet> pwmsets = new ArrayList<PwmSet>();
 		pwmsets.addAll(pwmSetsByName.values());
@@ -383,6 +432,9 @@ public class SpliceAnalysis extends SnpEff {
 		int countEx = 0;
 		HashSet<String> done = new HashSet<String>();
 
+		//---
+		// Find all exons in this chromosome
+		//---
 		for (Gene gene : config.getGenome().getGenes()) {
 			if (gene.getChromosomeName().equals(chrName)) { // Same chromosome
 				for (Transcript tr : gene) {
@@ -410,6 +462,10 @@ public class SpliceAnalysis extends SnpEff {
 							if (!done.contains(key)) {
 								updatePwm(tr, chrSeq, start, end, exonTypes);
 								done.add(key);
+
+								// Create BED file
+								Intron intron = new Intron(tr, start, end, 1, exonTypes);
+								intronsByStr.put(intron.toString(), intron); // We use a hash to avoid adding the same intron multiple times
 							}
 						}
 
@@ -435,7 +491,6 @@ public class SpliceAnalysis extends SnpEff {
 
 		String donorStr = spliceTypes.seqDonor(tr, chrSeq, intronStart, intronEnd);
 		String accStr = spliceTypes.seqAcceptor(tr, chrSeq, intronStart, intronEnd);
-		// String branchStr = spliceTypes.seqBranch(tr, chrSeq, intronStart, intronEnd);
 		String intronSeqDonor = donorStr.substring(SpliceTypes.MAX_SPLICE_SIZE + 1);
 		String intronSeqAcc = accStr.substring(0, SpliceTypes.MAX_SPLICE_SIZE);
 
@@ -471,7 +526,7 @@ public class SpliceAnalysis extends SnpEff {
 		//---
 		// Branch U12 score
 		//---
-		Tuple<Double, Integer> bestU12 = spliceTypes.addBestU12Score(tr, chrSeq, intronStart, intronEnd);
+		Tuple<Double, Integer> bestU12 = spliceTypes.addBestU12Score(tr, chrSeq, consensus, intronStart, intronEnd);
 		double bestU12score = bestU12.first;
 
 		//---

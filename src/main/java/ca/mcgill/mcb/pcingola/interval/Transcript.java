@@ -30,7 +30,7 @@ public class Transcript extends IntervalAndSubIntervals<Exon> {
 
 	private static final long serialVersionUID = -2665025617916107311L;
 
-	ArrayList<SpliceSiteBranchU12> spliceBranchU12Sites;
+	ArrayList<SpliceSiteBranch> spliceBranchSites;
 	ArrayList<Utr> utrs;
 	ArrayList<Cds> cdss; // Sometimes we have additional CDS information
 	Upstream upstream;
@@ -43,7 +43,7 @@ public class Transcript extends IntervalAndSubIntervals<Exon> {
 
 	protected Transcript() {
 		super();
-		spliceBranchU12Sites = new ArrayList<SpliceSiteBranchU12>();
+		spliceBranchSites = new ArrayList<SpliceSiteBranch>();
 		utrs = new ArrayList<Utr>();
 		cdss = new ArrayList<Cds>();
 		type = EffectType.TRANSCRIPT;
@@ -51,7 +51,7 @@ public class Transcript extends IntervalAndSubIntervals<Exon> {
 
 	public Transcript(Gene gene, int start, int end, int strand, String id) {
 		super(gene, start, end, strand, id);
-		spliceBranchU12Sites = new ArrayList<SpliceSiteBranchU12>();
+		spliceBranchSites = new ArrayList<SpliceSiteBranch>();
 		utrs = new ArrayList<Utr>();
 		cdss = new ArrayList<Cds>();
 		type = EffectType.TRANSCRIPT;
@@ -71,7 +71,7 @@ public class Transcript extends IntervalAndSubIntervals<Exon> {
 	 * @param branchU12
 	 */
 	public void add(SpliceSiteBranchU12 branchU12) {
-		spliceBranchU12Sites.add(branchU12);
+		spliceBranchSites.add(branchU12);
 	}
 
 	/**
@@ -498,8 +498,8 @@ public class Transcript extends IntervalAndSubIntervals<Exon> {
 		return downstream;
 	}
 
-	public ArrayList<SpliceSiteBranchU12> getSpliceBranchU12Sites() {
-		return spliceBranchU12Sites;
+	public ArrayList<SpliceSiteBranch> getSpliceBranchSites() {
+		return spliceBranchSites;
 	}
 
 	public Upstream getUpstream() {
@@ -616,19 +616,28 @@ public class Transcript extends IntervalAndSubIntervals<Exon> {
 		//---
 		// Hits a UTR region?
 		//---
-		boolean includedInUtr = false;
+		boolean included = false;
 		for (Utr utr : utrs)
 			if (utr.intersects(seqChange)) {
 				// Calculate the effect
 				List<ChangeEffect> chEffList = utr.seqChangeEffect(seqChange, changeEffect.clone());
 				if (!chEffList.isEmpty()) changeEffectList.addAll(chEffList);
-
-				// Is this seqChange fully included in the UTR?
-				includedInUtr |= utr.includes(seqChange);
+				included |= utr.includes(seqChange); // Is this seqChange fully included in the UTR?
 			}
+		if (included) return changeEffectList; // SeqChange fully included in the UTR? => We are done.
 
-		// Since the effect was fully included in the UTR, we are done.
-		if (includedInUtr) return changeEffectList;
+		//---
+		// Hits a SpliceSiteBranch region?
+		//---
+		included = false;
+		for (SpliceSiteBranch ssbranch : spliceBranchSites)
+			if (ssbranch.intersects(seqChange)) {
+				// Calculate the effect
+				List<ChangeEffect> chEffList = ssbranch.seqChangeEffect(seqChange, changeEffect.clone());
+				if (!chEffList.isEmpty()) changeEffectList.addAll(chEffList);
+				included |= ssbranch.includes(seqChange); // Is this seqChange fully included branch site?
+			}
+		if (included) return changeEffectList; // SeqChange fully included in the Branch site? => We are done.
 
 		//---
 		// Analyze non-coding transcripts (or 'interval' seqChanges)
@@ -710,13 +719,14 @@ public class Transcript extends IntervalAndSubIntervals<Exon> {
 			cdss.add((Cds) m);
 
 		for (Marker m : markerSerializer.getNextFieldMarkers())
-			spliceBranchU12Sites.add((SpliceSiteBranchU12) m);
+			spliceBranchSites.add((SpliceSiteBranchU12) m);
 	}
 
 	/**
 	 * Create a string to serialize to a file
 	 * @return
 	 */
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
 	public String serializeSave(MarkerSerializer markerSerializer) {
 		return super.serializeSave(markerSerializer) //
@@ -726,7 +736,7 @@ public class Transcript extends IntervalAndSubIntervals<Exon> {
 				+ "\t" + markerSerializer.save(downstream) //
 				+ "\t" + markerSerializer.save((Iterable) utrs)//
 				+ "\t" + markerSerializer.save((Iterable) cdss)//
-				+ "\t" + markerSerializer.save((Iterable) spliceBranchU12Sites)//
+				+ "\t" + markerSerializer.save((Iterable) spliceBranchSites)//
 		;
 	}
 

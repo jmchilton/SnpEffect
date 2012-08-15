@@ -158,8 +158,11 @@ public class MarkerSerializer {
 			case SPLICE_SITE_ACCEPTOR:
 				m = new SpliceSiteAcceptor();
 				break;
+			case SPLICE_SITE_BRANCH:
+				m = new SpliceSiteBranch();
+				break;
 			case SPLICE_SITE_BRANCH_U12:
-				m = new SpliceSiteAcceptor();
+				m = new SpliceSiteBranchU12();
 				break;
 			case SPLICE_SITE_DONOR:
 				m = new SpliceSiteDonor();

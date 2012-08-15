@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
+import ca.mcgill.mcb.pcingola.collections.AutoHashMap;
 import ca.mcgill.mcb.pcingola.fileIterator.FastaFileIterator;
 import ca.mcgill.mcb.pcingola.interval.Chromosome;
 import ca.mcgill.mcb.pcingola.interval.Exon;
@@ -40,7 +41,7 @@ public class SpliceTypes {
 	HashMap<String, String> branchByIntron = new HashMap<String, String>();
 	ArrayList<String> donorAccPairDonor = new ArrayList<String>();
 	ArrayList<String> donorAccPairAcc = new ArrayList<String>();
-	ArrayList<SpliceSiteBranchU12> branchU12 = new ArrayList<SpliceSiteBranchU12>();
+	AutoHashMap<String, List<SpliceSiteBranchU12>> branchU12ByDonorAcc = new AutoHashMap<String, List<SpliceSiteBranchU12>>(new ArrayList<SpliceSiteBranchU12>());
 	HashMap<String, Integer> donorAcc = new HashMap<String, Integer>();
 	AcgtTree acgtTreeDonors = new AcgtTree();
 	AcgtTree acgtTreeAcc = new AcgtTree();
@@ -98,7 +99,7 @@ public class SpliceTypes {
 	 * @param seq
 	 * @return A Tuple<Double, Integer> having the best score and best position
 	 */
-	public Tuple<Double, Integer> addBestU12Score(Transcript tr, String chrSeq, int intronStart, int intronEnd) {
+	public Tuple<Double, Integer> addBestU12Score(Transcript tr, String chrSeq, String donorAcceptor, int intronStart, int intronEnd) {
 		// Get branch site string: SIZE_BRANCH bases before intron ends.
 		String branchStr = seqBranch(tr, chrSeq, intronStart, intronEnd);
 
@@ -112,10 +113,18 @@ public class SpliceTypes {
 
 		// Add to a collection
 		SpliceSiteBranchU12 ssu12 = new SpliceSiteBranchU12(tr, bestU12Pos, bestU12Pos, tr.getStrand(), "");
-		branchU12.add(ssu12);
-		Gpr.debug("ADDING: " + ssu12);
+		addBranchU12(donorAcceptor, ssu12);
 
 		return bestU12;
+	}
+
+	/**
+	 * Add a SpliceSiteBranchU12 for this donor-Acceptor pair
+	 * @param donorAcceptor
+	 * @param ssu12
+	 */
+	void addBranchU12(String donorAcceptor, SpliceSiteBranchU12 ssu12) {
+		branchU12ByDonorAcc.getOrCreate(donorAcceptor).add(ssu12);
 	}
 
 	/**
@@ -370,6 +379,15 @@ public class SpliceTypes {
 
 	public String getBranchByIntron(String intronKey) {
 		return branchByIntron.get(intronKey);
+	}
+
+	/**
+	 * Add a SpliceSiteBranchU12 for this donor-Acceptor pair
+	 * @param donorAcceptor
+	 * @param ssu12
+	 */
+	public List<SpliceSiteBranchU12> getBranchU12(String donorAcceptor) {
+		return branchU12ByDonorAcc.getOrCreate(donorAcceptor);
 	}
 
 	public String getDonor(int i) {

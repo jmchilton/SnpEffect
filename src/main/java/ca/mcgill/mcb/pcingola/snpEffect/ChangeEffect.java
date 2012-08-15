@@ -41,6 +41,7 @@ public class ChangeEffect implements Cloneable {
 		, UTR_5_DELETED //		
 		, START_GAINED //
 		, SPLICE_SITE_ACCEPTOR //
+		, SPLICE_SITE_BRANCH //
 		, SPLICE_SITE_BRANCH_U12 //
 		, SPLICE_SITE_DONOR //
 		, START_LOST // 
@@ -278,6 +279,7 @@ public class ChangeEffect implements Cloneable {
 				effectImpact = EffectImpact.MODERATE;
 				break;
 
+			case SPLICE_SITE_BRANCH:
 			case NON_SYNONYMOUS_START:
 			case NON_SYNONYMOUS_STOP:
 			case START_GAINED:
@@ -368,7 +370,8 @@ public class ChangeEffect implements Cloneable {
 		case SPLICE_SITE_ACCEPTOR:
 			return EffectType.SPLICE_SITE_ACCEPTOR.toString();
 		case SPLICE_SITE_BRANCH_U12:
-			return EffectType.SPLICE_SITE_BRANCH_U12.toString();
+		case SPLICE_SITE_BRANCH:
+			return EffectType.SPLICE_SITE_BRANCH.toString();
 		case SPLICE_SITE_DONOR:
 			return EffectType.SPLICE_SITE_DONOR.toString();
 		case INTRAGENIC:
@@ -487,7 +490,11 @@ public class ChangeEffect implements Cloneable {
 	}
 
 	public boolean isSpliceSite() {
-		return (effectType == EffectType.SPLICE_SITE_DONOR) || (effectType == EffectType.SPLICE_SITE_ACCEPTOR) || (effectType == EffectType.SPLICE_SITE_BRANCH_U12);
+		return (effectType == EffectType.SPLICE_SITE_DONOR) //
+				|| (effectType == EffectType.SPLICE_SITE_ACCEPTOR) //
+				|| (effectType == EffectType.SPLICE_SITE_BRANCH) //
+				|| (effectType == EffectType.SPLICE_SITE_BRANCH_U12) //
+		;
 	}
 
 	public boolean isStartGained() {
