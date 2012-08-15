@@ -2,6 +2,7 @@ package ca.mcgill.mcb.pcingola.interval;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -45,6 +46,16 @@ public class Markers implements Iterable<Marker>, Serializable {
 	 */
 	public Markers add(Markers intervalsMarkerIntervaloAdd) {
 		markers.addAll(intervalsMarkerIntervaloAdd.markers);
+		return this;
+	}
+
+	/**
+	 * Add all markers in this collection
+	 * @param intervalsMarkerIntervaloAdd
+	 */
+	public Markers addAll(Collection<? extends Marker> mm) {
+		for (Marker m : mm)
+			markers.add(m);
 		return this;
 	}
 

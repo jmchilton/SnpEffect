@@ -12,6 +12,8 @@ import ca.mcgill.mcb.pcingola.interval.Chromosome;
 import ca.mcgill.mcb.pcingola.interval.Exon;
 import ca.mcgill.mcb.pcingola.interval.Gene;
 import ca.mcgill.mcb.pcingola.interval.Intron;
+import ca.mcgill.mcb.pcingola.interval.Marker;
+import ca.mcgill.mcb.pcingola.interval.Markers;
 import ca.mcgill.mcb.pcingola.interval.SpliceSiteBranchU12;
 import ca.mcgill.mcb.pcingola.interval.Transcript;
 import ca.mcgill.mcb.pcingola.motif.MotifLogo;
@@ -367,6 +369,11 @@ public class SpliceAnalysis extends SnpEff {
 		//---
 		// Create U12 sites
 		//---
+		String bedFile = outputDir + "/" + this.getClass().getSimpleName() + "_" + genomeVer + "_introns_branchSitesU12.bed";
+		if (verbose) Timer.showStdErr("Writing Introns and SpliceSitesBranchU12 file to BED file: '" + bedFile + "'");
+
+		// ArrayList<Marker> markers = new ArrayList<Marker>();
+		Markers markersBed = new Markers();
 		for (String donorAcc : pwmSetsByName.keySet()) {
 			PwmSet pwmSet = getPwmSet(donorAcc);
 
@@ -377,22 +384,20 @@ public class SpliceAnalysis extends SnpEff {
 				// Add sites to transcript
 				for (SpliceSiteBranchU12 bu12 : ssbu12sites) {
 					Transcript tr = (Transcript) bu12.getParent();
-					tr.add(bu12);
+					tr.add(bu12); // Add branch site to transcript
+					markersBed.add(bu12); // Add to bed file
 					Gpr.debug("Adding BranchU12 '" + bu12 + "' to transcript " + tr.getId() + "\tDonor-acceptor pair: " + donorAcc + "\tObs/Expected: " + getPwmSet(donorAcc).countU12ObsExp());
 				}
 			}
 		}
 
-		//---
-		// Create a BED file showing all introns
-		//---
+		// Add introns
+		markersBed.addAll(intronsByStr.values());
+		markersBed.sort(false, false);
+
+		// Create BED file
 		StringBuilder sb = new StringBuilder();
-		String bedFile = outputDir + "/" + this.getClass().getSimpleName() + "_" + genomeVer + "_introns.bed";
-		if (verbose) Timer.showStdErr("Writing Introns BED file to '" + bedFile + "'");
-		ArrayList<Intron> introns = new ArrayList<Intron>();
-		introns.addAll(intronsByStr.values());
-		Collections.sort(introns);
-		for (Intron i : introns)
+		for (Marker i : markersBed)
 			sb.append(i.getChromosomeName() + "\t" + (i.getStart() + 1) + "\t" + (i.getEnd() + 1) + "\t" + i.getId() + "\n");
 		Gpr.toFile(bedFile, sb);
 
