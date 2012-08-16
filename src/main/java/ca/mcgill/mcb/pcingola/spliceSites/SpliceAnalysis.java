@@ -14,6 +14,7 @@ import ca.mcgill.mcb.pcingola.interval.Gene;
 import ca.mcgill.mcb.pcingola.interval.Intron;
 import ca.mcgill.mcb.pcingola.interval.Marker;
 import ca.mcgill.mcb.pcingola.interval.Markers;
+import ca.mcgill.mcb.pcingola.interval.SpliceSiteBranch;
 import ca.mcgill.mcb.pcingola.interval.SpliceSiteBranchU12;
 import ca.mcgill.mcb.pcingola.interval.Transcript;
 import ca.mcgill.mcb.pcingola.motif.MotifLogo;
@@ -397,8 +398,9 @@ public class SpliceAnalysis extends SnpEff {
 
 		// Create BED file
 		StringBuilder sb = new StringBuilder();
-		for (Marker i : markersBed)
-			sb.append(i.getChromosomeName() + "\t" + (i.getStart() + 1) + "\t" + (i.getEnd() + 1) + "\t" + i.getId() + "\n");
+		for (Marker i : markersBed) {
+			sb.append(i.getChromosomeName() + "\t" + (i.getStart() + 1) + "\t" + (i.getEnd() + 1) + "\t" + (i instanceof SpliceSiteBranch ? i.getType().toString() : i.getId()) + "\n");
+		}
 		Gpr.toFile(bedFile, sb);
 
 		//---
