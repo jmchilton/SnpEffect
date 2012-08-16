@@ -107,12 +107,17 @@ public class SpliceTypes {
 		Tuple<Double, Integer> bestU12 = bestU12Score(branchStr);
 
 		// Calculate chomosome position 
-		int bestU12Pos = bestU12.second;
-		if (tr.isStrandPlus()) bestU12Pos = intronEnd - SpliceTypes.SIZE_BRANCH + 1 + bestU12Pos;
-		else bestU12Pos = intronStart + SpliceTypes.SIZE_BRANCH - bestU12Pos;
+		int bestU12Start = bestU12.second, bestU12End;
+		if (tr.isStrandPlus()) {
+			bestU12Start = intronEnd - SpliceTypes.SIZE_BRANCH + 1 + bestU12Start;
+			bestU12End = bestU12Start + pwmU12.length();
+		} else {
+			bestU12Start = intronStart + SpliceTypes.SIZE_BRANCH - bestU12Start - pwmU12.length();
+			bestU12End = bestU12Start + pwmU12.length();
+		}
 
 		// Add to a collection
-		SpliceSiteBranchU12 ssu12 = new SpliceSiteBranchU12(tr, bestU12Pos, bestU12Pos, tr.getStrand(), "");
+		SpliceSiteBranchU12 ssu12 = new SpliceSiteBranchU12(tr, bestU12Start, bestU12End, tr.getStrand(), "");
 		addBranchU12(donorAcceptor, ssu12);
 
 		return bestU12;

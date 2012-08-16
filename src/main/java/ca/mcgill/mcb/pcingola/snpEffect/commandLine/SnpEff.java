@@ -40,9 +40,9 @@ public class SnpEff implements CommandLine {
 
 	public static final int COMMAND_LINE_WIDTH = 40;
 
-	public static final String BUILD = "2012-08-08";
+	public static final String BUILD = "2012-08-16";
 	public static final String VERSION_MAJOR = "3.0";
-	public static final String REVISION = "d";
+	public static final String REVISION = "e";
 	public static final String VERSION_SHORT = VERSION_MAJOR + REVISION;
 	public static final String VERSION = "SnpEff " + VERSION_SHORT + " (build " + BUILD + "), by " + Pcingola.BY;
 
