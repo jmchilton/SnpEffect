@@ -568,22 +568,32 @@ public class ChangeEffect implements Cloneable {
 			if (aaOld.equals(aaNew)) {
 				// Same AA: Synonymous coding
 				if ((codonNum == 0) && codonTable.isStartFirst(codonsOld)) {
-					if (codonTable.isStartFirst(codonsNew)) effectType = EffectType.SYNONYMOUS_START;
-					else effectType = EffectType.START_LOST; // Non-synonymous mutation on first codon => start lost
+					// It is in the first codon (which also is a start codon)
+					if (codonTable.isStartFirst(codonsNew)) effectType = EffectType.SYNONYMOUS_START; // The new codon is also a start codon => SYNONYMOUS_START
+					else effectType = EffectType.START_LOST; // The AA is the same, but the codon is not a start codon => start lost
 				} else if (codonTable.isStop(codonsOld)) {
-					if (codonTable.isStop(codonsNew)) effectType = EffectType.SYNONYMOUS_STOP;
-					else effectType = EffectType.STOP_LOST;
-				} else effectType = EffectType.SYNONYMOUS_CODING;
+					// Stop codon
+					if (codonTable.isStop(codonsNew)) effectType = EffectType.SYNONYMOUS_STOP; // New codon is also a stop => SYNONYMOUS_STOP
+					else effectType = EffectType.STOP_LOST; // New codon is not a stop, the we've lost a stop
+				} else {
+					// All other cases are just SYNONYMOUS_CODING
+					effectType = EffectType.SYNONYMOUS_CODING;
+				}
 			} else {
 				// Different AA: Non-synonymous coding
 				if ((codonNum == 0) && codonTable.isStartFirst(codonsOld)) {
+					// It is in the first codon (which also is a start codon)
 					if (codonTable.isStartFirst(codonsNew)) effectType = EffectType.NON_SYNONYMOUS_START; // Non-synonymous mutation on first codon => start lost
 					else effectType = EffectType.START_LOST; // Non-synonymous mutation on first codon => start lost
 				} else if (codonTable.isStop(codonsOld)) {
-					if (codonTable.isStop(codonsNew)) effectType = EffectType.NON_SYNONYMOUS_STOP;
+					// Stop codon
+					if (codonTable.isStop(codonsNew)) effectType = EffectType.NON_SYNONYMOUS_STOP; // Notice: This should never happen! (for some reason I removed this comment at some point and that create some confusion): http://www.biostars.org/post/show/51352/in-snpeff-impact-what-is-difference-between-stop_gained-and-non-synonymous_stop/
 					else effectType = EffectType.STOP_LOST;
 				} else if (codonTable.isStop(codonsNew)) effectType = EffectType.STOP_GAINED;
-				else effectType = EffectType.NON_SYNONYMOUS_CODING;
+				else {
+					// All other cases are just NON_SYN
+					effectType = EffectType.NON_SYNONYMOUS_CODING;
+				}
 			}
 		} else {
 			// Only change effect in some cases
