@@ -40,7 +40,7 @@ public class SnpEff implements CommandLine {
 
 	public static final int COMMAND_LINE_WIDTH = 40;
 
-	public static final String BUILD = "2012-08-16";
+	public static final String BUILD = "2012-08-20";
 	public static final String VERSION_MAJOR = "3.0";
 	public static final String REVISION = "e";
 	public static final String VERSION_SHORT = VERSION_MAJOR + REVISION;
@@ -267,13 +267,14 @@ public class SnpEff implements CommandLine {
 	public void usage(String message) {
 		if (message != null) System.err.println("Error: " + message + "\n");
 		System.err.println("snpEff version " + VERSION);
-		System.err.println("Usage: snpEff [eff]        [options] genome_version snp_file");
-		System.err.println("   or: snpEff download     [options] genome_version");
-		System.err.println("   or: snpEff build        [options] genome_version");
-		System.err.println("   or: snpEff dump         [options] genome_version");
-		System.err.println("   or: snpEff cds          [options] genome_version");
-		System.err.println("   or: snpEff protein      [options] genome_version");
-		System.err.println("   or: snpEff closestExon  [options] genome_version");
+		System.err.println("Usage: snpEff [eff]           [options] genome_version snp_file");
+		System.err.println("   or: snpEff download        [options] genome_version");
+		System.err.println("   or: snpEff build           [options] genome_version");
+		System.err.println("   or: snpEff dump            [options] genome_version");
+		System.err.println("   or: snpEff cds             [options] genome_version");
+		System.err.println("   or: snpEff protein         [options] genome_version");
+		System.err.println("   or: snpEff closestExon     [options] genome_version");
+		System.err.println("   or: snpEff spliceAnalysis  [options] genome_version");
 		System.exit(-1);
 	}
 }
