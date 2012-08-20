@@ -109,10 +109,10 @@ public class SpliceTypes {
 		// Calculate chomosome position 
 		int bestU12Start = bestU12.second, bestU12End;
 		if (tr.isStrandPlus()) {
-			bestU12Start = intronEnd - SpliceTypes.SIZE_BRANCH + 1 + bestU12Start;
+			bestU12Start = intronEnd - SpliceTypes.SIZE_BRANCH + bestU12Start;
 			bestU12End = bestU12Start + pwmU12.length();
 		} else {
-			bestU12Start = intronStart + SpliceTypes.SIZE_BRANCH - bestU12Start - pwmU12.length();
+			bestU12Start = intronStart + SpliceTypes.SIZE_BRANCH - bestU12Start - pwmU12.length() - 1;
 			bestU12End = bestU12Start + pwmU12.length();
 		}
 
