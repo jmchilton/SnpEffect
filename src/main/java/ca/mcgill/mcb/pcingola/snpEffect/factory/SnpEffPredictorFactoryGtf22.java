@@ -154,7 +154,7 @@ public class SnpEffPredictorFactoryGtf22 extends SnpEffPredictorFactoryGff {
 
 		// Is it protein coding?
 		boolean proteinCoding = isProteingCoding(source);
-		String geneBioType = "";
+		String geneBioType = "", trBioType = "";
 
 		// Parse attributes
 		if (fields.length >= 8) {
@@ -164,10 +164,15 @@ public class SnpEffPredictorFactoryGtf22 extends SnpEffPredictorFactoryGff {
 			geneId = attrMap.get("gene_id");
 			transcriptId = attrMap.get("transcript_id");
 			geneName = attrMap.get("gene_name");
+
 			geneBioType = attrMap.get("gene_biotype"); // Note: This is ENSEMBL specific
+			if (geneBioType == null) geneBioType = attrMap.get("gene_type"); // Note: This is GENCODE specific
+
+			trBioType = attrMap.get("transcript_type"); // Note: This is GENCODE specific
 		}
 
-		String trBioType = source; // Use 'source' as bioType (ENSEMBL uses this field)
+		// Use 'source' as bioType (ENSEMBL uses this field)
+		if ((trBioType == null) || trBioType.isEmpty()) trBioType = source;
 
 		// Transform null to empty
 		if (geneId == null) geneId = "";
