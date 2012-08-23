@@ -529,6 +529,13 @@ tgctgcggctgcggctgcggctgcggctacggctgcggct    ALT (from VCF file)
 
 				So the two VCF and TXT representations are equivalent.
 
+
+
+				<p style="font-size: 14pt"> <b> <a class="body" name="gatk"> What is the adecuate output for GATK? </a> </b></p>
+				You should use the <b>'-o gatk'</b> command line option to avoid problems.
+				The reason is that, even though GATK uses VCF, but sometimes new formats of the 'EFF' info field might cause trouble.
+				This happens when switching from SnpEff v2.X to SnpEff v3.0, since the latest GATK version still uses an older format.<br>
+
 				<hr> <center> <p style="font-size: 16pt"> <b> Output summary page </b></center></p>
 				<p style="font-size: 14pt"> <b> <a class="body" name="Effects_by_type_vs_Effects_by_region"> "Effects by type" vs "Effects by region" </a> </b></p>
 				SnpEff annotates variants. 
