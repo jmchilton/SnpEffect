@@ -21,14 +21,15 @@ cd $DIR
 rm -rvf `find . -name "CVS" -type d`
 cd -
 
-exit;
-
 # Create 'core' zip file
 cd $HOME
 ZIP="snpEff_v"$VERSION_REV"_core.zip"
 rm -f $ZIP 2> /dev/null
 zip -r $ZIP snpEff_$VERSION_REV
 cd -
+
+echo "FORCED PREMATURE EXIT"
+exit;
 
 # Create ZIP file for each database
 for d in `ls data/*/snpEffectPredictor.bin`
