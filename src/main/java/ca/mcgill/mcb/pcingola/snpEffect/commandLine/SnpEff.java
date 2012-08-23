@@ -35,14 +35,14 @@ public class SnpEff implements CommandLine {
 	 *  Available output formats
 	 */
 	public enum OutputFormat {
-		TXT, VCF, BED, BEDANN
+		TXT, VCF, BED, BEDANN, GATK
 	}
 
 	public static final int COMMAND_LINE_WIDTH = 40;
 
-	public static final String BUILD = "2012-08-20";
+	public static final String BUILD = "2012-08-23";
 	public static final String VERSION_MAJOR = "3.0";
-	public static final String REVISION = "e";
+	public static final String REVISION = "f";
 	public static final String VERSION_SHORT = VERSION_MAJOR + REVISION;
 	public static final String VERSION = "SnpEff " + VERSION_SHORT + " (build " + BUILD + "), by " + Pcingola.BY;
 

@@ -14,7 +14,7 @@ public class VcfEffect {
 	 * VcfFields in SnpEff version 2.X have a different format than 3.X 
 	 */
 	public enum FormatVersion {
-		FORMAT_2, FORMAT_3
+		FORMAT_SNPEFF_2, FORMAT_SNPEFF_3
 	};
 
 	FormatVersion formatVersion;
@@ -54,7 +54,7 @@ public class VcfEffect {
 		if (name.equals("EFF.AA")) return fieldNum;
 		fieldNum++;
 
-		if (formatVersion != FormatVersion.FORMAT_2) {
+		if (formatVersion != FormatVersion.FORMAT_SNPEFF_2) {
 			if (name.equals("EFF.AA_LEN")) return fieldNum;
 			fieldNum++;
 		}
@@ -78,7 +78,7 @@ public class VcfEffect {
 	}
 
 	public VcfEffect(String effStr) {
-		formatVersion = FormatVersion.FORMAT_3;
+		formatVersion = FormatVersion.FORMAT_SNPEFF_3;
 		parse(effStr);
 	}
 
@@ -156,7 +156,7 @@ public class VcfEffect {
 			if ((effs.length > index) && !effs[index].isEmpty()) aa = effs[index];
 			index++;
 
-			if (formatVersion != FormatVersion.FORMAT_2) {
+			if (formatVersion != FormatVersion.FORMAT_SNPEFF_2) {
 				if ((effs.length > index) && !effs[index].isEmpty()) aaLen = Gpr.parseIntSafe(effs[index]);
 				else aaLen = 0;
 				index++;

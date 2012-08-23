@@ -13,6 +13,8 @@ import ca.mcgill.mcb.pcingola.interval.Regulation;
 import ca.mcgill.mcb.pcingola.interval.Transcript;
 import ca.mcgill.mcb.pcingola.snpEffect.ChangeEffect;
 import ca.mcgill.mcb.pcingola.snpEffect.ChangeEffect.FunctionalClass;
+import ca.mcgill.mcb.pcingola.vcf.VcfEffect;
+import ca.mcgill.mcb.pcingola.vcf.VcfEffect.FormatVersion;
 import ca.mcgill.mcb.pcingola.vcf.VcfEntry;
 
 /**
@@ -26,9 +28,15 @@ public class VcfOutputFormatter extends OutputFormatter {
 
 	boolean needAddInfo = false;
 	boolean needAddHeader = true;
+	FormatVersion formatVersion = VcfEffect.FormatVersion.FORMAT_SNPEFF_3;
 
 	public VcfOutputFormatter() {
 		super();
+	}
+
+	public VcfOutputFormatter(FormatVersion formatVersion) {
+		super();
+		this.formatVersion = formatVersion;
 	}
 
 	/**
@@ -86,9 +94,11 @@ public class VcfOutputFormatter extends OutputFormatter {
 				effBuff.append("|");
 
 				// Add amino acid length
-				int aalen = changeEffect.getAaLength();
-				effBuff.append(aalen > 0 ? aalen : "");
-				effBuff.append("|");
+				if (formatVersion != FormatVersion.FORMAT_SNPEFF_2) { // This field is not in format version 2
+					int aalen = changeEffect.getAaLength();
+					effBuff.append(aalen > 0 ? aalen : "");
+					effBuff.append("|");
+				}
 
 				// Add gene info
 				Gene gene = changeEffect.getGene();

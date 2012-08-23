@@ -43,6 +43,7 @@ import ca.mcgill.mcb.pcingola.stats.SeqChangeStats;
 import ca.mcgill.mcb.pcingola.stats.VcfStats;
 import ca.mcgill.mcb.pcingola.util.Gpr;
 import ca.mcgill.mcb.pcingola.util.Timer;
+import ca.mcgill.mcb.pcingola.vcf.VcfEffect;
 import ca.mcgill.mcb.pcingola.vcf.VcfEntry;
 import freemarker.template.Configuration;
 import freemarker.template.DefaultObjectWrapper;
@@ -327,6 +328,9 @@ public class SnpEffCmdEff extends SnpEff {
 							outOffset = 1; // Implies '-1' since TXT coordinates are one-based
 						} else if (outFor.equals("VCF")) {
 							outputFormat = OutputFormat.VCF;
+							outOffset = 1; // Implies '-1' since VCF coordinates are one-based
+						} else if (outFor.equals("GATK")) {
+							outputFormat = OutputFormat.GATK;
 							outOffset = 1; // Implies '-1' since VCF coordinates are one-based
 						} else if (outFor.equals("BED")) {
 							outputFormat = OutputFormat.BED;
@@ -662,6 +666,9 @@ public class SnpEffCmdEff extends SnpEff {
 		case VCF:
 			outputFormatter = new VcfOutputFormatter();
 			break;
+		case GATK:
+			outputFormatter = new VcfOutputFormatter(VcfEffect.FormatVersion.FORMAT_SNPEFF_2);
+			break;
 		case BED:
 			outputFormatter = new BedOutputFormatter();
 			break;
@@ -784,7 +791,7 @@ public class SnpEffCmdEff extends SnpEff {
 		System.err.println("\nOptions:");
 		System.err.println("\t-a , -around            : Show N codons and amino acids around change (only in coding regions). Default is " + CodonChange.SHOW_CODONS_AROUND_CHANGE + " codons.");
 		System.err.println("\t-i <format>             : Input format [ vcf, txt, pileup, bed ]. Default: VCF.");
-		System.err.println("\t-o <format>             : Ouput format [ txt, vcf, bed, bedAnn ]. Default: VCF.");
+		System.err.println("\t-o <format>             : Ouput format [ txt, vcf, gatk, bed, bedAnn ]. Default: VCF.");
 		System.err.println("\t-interval               : Use a custom interval file (you may use this option many times)");
 		System.err.println("\t-chr <string>           : Prepend 'string' to chromosome name (e.g. 'chr1' instead of '1'). Only on TXT output.");
 		System.err.println("\t-s,  -stats             : Name of stats file (summary). Default is '" + DEFAULT_SUMMARY_FILE + "'");
