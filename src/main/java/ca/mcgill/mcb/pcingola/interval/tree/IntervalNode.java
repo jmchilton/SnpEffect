@@ -75,7 +75,7 @@ public class IntervalNode implements Serializable, Iterable<Marker> {
 	}
 
 	/**
-	 * Add all intervals to the list
+	 * Add all intervals to the 'allIntervals' list
 	 * @param allIntervals
 	 */
 	void addAllIntervals(List<Marker> allIntervals) {
