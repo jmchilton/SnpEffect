@@ -96,7 +96,7 @@ public class VcfOutputFormatter extends OutputFormatter {
 				// Add amino acid length
 				if (formatVersion != FormatVersion.FORMAT_SNPEFF_2) { // This field is not in format version 2
 					int aalen = changeEffect.getAaLength();
-					effBuff.append(aalen > 0 ? aalen : "");
+					effBuff.append(aalen >= 0 ? aalen : "");
 					effBuff.append("|");
 				}
 

@@ -196,10 +196,13 @@ public class ChangeEffect implements Cloneable {
 
 	/**
 	 * Amino acid length (negative if there is none)
-	 * @return
+	 * @return Amino acid length (CDS length / 3 ) or '-1' if there is no CDS length
 	 */
 	public int getAaLength() {
-		int lenNoStop = Math.max(0, getCdsLength() - 3); // Do not include the STOP codon
+		int cdsLen = getCdsLength();
+		if (cdsLen < 0) return -1;
+
+		int lenNoStop = Math.max(0, cdsLen - 3); // Do not include the STOP codon
 		return lenNoStop / 3;
 	}
 
@@ -218,17 +221,17 @@ public class ChangeEffect implements Cloneable {
 	public int getCdsLength() {
 		if (marker == null) return -1;
 
-		int cdsSize = -1;
-
 		// CDS size info
-		Transcript tr;
+		Transcript tr = null;
 		if (exon != null) tr = (Transcript) exon.findParent(Transcript.class);
 		else tr = (Transcript) marker.findParent(Transcript.class);
 
-		if (tr != null) cdsSize = tr.cds().length();
-
-		if (COMPATIBLE_v1_8 && (isUpstream() || isDownstream() || isUtr() || isSpliceSite() || isStartGained())) cdsSize = -1;
-		return cdsSize;
+		if ((tr != null) && tr.isProteinCoding()) return tr.cds().length();
+		return -1;
+		//		int cdsSize = -1;
+		//
+		//		if (COMPATIBLE_v1_8 && (isUpstream() || isDownstream() || isUtr() || isSpliceSite() || isStartGained())) cdsSize = -1;
+		//		return cdsSize;
 	}
 
 	/**
