@@ -60,11 +60,12 @@ public class MasterVcf<T> extends Master<VcfEntry, T> {
 				if (addHeader != null) {
 					// Add header lines
 					for (String add : addHeader)
-						vcfFileIterator.addHeader(add);
+						vcfFileIterator.getVcfHeader().addLine(add);
 				}
 
 				// Show header
-				if (!vcfFileIterator.getHeader().isEmpty()) System.out.println(vcfFileIterator.getHeader());
+				String headerStr = vcfFileIterator.getVcfHeader().toString();
+				if (!headerStr.isEmpty()) System.out.println(headerStr);
 			}
 		} catch (Throwable t) {
 			t.printStackTrace();

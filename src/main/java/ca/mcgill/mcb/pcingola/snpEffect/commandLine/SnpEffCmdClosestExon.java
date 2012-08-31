@@ -57,9 +57,9 @@ public class SnpEffCmdClosestExon extends SnpEff {
 	 * @param vcf
 	 */
 	void addHeaderLines(VcfFileIterator vcf) {
-		vcf.addHeader("##SnpEffVersion=\"" + SnpEff.VERSION + "\"");
-		vcf.addHeader("##SnpEffCmd=\"" + commandLineStr(false) + "\"");
-		vcf.addHeader(INFO_LINE);
+		vcf.getVcfHeader().addLine("##SnpEffVersion=\"" + SnpEff.VERSION + "\"");
+		vcf.getVcfHeader().addLine("##SnpEffCmd=\"" + commandLineStr(false) + "\"");
+		vcf.getVcfHeader().addLine(INFO_LINE);
 	}
 
 	/**
@@ -282,7 +282,8 @@ public class SnpEffCmdClosestExon extends SnpEff {
 				if (header) {
 					// Update and show header
 					addHeaderLines(vcf);
-					if (!vcf.getHeader().isEmpty()) System.out.println(vcf.getHeader());
+					String headerStr = vcf.getVcfHeader().toString();
+					if (!headerStr.isEmpty()) System.out.println(headerStr);
 					header = false;
 				}
 

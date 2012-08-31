@@ -356,13 +356,13 @@ public class VcfEntry extends Marker implements Iterable<VcfGenotype> {
 	 * @return VcfInfoType
 	 */
 	public VcfInfoType getVcfInfoType(String id) {
-		VcfInfo vcfInfo = vcfFileIterator.getVcfInfo(id);
+		VcfInfo vcfInfo = vcfFileIterator.getVcfHeader().getVcfInfo(id);
 		if (vcfInfo == null) return null;
 		return vcfInfo.getVcfInfoType();
 	}
 
 	public boolean hasField(String filedName) {
-		return vcfFileIterator.getVcfInfo(filedName) != null;
+		return vcfFileIterator.getVcfHeader().getVcfInfo(filedName) != null;
 	}
 
 	public boolean isDel() {

@@ -51,7 +51,7 @@ public class VcfOutputFormatter extends OutputFormatter {
 
 		// Add new lines
 		for (String newHeaderLine : getNewHeaderLines())
-			vcfFile.addHeader(newHeaderLine);
+			vcfFile.getVcfHeader().addLine(newHeaderLine);
 
 		needAddHeader = false;
 	}
@@ -205,6 +205,6 @@ public class VcfOutputFormatter extends OutputFormatter {
 
 		VcfEntry vcfEntry = (VcfEntry) section;
 		VcfFileIterator vcfFile = vcfEntry.getVcfFileIterator();
-		return vcfFile.getHeader();
+		return vcfFile.getVcfHeader().toString();
 	}
 }

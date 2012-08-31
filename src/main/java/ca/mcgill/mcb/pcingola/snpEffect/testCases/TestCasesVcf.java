@@ -302,7 +302,7 @@ public class TestCasesVcf extends TestCase {
 		String file = "./tests/test.chr1.1line.vcf";
 
 		VcfFileIterator vcfFile = new VcfFileIterator(file);
-		String header = vcfFile.readHeader();
+		String header = vcfFile.readHeader().toString();
 
 		Assert.assertEquals(false, header.charAt(header.length() - 1) == '\n');
 	}
