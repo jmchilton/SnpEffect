@@ -32,6 +32,7 @@ import ca.mcgill.mcb.pcingola.util.Gpr;
  */
 public class VcfInfo {
 
+	String line;
 	String id;
 	VcfInfoType vcfInfoType;
 	int number;
@@ -46,6 +47,11 @@ public class VcfInfo {
 	public VcfInfo(String line) {
 		// Is this an Info line?
 		if (line.startsWith("##INFO=") || line.startsWith("##FORMAT=")) {
+			// Remove all trailing '\n'
+			while (line.endsWith("\n"))
+				line = line.substring(0, line.length() - 1);
+			this.line = line;
+
 			int start = line.indexOf('<');
 			int end = line.lastIndexOf('>');
 			String params = line.substring(start + 1, end);
@@ -82,7 +88,6 @@ public class VcfInfo {
 		this.vcfInfoType = vcfInfoType;
 		this.description = description;
 		parseNumber(number);
-
 	}
 
 	public String getDescription() {
@@ -118,10 +123,13 @@ public class VcfInfo {
 
 	@Override
 	public String toString() {
-		return "ID=" + id//
-				+ ", Number=" + (onePerAllele ? "A" : (onePerGenotype ? "G" : number)) //
-				+ ", Type=" + vcfInfoType //
-				+ ", Description= \"" + description + "\"" //
+		if (line != null) return line;
+
+		return "##INFO=<ID=" + id//
+				+ ",Number=" + (onePerAllele ? "A" : (onePerGenotype ? "G" : number)) //
+				+ ",Type=" + vcfInfoType //
+				+ ",Description= \"" + description + "\"" //
+				+ ">" //
 		;
 	}
 

@@ -20,7 +20,6 @@ public class VcfHeader {
 
 	public VcfHeader() {
 		header = new StringBuffer();
-		//vcfInfoById = new HashMap<String, VcfInfo>();
 	}
 
 	/**
