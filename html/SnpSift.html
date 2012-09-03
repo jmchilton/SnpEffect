@@ -338,7 +338,11 @@ rs71262673</pre>
 				This is used to extract variants that intersect any interval. You provided the intervals as BED files.<p>
 
 				<b>Note:</b> BED file format is tab separated zero-based coordinates "chr \t start \t end " (for this application, all other fields in the BED file are ignored).<br>
-				<b>Note:</b> You can use command line option '-if 1' if you want one-based coordinates.<br>
+				<b>Command line options:</b> <br>
+				<ul>
+					<li> '-x' : Filter out (exclude) VCF entries that match any interval in the BED files.
+					<li> '-i file.vcf' : Specify the input VCF file (default is STDIN).
+				</ul>
 
 				<p>
 				E.g.: 
