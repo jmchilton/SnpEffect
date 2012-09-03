@@ -98,14 +98,25 @@ public class VcfEntry extends Marker implements Iterable<VcfGenotype> {
 	 * @param name
 	 * @param value
 	 */
-	public void addInfo(String info) {
-		if ((infoStr == null) || infoStr.isEmpty()) infoStr = info;
+	public void addInfo(String addInfoStr) {
+		addInfo(addInfoStr, true);
+	}
+
+	/**
+	 * Append a 'raw' INFO string (format is not checked)
+	 * WARNING: Info fields are NOT added to the hash, so trying to retrieve them using 'getInfo(name)' will fail!
+	 * 
+	 * @param name
+	 * @param value
+	 */
+	protected void addInfo(String addInfoStr, boolean invalidateCache) {
+		if ((infoStr == null) || infoStr.isEmpty()) infoStr = addInfoStr;
 		else {
 			if (!infoStr.endsWith(";")) infoStr += ";"; // Do we need to add a semicolon?
-			infoStr += info; // Add info string
+			infoStr += addInfoStr; // Add info string
 		}
 
-		info = null; // Invalidate hash
+		if (invalidateCache) addInfoStr = null; // Invalidate cache
 	}
 
 	/**
@@ -118,7 +129,8 @@ public class VcfEntry extends Marker implements Iterable<VcfGenotype> {
 		if ((value != null) && ((value.indexOf(' ') >= 0) || (value.indexOf(';') >= 0) || (value.indexOf('=') >= 0) || (value.indexOf('\t') >= 0) || (value.indexOf('\n') >= 0))) throw new RuntimeException("No white-space, semi-colons, or equals-signs are permitted in INFO field. Name:\"" + name + "\" Value:\"" + value + "\"");
 
 		String addInfoStr = name + (value != null ? "=" + value : "");
-		addInfo(addInfoStr);
+		info.put(name, value);
+		addInfo(addInfoStr, false);
 	}
 
 	/**

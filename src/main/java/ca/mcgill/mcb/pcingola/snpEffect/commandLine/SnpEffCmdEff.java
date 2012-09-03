@@ -74,6 +74,7 @@ public class SnpEffCmdEff extends SnpEff {
 	String inputFile = "-"; // Input file
 	String summaryFile; // Summary output file
 	String summaryGenesFile; // Gene table file
+	String onlyTranscriptsFile = null; // Only use the transcripts in this file (Format: One transcript ID per line)
 	SeqChangeFilter seqChangeFilter; // Filter seqChanges (before prediction)
 	InputFormat inputFormat = InputFormat.VCF; // Format use in input files
 	OutputFormat outputFormat = OutputFormat.VCF; // Output format
@@ -85,6 +86,7 @@ public class SnpEffCmdEff extends SnpEff {
 	ChangeEffectResutStats changeEffectResutStats;
 	VcfStats vcfStats;
 	HashSet<String> regulationTracks = new HashSet<String>();
+	List<VcfEntry> vcfEntriesDebug = null; // Use for debugging or testing (in some test-cases)
 
 	public SnpEffCmdEff() {
 		super();
@@ -366,6 +368,9 @@ public class SnpEffCmdEff extends SnpEff {
 						else treatAllAsProteinCoding = Gpr.parseBoolSafe(args[i]);
 					}
 				} else if (args[i].equalsIgnoreCase("-canon")) canonical = true; // Use canonical transcripts
+				else if (args[i].equalsIgnoreCase("-onlyTr")) {
+					if ((i + 1) < args.length) onlyTranscriptsFile = args[++i]; // Only use the transcripts in this file
+				}
 				//---
 				// Input options
 				//---
@@ -555,6 +560,14 @@ public class SnpEffCmdEff extends SnpEff {
 	 */
 	@Override
 	public boolean run() {
+		run(false);
+		return true;
+	}
+
+	/**
+	 * Run according to command line options
+	 */
+	public List<VcfEntry> run(boolean createList) {
 		//---
 		// Run predictor
 		//---
@@ -631,17 +644,34 @@ public class SnpEffCmdEff extends SnpEff {
 			if (verbose) Timer.showStdErr("done.");
 		}
 
+		// Filter canonical transcripts
+		if (onlyTranscriptsFile != null) {
+			// Load file
+			String onlyTr = Gpr.readFile(onlyTranscriptsFile);
+			HashSet<String> trIds = new HashSet<String>();
+			for (String trId : onlyTr.split("\n"))
+				trIds.add(trId.trim());
+
+			// Remove transcripts
+			if (verbose) Timer.showStdErr("Filtering out transcripts in file '" + onlyTranscriptsFile + "'. Total " + trIds.size() + " transcript IDs.");
+			int removed = config.getSnpEffectPredictor().keepTranscripts(trIds);
+			if (verbose) Timer.showStdErr("Done: " + removed + " transcripts removed.");
+		}
+
 		// Build tree
 		if (verbose) Timer.showStdErr("Building interval forest");
 		config.getSnpEffectPredictor().buildForest();
 		if (verbose) Timer.showStdErr("done.");
+
+		// Store VCF results in a list?
+		if (createList) vcfEntriesDebug = new ArrayList<VcfEntry>();
 
 		// Predict
 		if (verbose) Timer.showStdErr("Predicting variants");
 		runAnalysis();
 		if (verbose) Timer.showStdErr("done.");
 
-		return true;
+		return vcfEntriesDebug;
 	}
 
 	/**
@@ -664,7 +694,7 @@ public class SnpEffCmdEff extends SnpEff {
 			outputFormatter = new TxtOutputFormatter();
 			break;
 		case VCF:
-			outputFormatter = new VcfOutputFormatter();
+			outputFormatter = new VcfOutputFormatter(vcfEntriesDebug);
 			break;
 		case GATK:
 			outputFormatter = new VcfOutputFormatter(VcfEffect.FormatVersion.FORMAT_SNPEFF_2);
@@ -818,6 +848,7 @@ public class SnpEffCmdEff extends SnpEff {
 		System.err.println("\t-canon                          : Only use canonical transcripts.");
 		System.err.println("\t-onlyReg                        : Only use regulation tracks.");
 		System.err.println("\t-reg <name>                     : Regulation track to use (this option can be used add several times).");
+		System.err.println("\t-onlyTr <file.txt>              : Only use the transcripts in this file. Format: One transcript ID per line.");
 		System.err.println("\t-treatAllAsProteinCoding <bool> : If true, all transcript are treated as if they were protein conding. Default: Auto");
 		System.err.println("\t-ud, -upDownStreamLen           : Set upstream downstream interval length (in bases)");
 		System.err.println("\nGeneric options:");

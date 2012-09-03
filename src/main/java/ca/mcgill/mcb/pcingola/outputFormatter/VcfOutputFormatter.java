@@ -29,6 +29,7 @@ public class VcfOutputFormatter extends OutputFormatter {
 	boolean needAddInfo = false;
 	boolean needAddHeader = true;
 	FormatVersion formatVersion = VcfEffect.FormatVersion.FORMAT_SNPEFF_3;
+	List<VcfEntry> vcfEntries;
 
 	public VcfOutputFormatter() {
 		super();
@@ -37,6 +38,15 @@ public class VcfOutputFormatter extends OutputFormatter {
 	public VcfOutputFormatter(FormatVersion formatVersion) {
 		super();
 		this.formatVersion = formatVersion;
+	}
+
+	/**
+	 * Add all vcf entries to a list (used only for debugging and test-cases)
+	 * @param vcfEntries
+	 */
+	public VcfOutputFormatter(List<VcfEntry> vcfEntries) {
+		super();
+		this.vcfEntries = vcfEntries;
 	}
 
 	/**
@@ -166,7 +176,10 @@ public class VcfOutputFormatter extends OutputFormatter {
 	@Override
 	public String endSection(Marker marker) {
 		// Ignore other markers (e.g. seqChanges)
-		if (marker instanceof VcfEntry) return super.endSection(marker);
+		if (marker instanceof VcfEntry) {
+			if (vcfEntries != null) vcfEntries.add((VcfEntry) marker);
+			return super.endSection(marker);
+		}
 		return null;
 	}
 

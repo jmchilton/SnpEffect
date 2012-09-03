@@ -3,6 +3,7 @@ package ca.mcgill.mcb.pcingola.interval;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import ca.mcgill.mcb.pcingola.snpEffect.ChangeEffect;
 import ca.mcgill.mcb.pcingola.snpEffect.ChangeEffect.EffectType;
@@ -136,6 +137,23 @@ public class Gene extends IntervalAndSubIntervals<Transcript> implements Seriali
 	@Override
 	protected boolean isShowWarningIfParentDoesNotInclude() {
 		return false;
+	}
+
+	/**
+	 * Remove all transcripts in trIds
+	 * @return : Number of transcripts removed
+	 */
+	public int keepTranscripts(Set<String> trIds) {
+		// Find transcripts in trIds
+		ArrayList<Transcript> toDelete = new ArrayList<Transcript>();
+		for (Transcript t : this)
+			if (!trIds.contains(t.getId())) toDelete.add(t);
+
+		// Remove them
+		for (Transcript t : toDelete)
+			remove(t);
+
+		return toDelete.size();
 	}
 
 	/**

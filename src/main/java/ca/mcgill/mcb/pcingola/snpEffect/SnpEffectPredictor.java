@@ -178,6 +178,17 @@ public class SnpEffectPredictor implements Serializable {
 	}
 
 	/**
+	 * Remove all non-canonical transcripts
+	 * @return : Number of transcripts removed
+	 */
+	public int keepTranscripts(Set<String> trIds) {
+		int total = 0;
+		for (Gene g : genome.getGenes())
+			total += g.keepTranscripts(trIds);
+		return total;
+	}
+
+	/**
 	 * Dump to sdtout
 	 */
 	public void print() {
