@@ -128,7 +128,7 @@ public class VcfInfo {
 		return "##INFO=<ID=" + id//
 				+ ",Number=" + (onePerAllele ? "A" : (onePerGenotype ? "G" : number)) //
 				+ ",Type=" + vcfInfoType //
-				+ ",Description= \"" + description + "\"" //
+				+ ",Description=\"" + description + "\"" //
 				+ ">" //
 		;
 	}

@@ -32,7 +32,7 @@ echo "FORCED PREMATURE EXIT"
 exit;
 
 # Create ZIP file for each database
-for d in `ls data/*/snpEffectPredictor.bin`
+for d in `ls data/grape*/snpEffectPredictor.bin`
 do
 	DIR=`dirname $d`
 	GEN=`basename $DIR`

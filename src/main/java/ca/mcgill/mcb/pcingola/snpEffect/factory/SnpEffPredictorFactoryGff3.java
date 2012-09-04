@@ -84,6 +84,7 @@ public class SnpEffPredictorFactoryGff3 extends SnpEffPredictorFactoryGff {
 			// Add exon to each parent (can belong to more than one transcript)
 			String parents[] = parent.split(",");
 			for (String par : parents) {
+				par = par.trim();
 
 				// Exon's parent (should be a transcript)
 				Transcript tr = findTranscript(par, id);
@@ -231,6 +232,10 @@ public class SnpEffPredictorFactoryGff3 extends SnpEffPredictorFactoryGff {
 
 		if (id == null) id = typeToRead + "_" + chromo + "_" + (start + 1) + "_" + (end + 1); // No ID => create one
 		if (name == null) name = id; // No name? => Use ID
+
+		// Sometimes names or IDs may have spaces, we have to get rid of them
+		id = id.trim();
+		name = name.trim();
 
 		// Add interval
 		addInterval(id, type, chromo, start, end, strand, name, proteinCoding, parent, frame);

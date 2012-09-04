@@ -127,6 +127,11 @@ public class SnpEffPredictorFactoryGff2 extends SnpEffPredictorFactoryGff {
 
 		// Add interval
 		String id = typeToRead + "_" + chromo + "_" + (start + 1) + "_" + (end + 1);
+
+		// Sometimes names or IDs may have spaces, we have to get rid of them
+		id = id.trim();
+		geneId = geneId.trim();
+
 		addInterval(id, type, chromo, start, end, strand, geneId, trId);
 
 		return true;

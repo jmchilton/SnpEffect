@@ -178,6 +178,10 @@ public class SnpEffPredictorFactoryGtf22 extends SnpEffPredictorFactoryGff {
 		if (geneId == null) geneId = "";
 		if (transcriptId == null) transcriptId = "";
 
+		// Sometimes names or IDs may have spaces, we have to get rid of them
+		geneId = geneId.trim();
+		transcriptId = transcriptId.trim();
+
 		String id = type + "_" + chromo + "_" + (start + 1) + "_" + (end + 1); // Create ID
 		if (geneId.isEmpty()) warning("Empty gene_id. This should never happen (see norm");
 		else addInterval(id, type, chromo, start, end, strand, geneId, geneName, transcriptId, proteinCoding, geneBioType, trBioType, frame); // Add interval
