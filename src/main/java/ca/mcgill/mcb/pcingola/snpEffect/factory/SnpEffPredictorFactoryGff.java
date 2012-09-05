@@ -38,7 +38,6 @@ public abstract class SnpEffPredictorFactoryGff extends SnpEffPredictorFactory {
 	public static final String FASTA_DELIMITER = "##FASTA";
 
 	String version = "";
-	boolean readSequences = true; // Do not read sequences from GFF file (this is only used for debugging)
 	boolean mainFileHasFasta = false; // Are sequences in the GFF file or in a separate FASTA file?
 
 	static {
@@ -243,13 +242,5 @@ public abstract class SnpEffPredictorFactoryGff extends SnpEffPredictorFactory {
 
 		reader.close();
 		System.out.println((count > 0 ? "\n" : "") + "\tTotal: " + count + " " + typeToRead + "s added.");
-	}
-
-	/**
-	 * Read sequences from GFF file?
-	 * Note: This is only used for debugging
-	 */
-	public void setReadSequences(boolean readSequences) {
-		this.readSequences = readSequences;
 	}
 }

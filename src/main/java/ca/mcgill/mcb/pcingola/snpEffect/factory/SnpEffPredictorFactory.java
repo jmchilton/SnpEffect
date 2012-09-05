@@ -34,6 +34,7 @@ public abstract class SnpEffPredictorFactory {
 	public static boolean debug = false;
 
 	boolean verbose = false;
+	boolean readSequences = true; // Do not read sequences from GFF file (this is only used for debugging)
 	String fileName;
 	String fastaFile; // Only used for debugging or testing
 	String line;
@@ -168,13 +169,35 @@ public abstract class SnpEffPredictorFactory {
 		markersById.put(key, marker);
 	}
 
+	/**
+	 * Adjust chromosome length using gene information
+	 * This is used when the sequence is not available (which makes sense on test-cases and debugging only)
+	 */
+	protected void adjustChromosomes() {
+		HashMap<String, Integer> lenByChr = new HashMap<String, Integer>();
+		for (Gene gene : config.getGenome().getGenes()) {
+			String chrName = gene.getChromosomeName();
+			Integer len = lenByChr.get(chrName);
+			int max = Math.max(gene.getEnd(), (len != null ? len : 0));
+			lenByChr.put(chrName, max);
+			Gpr.debug("CHROMO LEN: " + chrName + "\t\t" + max);
+		}
+
+		// Set length
+		for (String chrName : lenByChr.keySet()) {
+			config.getGenome().getChromosome(chrName).setEnd(lenByChr.get(chrName));
+		}
+	}
+
+	/**
+	 * Perform some actions before reading sequences
+	 */
 	protected void beforeExonSequences() {
 		// Sometimes we have to guess exon info from CDS info (not the best case scenario, but there are a lot of crappy genome annotations around)
 		exonsFromCds();
 
 		// Some annotation formats split exons in two parts (e.g. stop-codon not part of exon in GTF).
 		deleteRedundant();
-
 	}
 
 	/**
@@ -491,6 +514,14 @@ public abstract class SnpEffPredictorFactory {
 		this.fileName = fileName;
 	}
 
+	/**
+	 * Read sequences?
+	 * Note: This is only used for debugging and testing
+	 */
+	public void setReadSequences(boolean readSequences) {
+		this.readSequences = readSequences;
+	}
+
 	public void setVerbose(boolean verbose) {
 		this.verbose = verbose;
 	}
@@ -518,4 +549,5 @@ public abstract class SnpEffPredictorFactory {
 	void warning(String msg) {
 		System.err.println("WARNING: " + msg + ". File '" + fileName + "' line " + lineNum + "\t'" + line + "'");
 	}
+
 }

@@ -58,6 +58,7 @@ public class TestSuiteAll {
 		suite.addTestSuite(TestCasesGff3.class);
 		suite.addTestSuite(TestCasesGtf22.class);
 		suite.addTestSuite(TestCasesVcf.class);
+		suite.addTestSuite(TestCasesRefSeq.class);
 
 		// File 
 		suite.addTestSuite(TestCasesSeekableReader.class);

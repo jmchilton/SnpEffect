@@ -109,21 +109,22 @@ public class SnpEffPredictorFactoryRefSeq extends SnpEffPredictorFactory {
 	@Override
 	public SnpEffectPredictor create() {
 		// Read gene intervals from a file
-		fileName = config.getBaseFileNameGenes() + ".txt";
+		if (fileName == null) fileName = config.getBaseFileNameGenes() + ".txt";
 
 		System.out.println("Reading gene intervals file : '" + fileName + "'");
 		readRefSeqFile(); // Read gene info
 
 		beforeExonSequences(); // Some clean-up before readng exon sequences
 
-		readExonSequences(); // Read chromosome sequences and set exon sequences
+		if (readSequences) readExonSequences(); // Read chromosome sequences and set exon sequences
+		else adjustChromosomes();
 
 		finishUp(false); // Perform adjustments
 
 		// Check that exons have sequences
 		boolean error = config.getGenome().showStats();
 		System.out.println("# Ignored transcripts        : " + ignoredTr);
-		if (error) throw new RuntimeException("Most Exons do not have sequences!");
+		if (error && readSequences) throw new RuntimeException("Most Exons do not have sequences!");
 
 		return snpEffectPredictor;
 	}
@@ -147,6 +148,7 @@ public class SnpEffPredictorFactoryRefSeq extends SnpEffPredictorFactory {
 		try {
 			int count = 0;
 			BufferedReader reader = Gpr.reader(fileName);
+			Gpr.debug(fileName);
 			if (reader == null) return; // Error
 
 			for (lineNum = 1; reader.ready(); lineNum++) {
@@ -188,19 +190,21 @@ public class SnpEffPredictorFactoryRefSeq extends SnpEffPredictorFactory {
 						//----
 						Chromosome chromo = getOrCreateChromosome(chromoName);
 
+						// Create IDs
+						String trId = uniqueTrId(id);
+						String geneId = geneName + "." + trId; // Create a gene ID using trId, because gene names are repeated across chromosomes
+
 						// Get or create gene
-						String geneId = geneName + "." + chromo.getId(); // Create a gene ID using chr, because gene ID are repeated across chromosomes
 						Gene gene = genesById.get(geneId);
 						if (gene == null) {
-							gene = new Gene(chromo, txstart, txend, strand, geneId, geneName, bioType(id));
+							gene = new Gene(chromo, txstart, txend, strand, geneId, geneName, bioType(trId));
 							genesById.put(geneId, gene);
 							snpEffectPredictor.add(gene);
 						}
 
 						// Create transcript
-						String trId = uniqueTrId(id);
 						Transcript tr = new Transcript(gene, txstart, txend, strand, trId);
-						boolean markAsCoding = isProteinCoding(id) && cdsStartStat.equals(CDS_STAT_COMPLETE) && cdsEndStat.equals(CDS_STAT_COMPLETE); // If CDS start or end are not 'complete', don't mark as protein coding
+						boolean markAsCoding = isProteinCoding(trId) && cdsStartStat.equals(CDS_STAT_COMPLETE) && cdsEndStat.equals(CDS_STAT_COMPLETE); // If CDS start or end are not 'complete', don't mark as protein coding
 						tr.setProteinCoding(markAsCoding);
 						add(tr);
 
