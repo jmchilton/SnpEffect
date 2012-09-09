@@ -25,6 +25,7 @@ public class TestSuiteAll {
 		// Binary sequences
 		suite.addTestSuite(TestCasesNmers.class);
 		suite.addTestSuite(TestCasesDnaSequence.class);
+		suite.addTestSuite(TestCasesDnaSequenceByte.class);
 		suite.addTestSuite(TestCasesDnaNSequence.class);
 		suite.addTestSuite(TestCaseSequenceIndexer.class);
 		suite.addTestSuite(TestCaseOverlap.class);
