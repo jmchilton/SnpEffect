@@ -34,6 +34,7 @@ public class SeqChange extends Marker {
 	double quality; // Quality prediction (negative means 'not available')
 	double score = Double.NaN; // Score (e.g. BED files)
 	int coverage; // Number of reads covering the position (negative means 'not available')
+	boolean imprecise = false; // Imprecise variant (coordinates are not exact (E.g. see section "Encoding Structural Variants in VCF" from VCF spec. 4.1)
 
 	public SeqChange(Marker parent, int start, int end, int strand, String id) {
 		super(parent, start, end, strand, id);
@@ -334,6 +335,10 @@ public class SeqChange extends Marker {
 		return (heterozygous != null) && !heterozygous;
 	}
 
+	public boolean isImprecise() {
+		return imprecise;
+	}
+
 	public boolean isInDel() {
 		return (changeType == ChangeType.INS) || (changeType == ChangeType.DEL);
 	}
@@ -403,36 +408,6 @@ public class SeqChange extends Marker {
 		return netChange;
 	}
 
-	//	/**
-	//	 * Parse a line (form a file)
-	//	 * Format: "chromosome \t position \t base \t snp \n" 
-	//	 * 
-	//	 * @param line
-	//	 * @param lineNum
-	//	 */
-	//	@Override
-	//	void parse(String line, int lineNum) {
-	//		line = line.trim(); // Remove spaces
-	//
-	//		// Ignore empty lines and comment lines
-	//		if ((line.length() > 0) && (!line.startsWith("#"))) {
-	//			// Parse line
-	//			String fields[] = line.split("\\s+");
-	//
-	//			// Is line OK?
-	//			if (fields.length >= 4) {
-	//				String chromosome = fields[0].trim();
-	//				if (chromosome != null) throw new RuntimeException("CHROMOSOME: Need to process chromosome info!");
-	//
-	//				start = Gpr.parseIntSafe(fields[1]);
-	//				reference = fields[2].toUpperCase();
-	//				change = fields[3].toUpperCase();
-	//
-	//				if (fields.length >= 5) quality = Gpr.parseIntSafe(fields[4]);
-	//			} else throw new RuntimeException("Error in line " + lineNum + " (number of fields is " + fields.length + "):\t" + line);
-	//		}
-	//	}
-
 	/**
 	 * Return the reference (always in positive strand)
 	 * @return
@@ -443,6 +418,10 @@ public class SeqChange extends Marker {
 
 	public void setHeterozygous(Boolean heterozygous) {
 		this.heterozygous = heterozygous;
+	}
+
+	public void setImprecise(boolean imprecise) {
+		this.imprecise = imprecise;
 	}
 
 	public void setScore(double score) {
@@ -467,4 +446,5 @@ public class SeqChange extends Marker {
 	public String toStringEnsembl() {
 		return getChromosomeName() + "\t" + start + "\t" + end + "\t" + reference + "/" + change + "\t+";
 	}
+
 }

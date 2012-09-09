@@ -173,10 +173,11 @@ public class VcfEntry extends Marker implements Iterable<VcfGenotype> {
 		// No change?
 		if (alt.isEmpty()) return new SeqChange(chromo, start, reference, reference, strand, id, quality, coverage);
 
+		alt = alt.toUpperCase();
+
 		// Case: Structural variant
-		// 20     3 .         C      G       .   PASS  DP=100
-		// 20     3 .         TC     AT      .   PASS  DP=100
-		if (alt.toUpperCase().startsWith("<DEL")) {
+		// 2 321682    .  T   <DEL>         6     PASS    IMPRECISE;SVTYPE=DEL;END=321887;SVLEN=-105;CIPOS=-56,20;CIEND=-10,62
+		if (alt.startsWith("<DEL")) {
 			int end = start + reference.length() - 1;
 
 			// If there is an 'END' tag, we should use it
@@ -187,6 +188,7 @@ public class VcfEntry extends Marker implements Iterable<VcfGenotype> {
 			}
 
 			// Create deletion string
+			// TODO: This should be changed. We should be using "imprecise" for these variants
 			int size = end - start + 1;
 			char change[] = new char[size];
 			for (int i = 0; i < change.length; i++)
