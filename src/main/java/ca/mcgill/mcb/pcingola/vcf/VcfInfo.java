@@ -71,7 +71,7 @@ public class VcfInfo {
 			// Find type
 			pattern = Pattern.compile("Type=([^,]+),");
 			matcher = pattern.matcher(params);
-			if (matcher.find()) vcfInfoType = VcfInfoType.valueOf(matcher.group(1).toUpperCase());
+			if (matcher.find()) vcfInfoType = VcfInfoType.parse(matcher.group(1).toUpperCase());
 			else throw new RuntimeException("Cannot find 'Type' in info line: '" + line + "'");
 
 			// Find description
