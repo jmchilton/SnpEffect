@@ -17,14 +17,15 @@ public class Interval implements Comparable<Interval>, Serializable {
 	protected int start, end;
 	protected byte strand;
 	protected String id = ""; // Interval's ID (e.g. gene name, transcript ID)
+	protected String chromosomeNameOri; // Original chromosome name (e.g. literal form a file)
 	protected Interval parent;
 
 	protected Interval() {
-		this.start = -1;
-		this.end = -1;
-		this.id = null;
-		this.strand = 0;
-		this.parent = null;
+		start = -1;
+		end = -1;
+		id = null;
+		strand = 0;
+		parent = null;
 	}
 
 	public Interval(Interval parent, int start, int end, int strand, String id) {
@@ -54,6 +55,10 @@ public class Interval implements Comparable<Interval>, Serializable {
 
 	public boolean equals(Interval interval) {
 		return compareTo(interval) == 0;
+	}
+
+	public String getChromosomeNameOri() {
+		return chromosomeNameOri;
 	}
 
 	public int getEnd() {
@@ -110,6 +115,10 @@ public class Interval implements Comparable<Interval>, Serializable {
 
 	public boolean isValid() {
 		return (start >= 0) && (start <= end);
+	}
+
+	public void setChromosomeNameOri(String chromosomeNameOri) {
+		this.chromosomeNameOri = chromosomeNameOri;
 	}
 
 	public void setEnd(int end) {

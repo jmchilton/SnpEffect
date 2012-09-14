@@ -76,6 +76,7 @@ public class SeqChangeBedFileIterator extends SeqChangeFileIterator {
 						// Create seqChange
 						SeqChange seqChange = new SeqChange(chromo, start, end, id);
 						seqChange.setScore(score);
+						seqChange.setChromosomeNameOri(chromosome);
 						return seqChange;
 					}
 				}
