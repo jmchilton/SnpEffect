@@ -89,7 +89,7 @@ public class OsCmdRunner extends Thread {
 
 			// Note: this only get values if osCmd.setSaveStd(true) is invoked
 			stdout = osCmd.getStdout();
-			stderr = osCmd.getStdout();
+			stderr = osCmd.getStderr();
 		}
 		osCmd = null;
 	}
