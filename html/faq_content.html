@@ -39,6 +39,7 @@
 - <a class="body" href="#What_happened_to_the_Hom/Het_field_(TXT_output)?"> What happened to the Hom/Het field (TXT output)? </a> <br>
 - <a class="body" href="#What_is_a_rare_amino_acid?"> What is a rare amino acid (RARE_AMINO_ACID effect)? </a> <br>
 - <a class="body" href="#Why_are_TXT_and_VCF_coordinates_different?"> Why are TXT and VCF coordinates different? </a> <br>
+- <a class="body" href="#counting_effects"> The total number of XXX effects in the summary does not match with the output file </a> <br>
 - <a class="body" href="#gatk"> What is the adecuate output for GATK?  </a> <br>
 <p>
 <b> Output summary page </b> <br>
@@ -529,6 +530,27 @@ tgctgcggctgcggctgcggctgcggctacggctgcggct    ALT (from VCF file)
 
 				So the two VCF and TXT representations are equivalent.
 
+
+
+				<p style="font-size: 14pt"> <b> <a class="body" name="counting_effects"> The total number of XXX effects in the summary does not match with the output file </a> </b></p>
+				Some people try to count the number of effects in a file by doing (assuming we want to count how many MODIFIER efefcts we have): <tt> grep -o MODIFIER output.eff.vcf | wc -l </tt>.<br>
+				This is incorrect because a VCF line can have multiple effect (e.g.when there are multiple transcripts in a gene).
+				A proper way to count effects would be:
+
+<pre>
+cat output.eff.vcf | cut -f 8 | tr ";" "\n" | grep ^EFF= | cut -f 2 -d = | tr "," "\n" | grep MODIFIER | wc -l
+</pre>
+
+				Brief explanation:
+
+				<table border=0>
+					<tr> <td> <tt>cut -f 8 </tt> </td> <td>  Extract INFO fields </td> </tr>
+					<tr> <td> <tt>tr ";" "\n" </tt> </td> <td>  Expand each field into one line </td> </tr>
+					<tr> <td> <tt>grep ^EFF= </tt> </td> <td>  Only keep 'EFF' fields </td> </tr>
+					<tr> <td> <tt>cut -f 2 -d = </tt> </td> <td>  Keep only the effect data (drop the 'EFF=' part) </td> </tr>
+					<tr> <td> <tt>tr "," "\n" </tt> </td> <td>  Expand effects to multiple lines </td> </tr>
+					<tr> <td> <tt>grep MODIFIER | wc -l </tt> </td> <td>  Count the ones you want (in this example 'MODIFIER')</td> </tr>
+				</table>
 
 
 				<p style="font-size: 14pt"> <b> <a class="body" name="gatk"> What is the adecuate output for GATK? </a> </b></p>
