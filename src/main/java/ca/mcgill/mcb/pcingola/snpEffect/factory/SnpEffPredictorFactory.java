@@ -1,5 +1,6 @@
 package ca.mcgill.mcb.pcingola.snpEffect.factory;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -382,6 +383,11 @@ public abstract class SnpEffPredictorFactory {
 		// If some UTRs are missing: calculate UTR information from CDS whenever possible
 		System.out.print("\n\tCreate UTRs from CDS (if needed): ");
 		utrFromCds(verbose, showEvery);
+
+		// Remove empty chromosomes
+		removeEmptryChromos();
+
+		// Done
 		System.out.println("");
 	}
 
@@ -455,6 +461,28 @@ public abstract class SnpEffPredictorFactory {
 		}
 
 		throw new RuntimeException("Cannot find reference sequence.");
+	}
+
+	/**
+	 * Remove emptry chromosomes
+	 */
+	void removeEmptryChromos() {
+		System.out.println("\n\tRemove empty chromosomes: ");
+		ArrayList<Chromosome> chrToDelete = new ArrayList<Chromosome>();
+		for (Chromosome chr : config.getGenome())
+			if (chr.size() <= 1) chrToDelete.add(chr);
+
+		for (Chromosome chr : chrToDelete) {
+			System.out.println("\t\tRemoving empty chromosome: '" + chr.getId() + "'");
+			config.getGenome().remove(chr);
+		}
+
+		if (chrToDelete.size() > 0) {
+			System.out.print("\t\tChromosome left: ");
+			for (Chromosome chr : config.getGenome())
+				System.out.print(chr.getId() + " ");
+			System.out.println("");
+		}
 	}
 
 	/** 

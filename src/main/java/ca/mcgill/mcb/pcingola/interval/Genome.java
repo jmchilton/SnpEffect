@@ -314,6 +314,17 @@ public class Genome extends Marker implements Serializable, Iterable<Chromosome>
 	}
 
 	/**
+	 * Remove a chromosome
+	 * WARINIG: Doesn't check any dependencies!
+	 * 
+	 * @param chromo
+	 */
+	public void remove(Chromosome chromo) {
+		chromosomeNames.remove(chromo.getId());
+		chromosomes.remove(chromo.getId());
+	}
+
+	/**
 	 * Parse a line from a serialized file
 	 * @param line
 	 * @return

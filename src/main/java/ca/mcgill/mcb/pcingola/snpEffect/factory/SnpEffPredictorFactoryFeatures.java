@@ -1,5 +1,7 @@
 package ca.mcgill.mcb.pcingola.snpEffect.factory;
 
+import java.util.List;
+
 import ca.mcgill.mcb.pcingola.genBank.Feature;
 import ca.mcgill.mcb.pcingola.genBank.Feature.Type;
 import ca.mcgill.mcb.pcingola.genBank.Features;
@@ -26,7 +28,7 @@ import ca.mcgill.mcb.pcingola.util.GprSeq;
 public abstract class SnpEffPredictorFactoryFeatures extends SnpEffPredictorFactory {
 
 	public static final int OFFSET = 1;
-	Chromosome chromosome; // It is assumed that there is only one 'Chromosome' (i.e. only one 'SOURCE' feature)
+	Chromosome chromosomeSource; // It is assumed that there is only one 'Chromosome' (i.e. only one 'SOURCE' feature)
 
 	public SnpEffPredictorFactoryFeatures(Config config) {
 		super(config, OFFSET);
@@ -46,20 +48,20 @@ public abstract class SnpEffPredictorFactoryFeatures extends SnpEffPredictorFact
 
 			// Add chromosome
 			if (f.getType() == Type.SOURCE) {
-				if (chromosome != null) throw new RuntimeException("SOURCE already assigned to chromosome");
-				chromosome = new Chromosome(genome, start, end, 1, chromoName(f)); // Convert coordinates to zero-based 
-				add(chromosome);
+				if (chromosomeSource != null) throw new RuntimeException("SOURCE already assigned to chromosome");
+				chromosomeSource = new Chromosome(genome, start, end, 1, chromoName(f)); // Convert coordinates to zero-based 
+				add(chromosomeSource);
 			}
 		}
 
 		// Sanity check
-		if (chromosome == null) throw new RuntimeException("Could not find SOURCE feature");
+		if (chromosomeSource == null) throw new RuntimeException("Could not find SOURCE feature");
 
 		//---
 		// Add a genes
 		//---
 		for (Feature f : features.getFeatures()) {
-			if (f.getType() == Type.GENE) findOrCreateGene(f, chromosome, false);
+			if (f.getType() == Type.GENE) findOrCreateGene(f, chromosomeSource, false);
 		}
 
 		//---
@@ -73,7 +75,7 @@ public abstract class SnpEffPredictorFactoryFeatures extends SnpEffPredictorFact
 				int end = f.getEnd() - inOffset;
 
 				String trId = getTrId(f);
-				Gene gene = findOrCreateGene(f, chromosome, false); // Find or create gene
+				Gene gene = findOrCreateGene(f, chromosomeSource, false); // Find or create gene
 
 				// Add transcript
 				Transcript tr = new Transcript(gene, start, end, f.isComplement() ? -1 : 1, trId);
@@ -99,7 +101,7 @@ public abstract class SnpEffPredictorFactoryFeatures extends SnpEffPredictorFact
 					if (verbose) System.err.println("WARNING: Transcript '" + trId + "' not found. Creating new transcript." + f);
 
 					// Not found? => Create gene and transcript
-					Gene gene = findOrCreateGene(f, chromosome, false); // Find or create gene
+					Gene gene = findOrCreateGene(f, chromosomeSource, false); // Find or create gene
 					trId = "Tr_" + start + "_" + end;
 					tr = new Transcript(gene, start, end, f.isComplement() ? -1 : 1, trId);
 					add(tr);
@@ -128,18 +130,24 @@ public abstract class SnpEffPredictorFactoryFeatures extends SnpEffPredictorFact
 	@Override
 	public SnpEffectPredictor create() {
 		// Read gene intervals from a file
-		System.out.println("Reading data file  : '" + fileName + "'");
+		System.out.println("Config: " + config.getGenome());
+
 		try {
 			// Read file and add all features
-			Features features = readFeatures();
-			addFeatures(features);
+			List<Features> featList = readFeatures();
 
-			// Some clean-up before readng exon sequences
-			beforeExonSequences();
+			// Iterate over all sources
+			for (Features features : featList) {
+				chromosomeSource = null; // Make sure we create a new source for each file
+				addFeatures(features);
 
-			// Get exon sequences
-			String sequence = sequence(features);
-			addExonSequences(chromosome.getId(), sequence);
+				// Some clean-up before readng exon sequences
+				beforeExonSequences();
+
+				// Get exon sequences
+				String sequence = sequence(features);
+				addExonSequences(chromosomeSource.getId(), sequence);
+			}
 
 			// Finish up (fix problems, add missing info, etc.)
 			finishUp(false);
@@ -155,6 +163,13 @@ public abstract class SnpEffPredictorFactoryFeatures extends SnpEffPredictorFact
 		return snpEffectPredictor;
 	}
 
+	/**
+	 * Find (or create) a gene from a feature
+	 * @param f
+	 * @param chr
+	 * @param warn
+	 * @return
+	 */
 	Gene findOrCreateGene(Feature f, Chromosome chr, boolean warn) {
 		int start = f.getStart() - inOffset;
 		int end = f.getEnd() - inOffset;
@@ -193,6 +208,13 @@ public abstract class SnpEffPredictorFactoryFeatures extends SnpEffPredictorFact
 		return "Gene_" + start + "_" + end;
 	}
 
+	/**
+	 * Get gene name from feature
+	 * @param f
+	 * @param start
+	 * @param end
+	 * @return
+	 */
 	protected String geneName(Feature f, int start, int end) {
 		// Try 'gene'...
 		String geneName = f.get("gene");
@@ -221,7 +243,7 @@ public abstract class SnpEffPredictorFactoryFeatures extends SnpEffPredictorFact
 	 * Get features from file
 	 * @return
 	 */
-	protected abstract Features readFeatures();
+	protected abstract List<Features> readFeatures();
 
 	/**
 	 * Get sequence either from features or from FASTA file

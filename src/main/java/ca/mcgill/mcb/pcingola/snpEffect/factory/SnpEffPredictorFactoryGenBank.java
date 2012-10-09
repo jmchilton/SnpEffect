@@ -1,8 +1,13 @@
 package ca.mcgill.mcb.pcingola.snpEffect.factory;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import ca.mcgill.mcb.pcingola.genBank.Features;
 import ca.mcgill.mcb.pcingola.genBank.GenBank;
+import ca.mcgill.mcb.pcingola.interval.Chromosome;
 import ca.mcgill.mcb.pcingola.snpEffect.Config;
+import ca.mcgill.mcb.pcingola.util.Gpr;
 
 /**
  * This class creates a SnpEffectPredictor from a GenBank file.
@@ -21,7 +26,20 @@ public class SnpEffPredictorFactoryGenBank extends SnpEffPredictorFactoryFeature
 	 * @return
 	 */
 	@Override
-	protected Features readFeatures() {
-		return new GenBank(fileName);
+	protected List<Features> readFeatures() {
+		ArrayList<Features> featList = new ArrayList<Features>();
+
+		if (Gpr.canRead(fileName)) {
+			System.out.println("Reading data file  : '" + fileName + "'");
+			featList.add(new GenBank(fileName));
+		} else {
+			for (Chromosome chr : config.getGenome()) {
+				String chrFileName = config.getDirDataVersion() + "/" + chr.getId() + ".gb";
+				System.out.println("Reading data file  : '" + chrFileName + "'");
+				featList.add(new GenBank(chrFileName));
+			}
+		}
+
+		return featList;
 	}
 }

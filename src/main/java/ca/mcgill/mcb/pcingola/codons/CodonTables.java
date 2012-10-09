@@ -56,7 +56,7 @@ public class CodonTables implements Iterable<CodonTable> {
 	/**
 	 * Add a codon table for a given genome & chromosome
 	 * @param genome
-	 * @param chromosome
+	 * @param chromosomeSource
 	 * @param codonTable
 	 */
 	public void add(Genome genome, Chromosome chr, CodonTable codonTable) {

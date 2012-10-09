@@ -151,29 +151,33 @@ This example shows how to create a database for a new genome. For this example w
 <ol>
 	<li> Go to NIH page for <a class="body" href="http://www.ncbi.nlm.nih.gov/nuccore/CP000730.1">CP000730</a>
 
-	<li> Download the features in geneBank forma, by clicking as shown in the following images (red arrows)<p>
+	<li> Download the features in geneBank format, by clicking as shown in the following images (red arrows)<p>
 		<p>
+			<center> <img width=800 src="images/genBank_0.png"> </center> <p>
+
+		Make sure you click the "Update" button!<p>
+		Then you go to the "Send" menu<p>
+
 			<center> <img width=800 src="images/genBank_1.png"> </center> <p>
 		and then <p>
 			<center> <img width=800 src="images/genBank_2.png"> </center> <p>
 
 	<li> Save the GenBank data to "/path/to/snpEff/data/CP000730/genes.gb".
-		<p>
 
-	<li> Take a look at the file to see if there is sequencing information included. Using a text editor, open the file and scroll down to the last line. If there is an empty "ORIGIN" feature, then you have to download a FASTA file (otherwise, you are OK).
 		<p>
-		<center> <img width=800 src="images/genBank_3.png"> </center> <p>
+		 <b>Note:</b> If there are more than one genbank file for an organism (e.g. multiple chromosomes), then you can download each file and save them separately.<p>
+		 E.g.: Vibrio Cholerae has two chromosomes with GenBank accessions: NC_002505.1 and NC_002506.1.
+		 You can download both files and save them as snpEff/data/vibrio/NC_002505.1.gb and snpEff/data/vibrio/NC_002506.1.gb respectively.
+		 Then you can add the following entries in the config file:
+<pre>
+# Vibrio Cholerae
+vibrio.genome : Vibrio Cholerae
+    vibrio.chromosomes : NC_002505.1, NC_002506.1
+    vibrio.NC_002505.1.codonTable : Bacterial_and_Plant_Plastid
+    vibrio.NC_002506.1.codonTable : Bacterial_and_Plant_Plastid
+</pre>
 
-	<li> In this case, there is no "ORIGIN" sequence, so we must download the fasta file. Click on the FASTA download buttons and options as shown in the next figures
-		<p>
-		<center> <img width=800 src="images/genBank_4.png"> </center> <p>
-		and then <p>
-		<center> <img width=800 src="images/genBank_5.png"> </center> <p>
-
-	<li> Save the FASTA data to "/path/to/snpEff/data/genomes/CP000730.fa".
-		<p>
-
-	<li> <a class="body" href="#conf">Add</a> the new genome to the config file (see section "How to add a new genome to the configuration file" for details)
+		SnpEff will load both files when building the database.
 		<p>
 
 	<li> Create database (note the "-genbank" flag):
