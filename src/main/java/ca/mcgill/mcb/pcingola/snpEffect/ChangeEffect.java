@@ -328,7 +328,15 @@ public class ChangeEffect implements Cloneable {
 	}
 
 	public Exon getExon() {
-		return exon;
+		if (exon != null) return exon;
+
+		// Try to find exon
+		if (marker != null) {
+			Exon e = (Exon) marker.findParent(Exon.class);
+			if (e != null) return e;
+		}
+
+		return null;
 	}
 
 	/**
@@ -528,6 +536,7 @@ public class ChangeEffect implements Cloneable {
 
 	public void set(Marker marker, EffectType effectType, String message) {
 		this.marker = marker;
+		if (marker instanceof Exon) exon = (Exon) marker;
 		this.effectType = effectType;
 		this.message += message;
 	}

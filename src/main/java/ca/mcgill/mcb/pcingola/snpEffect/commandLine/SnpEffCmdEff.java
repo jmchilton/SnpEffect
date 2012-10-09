@@ -35,6 +35,7 @@ import ca.mcgill.mcb.pcingola.outputFormatter.OutputFormatter;
 import ca.mcgill.mcb.pcingola.outputFormatter.TxtOutputFormatter;
 import ca.mcgill.mcb.pcingola.outputFormatter.VcfOutputFormatter;
 import ca.mcgill.mcb.pcingola.snpEffect.ChangeEffect;
+import ca.mcgill.mcb.pcingola.snpEffect.ChangeEffect.EffectImpact;
 import ca.mcgill.mcb.pcingola.snpEffect.Config;
 import ca.mcgill.mcb.pcingola.snpEffect.SnpEffectPredictor;
 import ca.mcgill.mcb.pcingola.snpEffect.commandLine.eff.MasterEff;
@@ -185,9 +186,6 @@ public class SnpEffCmdEff extends SnpEff {
 		VcfFileIterator vcfFile = new VcfFileIterator(inputFile, config.getGenome());
 		vcfFile.setInOffset(inOffset); // May be there is a special inOffset (not likely to happen).
 
-		//---
-		// Iterate over input file
-		//---
 		for (VcfEntry vcfEntry : vcfFile) {
 			try {
 				countInputLines++;
@@ -219,6 +217,10 @@ public class SnpEffCmdEff extends SnpEff {
 						// Show results
 						for (ChangeEffect changeEffect : changeEffects) {
 							if (createSummary) changeEffectResutStats.sample(changeEffect); // Perform basic statistics about this result
+
+							if (changeEffect.getEffectImpact() == EffectImpact.MODIFIER) {
+							}
+
 							outputFormatter.add(changeEffect);
 							countEffects++;
 						}

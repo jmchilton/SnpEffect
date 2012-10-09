@@ -114,14 +114,17 @@ public class VcfOutputFormatter extends OutputFormatter {
 				Gene gene = changeEffect.getGene();
 				Transcript tr = changeEffect.getTranscript();
 				if (gene != null) {
+					// Gene name
+					effBuff.append(gene.getGeneName());
+					effBuff.append("|");
+
+					// Transcript ID
+					effBuff.append(tr != null ? tr.getBioType() : "");
+					effBuff.append("|");
+
 					// Protein coding gene?
 					String coding = "";
 					if (gene.getGenome().hasCodingInfo()) coding = (gene.isProteinCoding() ? ChangeEffect.Coding.CODING.toString() : ChangeEffect.Coding.NON_CODING.toString());
-
-					effBuff.append(gene.getGeneName());
-					effBuff.append("|");
-					effBuff.append(tr != null ? tr.getBioType() : "");
-					effBuff.append("|");
 					effBuff.append(coding);
 					effBuff.append("|");
 				} else if (changeEffect.isRegulation()) {

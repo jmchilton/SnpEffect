@@ -46,7 +46,6 @@ public class Utr5prime extends Utr {
 		else changeEffect.set(this, type, utrDistStr);
 
 		changeEffect.setExon(exon);
-
 		if (exon != null) exon.check(seqChange, changeEffect); // Check that base matches the expected one
 
 		return changeEffect.newList();

@@ -34,15 +34,14 @@ public class Utr3prime extends Utr {
 		}
 
 		Transcript tint = (Transcript) findParent(Transcript.class);
-		Exon exon = (Exon) findParent(Exon.class);
 
 		String utrDistStr = utrDistance(seqChange, tint);
 
 		changeEffect.set(this, type, utrDistStr);
-		changeEffect.setExon(exon);
 
-		Exon eint = (Exon) findParent(Exon.class);
-		if (eint != null) eint.check(seqChange, changeEffect); // Check that base matches the expected one
+		Exon exon = (Exon) findParent(Exon.class);
+		changeEffect.setExon(exon);
+		if (exon != null) exon.check(seqChange, changeEffect); // Check that base matches the expected one
 
 		return changeEffect.newList();
 	}
