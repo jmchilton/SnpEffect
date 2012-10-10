@@ -13,6 +13,7 @@ import ca.mcgill.mcb.pcingola.interval.Regulation;
 import ca.mcgill.mcb.pcingola.interval.Transcript;
 import ca.mcgill.mcb.pcingola.snpEffect.ChangeEffect;
 import ca.mcgill.mcb.pcingola.snpEffect.ChangeEffect.FunctionalClass;
+import ca.mcgill.mcb.pcingola.util.Gpr;
 import ca.mcgill.mcb.pcingola.vcf.VcfEffect;
 import ca.mcgill.mcb.pcingola.vcf.VcfEffect.FormatVersion;
 import ca.mcgill.mcb.pcingola.vcf.VcfEntry;
@@ -142,7 +143,8 @@ public class VcfOutputFormatter extends OutputFormatter {
 
 				// Add exon info
 				Exon ex = changeEffect.getExon();
-				if (ex != null) effBuff.append(ex.getId());
+				//if (ex != null) effBuff.append(ex.getId());
+				if (ex != null) effBuff.append(ex.getRank());
 
 				// Errors or warnings (this is the last thing in the list)
 				if (!changeEffect.getWarning().isEmpty()) effBuff.append("|" + changeEffect.getWarning());
@@ -150,8 +152,21 @@ public class VcfOutputFormatter extends OutputFormatter {
 
 				effBuff.append(")");
 
-				// Get effect
-				effs.add(effBuff.toString());
+				//---
+				// Add effect
+				//---
+				if (!effs.add(effBuff.toString())) {
+					// Effect has already been added? Something is wrong, the information should be unique for each effect
+					StringBuilder sb = new StringBuilder();
+					sb.append("--------------------------------------------------------------------------------\n");
+					sb.append("VCF Entry         :\t" + vcfEntry + "\n");
+					sb.append("REPEAT (VCF style):\t" + effBuff + "\n");
+					sb.append("REPEAT (TXT style):\t" + changeEffect + "\n");
+					for (ChangeEffect ce : changeEffects)
+						sb.append("\t" + ce + "\n");
+					sb.append("--------------------------------------------------------------------------------\n");
+					Gpr.debug("Repeated effect: This should not happen!\n" + sb);
+				}
 			}
 		}
 

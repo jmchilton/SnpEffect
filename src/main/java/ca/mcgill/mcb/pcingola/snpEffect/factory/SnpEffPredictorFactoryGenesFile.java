@@ -69,33 +69,33 @@ public class SnpEffPredictorFactoryGenesFile extends SnpEffPredictorFactory {
 
 		// Obtain or create transcript
 		String transcriptId = fields[7];
-		Transcript tint = gint.get(transcriptId);
-		if (tint == null) {
-			tint = new Transcript(gint, parsePosition(fields[8]), parsePosition(fields[9]), gint.getStrand(), transcriptId);
-			gint.add(tint);
+		Transcript tr = gint.get(transcriptId);
+		if (tr == null) {
+			tr = new Transcript(gint, parsePosition(fields[8]), parsePosition(fields[9]), gint.getStrand(), transcriptId);
+			gint.add(tr);
 		}
 
 		// Obtain or create exon
 		String exonId = fields[10];
-		Exon eint = tint.get(exonId);
-		if (eint == null) {
-			eint = new Exon(tint, parsePosition(fields[11]), parsePosition(fields[12]), gint.getStrand(), exonId, Gpr.parseIntSafe(fields[13]));
-			tint.add(eint);
+		Exon exon = tr.get(exonId);
+		if (exon == null) {
+			exon = new Exon(tr, parsePosition(fields[11]), parsePosition(fields[12]), gint.getStrand(), exonId, Gpr.parseIntSafe(fields[13]));
+			tr.add(exon);
 		}
 
 		// Any 5 prime UTRs?
 		if (fields.length >= 16) {
 			if ((fields[14].length() > 0) && (fields[15].length() > 0)) {
-				Utr5prime utrInterval = new Utr5prime(eint, parsePosition(fields[14]), parsePosition(fields[15]), gint.getStrand(), exonId);
-				tint.add(utrInterval);
+				Utr5prime utrInterval = new Utr5prime(exon, parsePosition(fields[14]), parsePosition(fields[15]), gint.getStrand(), exonId);
+				tr.add(utrInterval);
 			}
 		}
 
 		// Any 3 prime UTRs?
 		if (fields.length >= 18) {
 			if ((fields[16].length() > 0) && (fields[17].length() > 0)) {
-				Utr3prime utrInterval = new Utr3prime(eint, parsePosition(fields[16]), parsePosition(fields[17]), gint.getStrand(), exonId);
-				tint.add(utrInterval);
+				Utr3prime utrInterval = new Utr3prime(exon, parsePosition(fields[16]), parsePosition(fields[17]), gint.getStrand(), exonId);
+				tr.add(utrInterval);
 			}
 		}
 	}

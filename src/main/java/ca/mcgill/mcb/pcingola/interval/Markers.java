@@ -270,9 +270,10 @@ public class Markers implements Iterable<Marker>, Serializable {
 
 	@Override
 	public String toString() {
+		int num = 1;
 		StringBuilder sb = new StringBuilder();
 		for (Marker i : this)
-			sb.append("\t" + i + "\n");
+			sb.append("\t" + (num++) + ":\t" + i.getChromosomeName() + "\t" + i.getStart() + "\t" + i.getEnd() + "\t" + i.getClass().getSimpleName() + "\t" + i.getId() + "\n");
 		return sb.toString();
 	}
 

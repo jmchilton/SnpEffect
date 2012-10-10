@@ -22,7 +22,7 @@ import ca.mcgill.mcb.pcingola.interval.Transcript;
  * 
  * @author pcingola
  */
-public class ChangeEffect implements Cloneable, Comparable<ChangeEffect> {
+public class ChangeEffectOld implements Cloneable {
 
 	public enum Coding {
 		CODING, NON_CODING
@@ -91,7 +91,7 @@ public class ChangeEffect implements Cloneable, Comparable<ChangeEffect> {
 	EffectType effectType = EffectType.NONE;
 	EffectImpact effectImpact = null;
 	Marker marker = null;
-	//	Exon exon = null;
+	Exon exon = null;
 	String error = "", warning = "", message = ""; // Any message, warning or error?
 	String codonsOld = "", codonsNew = ""; // Codon change information
 	String codonsAroundOld = "", codonsAroundNew = ""; // Codons arround
@@ -105,11 +105,11 @@ public class ChangeEffect implements Cloneable, Comparable<ChangeEffect> {
 	 *  An empty list of results;
 	 * @return
 	 */
-	public static List<ChangeEffect> emptyResults() {
-		return new ArrayList<ChangeEffect>();
+	public static List<ChangeEffectOld> emptyResults() {
+		return new ArrayList<ChangeEffectOld>();
 	}
 
-	public ChangeEffect(SeqChange seqChange) {
+	public ChangeEffectOld(SeqChange seqChange) {
 		this.seqChange = seqChange;
 	}
 
@@ -122,9 +122,9 @@ public class ChangeEffect implements Cloneable, Comparable<ChangeEffect> {
 	}
 
 	@Override
-	public ChangeEffect clone() {
+	public ChangeEffectOld clone() {
 		try {
-			return (ChangeEffect) super.clone();
+			return (ChangeEffectOld) super.clone();
 		} catch (CloneNotSupportedException e) {
 			throw new RuntimeException(e);
 		}
@@ -146,19 +146,6 @@ public class ChangeEffect implements Cloneable, Comparable<ChangeEffect> {
 		if (showAaChange) codonEffect += "(" + getAaChange() + ")";
 
 		return codonEffect;
-	}
-
-	@Override
-	public int compareTo(ChangeEffect changeEffect) {
-		int comp = getEffectImpact().compareTo(changeEffect.getEffectImpact());
-		if (comp != 0) return comp;
-
-		comp = getEffectType().compareTo(changeEffect.getEffectType());
-		if (comp != 0) return comp;
-
-		if ((getMarker() != null) && (changeEffect.getMarker() != null)) return getMarker().compareTo(changeEffect.getMarker());
-
-		return seqChange.compareTo(changeEffect.getSeqChange());
 	}
 
 	/**
@@ -228,29 +215,23 @@ public class ChangeEffect implements Cloneable, Comparable<ChangeEffect> {
 	}
 
 	/**
-	 * Get biotype
-	 * @return
-	 */
-	public String getBiotype() {
-		Gene gene = getGene();
-		if (gene == null) return "";
-
-		Transcript tr = getTranscript();
-		if (tr != null) return tr.getBioType();
-		else if (gene.getGenome().hasCodingInfo()) return (gene.isProteinCoding() ? "coding" : "non-coding");
-
-		return "";
-	}
-
-	/**
 	 * CDS length (negative if there is none)
 	 * @return
 	 */
 	public int getCdsLength() {
+		if (marker == null) return -1;
+
 		// CDS size info
-		Transcript tr = getTranscript();
+		Transcript tr = null;
+		if (exon != null) tr = (Transcript) exon.findParent(Transcript.class);
+		else tr = (Transcript) marker.findParent(Transcript.class);
+
 		if ((tr != null) && tr.isProteinCoding()) return tr.cds().length();
 		return -1;
+		//		int cdsSize = -1;
+		//
+		//		if (COMPATIBLE_v1_8 && (isUpstream() || isDownstream() || isUtr() || isSpliceSite() || isStartGained())) cdsSize = -1;
+		//		return cdsSize;
 	}
 
 	/**
@@ -346,12 +327,15 @@ public class ChangeEffect implements Cloneable, Comparable<ChangeEffect> {
 		return error;
 	}
 
-	/**
-	 * Get exon (if any)
-	 * @return
-	 */
 	public Exon getExon() {
-		if (marker != null) return (Exon) marker.findParent(Exon.class);
+		if (exon != null) return exon;
+
+		// Try to find exon
+		if (marker != null) {
+			Exon e = (Exon) marker.findParent(Exon.class);
+			if (e != null) return e;
+		}
+
 		return null;
 	}
 
@@ -374,8 +358,8 @@ public class ChangeEffect implements Cloneable, Comparable<ChangeEffect> {
 	}
 
 	public Gene getGene() {
-		if (marker != null) return (Gene) marker.findParent(Gene.class);
-		return null;
+		if (marker == null) return null;
+		return (Gene) marker.findParent(Gene.class);
 	}
 
 	public String getGeneRegion() {
@@ -407,7 +391,7 @@ public class ChangeEffect implements Cloneable, Comparable<ChangeEffect> {
 		case NON_SYNONYMOUS_START:
 		case GENE:
 		case TRANSCRIPT:
-			if (isExon()) return EffectType.EXON.toString();
+			if (hasExon()) return EffectType.EXON.toString();
 			return EffectType.NONE.toString();
 		case EXON:
 		case EXON_DELETED:
@@ -448,17 +432,17 @@ public class ChangeEffect implements Cloneable, Comparable<ChangeEffect> {
 		return seqChange;
 	}
 
-	//	public boolean hasExon() {
-	//		return (marker instanceof Exon);
-	//	}
-
 	public Transcript getTranscript() {
-		if (marker != null) return (Transcript) marker.findParent(Transcript.class);
-		return null;
+		if (marker == null) return null;
+		return (Transcript) marker.findParent(Transcript.class);
 	}
 
 	public String getWarning() {
 		return warning;
+	}
+
+	public boolean hasExon() {
+		return (exon != null);
 	}
 
 	public boolean hasWarning() {
@@ -497,7 +481,7 @@ public class ChangeEffect implements Cloneable, Comparable<ChangeEffect> {
 	}
 
 	public boolean isExon() {
-		return (marker instanceof Exon) || (effectType == EffectType.EXON_DELETED);
+		return hasExon() || (effectType == EffectType.EXON_DELETED);
 	}
 
 	public boolean isFrameShift() {
@@ -544,15 +528,15 @@ public class ChangeEffect implements Cloneable, Comparable<ChangeEffect> {
 	 * Create a list with only one element (this results)
 	 * @return
 	 */
-	public List<ChangeEffect> newList() {
-		List<ChangeEffect> list = new ArrayList<ChangeEffect>();
+	public List<ChangeEffectOld> newList() {
+		List<ChangeEffectOld> list = new ArrayList<ChangeEffectOld>();
 		list.add(clone());
 		return list;
 	}
 
 	public void set(Marker marker, EffectType effectType, String message) {
 		this.marker = marker;
-		//if (marker instanceof Exon) exon = (Exon) marker;
+		if (marker instanceof Exon) exon = (Exon) marker;
 		this.effectType = effectType;
 		this.message += message;
 	}
@@ -631,10 +615,6 @@ public class ChangeEffect implements Cloneable, Comparable<ChangeEffect> {
 		}
 	}
 
-	//	public void setExon(Exon exon) {
-	//		this.exon = exon;
-	//	}
-
 	/**
 	 * Set values for codons around change.
 	 * @param codonsLeft
@@ -652,8 +632,8 @@ public class ChangeEffect implements Cloneable, Comparable<ChangeEffect> {
 		aasAroundNew = aasLeft.toLowerCase() + aaNew.toUpperCase() + aasRigt.toLowerCase();
 	}
 
-	public void setMarker(Marker marker) {
-		this.marker = marker;
+	public void setExon(Exon exon) {
+		this.exon = exon;
 	}
 
 	@Override
@@ -664,28 +644,35 @@ public class ChangeEffect implements Cloneable, Comparable<ChangeEffect> {
 
 		if (marker != null) {
 			// Gene Id, name and biotype
-			Gene gene = getGene();
-			Transcript tr = getTranscript();
+			Gene gene = (Gene) marker.findParent(Gene.class);
 
 			// CDS size info
+			Transcript tr;
+			if (exon != null) tr = (Transcript) exon.findParent(Transcript.class);
+			else tr = (Transcript) marker.findParent(Transcript.class);
+
 			if (gene != null) {
 				geneId = gene.getId();
 				geneName = gene.getGeneName();
-				bioType = getBiotype();
+				bioType = (tr != null ? tr.getBioType() : "");
+
+				// Make one more effort to show whether gene is protein coding or not
+				if ((bioType.isEmpty()) && gene.getGenome().hasCodingInfo()) bioType = (gene.isProteinCoding() ? "coding" : "non-coding");
 			}
 
 			// Update trId
 			if (tr != null) transcriptId = tr.getId();
 
 			// Exon rank information
-			Exon exon = getExon();
 			if (exon != null) {
 				exonId = exon.getId();
 				exonRank = exon.getRank();
 			}
 
 			// Regulation
-			if (isRegulation()) bioType = ((Regulation) marker).getCellType();
+			if (isRegulation()) {
+				bioType = ((Regulation) marker).getCellType();
+			}
 		}
 
 		// Add seqChage's ID
@@ -723,19 +710,20 @@ public class ChangeEffect implements Cloneable, Comparable<ChangeEffect> {
 	 * @return
 	 */
 	public String toStringSimple(boolean shortFormat) {
-		String transcriptId = "";
-		Transcript tr = getTranscript();
-		if (tr != null) transcriptId = tr.getId();
+		// Get data to show
+		String transcriptId = "", exonId = "";
 
-		String exonId = "";
-		Exon exon = getExon();
-		if (exon != null) exonId = exon.getId();
+		if (marker != null) {
+			Transcript tr = (Transcript) marker.findParent(Transcript.class);
+			if (tr != null) transcriptId = tr.getId();
+
+			if (exon != null) exonId = exon.getId();
+		}
 
 		String eff = effect(shortFormat, true, true);
 		if (eff.length() > 0) return eff;
 		if (exonId.length() > 0) return exonId;
 		if (transcriptId.length() > 0) return transcriptId;
-
 		return "NO EFFECT";
 	}
 

@@ -78,15 +78,15 @@ public class TestCasesSeqChange extends TestCase {
 	 */
 	boolean anyResultMatches(String transcriptId, SeqChange seqChange, List<ChangeEffect> resultsList, boolean useShort) {
 		boolean ok = false;
-		for( ChangeEffect chEff : resultsList ) {
+		for (ChangeEffect chEff : resultsList) {
 			String resStr = chEff.toStringSimple(useShort);
 
-			Transcript tr = (Transcript) chEff.getMarker().findParent(Transcript.class);
-			if( tr != null ) {
-				if( (transcriptId == null) || (transcriptId.equals(tr.getId())) ) {
-					if( resStr.indexOf(seqChange.getId()) >= 0 ) return true; // Matches one result in this transcript
+			Transcript tr = chEff.getTranscript();
+			if (tr != null) {
+				if ((transcriptId == null) || (transcriptId.equals(tr.getId()))) {
+					if (resStr.indexOf(seqChange.getId()) >= 0) return true; // Matches one result in this transcript
 				}
-			} else if( resStr.indexOf(seqChange.getId()) >= 0 ) return true; // Matches any result (out of a transcript)
+			} else if (resStr.indexOf(seqChange.getId()) >= 0) return true; // Matches any result (out of a transcript)
 		}
 		return ok;
 	}
@@ -118,7 +118,7 @@ public class TestCasesSeqChange extends TestCase {
 
 		int inOffset = 1;
 		SeqChangeFileTxt seqChangeFileIterator = new SeqChangeFileTxt(seqChangeFile, config.getGenome(), inOffset);
-		for( SeqChange sc : seqChangeFileIterator )
+		for (SeqChange sc : seqChangeFileIterator)
 			seqChanges.add(sc);
 
 		Collections.sort(seqChanges);
@@ -132,7 +132,7 @@ public class TestCasesSeqChange extends TestCase {
 	public void snpEffect(List<SeqChange> seqChangeList, String transcriptId, boolean useShort) {
 		int num = 1;
 		// Predict each seqChange
-		for( SeqChange seqChange : seqChangeList ) {
+		for (SeqChange seqChange : seqChangeList) {
 			// Get results for each snp
 			List<ChangeEffect> resultsList = config.getSnpEffectPredictor().seqChangeEffect(seqChange);
 
@@ -141,18 +141,18 @@ public class TestCasesSeqChange extends TestCase {
 			msg += "\tExpecting   : '" + seqChange.getId() + "'\n";
 			msg += "\tSeqChange   : " + seqChange + "\n";
 			msg += "\tResultsList :\n";
-			for( ChangeEffect res : resultsList )
+			for (ChangeEffect res : resultsList)
 				msg += "\t" + res + "\n";
 
-			if( verbose ) System.out.println(msg);
+			if (verbose) System.out.println(msg);
 
 			// Compare each result. If one matches, we consider it OK
 			// StringBuilder resultsSoFar = new StringBuilder();
 			boolean ok = anyResultMatches(transcriptId, seqChange, resultsList, useShort);//, resultsSoFar);
-			if( !ok ) {
+			if (!ok) {
 
-				if( createOutputFile ) {
-					for( ChangeEffect res : resultsList ) {
+				if (createOutputFile) {
+					for (ChangeEffect res : resultsList) {
 						SeqChange sc = res.getSeqChange();
 						System.out.println(sc.getChromosomeName() //
 								+ "\t" + (sc.getStart() + 1) //
@@ -161,7 +161,7 @@ public class TestCasesSeqChange extends TestCase {
 								+ "\t+\t0\t0" //
 								+ "\t" + res.effect(true, true, true)//
 						// + "\t" + res.getCodonsOld() + "/" + res.getCodonsNew() //
-						);
+								);
 					}
 				} else {
 					Gpr.debug(msg);
@@ -192,29 +192,29 @@ public class TestCasesSeqChange extends TestCase {
 		HashMap<String, String> cdsByTrId = new HashMap<String, String>();
 		String cdsY = Gpr.readFile("./tests/cds_hg37_chrY.txt");
 		String lines[] = cdsY.split("\n");
-		for( String line : lines ) {
+		for (String line : lines) {
 			String recs[] = line.split("\t");
 			cdsByTrId.put(recs[0], recs[1]);
 		}
 
 		// Calculate CDS from chromosome Y and compare
 		int totalOk = 0;
-		for( Gene gint : config.getGenome().getGenes() ) {
-			for( Transcript tint : gint ) {
+		for (Gene gint : config.getGenome().getGenes()) {
+			for (Transcript tint : gint) {
 				String seqOri = cdsByTrId.get(tint.getId());
 
-				if( seqOri != null ) {
+				if (seqOri != null) {
 					String seq = tint.cds();
 					// Compare CDS sequences
-					if( !seqOri.equalsIgnoreCase(seq) ) throw new RuntimeException("CDS do not match:\nTranscipt:" + tint.getId() + " " + tint.getStrand() + "\n\t" + seq + "\n\t" + seqOri + "\n");
+					if (!seqOri.equalsIgnoreCase(seq)) throw new RuntimeException("CDS do not match:\nTranscipt:" + tint.getId() + " " + tint.getStrand() + "\n\t" + seq + "\n\t" + seqOri + "\n");
 					else {
-						if( verbose ) System.out.println("CDS compare:\n\t" + seqOri + "\n\t" + seq);
+						if (verbose) System.out.println("CDS compare:\n\t" + seqOri + "\n\t" + seq);
 						totalOk++;
 					}
 				}
 			}
 		}
-		if( totalOk == 0 ) throw new RuntimeException("No sequences compared!");
+		if (totalOk == 0) throw new RuntimeException("No sequences compared!");
 	}
 
 	/**
@@ -320,18 +320,18 @@ public class TestCasesSeqChange extends TestCase {
 		boolean trown = false;
 		try {
 			// Read all SNPs from file. Note: This should throw an exception "Chromosome not found"
-			for( SeqChange seqChange : snpFileIterator ) {
+			for (SeqChange seqChange : snpFileIterator) {
 				Gpr.debug(seqChange);
 			}
-		} catch(RuntimeException e) {
+		} catch (RuntimeException e) {
 			trown = true;
 			String expectedMessage = "ERROR: Chromosome 'chrZ' not found! File 'tests/chr_not_found.out', line 1";
-			if( e.getMessage().equals(expectedMessage) ) ; // OK
+			if (e.getMessage().equals(expectedMessage)) ; // OK
 			else throw new RuntimeException("This is not the exception I was expecting!\n\tExpected message: '" + expectedMessage + "'\n\tMessage: '" + e.getMessage() + "'", e);
 		}
 
 		// If no exception => error
-		if( !trown ) throw new RuntimeException("This should have thown an exception 'Chromosome not found!' but it didn't");
+		if (!trown) throw new RuntimeException("This should have thown an exception 'Chromosome not found!' but it didn't");
 	}
 
 	/**
@@ -362,16 +362,16 @@ public class TestCasesSeqChange extends TestCase {
 
 		// Test all bases in all exons
 		int countOk = 0, countErr = 0;
-		for( Gene gint : config.getGenome().getGenes() ) {
-			for( Transcript tr : gint ) {
+		for (Gene gint : config.getGenome().getGenes()) {
+			for (Transcript tr : gint) {
 				System.out.println("Transcript: " + tr.getId());
 				List<Exon> exons = tr.sortedStrand();
-				for( Exon exon : exons ) {
-					for( int i = exon.getStart(); i <= exon.getEnd(); i++ ) {
+				for (Exon exon : exons) {
+					for (int i = exon.getStart(); i <= exon.getEnd(); i++) {
 						String base = seq.substring(i, i + 1);
 						String exonBase = exon.basesAt(i - exon.getStart(), 1);
 
-						if( base.equalsIgnoreCase(exonBase) ) {
+						if (base.equalsIgnoreCase(exonBase)) {
 							countOk++;
 						} else {
 							countErr++;
@@ -414,7 +414,7 @@ public class TestCasesSeqChange extends TestCase {
 		config.setSnpEffectPredictor(snpEffectPredictor);
 
 		// Set chromosome size (so that we don't get an exception)
-		for( Chromosome chr : config.getGenome() )
+		for (Chromosome chr : config.getGenome())
 			chr.setEnd(1000000000);
 
 		//---

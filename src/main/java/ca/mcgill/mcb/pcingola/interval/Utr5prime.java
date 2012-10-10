@@ -37,7 +37,6 @@ public class Utr5prime extends Utr {
 		}
 
 		Transcript tint = (Transcript) findParent(Transcript.class);
-		Exon exon = (Exon) findParent(Exon.class);
 
 		String utrDistStr = utrDistance(seqChange, tint);
 		String gained = startGained(seqChange, tint);
@@ -45,7 +44,8 @@ public class Utr5prime extends Utr {
 		if (gained.length() > 0) changeEffect.set(this, EffectType.START_GAINED, gained + ", " + EffectType.UTR_5_PRIME + ": " + utrDistStr);
 		else changeEffect.set(this, type, utrDistStr);
 
-		changeEffect.setExon(exon);
+		Exon exon = (Exon) findParent(Exon.class);
+		//changeEffect.setExon(exon);
 		if (exon != null) exon.check(seqChange, changeEffect); // Check that base matches the expected one
 
 		return changeEffect.newList();

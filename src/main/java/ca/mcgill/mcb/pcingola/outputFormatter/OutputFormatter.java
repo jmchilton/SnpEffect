@@ -1,6 +1,6 @@
 package ca.mcgill.mcb.pcingola.outputFormatter;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
 
 import ca.mcgill.mcb.pcingola.filter.ChangeEffectFilter;
 import ca.mcgill.mcb.pcingola.interval.Marker;
@@ -26,10 +26,10 @@ public abstract class OutputFormatter {
 	String chrStr;
 	Marker section;
 	ChangeEffectFilter changeEffectResutFilter = null; // Filter prediction results
-	LinkedList<ChangeEffect> changeEffects;
+	ArrayList<ChangeEffect> changeEffects;
 
 	public OutputFormatter() {
-		changeEffects = new LinkedList<ChangeEffect>();
+		changeEffects = new ArrayList<ChangeEffect>();
 	}
 
 	/**

@@ -30,7 +30,13 @@ public class CodonChangeDel extends CodonChange {
 		// Is there any net effect?
 		if (netCdsChange.isEmpty()) return false;
 
-		if (netCdsChange.length() % CodonChange.CODON_SIZE != 0) {
+		if (seqChange.includes(exon)) {
+			/**
+			 * An exon has been entirely removed 
+			 */
+			changeEffect.setCodons("", "", -1, -1);
+			changeEffect.set(exon, EffectType.EXON_DELETED, "");
+		} else if (netCdsChange.length() % CodonChange.CODON_SIZE != 0) {
 			/**
 			 * Length not multiple of CODON_SIZE => FRAME_SHIFT
 			 * 	E.g. : 

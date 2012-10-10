@@ -227,11 +227,15 @@ public class MarkerSerializer {
 		if (m == null) return -1;
 		if (idByMarker.containsKey(m)) return idByMarker.get(m); // Already done
 
+		// Store already saved IDs
 		int id = getNextId();
 		idByMarker.put(m, id);
+
+		// Print line
 		String line = m.serializeSave(this);
 		outFile.print(line + "\n");
 		lineNum++;
+
 		return id;
 	}
 

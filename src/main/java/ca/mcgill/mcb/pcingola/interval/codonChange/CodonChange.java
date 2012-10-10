@@ -111,7 +111,10 @@ public class CodonChange {
 		int firstCdsBaseInExon = 0; // Where the exon maps to the CDS (i.e. which CDS base number does the first base in this exon maps to).
 		for (Exon exon : exons) {
 			this.exon = exon;
-			if (exon.intersects(seqChange)) {
+
+			if (false && seqChange.includes(exon)) {
+				// TODO: Update this!
+			} else if (exon.intersects(seqChange)) {
 				int cdsBaseInExon; // cdsBaseInExon: base number relative to the beginning of the coding part of this exon (i.e. excluding 5'UTRs)
 
 				if (transcript.isStrandPlus()) {
@@ -131,6 +134,7 @@ public class CodonChange {
 				// Use appropriate method to calculate codon change
 				boolean hasChanged = false; // Was there any change?
 				ChangeEffect changeEffectNew = changeEffect.clone();
+				changeEffectNew.setMarker(exon); // It is affecting this exon, so we set the marker
 				hasChanged = codonChangeSingle(changeEffectNew, exon);
 
 				// Any change? => Add change to list

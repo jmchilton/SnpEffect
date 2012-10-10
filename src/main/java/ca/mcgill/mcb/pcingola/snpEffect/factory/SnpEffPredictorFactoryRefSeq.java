@@ -2,11 +2,14 @@ package ca.mcgill.mcb.pcingola.snpEffect.factory;
 
 import java.io.BufferedReader;
 import java.util.HashMap;
+import java.util.List;
 
+import ca.mcgill.mcb.pcingola.collections.MultivalueHashMap;
 import ca.mcgill.mcb.pcingola.interval.Cds;
 import ca.mcgill.mcb.pcingola.interval.Chromosome;
 import ca.mcgill.mcb.pcingola.interval.Exon;
 import ca.mcgill.mcb.pcingola.interval.Gene;
+import ca.mcgill.mcb.pcingola.interval.Marker;
 import ca.mcgill.mcb.pcingola.interval.Transcript;
 import ca.mcgill.mcb.pcingola.snpEffect.Config;
 import ca.mcgill.mcb.pcingola.snpEffect.SnpEffectPredictor;
@@ -68,6 +71,7 @@ public class SnpEffPredictorFactoryRefSeq extends SnpEffPredictorFactory {
 	public static final String CDS_STAT_COMPLETE = "cmpl";
 
 	int ignoredTr = 0;
+	MultivalueHashMap<String, Gene> genesByName;
 
 	public SnpEffPredictorFactoryRefSeq(Config config) {
 		super(config, 0); // Zero values coordinates
@@ -177,12 +181,9 @@ public class SnpEffPredictorFactoryRefSeq extends SnpEffPredictorFactory {
 						String exonEnds = fields[10]; // Our internal database representations of coordinates always have a zero-based start and a one-based end (Reference: http://genome.ucsc.edu/FAQ/FAQtracks.html#tracks1 )
 
 						// String score= fields[11]; // Not used
-
 						String geneName = fields[12];
-
 						String cdsStartStat = fields[13];
 						String cdsEndStat = fields[14];
-
 						String exonFrames = fields[15];
 
 						//---
@@ -192,15 +193,9 @@ public class SnpEffPredictorFactoryRefSeq extends SnpEffPredictorFactory {
 
 						// Create IDs
 						String trId = uniqueTrId(id);
-						String geneId = geneName + "." + trId; // Create a gene ID using trId, because gene names are repeated across chromosomes
 
 						// Get or create gene
-						Gene gene = genesById.get(geneId);
-						if (gene == null) {
-							gene = new Gene(chromo, txstart, txend, strand, geneId, geneName, bioType(trId));
-							genesById.put(geneId, gene);
-							snpEffectPredictor.add(gene);
-						}
+						Gene gene = findOrCreateGene(geneName, trId, chromo, txstart, txend, strand);
 
 						// Create transcript
 						Transcript tr = new Transcript(gene, txstart, txend, strand, trId);
@@ -241,6 +236,24 @@ public class SnpEffPredictorFactoryRefSeq extends SnpEffPredictorFactory {
 			Gpr.debug("Offending line (lineNum: " + lineNum + "): '" + line + "'");
 			throw new RuntimeException(e);
 		}
+	}
+
+	Gene findOrCreateGene(String geneName, String trId, Chromosome chromo, int start, int end, int strand) {
+		Marker tr = new Marker(chromo, start, end, strand, trId);
+		List<Gene> genes = genesByName.get(geneName);
+		for (Gene gene : genes) {
+			if (gene.intersects(tr)) return gene;
+		}
+
+		// Need to create a new gene
+		int geneIndex = genes.size() + 1;
+		Gene gene = new Gene(chromo, start, end, strand, geneName + "." + geneIndex, geneName, bioType(trId));
+		genesByName.add(geneName, gene);
+		Gpr.debug("Adding: geneName:" + geneName + "\tgeneId: " + gene.getId());
+		genesById.put(geneName, gene);
+		snpEffectPredictor.add(gene);
+
+		return gene;
 	}
 
 	/**

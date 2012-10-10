@@ -103,16 +103,16 @@ public class Transcript extends IntervalAndSubIntervals<Exon> {
 		// Add intervals
 		boolean retVal = false;
 		for (Marker mu : missingUtrs) {
-			Exon eint = intersectingExon(mu);
-			if (eint == null) throw new RuntimeException("Cannot find exon for UTR: " + mu);
+			Exon exon = intersectingExon(mu);
+			if (exon == null) throw new RuntimeException("Cannot find exon for UTR: " + mu);
 			Utr toAdd = null;
 
 			if (isStrandPlus()) {
-				if (mu.getEnd() <= minCds) toAdd = new Utr5prime(eint, mu.getStart(), mu.getEnd(), strand, mu.getId());
-				else if (mu.getStart() >= maxCds) toAdd = new Utr3prime(eint, mu.getStart(), mu.getEnd(), strand, mu.getId());
+				if (mu.getEnd() <= minCds) toAdd = new Utr5prime(exon, mu.getStart(), mu.getEnd(), strand, mu.getId());
+				else if (mu.getStart() >= maxCds) toAdd = new Utr3prime(exon, mu.getStart(), mu.getEnd(), strand, mu.getId());
 			} else {
-				if (mu.getStart() >= maxCds) toAdd = new Utr5prime(eint, mu.getStart(), mu.getEnd(), strand, mu.getId());
-				else if (mu.getEnd() <= minCds) toAdd = new Utr3prime(eint, mu.getStart(), mu.getEnd(), strand, mu.getId());
+				if (mu.getStart() >= maxCds) toAdd = new Utr5prime(exon, mu.getStart(), mu.getEnd(), strand, mu.getId());
+				else if (mu.getEnd() <= minCds) toAdd = new Utr3prime(exon, mu.getStart(), mu.getEnd(), strand, mu.getId());
 			}
 
 			// OK?
@@ -677,17 +677,7 @@ public class Transcript extends IntervalAndSubIntervals<Exon> {
 		if (isCds(seqChange)) {
 			// Get codon change effect 
 			CodonChange codonChange = new CodonChange(seqChange, this, changeEffect);
-			List<ChangeEffect> codonChangesList = codonChange.calculate();
-
-			// Get exons. In most cases it's only one exon per change.
-			for (ChangeEffect resCodon : codonChangesList) {
-				for (Exon exon : this) {
-					if (exon.intersects(seqChange)) {
-						ChangeEffect chEff = resCodon.clone();
-						changeEffectList.addAll(exon.seqChangeEffect(seqChange, chEff));
-					}
-				}
-			}
+			changeEffectList.addAll(codonChange.calculate());
 		}
 
 		// No exons? => It's intronic region
