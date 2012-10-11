@@ -106,7 +106,9 @@ public class Pwm {
 	}
 
 	public double getLogOdds(char base, int position) {
-		return logOdds[base2int(base)][position];
+		int baseIdx = base2int(base);
+		if (baseIdx < 0) return 0; // Unknown base
+		return logOdds[baseIdx][position];
 	}
 
 	public int getTotalCount() {
