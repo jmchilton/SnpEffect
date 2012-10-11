@@ -155,6 +155,7 @@ public class VcfOutputFormatter extends OutputFormatter {
 				//---
 				// Add effect
 				//---
+				Gpr.debug(effBuff);
 				if (!effs.add(effBuff.toString())) {
 					// Effect has already been added? Something is wrong, the information should be unique for each effect
 					StringBuilder sb = new StringBuilder();
