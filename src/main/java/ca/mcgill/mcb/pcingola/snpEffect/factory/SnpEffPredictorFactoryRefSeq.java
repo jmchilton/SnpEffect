@@ -76,6 +76,8 @@ public class SnpEffPredictorFactoryRefSeq extends SnpEffPredictorFactory {
 	public SnpEffPredictorFactoryRefSeq(Config config) {
 		super(config, 0); // Zero values coordinates
 
+		genesByName = new MultivalueHashMap<String, Gene>();
+
 		// Populate biotype map
 		biotypeById.put("AC", "Alternate_Genomic");
 		biotypeById.put("AP", "Alternate_Protein");
@@ -134,6 +136,43 @@ public class SnpEffPredictorFactoryRefSeq extends SnpEffPredictorFactory {
 	}
 
 	/**
+	 * Find (or create) a gene for this transcript
+	 * @param geneName
+	 * @param trId
+	 * @param chromo
+	 * @param start
+	 * @param end
+	 * @param strand
+	 * @return
+	 */
+	Gene findOrCreateGene(String geneName, String trId, Chromosome chromo, int start, int end, int strand) {
+		Marker tr = new Marker(chromo, start, end, strand, trId);
+		List<Gene> genes = genesByName.get(geneName);
+		int geneIndex = 0;
+		if (genes != null) {
+			for (Gene gene : genes) {
+				if (gene.intersects(tr)) {
+					// Do we need to update gene length?
+					if (start < gene.getStart()) gene.setStart(start);
+					if (gene.getEnd() < end) gene.setEnd(end);
+
+					return gene;
+				}
+			}
+
+			geneIndex = genes.size() + 1;
+		}
+
+		// Need to create a new gene
+		String geneId = geneName + (geneIndex > 0 ? "." + geneIndex : "");
+		Gene gene = new Gene(chromo, start, end, strand, geneId, geneName, bioType(trId));
+		genesByName.add(geneName, gene);
+		add(gene);
+
+		return gene;
+	}
+
+	/**
 	 * Is this protein coding?
 	 * @param id
 	 * @return
@@ -152,7 +191,6 @@ public class SnpEffPredictorFactoryRefSeq extends SnpEffPredictorFactory {
 		try {
 			int count = 0;
 			BufferedReader reader = Gpr.reader(fileName);
-			Gpr.debug(fileName);
 			if (reader == null) return; // Error
 
 			for (lineNum = 1; reader.ready(); lineNum++) {
@@ -236,24 +274,6 @@ public class SnpEffPredictorFactoryRefSeq extends SnpEffPredictorFactory {
 			Gpr.debug("Offending line (lineNum: " + lineNum + "): '" + line + "'");
 			throw new RuntimeException(e);
 		}
-	}
-
-	Gene findOrCreateGene(String geneName, String trId, Chromosome chromo, int start, int end, int strand) {
-		Marker tr = new Marker(chromo, start, end, strand, trId);
-		List<Gene> genes = genesByName.get(geneName);
-		for (Gene gene : genes) {
-			if (gene.intersects(tr)) return gene;
-		}
-
-		// Need to create a new gene
-		int geneIndex = genes.size() + 1;
-		Gene gene = new Gene(chromo, start, end, strand, geneName + "." + geneIndex, geneName, bioType(trId));
-		genesByName.add(geneName, gene);
-		Gpr.debug("Adding: geneName:" + geneName + "\tgeneId: " + gene.getId());
-		genesById.put(geneName, gene);
-		snpEffectPredictor.add(gene);
-
-		return gene;
 	}
 
 	/**

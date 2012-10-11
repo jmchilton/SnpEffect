@@ -357,16 +357,27 @@ public abstract class SnpEffPredictorFactory {
 	void finishUp(boolean verbose) {
 		int showEvery = 100;
 
-		//  Adjust genes: recalculate start, end, strand, etc.
+		// Adjust genes: recalculate start, end, strand, etc.
 		int i = 1;
 		System.out.print("\n\tAdjusting genes: ");
 		for (Gene gene : genome.getGenes())
 			if (gene.adjust()) Gpr.showMark(i++, showEvery);
 
+		// Adjust chromosome sizes
+		System.out.print("\n\tAdjusting chromosome sizes: ");
+		for (Gene gene : genome.getGenes()) {
+			Chromosome chr = gene.getChromosome();
+
+			if (gene.getEnd() > chr.getEnd()) {
+				chr.setLength(gene.getEnd() + 1);
+				Gpr.showMark(i++, showEvery);
+			}
+		}
+
 		// Remove suspicious transcripts
 		removerSuspiciousTranscripts(showEvery);
 
-		//  Adjust transcripts: recalculate start, end, strand, etc.
+		// Adjust transcripts: recalculate start, end, strand, etc.
 		i = 1;
 		System.out.print("\n\tAdjusting transcripts: ");
 		for (Gene gene : genome.getGenes())

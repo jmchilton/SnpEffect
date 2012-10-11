@@ -58,7 +58,10 @@ public class MarkerSerializer {
 
 	protected int getIdByMarker(Marker m) {
 		Integer id = idByMarker.get(m);
-		if (id == null) { throw new RuntimeException("Marker has no numeric ID. \n\tClass: " + m.getClass().getSimpleName() + "\n\tMarker ID: '" + m.getId() + "'\n\t" + m); }
+		if (id == null) { throw new RuntimeException("Marker has no numeric ID. \n" //
+				+ "\tClass    : " + m.getClass().getSimpleName() + "\n" //
+				+ "\tMarker ID: '" + m.getId() + "'\n" // 
+				+ "\t" + m); }
 		return id;
 	}
 
