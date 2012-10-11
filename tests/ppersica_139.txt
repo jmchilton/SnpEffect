@@ -1,6 +1,6 @@
 
 ppersica139
-1	0-0 CHROMOSOME '1'
+1	0-46098485 CHROMOSOME '1'
 1:46082351-46098485, strand:-1, id:ppa000009m.g, name:ppa000009m.g, bioType:mRNA
 Transcipts:
 	1:46082351-46098485, strand: -, id:PAC:17661739
