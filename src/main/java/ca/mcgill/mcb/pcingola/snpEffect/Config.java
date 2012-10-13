@@ -96,7 +96,11 @@ public class Config implements Serializable, Iterable<String> {
 			String keyStr = key.toString();
 			if (keyStr.endsWith(CODONTABLE_KEY) && keyStr.startsWith(genomeVersion + ".")) {
 				// Everything between gneomeName and ".codonTable" is assumed to be chromosome name
-				String chromo = keyStr.substring(genomeVersion.length() + 1, keyStr.length() - CODONTABLE_KEY.length());
+				int chrNameEnd = keyStr.length() - CODONTABLE_KEY.length();
+				int chrNameStart = genomeVersion.length() + 1;
+				int chrNameLen = chrNameEnd - chrNameStart;
+				if (chrNameLen < 0) throw new RuntimeException("Error parsing config entry '" + keyStr + "'.\n\tExpected format: GENOME.CHROMOSOME.codonTable\n\tChromosome name not found!");
+				String chromo = keyStr.substring(chrNameStart, chrNameEnd);
 
 				String codonTableName = properties.getProperty(key.toString());
 				CodonTable codonTable = CodonTables.getInstance().getTable(codonTableName);
