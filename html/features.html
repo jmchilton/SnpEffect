@@ -34,15 +34,38 @@
 			<div class="entry">
 
 	<div id="content"> 
-				<p style="font-size: 16pt"> <b> Coming up in Version: 3.1 (2012-??-??).</b></p>
+				<p><hr><p style="font-size: 16pt"> <b> Roadmap</b></p>
+
+				Major features planned:
 				<ul>
-					<li> Compatibility for structural variants using VCF '&lt;DUP&gt;' and '&lt;DEL&gt;' ALT markers.
-					<li> Added of U12 branch sites.
-					<li> Extended splice sites using conservation and entropy based metrics.
-					<li> Exon types: {RETAINED, SKIPPED, ALTTENATIVE_3SS, ALTTENATIVE_5SS, MUTUALLY_EXCLUSIVE, ALTTENATIVE_PROMOMOTER, ALTTENATIVE_POLY_A} 
-					<li> SnpSift dbNSFP: Added '-a' option to select annotation fields.
-					<li> SnpSift interval: Added '-x' option to exclude intervals.
+					<li> <b>Cancer projects:</b> Somatic vs Germline mutations "on the fly" differences. This will speed up considerable analysis of Cancer tissues.
+					<li> <b>Microbiome:</b> Support for all bacterial and fungi genomes available at NCBI (over 2,100 bacterial genomes)
+					<li> <b>Strunctural variants:</b> Compatibility with structural VCF variants (i.e. '&lt;DUP&gt;' and '&lt;DEL&gt;' ALT markers).
+					<li> <b>ENCODE & Regulation:</b> Reguation elements (also from ENCODE project), such as: 
+						<pre>DNase1, Ap2alpha, H3K36ac, H3K9me1, Nfyb, Ap2gamma, Tcf12, Nrsf, H3K79me2, EBF, 
+BATF, FAIRE, H2BK5me1, Sin3Ak20, H3K9me3, Gabp, H2BK12ac, TAF1, Jund, H2AZ , 
+USF1, PU1, HEY1, Rad21, H2BK5ac, Cfos, H4K8ac, Cjun, H4K20me1, SP1, 
+H3K4ac, H2BK20ac, H4K5ac, H3K36me3, Max, H2BK120ac, H3K18ac, H4K91ac, H3K27me3, Cmyc, 
+H3K4me1, H3K9ac, H3K27ac, PolII, H3K4me2, H3K4me3, CTCF, .... etc. </pre>
+						 This feature is available for human (GRCh37) and mouse (GRCm37).
+					<p>
+					<li> <b>Splicing:</b> 
+					<ul>
+						<li> Extended splice sites using conservation and entropy based metrics.
+						<li> Exon characterization: {RETAINED, SKIPPED, ALTTENATIVE_3SS, ALTTENATIVE_5SS, MUTUALLY_EXCLUSIVE, ALTTENATIVE_PROMOMOTER, ALTTENATIVE_POLY_A} 
+						<li> Add predicted U12 branch sites.
+					</ul>
+					<li> <b>Mixed variants:</b> Full support for MIXED variants: E.g. Some variants maybe a combination of Insertions, Deletions, SNPs or MNPs.
+					<p>
+				</ul>
+
+				Other features planned:
+				<ul>
+					<li> SnpSift dbNSFP: Add '-a' option to select annotation fields.
+					<li> SnpSift interval: Add '-x' option to exclude intervals.
 					<li> SnpEff: Only use a selected subset of transcripts. Command line option '-onlyTr file.txt'.
+					<li> O(m) algorithm: Current algorithm is O[ log(n) + m ], where <b>n</b> is the number of intervals (genes + exons + etc.) and <b>m</b> is the number of results. Under certain conditions the algorithm can be improved to be just O[m].
+					<li> [Done] Backwards compatible database format: Current database is a binary format incompatible across versions. Using a cross-version compatible database will avoid re-building all the databases for each new release.
 				</ul>
 
 				<p style="font-size: 16pt"> <b> Version: 3.0, revision 'f' (2012-08-23).</b></p>
@@ -117,24 +140,6 @@
 						Added indexing using  memory mapped I/O files for retrieving intervals from huge VCF files. 
 						Works really fast! 
 						<ul>
-				</ul>
-
-				<p><hr><p style="font-size: 16pt"> <b> Roadmap: Fetures planned for future releases </b></p>
-
-				<ul>
-					<li> Reguation elements, such as: 
-						<pre>DNase1, Ap2alpha, H3K36ac, H3K9me1, Nfyb, Ap2gamma, Tcf12, Nrsf, H3K79me2, EBF, 
-BATF, FAIRE, H2BK5me1, Sin3Ak20, H3K9me3, Gabp, H2BK12ac, TAF1, Jund, H2AZ , 
-USF1, PU1, HEY1, Rad21, H2BK5ac, Cfos, H4K8ac, Cjun, H4K20me1, SP1, 
-H3K4ac, H2BK20ac, H4K5ac, H3K36me3, Max, H2BK120ac, H3K18ac, H4K91ac, H3K27me3, Cmyc, 
-H3K4me1, H3K9ac, H3K27ac, PolII, H3K4me2, H3K4me3, CTCF, .... etc. </pre>
-						 This feature is available for human (GRCh37.63) and mouse (NCBIM37.63).
-					<p>
-					<li> Backwards compatible database format: Current database is a binary format incompatible across versions. Using a cross-version compatible database will avoid re-building all the databases for each new release.
-					<p>
-					<li> O(m) algorithm: Current algorithm is O[ log(n) + m ], where <b>n</b> is the number of intervals (genes + exons + etc.) and <b>m</b> is the number of results. Under certain conditions the algorithm can be improved to be just O[m].
-					<p>
-					<li> Full support for MIXED variants: E.g. Some variants maybe a combination of Insertions, Deletions, SNPs or MNPs.
 				</ul>
 
 				<p> <hr> <p style="font-size: 16pt"> <b> Features form older versions </b></p>
