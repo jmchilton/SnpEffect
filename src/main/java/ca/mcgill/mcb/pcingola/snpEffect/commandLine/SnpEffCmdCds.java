@@ -54,6 +54,16 @@ public class SnpEffCmdCds extends SnpEff {
 	 */
 	double cdsCompare() {
 		int i = 1;
+
+		if (!verbose) {
+			// Show labels
+			System.err.println("\tLabels:");
+			System.err.println("\t\t'+' : OK");
+			System.err.println("\t\t'.' : Missing");
+			System.err.println("\t\t'*' : Error");
+		}
+
+		// Compare all genes
 		for (Gene gint : config.getGenome().getGenes())
 			for (Transcript tint : gint) {
 				String cds = tint.cds().toUpperCase();
@@ -90,21 +100,21 @@ public class SnpEffCmdCds extends SnpEff {
 					}
 				} else if (mRna.equals(cdsReference)) { // May be the file has mRNA instead of CDS?
 					totalOk++;
-					if (!verbose) System.out.print('-');
+					if (!verbose) System.out.print('+');
 				} else if ((mRna.length() < cdsReference.length()) // CDS longer than mRNA? May be it is actually an mRNA + poly-A tail (instead of a CDS)
 						&& cdsReference.substring(mRna.length()).replace('A', ' ').trim().isEmpty() // May be it is an mRNA and it has a ploy-A tail added
 						&& cdsReference.substring(0, mRna.length()).equals(mRna) // Compare cutting poly-A tail
 				) {
 					// OK, it was a mRNA +  polyA
 					totalOk++;
-					if (!verbose) System.out.print('-');
+					if (!verbose) System.out.print('+');
 				} else if ((mRna.length() > cdsReference.length()) // PolyA in the reference? 
 						&& mRna.substring(cdsReference.length()).replace('A', ' ').trim().isEmpty() // 
 						&& mRna.substring(0, cdsReference.length()).equals(mRna) // 
 				) {
 					// OK, it was a mRNA +  polyA
 					totalOk++;
-					if (!verbose) System.out.print('-');
+					if (!verbose) System.out.print('+');
 				} else {
 					if (verbose || onlyOneError) {
 						// Create a string indicating differences

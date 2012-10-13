@@ -466,6 +466,9 @@ public abstract class SnpEffPredictorFactory {
 					Chromosome chromoInt = getOrCreateChromosome(chromo);
 					chromoInt.setLength(seq.length()); // Set chromosome length
 					addExonSequences(chromo, seq); // Add all sequences
+
+					Gpr.debug("ffi.line    : " + ffi.getLine());
+					Gpr.debug("ffi.lineNum : " + ffi.getLineNum());
 				}
 				return;
 			}
