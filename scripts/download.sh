@@ -6,7 +6,7 @@ RELEASE=68
 cd download
 
 #---
-# Download
+# Download from ENSEMBL
 #---
 
 # # Download GTF files (annotations)
@@ -20,6 +20,13 @@ cd download
 # 
 # # Download PROTEIN sequences
 # wget -r -A "*.pep.all.fa.gz" "ftp://ftp.ensembl.org/pub/release-$RELEASE/fasta/"
+
+
+#---
+# Download from NCBI (Bacterial genoms)
+#---
+
+wget -r -np -nc -A "gbk,html" "http://ftp.ncbi.nih.gov/genomes/Bacteria/"
 
 #---
 # Create directory structure
