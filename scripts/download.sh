@@ -1,8 +1,8 @@
 #!/bin/sh -e
 
-RELEASE=66
+RELEASE=68
 
-# mkdir download
+#mkdir download
 cd download
 
 #---
@@ -27,7 +27,7 @@ cd download
 
 # # Move all downloaded file to this directory
 # mv `find ftp.ensembl.org -type f` .
- 
+# 
 # # Gene annotations files
 # for gtf in *.gtf.gz
 # do
@@ -71,16 +71,16 @@ cd download
 # Config file entries
 #---
 
-# for fasta in *.cdna.all.fa.gz
-# do
-# 	genome=`../scripts/file2GenomeName.pl $fasta | cut -f 4`
-# 	short=`../scripts/file2GenomeName.pl $fasta | cut -f 5`
-# 
-# 	# Individual genome entry
-# 	echo -e "$short.genome : $genome"
-# 	echo -e "$short.reference : ftp://ftp.ensembl.org/pub/release-$RELEASE/gtf/"
-# 	echo
-# done
+for fasta in *.cdna.all.fa.gz
+do
+	genome=`../scripts/file2GenomeName.pl $fasta | cut -f 4`
+	short=`../scripts/file2GenomeName.pl $fasta | cut -f 5`
+
+	# Individual genome entry
+	echo -e "$short.genome : $genome"
+	echo -e "$short.reference : ftp://ftp.ensembl.org/pub/release-$RELEASE/gtf/"
+	echo
+done
 
 # Back to parent dir
 cd - > /dev/null
@@ -89,39 +89,39 @@ cd - > /dev/null
 # Create build queue entries
 #---
 
-# rm -vf queue_build.txt
-# 
-# # Build from TXT files
-# for genes in data/*/genes.txt*
-# do
-# 	dir=`dirname $genes`
-# 	genomeName=`basename $dir`
-# 	echo "./scripts/snpEffXL.sh build -v $genomeName"
-# done | sort >> queue_build.txt
-# 
-# # Build from GFF2 files
-# echo "./scripts/snpEffXL.sh build -v -gff2 amel2" >> queue_build.txt
-# 
-# # Build from GFF3 files
-# for genes in `ls data/*/genes.gff* | grep -v amel2`
-# do
-# 	dir=`dirname $genes`
-# 	genomeName=`basename $dir`
-# 	echo "./scripts/snpEffXL.sh build -v -gff3 $genomeName"
-# done | sort >> queue_build.txt
-# 
-# # Build from GTF22 files
-# for genes in data/*/genes.gtf*
-# do
-# 	dir=`dirname $genes`
-# 	genomeName=`basename $dir`
-# 	echo "./scripts/snpEffXL.sh build -v -gtf22 $genomeName"
-# done | sort >> queue_build.txt
-#
-# # Build from GenBank files
-# for genes in data/*/genes.gb*
-# do
-# 	dir=`dirname $genes`
-# 	genomeName=`basename $dir`
-# 	echo "./scripts/snpEffXL.sh build -v -genbank $genomeName"
-# done | sort >> queue_build.txt
+rm -vf queue_build.txt
+
+# Build from TXT files
+for genes in data/*/genes.txt*
+do
+	dir=`dirname $genes`
+	genomeName=`basename $dir`
+	echo "java -Xmx10G -jar snpEff.jar build -v -txt $genomeName"
+done | sort >> queue_build.txt
+
+# Build from GFF2 files
+echo "java -Xmx10G -jar snpEff.jar build -v -gff2 amel2" >> queue_build.txt
+
+# Build from GFF3 files
+for genes in `ls data/*/genes.gff* | grep -v amel2`
+do
+	dir=`dirname $genes`
+	genomeName=`basename $dir`
+	echo "java -Xmx10G -jar snpEff.jar build -v -gff3 $genomeName"
+done | sort >> queue_build.txt
+
+# Build from GTF22 files
+for genes in data/*/genes.gtf*
+do
+	dir=`dirname $genes`
+	genomeName=`basename $dir`
+	echo "java -Xmx10G -jar snpEff.jar build -v -gtf22 $genomeName"
+done | sort >> queue_build.txt
+
+# Build from GenBank files
+for genes in data/*/genes.gb*
+do
+	dir=`dirname $genes`
+	genomeName=`basename $dir`
+	echo "java -Xmx10G -jar snpEff.jar build -v -genbank $genomeName"
+done | sort >> queue_build.txt
