@@ -80,25 +80,35 @@ public abstract class Features implements Iterable<Feature> {
 		int firstLine = def.indexOf("\n");
 		String locStr = def.substring(0, firstLine);
 
-		// Is it a complement
-		if (locStr.startsWith(COMPLEMENT)) {
-			complement = true;
-			locStr = locStr.substring(COMPLEMENT.length() + 1, locStr.length() - 1);
+		// Get rid of 'join' and 'complement' strings
+		String locStrPrev = "";
+		while (!locStr.equals(locStrPrev)) {
+			locStrPrev = locStr;
+
+			// Is it a complement?
+			if (locStr.startsWith(COMPLEMENT)) {
+				complement = true;
+				locStr = removeStartStr(locStr, COMPLEMENT);
+			}
+
+			locStr = removeStartStr(locStr, JOIN); // Remove 'join', if any
 		}
 
 		// Split multiple locations?
 		String locs[] = locStr.split(",");
 		for (String loc : locs) {
-			// Is it a complement
-			if (loc.startsWith(COMPLEMENT)) {
-				complement = true;
-				loc = loc.substring(COMPLEMENT.length() + 1, loc.length() - 1);
-			}
+			// Get rid of 'join' and 'complement' strings
+			String locPrev = "";
+			while (!loc.equals(locPrev)) {
+				locPrev = loc;
 
-			// Remove 'join', if any
-			if (loc.startsWith(JOIN)) {
-				complement = true;
-				loc = loc.substring(JOIN.length());
+				// Is it a complement?
+				if (loc.startsWith(COMPLEMENT)) {
+					complement = true;
+					loc = removeStartStr(loc, COMPLEMENT);
+				}
+
+				loc = removeStartStr(loc, JOIN); // Remove 'join', if any
 			}
 
 			// Remove other characters
@@ -106,6 +116,7 @@ public abstract class Features implements Iterable<Feature> {
 
 			// Calculate start & end coordinates
 			String startEnd[] = loc.split("[\\.]+");
+
 			if (startEnd.length > 1) {
 				int start = Gpr.parseIntSafe(startEnd[0]);
 				int end = Gpr.parseIntSafe(startEnd[1]);
@@ -228,6 +239,17 @@ public abstract class Features implements Iterable<Feature> {
 	 * @param fileName
 	 */
 	public abstract void readFile(String fileName);
+
+	/**
+	 * Remove start string
+	 * @param str
+	 * @param startStr
+	 * @return
+	 */
+	String removeStartStr(String str, String startStr) {
+		if (str.startsWith(startStr)) return str.substring(startStr.length() + 1, str.length() - 1);
+		return str;
+	}
 
 	@Override
 	public String toString() {

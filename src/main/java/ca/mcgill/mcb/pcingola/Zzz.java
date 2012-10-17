@@ -6,7 +6,7 @@ import ca.mcgill.mcb.pcingola.util.Gpr;
 public class Zzz {
 
 	public static void main(String[] args) {
-		String file = Gpr.HOME + "/snpEff/data/genomes/GRCm38.68.fa";
+		String file = Gpr.HOME + "/snpEff/data/genomes/spombe/genes.gb";
 
 		System.out.println("\t\tReading file '" + file);
 		FastaFileIterator ffi = new FastaFileIterator(file);

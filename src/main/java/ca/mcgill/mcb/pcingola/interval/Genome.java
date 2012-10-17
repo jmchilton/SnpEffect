@@ -2,6 +2,7 @@ package ca.mcgill.mcb.pcingola.interval;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -160,6 +161,10 @@ public class Genome extends Marker implements Serializable, Iterable<Chromosome>
 
 	public String[] getChromosomeNames() {
 		return chromosomeNames.toArray(new String[0]);
+	}
+
+	public Collection<Chromosome> getChromosomes() {
+		return chromosomes.values();
 	}
 
 	public String getFastaDir() {

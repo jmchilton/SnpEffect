@@ -8,8 +8,7 @@ import java.util.regex.Pattern;
 import ca.mcgill.mcb.pcingola.util.Gpr;
 
 /**
- * A feature in a GenBank file
- * 
+ * A feature in a GenBank or EMBL file
  * 
  * @author pablocingolani
  */
@@ -60,6 +59,10 @@ public class Feature {
 		this.end = end;
 		this.complement = complement;
 		parse(def);
+
+		// Sanity check
+		if (start < 0) throw new RuntimeException("Feature starts with negative coordinates!\n\t" + this);
+		if (end < start) throw new RuntimeException("Feature end before it starts!\n\t" + this);
 	}
 
 	/**

@@ -1,5 +1,6 @@
 package ca.mcgill.mcb.pcingola.genBank;
 
+import ca.mcgill.mcb.pcingola.fileIterator.LineFileIterator;
 import ca.mcgill.mcb.pcingola.util.Gpr;
 
 /**
@@ -80,12 +81,18 @@ public class GenBank extends Features {
 	 */
 	@Override
 	public void readFile(String fileName) {
-		String fileTxt = Gpr.readFile(fileName);
+		if (!Gpr.canRead(fileName)) throw new RuntimeException("Cannot read file '" + fileName + "'");
 
 		int fieldLineNum = 0;
 		String name = null;
 		String value = "";
-		for (String line : fileTxt.split("\n")) {
+
+		// Read file
+		LineFileIterator lfi = new LineFileIterator(fileName);
+		for (String line : lfi) {
+			// End of current 'chromosome'?
+			if (line.equals("//")) break;
+
 			value = line;
 
 			// Field start
@@ -103,6 +110,7 @@ public class GenBank extends Features {
 			fieldLineNum++;
 		}
 
+		// All features are loaded. We can parse them now
 		parseFeatures();
 	}
 

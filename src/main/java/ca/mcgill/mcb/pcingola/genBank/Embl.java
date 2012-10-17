@@ -1,5 +1,6 @@
 package ca.mcgill.mcb.pcingola.genBank;
 
+import ca.mcgill.mcb.pcingola.fileIterator.LineFileIterator;
 import ca.mcgill.mcb.pcingola.util.Gpr;
 
 /**
@@ -116,10 +117,16 @@ public class Embl extends Features {
 	 */
 	@Override
 	public void readFile(String fileName) {
-		String fileTxt = Gpr.readFile(fileName);
-
 		String fkeyPrev = "";
-		for (String line : fileTxt.split("\n")) {
+
+		if (!Gpr.canRead(fileName)) throw new RuntimeException("Cannot read file '" + fileName + "'");
+
+		// Read file
+		LineFileIterator lfi = new LineFileIterator(fileName);
+		for (String line : lfi) {
+			// End of current 'chromosome'?
+			if (line.equals("//")) break;
+
 			// Parse feature key
 			String fkey = "";
 			String value = "";
@@ -137,6 +144,7 @@ public class Embl extends Features {
 			fkeyPrev = fkey;
 		}
 
+		// All features are loaded. We can parse them now
 		parseFeatures();
 	}
 

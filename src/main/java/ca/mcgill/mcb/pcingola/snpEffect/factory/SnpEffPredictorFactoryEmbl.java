@@ -30,12 +30,14 @@ public class SnpEffPredictorFactoryEmbl extends SnpEffPredictorFactoryFeatures {
 		ArrayList<Features> featList = new ArrayList<Features>();
 
 		if (Gpr.canRead(fileName)) {
-			System.out.println("Reading data file  : '" + fileName + "'");
+			if (verbose) System.out.println("Reading data file  : '" + fileName + "'");
 			featList.add(new Embl(fileName));
 		} else {
+			if (config.getGenome().getChromosomes().isEmpty()) throw new RuntimeException("Data file  : '" + fileName + "' not found and no chromosomes defined.");
+
 			for (Chromosome chr : config.getGenome()) {
 				String chrFileName = config.getDirDataVersion() + "/" + chr.getId() + ".embl";
-				System.out.println("Reading data file  : '" + chrFileName + "'");
+				if (verbose) System.out.println("Reading data file  : '" + chrFileName + "'");
 				featList.add(new Embl(chrFileName));
 			}
 		}
