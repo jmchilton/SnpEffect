@@ -5,7 +5,6 @@ import java.util.List;
 
 import ca.mcgill.mcb.pcingola.genBank.Embl;
 import ca.mcgill.mcb.pcingola.genBank.Features;
-import ca.mcgill.mcb.pcingola.genBank.GenBank;
 import ca.mcgill.mcb.pcingola.interval.Chromosome;
 import ca.mcgill.mcb.pcingola.snpEffect.Config;
 import ca.mcgill.mcb.pcingola.util.Gpr;
@@ -37,7 +36,7 @@ public class SnpEffPredictorFactoryEmbl extends SnpEffPredictorFactoryFeatures {
 			for (Chromosome chr : config.getGenome()) {
 				String chrFileName = config.getDirDataVersion() + "/" + chr.getId() + ".embl";
 				System.out.println("Reading data file  : '" + chrFileName + "'");
-				featList.add(new GenBank(chrFileName));
+				featList.add(new Embl(chrFileName));
 			}
 		}
 

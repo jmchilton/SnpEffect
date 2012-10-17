@@ -78,7 +78,7 @@ public class Embl extends Features {
 			// Nothing to do
 		} else if (fkey.equals("ID")) {
 			// TODO: Needs better parsing here.
-			String subfields[] = value.split(";");
+			String subfields[] = value.split("[;\\s]");
 			locusName = subfields[0];
 			if (subfields.length > 1) shape = subfields[1];
 			if (subfields.length > 2) moleculeType = subfields[2];
@@ -92,6 +92,10 @@ public class Embl extends Features {
 			accession += value;
 		} else if (fkey.equals("KW")) {
 			keywords += value;
+		} else if (fkey.equals("SQ")) {
+			value = value.replaceAll("\\s", "");
+			value = value.replaceAll("\\d", "");
+			sequence.append(value);
 		} else if (fkey.equals("OS") | fkey.equals("OC")) {
 			organism += value;
 		} else if (fkey.equals("FT")) {
@@ -101,9 +105,6 @@ public class Embl extends Features {
 		} else if (fkey.startsWith("R")) {
 			if (fkey.equals("RN")) references.add(new StringBuffer());
 			references.get(references.size() - 1).append(value + "\n");
-		} else if (fkey.isEmpty()) {
-			String seq = value.replaceAll("[ 0-9]", "");
-			sequence.append(seq);
 		} else if (fkey.equals("FH") | fkey.equals("PR") | fkey.equals("DR") | fkey.equals("CC") | fkey.equals("AH") | fkey.equals("AS") | fkey.equals("SQ")) {
 			// Ignore
 		} else System.err.println("Unknown feature '" + fkey + "'");;
@@ -117,6 +118,7 @@ public class Embl extends Features {
 	public void readFile(String fileName) {
 		String fileTxt = Gpr.readFile(fileName);
 
+		String fkeyPrev = "";
 		for (String line : fileTxt.split("\n")) {
 			// Parse feature key
 			String fkey = "";
@@ -125,11 +127,14 @@ public class Embl extends Features {
 			if (line.length() < FEATURE_KEY_LEN) fkey = line;
 			else {
 				fkey = line.substring(0, FEATURE_KEY_LEN).trim();
+				if (fkey.isEmpty()) fkey = fkeyPrev;
 				value = line.substring(FEATURE_KEY_LEN);
 			}
 
 			// Parse line
 			parseFieldLine(fkey, value);
+
+			fkeyPrev = fkey;
 		}
 
 		parseFeatures();

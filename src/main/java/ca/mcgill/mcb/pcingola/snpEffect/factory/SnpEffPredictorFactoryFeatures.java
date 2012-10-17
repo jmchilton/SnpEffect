@@ -28,7 +28,7 @@ import ca.mcgill.mcb.pcingola.util.GprSeq;
 public abstract class SnpEffPredictorFactoryFeatures extends SnpEffPredictorFactory {
 
 	public static final int OFFSET = 1;
-	Chromosome chromosomeSource; // It is assumed that there is only one 'Chromosome' (i.e. only one 'SOURCE' feature)
+	Chromosome chromosome; // It is assumed that there is only one 'Chromosome' (i.e. only one 'SOURCE' feature)
 
 	public SnpEffPredictorFactoryFeatures(Config config) {
 		super(config, OFFSET);
@@ -39,7 +39,7 @@ public abstract class SnpEffPredictorFactoryFeatures extends SnpEffPredictorFact
 	 */
 	protected void addFeatures(Features features) {
 		//---
-		// Add all chromosome 
+		// Add chromosome 
 		//---
 		for (Feature f : features.getFeatures()) {
 			// Convert coordinates to zero-based 
@@ -48,20 +48,30 @@ public abstract class SnpEffPredictorFactoryFeatures extends SnpEffPredictorFact
 
 			// Add chromosome
 			if (f.getType() == Type.SOURCE) {
-				if (chromosomeSource != null) throw new RuntimeException("SOURCE already assigned to chromosome");
-				chromosomeSource = new Chromosome(genome, start, end, 1, chromoName(f)); // Convert coordinates to zero-based 
-				add(chromosomeSource);
+				if (chromosome != null) throw new RuntimeException("SOURCE already assigned to chromosome");
+				String chrName = chromoName(f);
+				Gpr.debug("Creating chromosome: '" + chrName + "'");
+				chromosome = new Chromosome(genome, start, end, 1, chrName);
+				add(chromosome);
 			}
 		}
 
+		// No SOURCE? may be locusName is available.
+		if (chromosome == null) {
+			Gpr.debug("Creating chromosome: '" + features.getLocusName() + "'");
+			int chrSize = sequence(features).length();
+			chromosome = new Chromosome(genome, 0, chrSize, 1, features.getLocusName());
+			add(chromosome);
+		}
+
 		// Sanity check
-		if (chromosomeSource == null) throw new RuntimeException("Could not find SOURCE feature");
+		if (chromosome == null) throw new RuntimeException("Could not find SOURCE feature");
 
 		//---
 		// Add a genes
 		//---
 		for (Feature f : features.getFeatures()) {
-			if (f.getType() == Type.GENE) findOrCreateGene(f, chromosomeSource, false);
+			if (f.getType() == Type.GENE) findOrCreateGene(f, chromosome, false);
 		}
 
 		//---
@@ -75,7 +85,7 @@ public abstract class SnpEffPredictorFactoryFeatures extends SnpEffPredictorFact
 				int end = f.getEnd() - inOffset;
 
 				String trId = getTrId(f);
-				Gene gene = findOrCreateGene(f, chromosomeSource, false); // Find or create gene
+				Gene gene = findOrCreateGene(f, chromosome, false); // Find or create gene
 
 				// Add transcript
 				Transcript tr = new Transcript(gene, start, end, f.isComplement() ? -1 : 1, trId);
@@ -101,10 +111,13 @@ public abstract class SnpEffPredictorFactoryFeatures extends SnpEffPredictorFact
 					if (verbose) System.err.println("WARNING: Transcript '" + trId + "' not found. Creating new transcript." + f);
 
 					// Not found? => Create gene and transcript
-					Gene gene = findOrCreateGene(f, chromosomeSource, false); // Find or create gene
+					Gene gene = findOrCreateGene(f, chromosome, false); // Find or create gene
 					trId = "Tr_" + start + "_" + end;
-					tr = new Transcript(gene, start, end, f.isComplement() ? -1 : 1, trId);
-					add(tr);
+					tr = findTranscript(trId);
+					if (tr == null) {
+						tr = new Transcript(gene, start, end, f.isComplement() ? -1 : 1, trId);
+						add(tr);
+					}
 				}
 
 				// Mark transcript as protein coding
@@ -138,15 +151,15 @@ public abstract class SnpEffPredictorFactoryFeatures extends SnpEffPredictorFact
 
 			// Iterate over all sources
 			for (Features features : featList) {
-				chromosomeSource = null; // Make sure we create a new source for each file
+				chromosome = null; // Make sure we create a new source for each file
 				addFeatures(features);
 
-				// Some clean-up before readng exon sequences
+				// Some clean-up before reading exon sequences
 				beforeExonSequences();
 
 				// Get exon sequences
 				String sequence = sequence(features);
-				addExonSequences(chromosomeSource.getId(), sequence);
+				addExonSequences(chromosome.getId(), sequence);
 			}
 
 			// Finish up (fix problems, add missing info, etc.)

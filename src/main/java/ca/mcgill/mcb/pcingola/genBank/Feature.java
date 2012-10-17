@@ -16,7 +16,23 @@ import ca.mcgill.mcb.pcingola.util.Gpr;
 public class Feature {
 
 	public enum Type {
-		SOURCE, CDS, GENE, MRNA, TRNA, RRNA, MISC_RNA, REPEAT_UNIT, REPEAT_REGION, MISC_FEATURE
+		SOURCE, ID, CDS, GENE, MRNA, TRNA, RRNA, MISC_RNA, REPEAT_UNIT, REPEAT_REGION, MISC_FEATURE, UTR_3, UTR_5;
+
+		/**
+		 * Parse a string into a Feature.Type
+		 */
+		public static Feature.Type parse(String typeStr) {
+			typeStr = typeStr.toUpperCase();
+			typeStr = typeStr.replaceAll("[^A-Za-z0-9]", "_");
+
+			// Some equivalences
+			if (typeStr.equals("5_UTR")) return UTR_5;
+			if (typeStr.equals("3_UTR")) return UTR_3;
+			if (typeStr.equals("SQ")) return SOURCE;
+
+			return Feature.Type.valueOf(typeStr);
+		}
+
 	}
 
 	static final String FEATURE_REGEX = "/(\\S+?)=(.*)";

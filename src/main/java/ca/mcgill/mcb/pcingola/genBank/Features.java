@@ -52,7 +52,7 @@ public abstract class Features implements Iterable<Feature> {
 	 */
 	void addFeature(String typeStr, StringBuilder values) {
 		try {
-			Feature.Type type = Feature.Type.valueOf(typeStr.toUpperCase());
+			Feature.Type type = Feature.Type.parse(typeStr);
 			Collection<Feature> newFeatures = featureFactory(type, values.toString()); // Create new features
 			features.addAll(newFeatures); // Add all features to the list
 		} catch (Exception e) {
