@@ -1,13 +1,7 @@
 package ca.mcgill.mcb.pcingola.snpEffect.factory;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import ca.mcgill.mcb.pcingola.genBank.Features;
-import ca.mcgill.mcb.pcingola.genBank.GenBank;
-import ca.mcgill.mcb.pcingola.interval.Chromosome;
+import ca.mcgill.mcb.pcingola.genBank.GenBankFile;
 import ca.mcgill.mcb.pcingola.snpEffect.Config;
-import ca.mcgill.mcb.pcingola.util.Gpr;
 
 /**
  * This class creates a SnpEffectPredictor from a GenBank file.
@@ -19,29 +13,6 @@ public class SnpEffPredictorFactoryGenBank extends SnpEffPredictorFactoryFeature
 	public SnpEffPredictorFactoryGenBank(Config config) {
 		super(config);
 		fileName = config.getBaseFileNameGenes() + ".gb";
-	}
-
-	/**
-	 * Get features from file
-	 * @return
-	 */
-	@Override
-	protected List<Features> readFeatures() {
-		ArrayList<Features> featList = new ArrayList<Features>();
-
-		if (Gpr.canRead(fileName)) {
-			if (verbose) System.out.println("Reading data file  : '" + fileName + "'");
-			featList.add(new GenBank(fileName));
-		} else {
-			if (config.getGenome().getChromosomes().isEmpty()) throw new RuntimeException("Data file  : '" + fileName + "' not found and no chromosomes defined.");
-
-			for (Chromosome chr : config.getGenome()) {
-				String chrFileName = config.getDirDataVersion() + "/" + chr.getId() + ".gb";
-				if (verbose) System.out.println("Reading data file  : '" + chrFileName + "'");
-				featList.add(new GenBank(chrFileName));
-			}
-		}
-
-		return featList;
+		featuresFile = new GenBankFile(fileName);
 	}
 }

@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
 
+import ca.mcgill.mcb.pcingola.fileIterator.LineFileIterator;
 import ca.mcgill.mcb.pcingola.util.Gpr;
 
 /**
@@ -32,6 +33,20 @@ public abstract class Features implements Iterable<Feature> {
 	StringBuffer sequence;
 	ArrayList<Feature> features;
 	ArrayList<StringBuffer> references;
+	LineFileIterator lineFileIterator;
+
+	/**
+	 * Create features from a file
+	 * @param fileName
+	 */
+	public Features(LineFileIterator lineFileIterator) {
+		references = new ArrayList<StringBuffer>();
+		featuresStr = new StringBuffer();
+		sequence = new StringBuffer();
+		features = new ArrayList<Feature>();
+		this.lineFileIterator = lineFileIterator;
+		readFile();
+	}
 
 	/**
 	 * Create features from a file
@@ -42,7 +57,8 @@ public abstract class Features implements Iterable<Feature> {
 		featuresStr = new StringBuffer();
 		sequence = new StringBuffer();
 		features = new ArrayList<Feature>();
-		readFile(fileName);
+		open(fileName);
+		readFile();
 	}
 
 	/**
@@ -190,6 +206,10 @@ public abstract class Features implements Iterable<Feature> {
 		return version;
 	}
 
+	public boolean isEmpty() {
+		return features.isEmpty();
+	}
+
 	/**
 	 * Is there a new feature in this line?
 	 * @param line
@@ -203,9 +223,22 @@ public abstract class Features implements Iterable<Feature> {
 	}
 
 	/**
+	 * Open a file
+	 * @param fileName
+	 */
+	protected void open(String fileName) {
+		if (!Gpr.canRead(fileName)) throw new RuntimeException("Cannot read file '" + fileName + "'");
+		if (lineFileIterator != null) lineFileIterator.close();
+		lineFileIterator = new LineFileIterator(fileName);
+	}
+
+	/**
 	 * Parse features
 	 */
 	protected void parseFeatures() {
+		// Empty?
+		if (featuresStr.length() <= 0) return;
+
 		String type = null;
 		String value = "";
 		StringBuilder values = new StringBuilder();
@@ -235,10 +268,9 @@ public abstract class Features implements Iterable<Feature> {
 	}
 
 	/**
-	 * Load and parse the contents of a data file
-	 * @param fileName
+	 * Load and parse the contents of a data file previously opened by 'open()' method.
 	 */
-	public abstract void readFile(String fileName);
+	protected abstract void readFile();
 
 	/**
 	 * Remove start string

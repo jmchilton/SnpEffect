@@ -1,18 +1,17 @@
 package ca.mcgill.mcb.pcingola;
 
-import ca.mcgill.mcb.pcingola.fileIterator.FastaFileIterator;
+import ca.mcgill.mcb.pcingola.genBank.EmblFile;
+import ca.mcgill.mcb.pcingola.genBank.Features;
 import ca.mcgill.mcb.pcingola.util.Gpr;
 
 public class Zzz {
 
 	public static void main(String[] args) {
-		String file = Gpr.HOME + "/snpEff/data/genomes/spombe/genes.gb";
+		String file = Gpr.HOME + "/snpEff/data/spombe/genes.embl";
 
-		System.out.println("\t\tReading file '" + file);
-		FastaFileIterator ffi = new FastaFileIterator(file);
-		for (String seq : ffi) {
-			String chromo = ffi.getName();
-			System.out.println("\t\tReading sequence '" + chromo + "', length: " + seq.length());
+		EmblFile emblFile = new EmblFile(file);
+		for (Features f : emblFile) {
+			System.out.println("Reaging!");
 		}
 
 	}

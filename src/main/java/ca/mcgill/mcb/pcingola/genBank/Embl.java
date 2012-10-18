@@ -1,7 +1,6 @@
 package ca.mcgill.mcb.pcingola.genBank;
 
 import ca.mcgill.mcb.pcingola.fileIterator.LineFileIterator;
-import ca.mcgill.mcb.pcingola.util.Gpr;
 
 /**
  * A class representing the same data as an EMBL file 
@@ -14,6 +13,14 @@ public class Embl extends Features {
 
 	public static final int FEATURE_NAME_LEN = 15;
 	public static final int FEATURE_KEY_LEN = 5;
+
+	/**
+	 * Create a Genbank record from a 'GB' file
+	 * @param fileName
+	 */
+	public Embl(LineFileIterator lineFileIterator) {
+		super(lineFileIterator);
+	}
 
 	/**
 	 * Create a Genbank record from a 'GB' file
@@ -116,16 +123,15 @@ public class Embl extends Features {
 	 * @param fileName
 	 */
 	@Override
-	public void readFile(String fileName) {
+	public void readFile() {
 		String fkeyPrev = "";
 
-		if (!Gpr.canRead(fileName)) throw new RuntimeException("Cannot read file '" + fileName + "'");
-
 		// Read file
-		LineFileIterator lfi = new LineFileIterator(fileName);
-		for (String line : lfi) {
+		for (String line : lineFileIterator) {
 			// End of current 'chromosome'?
-			if (line.equals("//")) break;
+			if (line.equals("//")) {
+				break;
+			}
 
 			// Parse feature key
 			String fkey = "";

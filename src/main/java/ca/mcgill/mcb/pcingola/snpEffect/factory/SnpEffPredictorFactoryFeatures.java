@@ -1,10 +1,9 @@
 package ca.mcgill.mcb.pcingola.snpEffect.factory;
 
-import java.util.List;
-
 import ca.mcgill.mcb.pcingola.genBank.Feature;
 import ca.mcgill.mcb.pcingola.genBank.Feature.Type;
 import ca.mcgill.mcb.pcingola.genBank.Features;
+import ca.mcgill.mcb.pcingola.genBank.FeaturesFile;
 import ca.mcgill.mcb.pcingola.interval.Cds;
 import ca.mcgill.mcb.pcingola.interval.Chromosome;
 import ca.mcgill.mcb.pcingola.interval.Gene;
@@ -29,6 +28,7 @@ public abstract class SnpEffPredictorFactoryFeatures extends SnpEffPredictorFact
 
 	public static final int OFFSET = 1;
 	Chromosome chromosome; // It is assumed that there is only one 'Chromosome' (i.e. only one 'SOURCE' feature)
+	FeaturesFile featuresFile;
 
 	public SnpEffPredictorFactoryFeatures(Config config) {
 		super(config, OFFSET);
@@ -108,10 +108,11 @@ public abstract class SnpEffPredictorFactoryFeatures extends SnpEffPredictorFact
 
 				Transcript tr = findTranscript(trId);
 				if (tr == null) {
-					if (verbose) System.err.println("WARNING: Transcript '" + trId + "' not found. Creating new transcript." + f);
-
 					// Not found? => Create gene and transcript
 					Gene gene = findOrCreateGene(f, chromosome, false); // Find or create gene
+
+					if (verbose) System.err.println("WARNING: Transcript '" + trId + "' not found. Creating new transcript for gene '" + gene.getId() + "'.\n" + f);
+
 					trId = "Tr_" + start + "_" + end;
 					tr = findTranscript(trId);
 					if (tr == null) {
@@ -146,11 +147,8 @@ public abstract class SnpEffPredictorFactoryFeatures extends SnpEffPredictorFact
 		System.out.println("Config: " + config.getGenome());
 
 		try {
-			// Read file and add all features
-			List<Features> featList = readFeatures();
-
-			// Iterate over all sources
-			for (Features features : featList) {
+			// Iterate over all features
+			for (Features features : featuresFile) {
 				chromosome = null; // Make sure we create a new source for each file
 				addFeatures(features);
 
@@ -194,7 +192,7 @@ public abstract class SnpEffPredictorFactoryFeatures extends SnpEffPredictorFact
 		if (gene == null) {
 			gene = new Gene(chr, start, end, f.isComplement() ? -1 : 1, geneId, geneName, "");
 			add(gene);
-			if (warn) System.err.println("WARNING: Gene '" + geneId + "' not found");
+			if (verbose) System.err.println("WARNING: Gene '" + geneId + "' not found: created.");
 		}
 
 		return gene;
@@ -210,12 +208,12 @@ public abstract class SnpEffPredictorFactoryFeatures extends SnpEffPredictorFact
 		String geneId = f.get("locus_tag");
 		if (geneId != null) return geneId;
 
-		// Try 'db_xref'...
-		geneId = f.get("db_xref");
-		if (geneId != null) return geneId;
-
 		// Try 'gene'...
 		geneId = f.get("gene");
+		if (geneId != null) return geneId;
+
+		// Try 'db_xref'...
+		geneId = f.get("db_xref");
 		if (geneId != null) return geneId;
 
 		return "Gene_" + start + "_" + end;
@@ -246,17 +244,15 @@ public abstract class SnpEffPredictorFactoryFeatures extends SnpEffPredictorFact
 	 * @return
 	 */
 	protected String getTrId(Feature f) {
-		String id = f.get("product");
+		String id = f.get("db_xref");
+		if (id == null) id = f.get("product");
 		if (id != null) id = id.replaceAll("\\s", "_");
+
+		// Still nothing useful?
 		if ((id == null) || (id.length() > 20) && (f.get("gene") != null)) return "Tr_" + f.get("gene");
+
 		return id;
 	}
-
-	/**
-	 * Get features from file
-	 * @return
-	 */
-	protected abstract List<Features> readFeatures();
 
 	/**
 	 * Get sequence either from features or from FASTA file

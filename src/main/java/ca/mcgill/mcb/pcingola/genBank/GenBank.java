@@ -14,6 +14,10 @@ public class GenBank extends Features {
 
 	public static final int FEATURE_NAME_FIELD_LEN = 20;
 
+	public GenBank(LineFileIterator lineFileIterator) {
+		super(lineFileIterator);
+	}
+
 	/**
 	 * Create a Genbank record from a 'GB' file
 	 * @param fileName
@@ -80,16 +84,13 @@ public class GenBank extends Features {
 	 * @param fileName
 	 */
 	@Override
-	public void readFile(String fileName) {
-		if (!Gpr.canRead(fileName)) throw new RuntimeException("Cannot read file '" + fileName + "'");
-
+	public void readFile() {
 		int fieldLineNum = 0;
 		String name = null;
 		String value = "";
 
 		// Read file
-		LineFileIterator lfi = new LineFileIterator(fileName);
-		for (String line : lfi) {
+		for (String line : lineFileIterator) {
 			// End of current 'chromosome'?
 			if (line.equals("//")) break;
 
