@@ -405,6 +405,35 @@ $ java -jar SnpSift.jar extractFields s.vcf CHROM POS ID AF | head
 1             865625     rs146327803   0.001
 </pre>
 
+				You can also use sub-fields and genotype fields / sub-fields. For instance:
+<pre>
+$ java -jar SnpSift.jar extractFields file.vcf CHROM POS ID THETA GEN[0].GL[1] GEN[1].GL GEN[3].GL[*] GEN[*].GT
+</pre>
+
+				This means to extract:
+				<ul>
+				  <li> CHROM POS ID: regular fields (as in the previous example)
+				  <li> THETA : This one is from INFO
+				  <li> GEN[0].GL[1] : Second likelihood from first genotype
+				  <li> GEN[1].GL : The whole GL fiels (all entries without separating them)
+				  <li> GEN[3].GL[*] : All likelihoods form genotype 3 (this time they will be tab separated, as opposed to the previous one).
+				  <li> GEN[*].GT : Genotype subfields (GT) from ALL samples (tab separated).
+				</ul>
+				The result will look something like:
+<pre>
+#CHROM  POS     ID              THETA   GEN[0].GL[1]    GEN[1].GL               GEN[3].GL[*]            GEN[*].GT
+1       10583   rs58108140      0.0046  -0.47           -0.24,-0.44,-1.16       -0.48   -0.48   -0.48   0|0     0|0     0|0     0|1     0|0     0|1     0|0     0|0     0|1 
+1       10611   rs189107123     0.0077  -0.48           -0.24,-0.44,-1.16       -0.48   -0.48   -0.48   0|0     0|1     0|0     0|0     0|0     0|0     0|0     0|0     0|0 
+1       13302   rs180734498     0.0048  -0.58           -2.45,-0.00,-5.00       -0.48   -0.48   -0.48   0|0     0|1     0|0     0|0     0|0     1|0     0|0     0|1     0|0 
+1       13327   rs144762171     0.0204  -1.11           -1.97,-0.01,-2.51       -0.48   -0.48   -0.48   0|0     0|1     0|0     0|0     0|0     1|0     0|0     0|0     0|0 
+1       13957   rs201747181     0.0100  0               0,0,0                   0       0       0       0|0     0|1     0|0     0|0     0|0     0|0     0|0     0|0     0|0 
+1       13980   rs151276478     0.0139  -0.48           -0.48,-0.48,-0.48       -0.48   -0.48   -0.48   0|0     0|0     0|0     0|0     0|0     0|0     0|0     0|0     0|0 
+1       30923   rs140337953     0.0162  -0.61           -0.10,-0.69,-2.81       -0.48   -0.48   -0.48   1|1     0|0     0|0     1|1     1|0     0|0     1|1     1|0     1|1 
+1       46402   rs199681827     0.0121  0               0,0,0                   0       0       0       0|0     0|0     0|0     0|0     0|0     0|0     0|0     0|0     0|0 
+1       47190   rs200430748     0.0153  0               0,0,0                   0       0       0       0|0     0|0     0|0     0|0     0|0     0|0     0|0     0|0     0|0 
+</pre>
+
+
 				<a class="body" name="varType"><p><hr><p style="font-size: 16pt"> <b> Variant type</b></p></a>
 				It adds "SNP/MNP/INS/DEL/MIXED" in the INFO field.<br>
 				It also adds "HOM/HET", but this last one works if there is only one sample (otherwise it doesn't make any sense).<p>
