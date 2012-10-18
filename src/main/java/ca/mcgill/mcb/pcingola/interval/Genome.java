@@ -348,7 +348,7 @@ public class Genome extends Marker implements Serializable, Iterable<Chromosome>
 	 * Create a string to serialize to a file
 	 * @return
 	 */
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
 	public String serializeSave(MarkerSerializer markerSerializer) {
 		return super.serializeSave(markerSerializer) //
@@ -369,6 +369,7 @@ public class Genome extends Marker implements Serializable, Iterable<Chromosome>
 		int countExons = 0, countCds = 0;
 		Genes genes = getGenes();
 
+		// For each gene
 		for (Gene g : genes) {
 			countGenes++;
 			if (g.isProteinCoding()) countGenesProteinCoding++;
@@ -391,15 +392,19 @@ public class Genome extends Marker implements Serializable, Iterable<Chromosome>
 		}
 
 		// Show summary
+		double avgTrPerGene = countTranscripts / ((double) countGenes);
+		double avgExonPerTr = countExons / ((double) countTranscripts);
 		System.out.println("# Has protein coding info    : " + hasCodingInfo());
 		System.out.println("# Genes                      : " + countGenes);
 		System.out.println("# Protein coding genes       : " + countGenesProteinCoding);
 		System.out.println("# Transcripts                : " + countTranscripts);
+		System.out.println(String.format("# Avg. transcripts per gene  : %.2f", avgTrPerGene));
 		System.out.println("# Protein coding transcripts : " + countTranscriptsProteinCoding);
 		System.out.println("# Cds                        : " + countCds);
 		System.out.println("# Exons                      : " + countExons);
 		System.out.println("# Exons with sequence        : " + exonSeq);
 		System.out.println("# Exons without sequence     : " + exonNoSeq);
+		System.out.println(String.format("# Avg. exons per transcript  : %.2f", avgExonPerTr));
 		return exonSeq < exonNoSeq;
 	}
 

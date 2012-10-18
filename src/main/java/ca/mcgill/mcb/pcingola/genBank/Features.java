@@ -67,12 +67,18 @@ public abstract class Features implements Iterable<Feature> {
 	 * @param values
 	 */
 	void addFeature(String typeStr, StringBuilder values) {
+		Feature.Type type = Feature.Type.parse(typeStr);
+		if (type == null) {
+			Gpr.debug("WARNING: Unknown feature '" + typeStr + "', not added.");
+			return;
+		}
+
 		try {
-			Feature.Type type = Feature.Type.parse(typeStr);
 			Collection<Feature> newFeatures = featureFactory(type, values.toString()); // Create new features
 			features.addAll(newFeatures); // Add all features to the list
 		} catch (Exception e) {
-			Gpr.debug("WARNING: Unknown feature '" + typeStr + "', not added.");
+			Gpr.debug("Error parsing feature type '" + typeStr + "' -> '" + type + "':\n" + values);
+			throw new RuntimeException(e);
 		}
 	}
 
@@ -94,7 +100,11 @@ public abstract class Features implements Iterable<Feature> {
 
 		// Get first line (location)
 		int firstLine = def.indexOf("\n");
-		String locStr = def.substring(0, firstLine);
+		if (def.indexOf("SPAC3C7.03c") > 0) {
+			Gpr.debug("def=|" + def + "|\tfirstLine: " + firstLine);
+		}
+
+		String locStr = (firstLine >= 0) ? def.substring(0, firstLine) : def;
 
 		// Get rid of 'join' and 'complement' strings
 		String locStrPrev = "";
@@ -133,14 +143,18 @@ public abstract class Features implements Iterable<Feature> {
 			// Calculate start & end coordinates
 			String startEnd[] = loc.split("[\\.]+");
 
-			if (startEnd.length > 1) {
-				int start = Gpr.parseIntSafe(startEnd[0]);
-				int end = Gpr.parseIntSafe(startEnd[1]);
-
-				// Create feature
-				Feature feature = new Feature(type, def, start, end, complement);
-				features.add(feature);
+			int start, end;
+			if (startEnd.length == 2) {
+				start = Gpr.parseIntSafe(startEnd[0]);
+				end = Gpr.parseIntSafe(startEnd[1]);
+			} else if (startEnd.length == 1) {
+				start = Gpr.parseIntSafe(startEnd[0]);
+				end = start;
 			} else throw new RuntimeException("Cannot calculate start & end coordinates: '" + loc + "'");
+
+			// Create feature
+			Feature feature = new Feature(type, def, start, end, complement);
+			features.add(feature);
 		}
 
 		return features;
@@ -279,7 +293,7 @@ public abstract class Features implements Iterable<Feature> {
 	 * @return
 	 */
 	String removeStartStr(String str, String startStr) {
-		if (str.startsWith(startStr)) return str.substring(startStr.length() + 1, str.length() - 1);
+		if (str.startsWith(startStr)) return str.substring(startStr.length() + 1, str.length());
 		return str;
 	}
 

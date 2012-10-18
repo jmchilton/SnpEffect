@@ -29,7 +29,11 @@ public class Feature {
 			if (typeStr.equals("3_UTR")) return UTR_3;
 			if (typeStr.equals("SQ")) return SOURCE;
 
-			return Feature.Type.valueOf(typeStr);
+			try {
+				return Feature.Type.valueOf(typeStr);
+			} catch (Exception e) {
+				return null;
+			}
 		}
 
 	}
@@ -55,14 +59,22 @@ public class Feature {
 	public Feature(Type type, String def, int start, int end, boolean complement) {
 		this.type = type;
 		qualifiers = new HashMap<String, String>();
+		this.complement = complement;
+
+		// Assign start & end
+		if (end < start) { // Order reversed? Swap them
+			int tmp = end;
+			end = start;
+			start = tmp;
+		}
 		this.start = start;
 		this.end = end;
-		this.complement = complement;
+
+		// Parse
 		parse(def);
 
 		// Sanity check
 		if (start < 0) throw new RuntimeException("Feature starts with negative coordinates!\n\t" + this);
-		if (end < start) throw new RuntimeException("Feature end before it starts!\n\t" + this);
 	}
 
 	/**

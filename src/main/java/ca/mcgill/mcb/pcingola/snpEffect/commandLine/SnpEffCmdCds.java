@@ -203,6 +203,7 @@ public class SnpEffCmdCds extends SnpEff {
 
 			// Repeated transcript Id? => Check that CDS is the same 
 			if ((cdsByTrId.get(trId) != null) && (!cdsByTrId.get(trId).equals(seq))) System.err.println("ERROR: Different CDS for the same transcript ID. This should never happen!!!\n\tLine number: " + ffi.getLineNum() + "\n\tTranscript ID:\t" + trId + "\n\tCDS:\t\t" + cdsByTrId.get(trId) + "\n\tCDS (new):\t" + seq);
+			Gpr.debug("CDS: '" + trId + "'");
 
 			cdsByTrId.put(trId, seq); // Add it to the hash
 		}

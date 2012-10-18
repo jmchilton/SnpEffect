@@ -159,7 +159,6 @@ public abstract class SnpEffPredictorFactoryFeatures extends SnpEffPredictorFact
 				String sequence = sequence(features);
 				addExonSequences(chromosome.getId(), sequence);
 			}
-
 			// Finish up (fix problems, add missing info, etc.)
 			finishUp(false);
 
@@ -244,12 +243,10 @@ public abstract class SnpEffPredictorFactoryFeatures extends SnpEffPredictorFact
 	 * @return
 	 */
 	protected String getTrId(Feature f) {
-		String id = f.get("db_xref");
-		if (id == null) id = f.get("product");
-		if (id != null) id = id.replaceAll("\\s", "_");
+		if (f.get("gene") != null) return "Tr_" + f.get("gene");
 
-		// Still nothing useful?
-		if ((id == null) || (id.length() > 20) && (f.get("gene") != null)) return "Tr_" + f.get("gene");
+		String id = f.get("product");
+		if (id != null) id = id.replaceAll("\\s", "_");
 
 		return id;
 	}

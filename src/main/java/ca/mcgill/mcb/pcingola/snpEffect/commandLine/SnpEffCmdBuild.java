@@ -67,7 +67,6 @@ public class SnpEffCmdBuild extends SnpEff {
 			snpEffCmdProtein.setVerbose(verbose);
 			snpEffCmdProtein.run();
 		} else System.out.println("\tOptional file '" + protFile + "' not found, nothing done.");
-
 	}
 
 	/**
