@@ -512,6 +512,19 @@ public class ChangeEffect implements Cloneable, Comparable<ChangeEffect> {
 		return effectType == EffectType.INTRON;
 	}
 
+	/**
+	 * Is this a Loss Of Function effect?
+	 * 
+	 * References: I used the LOF definition used in the 
+	 * following paper "A Systematic Survey of Loss-of-Function 
+	 * Variants in Human Protein-Coding Genes", Science, 2012
+	 * 
+	 * @return
+	 */
+	public boolean isLof() {
+		return false;
+	}
+
 	public boolean isRegulation() {
 		return (effectType == EffectType.REGULATION);
 	}
@@ -556,6 +569,10 @@ public class ChangeEffect implements Cloneable, Comparable<ChangeEffect> {
 		this.effectType = effectType;
 		this.message += message;
 	}
+
+	//	public void setExon(Exon exon) {
+	//		this.exon = exon;
+	//	}
 
 	/**
 	 * Set codon change. Calculate effect type based on codon changes (for SNPs ans MNPs)
@@ -630,10 +647,6 @@ public class ChangeEffect implements Cloneable, Comparable<ChangeEffect> {
 			else if (!codonTable.isStop(codonsOld) && codonTable.isStop(codonsNew)) effectType = EffectType.STOP_GAINED;
 		}
 	}
-
-	//	public void setExon(Exon exon) {
-	//		this.exon = exon;
-	//	}
 
 	/**
 	 * Set values for codons around change.
@@ -738,5 +751,4 @@ public class ChangeEffect implements Cloneable, Comparable<ChangeEffect> {
 
 		return "NO EFFECT";
 	}
-
 }

@@ -68,6 +68,7 @@ public class SnpEffCmdEff extends SnpEff {
 	Boolean treatAllAsProteinCoding = null; // Only use coding genes. Default is 'null' which means 'auto'
 	boolean chromoPlots = true; // Create methylation by chromosome plots?
 	boolean onlyRegulation = false; // Only build regulation tracks
+	boolean lossOfFunction = false; // Create loss of function LOF tag?
 	int upDownStreamLength = SnpEffectPredictor.DEFAULT_UP_DOWN_LENGTH; // Upstream & downstream interval length
 	int totalErrs = 0;
 	long countInputLines = 0, countVariants = 0, countEffects = 0, countVariantsFilteredOut = 0;
@@ -267,9 +268,6 @@ public class SnpEffCmdEff extends SnpEff {
 		// Master factory 
 		Props props = new Props(new UntypedActorFactory() {
 
-			/**
-			 * 
-			 */
 			private static final long serialVersionUID = 1L;
 
 			@Override
@@ -370,6 +368,7 @@ public class SnpEffCmdEff extends SnpEff {
 						else treatAllAsProteinCoding = Gpr.parseBoolSafe(args[i]);
 					}
 				} else if (args[i].equalsIgnoreCase("-canon")) canonical = true; // Use canonical transcripts
+				else if (args[i].equalsIgnoreCase("-lof")) lossOfFunction = true; // Add LOF tag
 				else if (args[i].equalsIgnoreCase("-onlyTr")) {
 					if ((i + 1) < args.length) onlyTranscriptsFile = args[++i]; // Only use the transcripts in this file
 				}
@@ -848,8 +847,9 @@ public class SnpEffCmdEff extends SnpEff {
 		System.err.println("\t-no-utr                         : Do not show 5_PRIME_UTR or 3_PRIME_UTR changes");
 		System.err.println("\nAnnotations filter options:");
 		System.err.println("\t-canon                          : Only use canonical transcripts.");
-		System.err.println("\t-onlyReg                        : Only use regulation tracks.");
+		System.err.println("\t-lof                            : Add loss of function tag (LOF).");
 		System.err.println("\t-reg <name>                     : Regulation track to use (this option can be used add several times).");
+		System.err.println("\t-onlyReg                        : Only use regulation tracks.");
 		System.err.println("\t-onlyTr <file.txt>              : Only use the transcripts in this file. Format: One transcript ID per line.");
 		System.err.println("\t-treatAllAsProteinCoding <bool> : If true, all transcript are treated as if they were protein conding. Default: Auto");
 		System.err.println("\t-ud, -upDownStreamLen           : Set upstream downstream interval length (in bases)");
