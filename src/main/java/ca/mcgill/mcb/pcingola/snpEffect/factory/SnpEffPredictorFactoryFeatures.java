@@ -49,23 +49,23 @@ public abstract class SnpEffPredictorFactoryFeatures extends SnpEffPredictorFact
 			// Add chromosome
 			if (f.getType() == Type.SOURCE) {
 				if (chromosome != null) throw new RuntimeException("SOURCE already assigned to chromosome");
-				String chrName = chromoName(f);
-				Gpr.debug("Creating chromosome: '" + chrName + "'");
+				String chrName = chromoName(features, f);
 				chromosome = new Chromosome(genome, start, end, 1, chrName);
 				add(chromosome);
 			}
 		}
 
-		// No SOURCE? may be locusName is available.
+		// No SOURCE found? may be locusName is available.
 		if (chromosome == null) {
-			Gpr.debug("Creating chromosome: '" + features.getLocusName() + "'");
+			String chrName = chromoName(features, null);
 			int chrSize = sequence(features).length();
-			chromosome = new Chromosome(genome, 0, chrSize, 1, features.getLocusName());
+			chromosome = new Chromosome(genome, 0, chrSize, 1, chrName);
 			add(chromosome);
 		}
 
 		// Sanity check
 		if (chromosome == null) throw new RuntimeException("Could not find SOURCE feature");
+		if (verbose) System.err.println("Chromosome: '" + chromosome.getId() + "'\tlength: " + chromosome.size());
 
 		//---
 		// Add a genes
@@ -132,13 +132,22 @@ public abstract class SnpEffPredictorFactoryFeatures extends SnpEffPredictorFact
 
 	/**
 	 * Find or create a chromosome name for a feature
-	 * @param f
+	 * @param sourceFeature
 	 * @return
 	 */
-	String chromoName(Feature f) {
-		if (f.getType() != Type.SOURCE) throw new RuntimeException("Cannot find chromosome name in a non-SOURCE feature");
-		String chrName = f.get("chromosome");
-		return chrName != null ? chrName : genome.getId();
+	String chromoName(Features features, Feature sourceFeature) {
+		// Try 'chromosome' from SOURCE feature
+		if (sourceFeature != null) {
+			if (sourceFeature.getType() != Type.SOURCE) throw new RuntimeException("Cannot find chromosome name in a non-SOURCE feature");
+			String chrName = sourceFeature.get("chromosome");
+			if (chrName != null) return chrName;
+		}
+
+		// Try locusName
+		String chrName = features.getLocusName();
+		if (chrName != null) return chrName;
+
+		return genome.getId();
 	}
 
 	@Override

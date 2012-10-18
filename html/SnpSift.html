@@ -80,22 +80,22 @@ svn co https://snpeff.svn.sourceforge.net/svnroot/snpeff/SnpSift/trunk
 				Some examples for the impatient:
 				<ul>
 					<li> I want to filter out samples with quality less than 30:
-					<pre> cat variants.vcf | java -jar SnpSift.jar " ( QUAL >= 30 )" > filtered.vcf</pre>
+					<pre> cat variants.vcf | java -jar SnpSift.jar filter " ( QUAL >= 30 )" > filtered.vcf</pre>
 
 					<li> ...but we also want InDels that have quality 20 or more:
-					<pre> cat variants.vcf | java -jar SnpSift.jar "(( exists INDEL ) & (QUAL >= 20)) | (QUAL >= 30 )" > filtered.vcf</pre>
+					<pre> cat variants.vcf | java -jar SnpSift.jar filter "(( exists INDEL ) & (QUAL >= 20)) | (QUAL >= 30 )" > filtered.vcf</pre>
 
 					<li> ...or any homozygous variant present in more than 3 samples:
-					<pre> cat variants.vcf | java -jar SnpSift.jar "(countHom() > 3) | (( exists INDEL ) & (QUAL >= 20)) | (QUAL >= 30 )" > filtered.vcf</pre>
+					<pre> cat variants.vcf | java -jar SnpSift.jar filter "(countHom() > 3) | (( exists INDEL ) & (QUAL >= 20)) | (QUAL >= 30 )" > filtered.vcf</pre>
 
 					<li> ...or any heterozygous sample with coverage 25 or more:
-					<pre> cat variants.vcf | java -jar SnpSift.jar "((countHet() > 0) && (DP >= 25)) | (countHom() > 3) | (( exists INDEL ) & (QUAL >= 20)) | (QUAL >= 30 )" > filtered.vcf</pre>
+					<pre> cat variants.vcf | java -jar SnpSift.jar filter "((countHet() > 0) && (DP >= 25)) | (countHom() > 3) | (( exists INDEL ) & (QUAL >= 20)) | (QUAL >= 30 )" > filtered.vcf</pre>
 
 					<li> I want to keep samples where the genotype for the first sample is homozygous variant and the genotype for the second sample is reference:
-					<pre> cat variants.vcf | java -jar SnpSift.jar "isHom( GEN[0] ) & isVariant( GEN[0] ) & isRef( GEN[1] )" > filtered.vcf</pre>
+					<pre> cat variants.vcf | java -jar SnpSift.jar filter "isHom( GEN[0] ) & isVariant( GEN[0] ) & isRef( GEN[1] )" > filtered.vcf</pre>
 
 					<li> I want to keep samples where the ID matches a set defined in a file:
-					<pre> cat variants.vcf | java -jar SnpSift.jar --set my_rs.txt "ID in SET[0]" > filtered.vcf</pre>
+					<pre> cat variants.vcf | java -jar SnpSift.jar filter --set my_rs.txt "ID in SET[0]" > filtered.vcf</pre>
 					and the file my_rs.txt has one string per line, e.g.:
 					<pre>rs58108140
 rs71262674
