@@ -462,7 +462,7 @@ public class SnpEffCmdEff extends SnpEff {
 		if ((outputFormat == OutputFormat.VCF) && (inputFormat != InputFormat.VCF)) usage("Output in VCF format is only supported when the input is also in VCF format");
 		if (multiThreaded && (outputFormat != OutputFormat.VCF)) usage("Multi-threaded option is only supported when when output is in VCF format");
 		if (multiThreaded && createSummary) usage("Multi-threaded option should be used with 'noStats'.");
-
+		if (lossOfFunction && (outputFormat != OutputFormat.VCF)) usage("Loss of function annotation is only supported when when output is in VCF format");
 	}
 
 	/**
@@ -696,6 +696,7 @@ public class SnpEffCmdEff extends SnpEff {
 			break;
 		case VCF:
 			outputFormatter = new VcfOutputFormatter(vcfEntriesDebug);
+			((VcfOutputFormatter) outputFormatter).setLossOfFunction(lossOfFunction);
 			break;
 		case GATK:
 			outputFormatter = new VcfOutputFormatter(VcfEffect.FormatVersion.FORMAT_SNPEFF_2);

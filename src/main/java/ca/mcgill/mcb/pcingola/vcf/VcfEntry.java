@@ -271,6 +271,7 @@ public class VcfEntry extends Marker implements Iterable<VcfGenotype> {
 	 * Original chromosome name (as it appeared in the VCF file)
 	 * @return
 	 */
+	@Override
 	public String getChromosomeNameOri() {
 		return chromosomeName;
 	}
@@ -457,7 +458,7 @@ public class VcfEntry extends Marker implements Iterable<VcfGenotype> {
 	 */
 	public void parse() {
 		// Parse line
-		String fields[] = line.split("\\s", 10); // Only pare the fist 9 fields (i.e. do not parse genotypes)
+		String fields[] = line.split("\t", 10); // Only pare the fist 9 fields (i.e. do not parse genotypes)
 
 		// Is line OK?
 		if (fields.length >= 4) {
@@ -612,7 +613,7 @@ public class VcfEntry extends Marker implements Iterable<VcfGenotype> {
 		if (genotypeFieldsStr == null) return;
 
 		// Split genotypes and parse them
-		genotypeFields = genotypeFieldsStr.split("\\s");
+		genotypeFields = genotypeFieldsStr.split("\t");
 		for (int i = 0; i < genotypeFields.length; i++) {
 			String gen = genotypeFields[i];
 			if (gen.equals(VcfFileIterator.MISSING)) gen = "";

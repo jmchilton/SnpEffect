@@ -512,19 +512,6 @@ public class ChangeEffect implements Cloneable, Comparable<ChangeEffect> {
 		return effectType == EffectType.INTRON;
 	}
 
-	/**
-	 * Is this a Loss Of Function effect?
-	 * 
-	 * References: I used the LOF definition used in the 
-	 * following paper "A Systematic Survey of Loss-of-Function 
-	 * Variants in Human Protein-Coding Genes", Science, 2012
-	 * 
-	 * @return
-	 */
-	public boolean isLof() {
-		return false;
-	}
-
 	public boolean isRegulation() {
 		return (effectType == EffectType.REGULATION);
 	}

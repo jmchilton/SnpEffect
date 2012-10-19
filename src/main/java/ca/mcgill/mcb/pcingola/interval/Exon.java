@@ -30,7 +30,6 @@ public class Exon extends Marker {
 	}
 
 	private static final long serialVersionUID = 5324352193278472543L;
-	public static final int SPLICE_SITE_SIZE = 2;
 
 	byte frame = 0;
 	int rank; // Exon rank in transcript

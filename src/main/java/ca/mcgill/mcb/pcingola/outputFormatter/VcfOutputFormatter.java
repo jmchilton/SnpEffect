@@ -31,6 +31,7 @@ public class VcfOutputFormatter extends OutputFormatter {
 	boolean needAddHeader = true;
 	FormatVersion formatVersion = VcfEffect.FormatVersion.FORMAT_SNPEFF_3;
 	List<VcfEntry> vcfEntries;
+	boolean lossOfFunction;
 
 	public VcfOutputFormatter() {
 		super();
@@ -211,6 +212,10 @@ public class VcfOutputFormatter extends OutputFormatter {
 		newLines.add("##SnpEffCmd=\"" + commandLineStr + "\"");
 		newLines.add("##INFO=<ID=EFF,Number=.,Type=String,Description=\"Predicted effects for this variant.Format: 'Effect ( Effect_Impact | Functional_Class | Codon_Change | Amino_Acid_change| Amino_Acid_length | Gene_Name | Gene_BioType | Coding | Transcript | Exon [ | ERRORS | WARNINGS ] )' \">");
 		return newLines;
+	}
+
+	public void setLossOfFunction(boolean lossOfFunction) {
+		this.lossOfFunction = lossOfFunction;
 	}
 
 	@Override

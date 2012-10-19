@@ -4,6 +4,7 @@ import java.util.List;
 
 import ca.mcgill.mcb.pcingola.interval.Exon;
 import ca.mcgill.mcb.pcingola.interval.Gene;
+import ca.mcgill.mcb.pcingola.interval.SpliceSite;
 import ca.mcgill.mcb.pcingola.interval.Transcript;
 import ca.mcgill.mcb.pcingola.snpEffect.ChangeEffect.EffectType;
 import ca.mcgill.mcb.pcingola.snpEffect.Config;
@@ -41,25 +42,25 @@ public class CreateSpliceSiteTestCase {
 				for( Exon eint : exons ) {
 					// Create Splice site test for each exon
 
-					if( eint.size() > Exon.SPLICE_SITE_SIZE ) {
+					if( eint.size() > SpliceSite.CORE_SPLICE_SITE_SIZE ) {
 						// Positive strand donor & acceptor sites
 						if( gint.getStrand() >= 0 ) {
 							// Acceptor splice site: before exon start, but not before first exon
-							if( eint.getRank() > 1 ) out(eint, eint.getStart() - Exon.SPLICE_SITE_SIZE, eint.getStart() - 1, EffectType.SPLICE_SITE_ACCEPTOR);
-							else out(eint, eint.getStart() - Exon.SPLICE_SITE_SIZE, eint.getStart() - 1, EffectType.UPSTREAM);
+							if( eint.getRank() > 1 ) out(eint, eint.getStart() - SpliceSite.CORE_SPLICE_SITE_SIZE, eint.getStart() - 1, EffectType.SPLICE_SITE_ACCEPTOR);
+							else out(eint, eint.getStart() - SpliceSite.CORE_SPLICE_SITE_SIZE, eint.getStart() - 1, EffectType.UPSTREAM);
 
 							// Donor splice site: after exon end, but not after last exon
-							if( eint.getRank() < exons.size() ) out(eint, eint.getEnd() + 1, eint.getEnd() + Exon.SPLICE_SITE_SIZE, EffectType.SPLICE_SITE_DONOR);
-							else out(eint, eint.getEnd() + 1, eint.getEnd() + Exon.SPLICE_SITE_SIZE, EffectType.DOWNSTREAM);
+							if( eint.getRank() < exons.size() ) out(eint, eint.getEnd() + 1, eint.getEnd() + SpliceSite.CORE_SPLICE_SITE_SIZE, EffectType.SPLICE_SITE_DONOR);
+							else out(eint, eint.getEnd() + 1, eint.getEnd() + SpliceSite.CORE_SPLICE_SITE_SIZE, EffectType.DOWNSTREAM);
 						} else { // Negative strand donor & acceptor sites
 
 							// Acceptor splice site: before exon start (since it's minus strand, it's actually after end), but not before first exon
-							if( eint.getRank() > 1 ) out(eint, eint.getEnd() + 1, eint.getEnd() + Exon.SPLICE_SITE_SIZE, EffectType.SPLICE_SITE_ACCEPTOR);
-							else out(eint, eint.getEnd() + 1, eint.getEnd() + Exon.SPLICE_SITE_SIZE, EffectType.UPSTREAM);
+							if( eint.getRank() > 1 ) out(eint, eint.getEnd() + 1, eint.getEnd() + SpliceSite.CORE_SPLICE_SITE_SIZE, EffectType.SPLICE_SITE_ACCEPTOR);
+							else out(eint, eint.getEnd() + 1, eint.getEnd() + SpliceSite.CORE_SPLICE_SITE_SIZE, EffectType.UPSTREAM);
 
 							// Donor splice site: after exon end (since it's minus strand, it's actually before start), but not after last exon
-							if( eint.getRank() < exons.size() ) out(eint, eint.getStart() - Exon.SPLICE_SITE_SIZE, eint.getStart() - 1, EffectType.SPLICE_SITE_DONOR);
-							else out(eint, eint.getStart() - Exon.SPLICE_SITE_SIZE, eint.getStart() - 1, EffectType.DOWNSTREAM);
+							if( eint.getRank() < exons.size() ) out(eint, eint.getStart() - SpliceSite.CORE_SPLICE_SITE_SIZE, eint.getStart() - 1, EffectType.SPLICE_SITE_DONOR);
+							else out(eint, eint.getStart() - SpliceSite.CORE_SPLICE_SITE_SIZE, eint.getStart() - 1, EffectType.DOWNSTREAM);
 						}
 					}
 				}

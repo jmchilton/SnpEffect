@@ -24,6 +24,7 @@ import ca.mcgill.mcb.pcingola.snpEffect.ChangeEffect;
 public abstract class SpliceSite extends Marker {
 
 	private static final long serialVersionUID = 1636197649250882952L;
+	public static final int CORE_SPLICE_SITE_SIZE = 2;
 
 	public SpliceSite() {
 		super();
@@ -35,6 +36,17 @@ public abstract class SpliceSite extends Marker {
 
 	public SpliceSite(Transcript parent, int start, int end, int strand, String id) {
 		super(parent, start, end, strand, id);
+	}
+
+	/**
+	 * Core splice sites are defined as CORE_SPLICE_SITE_SIZE bases after exon end or before exon begins.
+	 * Usually CORE_SPLICE_SITE_SIZE is 2 bases.
+	 * Other spice sites are considered "non-core".
+	 * 
+	 * @return
+	 */
+	public boolean isCoreSpliceSite() {
+		return size() <= CORE_SPLICE_SITE_SIZE;
 	}
 
 	/**

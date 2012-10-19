@@ -425,7 +425,7 @@ public class Transcript extends IntervalAndSubIntervals<Exon> {
 
 					// Acceptor splice site: before exon start, but not before first exon
 					SpliceSite ss = exon.getSpliceSiteAcceptor();
-					if ((ss == null) && createIfMissing) ss = exon.createSpliceSiteAcceptor(Math.min(Exon.SPLICE_SITE_SIZE, dist));
+					if ((ss == null) && createIfMissing) ss = exon.createSpliceSiteAcceptor(Math.min(SpliceSite.CORE_SPLICE_SITE_SIZE, dist));
 					if (ss != null) list.add(ss);
 				}
 
@@ -439,7 +439,7 @@ public class Transcript extends IntervalAndSubIntervals<Exon> {
 
 					// Donor splice site: after exon end, but not after last exon
 					SpliceSite ss = exon.getSpliceSiteDonor();
-					if ((ss == null) && createIfMissing) ss = exon.createSpliceSiteDonor(Math.min(Exon.SPLICE_SITE_SIZE, dist));
+					if ((ss == null) && createIfMissing) ss = exon.createSpliceSiteDonor(Math.min(SpliceSite.CORE_SPLICE_SITE_SIZE, dist));
 					if (ss != null) list.add(ss);
 				}
 

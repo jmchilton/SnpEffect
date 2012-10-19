@@ -12,6 +12,7 @@ import ca.mcgill.mcb.pcingola.fileIterator.FastaFileIterator;
 import ca.mcgill.mcb.pcingola.interval.Chromosome;
 import ca.mcgill.mcb.pcingola.interval.Exon;
 import ca.mcgill.mcb.pcingola.interval.Gene;
+import ca.mcgill.mcb.pcingola.interval.SpliceSite;
 import ca.mcgill.mcb.pcingola.interval.SpliceSiteBranchU12;
 import ca.mcgill.mcb.pcingola.interval.Transcript;
 import ca.mcgill.mcb.pcingola.motif.Pwm;
@@ -319,8 +320,8 @@ public class SpliceTypes {
 
 		if (idx < 0) {
 			// Create standard donor-acceptor pairs
-			exPrev.createSpliceSiteDonor(Math.min(Exon.SPLICE_SITE_SIZE, dist));
-			ex.createSpliceSiteAcceptor(Math.min(Exon.SPLICE_SITE_SIZE, dist));
+			exPrev.createSpliceSiteDonor(Math.min(SpliceSite.CORE_SPLICE_SITE_SIZE, dist));
+			ex.createSpliceSiteAcceptor(Math.min(SpliceSite.CORE_SPLICE_SITE_SIZE, dist));
 		} else {
 			// Create donor and acceptor
 			String donorConserved = donorAccPairDonor.get(idx);
