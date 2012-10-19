@@ -95,9 +95,9 @@ public class ChangeEffect implements Cloneable, Comparable<ChangeEffect> {
 	String error = "", warning = "", message = ""; // Any message, warning or error?
 	String codonsOld = "", codonsNew = ""; // Codon change information
 	String codonsAroundOld = "", codonsAroundNew = ""; // Codons arround
-	int codonNum = -1; // Codon number
-	int codonIndex = -1; // Index within a codon
-	int codonDegeneracy = -1; // Codon degeneracy
+	int codonNum = -1; // Codon number (negative number mens 'information not available')
+	int codonIndex = -1; // Index within a codon (negative number mens 'information not available')
+	int codonDegeneracy = -1; // Codon degeneracy (negative number mens 'information not available')
 	String aaOld = "", aaNew = ""; // Amino acid changes
 	String aasAroundOld = "", aasAroundNew = ""; // Amino acids arround
 
@@ -261,6 +261,10 @@ public class ChangeEffect implements Cloneable, Comparable<ChangeEffect> {
 		if (codonsOld.isEmpty() && codonsNew.isEmpty()) return "";
 		if (codonsOld.equals(codonsNew)) return codonsNew;
 		return codonsOld + "/" + codonsNew;
+	}
+
+	public int getCodonNum() {
+		return codonNum;
 	}
 
 	public String getCodonsNew() {
