@@ -21,4 +21,12 @@ public class SpliceSiteBranch extends SpliceSite {
 		type = EffectType.SPLICE_SITE_BRANCH;
 	}
 
+	/**
+	 * These are NOT core splice sites
+	 */
+	@Override
+	public boolean isCoreSpliceSite() {
+		return false;
+	}
+
 }
