@@ -28,6 +28,7 @@ import ca.mcgill.mcb.pcingola.vcf.VcfEntry;
 public class VcfOutputFormatter extends OutputFormatter {
 
 	public static final String VCF_INFO_EFF_NAME = "EFF";
+	public static final String VCF_INFO_LOF_NAME = "LOF";
 
 	boolean needAddInfo = false;
 	boolean needAddHeader = true;
@@ -193,6 +194,7 @@ public class VcfOutputFormatter extends OutputFormatter {
 			LossOfFunction lof = new LossOfFunction(genome);
 			if (lof.isLof(changeEffects)) {
 				Gpr.debug("LOF:" + lof);
+				vcfEntry.addInfo(VCF_INFO_LOF_NAME, lof.toString());
 			}
 		}
 

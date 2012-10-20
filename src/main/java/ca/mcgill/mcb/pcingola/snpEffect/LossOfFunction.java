@@ -85,6 +85,8 @@ public class LossOfFunction {
 		// Deletion?
 		if (changeEffect.getSeqChange().isDel()) return isLofDeletion(changeEffect);
 
+		Gpr.debug("CHECK IF GENE IS PROTEIN CODING?"); // TODO: Check if 'treatAllAsProteinCoding?"
+
 		// The following effect types can be considered LOF
 		switch (changeEffect.getEffectType()) {
 		case SPLICE_SITE_ACCEPTOR:
@@ -95,6 +97,9 @@ public class LossOfFunction {
 				// Get splice site marker and check if it is 'core'
 				SpliceSite spliceSite = (SpliceSite) changeEffect.getMarker();
 				if (spliceSite.isCoreSpliceSite()) return true;
+
+				// TODO: CHECK IF seqChange hits CORE SITE
+				throw new RuntimeException("CHECK IF seqChange hits CORE SITE!");
 
 			}
 			break;
@@ -177,10 +182,6 @@ public class LossOfFunction {
 		return (percDeleted > DELETE_CODING_AFFECTED);
 	}
 
-	public String lof() {
-		return "";
-	}
-
 	/**
 	 * Which percentile of the protein does this effect hit?
 	 * @param changeEffect
@@ -207,5 +208,17 @@ public class LossOfFunction {
 			if (transcripts.contains(tr)) countAffected++;
 
 		return countAffected / ((double) gene.numChilds());
+	}
+
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+
+		for (Gene gene : genes) {
+			if (sb.length() > 0) sb.append(','); // Separate by comma
+			sb.append(String.format("%s|%s|%d|%.2f", gene.getGeneName(), gene.getId(), gene.numChilds(), percentOfTranscriptsAffected(gene)));
+		}
+
+		return sb.toString();
 	}
 }
