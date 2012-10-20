@@ -10,6 +10,7 @@ import ca.mcgill.mcb.pcingola.interval.Marker;
 import ca.mcgill.mcb.pcingola.interval.SeqChange;
 import ca.mcgill.mcb.pcingola.interval.SpliceSite;
 import ca.mcgill.mcb.pcingola.interval.Transcript;
+import ca.mcgill.mcb.pcingola.util.Gpr;
 
 /**
  * Analyze if a set of effects are can create a "Loss Of Function" in a protein.
@@ -80,7 +81,7 @@ public class LossOfFunction {
 	 * @param changeEffect
 	 * @return
 	 */
-	public boolean isLof(ChangeEffect changeEffect) {
+	protected boolean isLof(ChangeEffect changeEffect) {
 		// Deletion?
 		if (changeEffect.getSeqChange().isDel()) return isLofDeletion(changeEffect);
 
@@ -88,6 +89,7 @@ public class LossOfFunction {
 		switch (changeEffect.getEffectType()) {
 		case SPLICE_SITE_ACCEPTOR:
 		case SPLICE_SITE_DONOR:
+			Gpr.debug("SPLICE: " + changeEffect.getMarker());
 			// Core splice sites are considered LOF
 			if ((changeEffect.getMarker() != null) && (changeEffect.getMarker() instanceof SpliceSite)) {
 				// Get splice site marker and check if it is 'core'
@@ -101,6 +103,7 @@ public class LossOfFunction {
 		case FRAME_SHIFT:
 			// It is assumed that even with a protein coding change at the last 5% of the protein, the protein could still be functional.
 			double perc = percentCds(changeEffect);
+			Gpr.debug("PERCENT: " + perc + "\t" + IGNORE_PROTEIN_CODING_AFTER);
 			return (IGNORE_PROTEIN_CODING_BEFORE <= perc) && (perc <= IGNORE_PROTEIN_CODING_AFTER);
 
 		case RARE_AMINO_ACID:
@@ -142,7 +145,7 @@ public class LossOfFunction {
 	 * @param changeEffect
 	 * @return
 	 */
-	boolean isLofDeletion(ChangeEffect changeEffect) {
+	protected boolean isLofDeletion(ChangeEffect changeEffect) {
 		Transcript tr = changeEffect.getTranscript();
 		if (tr == null) throw new RuntimeException("Transcript not found for change:\n\t" + changeEffect);
 

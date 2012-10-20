@@ -8,11 +8,13 @@ import java.util.List;
 import ca.mcgill.mcb.pcingola.fileIterator.VcfFileIterator;
 import ca.mcgill.mcb.pcingola.interval.Exon;
 import ca.mcgill.mcb.pcingola.interval.Gene;
+import ca.mcgill.mcb.pcingola.interval.Genome;
 import ca.mcgill.mcb.pcingola.interval.Marker;
 import ca.mcgill.mcb.pcingola.interval.Regulation;
 import ca.mcgill.mcb.pcingola.interval.Transcript;
 import ca.mcgill.mcb.pcingola.snpEffect.ChangeEffect;
 import ca.mcgill.mcb.pcingola.snpEffect.ChangeEffect.FunctionalClass;
+import ca.mcgill.mcb.pcingola.snpEffect.LossOfFunction;
 import ca.mcgill.mcb.pcingola.util.Gpr;
 import ca.mcgill.mcb.pcingola.vcf.VcfEffect;
 import ca.mcgill.mcb.pcingola.vcf.VcfEffect.FormatVersion;
@@ -32,13 +34,11 @@ public class VcfOutputFormatter extends OutputFormatter {
 	FormatVersion formatVersion = VcfEffect.FormatVersion.FORMAT_SNPEFF_3;
 	List<VcfEntry> vcfEntries;
 	boolean lossOfFunction;
+	Genome genome;
 
-	public VcfOutputFormatter() {
+	public VcfOutputFormatter(Genome genome, FormatVersion formatVersion) {
 		super();
-	}
-
-	public VcfOutputFormatter(FormatVersion formatVersion) {
-		super();
+		this.genome = genome;
 		this.formatVersion = formatVersion;
 	}
 
@@ -160,13 +160,14 @@ public class VcfOutputFormatter extends OutputFormatter {
 					// Effect has already been added? Something is wrong, the information should be unique for each effect
 					StringBuilder sb = new StringBuilder();
 					sb.append("--------------------------------------------------------------------------------\n");
-					sb.append("VCF Entry         :\t" + vcfEntry + "\n");
-					sb.append("REPEAT (VCF style):\t" + effBuff + "\n");
-					sb.append("REPEAT (TXT style):\t" + changeEffect + "\n");
+					sb.append("VCF Entry   :\t" + vcfEntry + "\n");
+					sb.append("REPEAT (VCF):\t" + effBuff + "\n");
+					sb.append("REPEAT (TXT):\t" + changeEffect + "\n");
+					sb.append("All    (TXT):\n");
 					for (ChangeEffect ce : changeEffects)
 						sb.append("\t" + ce + "\n");
 					sb.append("--------------------------------------------------------------------------------\n");
-					Gpr.debug("Repeated effect: This should not happen!\n" + sb);
+					Gpr.debug("WARNING: Repeated effect!\n" + sb);
 				}
 			}
 		}
@@ -184,6 +185,16 @@ public class VcfOutputFormatter extends OutputFormatter {
 
 		// Add 'EFF' info field
 		vcfEntry.addInfo(VCF_INFO_EFF_NAME, sbEffs.toString());
+
+		//---
+		// Add LOF info?
+		//---
+		if (lossOfFunction) {
+			LossOfFunction lof = new LossOfFunction(genome);
+			if (lof.isLof(changeEffects)) {
+				Gpr.debug("LOF:" + lof);
+			}
+		}
 
 		needAddInfo = false; // Don't add info twice
 	}
