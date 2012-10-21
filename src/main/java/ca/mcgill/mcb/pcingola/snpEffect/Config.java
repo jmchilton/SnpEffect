@@ -193,8 +193,10 @@ public class Config implements Serializable, Iterable<String> {
 	 * @param propertyName
 	 * @return
 	 */
-	protected double getDouble(String propertyName) {
-		return Gpr.parseDoubleSafe(getString(propertyName));
+	protected double getDouble(String propertyName, double defaultValue) {
+		String val = getString(propertyName);
+		if (val == null) return defaultValue;
+		return Gpr.parseDoubleSafe(val);
 	}
 
 	/**
@@ -254,8 +256,10 @@ public class Config implements Serializable, Iterable<String> {
 	 * @param propertyName
 	 * @return
 	 */
-	protected long getLong(String propertyName) {
-		return Gpr.parseLongSafe(getString(propertyName));
+	protected long getLong(String propertyName, long defaultValue) {
+		String val = getString(propertyName);
+		if (val == null) return defaultValue;
+		return Gpr.parseLongSafe(val);
 	}
 
 	public String getName(String genomeVersion) {
@@ -422,9 +426,9 @@ public class Config implements Serializable, Iterable<String> {
 	 * Set from parameter properties
 	 */
 	void setFromProperties() {
-		if (properties.contains(KEY_LOF_IGNORE_PROTEIN_CODING_AFTER)) lofIgnoreProteinCodingAfter = getDouble(KEY_LOF_IGNORE_PROTEIN_CODING_AFTER);
-		if (properties.contains(KEY_LOF_IGNORE_PROTEIN_CODING_BEFORE)) lofIgnoreProteinCodingAfter = getDouble(KEY_LOF_IGNORE_PROTEIN_CODING_BEFORE);
-		if (properties.contains(KEY_LOF_DELETE_PROTEIN_CODING_BASES)) lofIgnoreProteinCodingAfter = getDouble(KEY_LOF_DELETE_PROTEIN_CODING_BASES);
+		lofIgnoreProteinCodingAfter = getDouble(KEY_LOF_IGNORE_PROTEIN_CODING_AFTER, LossOfFunction.DEFAULT_IGNORE_PROTEIN_CODING_AFTER);
+		lofIgnoreProteinCodingBefore = getDouble(KEY_LOF_IGNORE_PROTEIN_CODING_BEFORE, LossOfFunction.DEFAULT_IGNORE_PROTEIN_CODING_BEFORE);
+		lofDeleteProteinCodingBases = getDouble(KEY_LOF_DELETE_PROTEIN_CODING_BASES, LossOfFunction.DEFAULT_DELETE_PROTEIN_CODING_BASES);
 	}
 
 	public void setOnlyRegulation(boolean onlyRegulation) {

@@ -39,15 +39,13 @@ public abstract class SpliceSite extends Marker {
 	}
 
 	/**
-	 * Core splice sites are defined as CORE_SPLICE_SITE_SIZE bases after exon end or before exon begins.
-	 * Usually CORE_SPLICE_SITE_SIZE is 2 bases.
+	 * Core splice sites are defined as CORE_SPLICE_SITE_SIZE bases after exon end 
+	 * or before exon begins. Usually CORE_SPLICE_SITE_SIZE is 2 bases.
 	 * Other spice sites are considered "non-core".
 	 * 
 	 * @return
 	 */
-	public boolean isCoreSpliceSite() {
-		return size() <= CORE_SPLICE_SITE_SIZE;
-	}
+	public abstract boolean intersectsCoreSpliceSite(Marker marker);
 
 	/**
 	 * Splice sites are no included in Exons, by definition.

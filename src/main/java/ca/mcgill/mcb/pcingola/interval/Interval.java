@@ -92,6 +92,13 @@ public class Interval implements Comparable<Interval>, Serializable {
 	}
 
 	/**
+	 * @return  true if this intersects '[iStart, iEnd]' 
+	 */
+	public boolean intersects(int iStart, int iEnd) {
+		return (iEnd >= start) && (iStart <= end);
+	}
+
+	/**
 	 * @return  return true if this intersects 'interval' 
 	 */
 	public boolean intersects(Interval interval) {

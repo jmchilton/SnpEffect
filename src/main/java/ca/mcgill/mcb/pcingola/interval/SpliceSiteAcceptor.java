@@ -24,4 +24,22 @@ public class SpliceSiteAcceptor extends SpliceSite {
 		super(parent, start, end, strand, id);
 		type = EffectType.SPLICE_SITE_ACCEPTOR;
 	}
+
+	@Override
+	public boolean intersectsCoreSpliceSite(Marker marker) {
+		if (size() <= CORE_SPLICE_SITE_SIZE) return true;
+
+		if (!getChromosomeName().equals(marker.getChromosomeName())) return false; // Not in the same chromosome? They do not intersect
+
+		int coreStart, coreEnd;
+		if (isStrandPlus()) {
+			coreEnd = end;
+			coreStart = coreEnd - CORE_SPLICE_SITE_SIZE + 1;
+		} else {
+			coreStart = start;
+			coreEnd = coreStart + CORE_SPLICE_SITE_SIZE - 1;
+		}
+
+		return marker.intersects(coreStart, coreEnd);
+	}
 }

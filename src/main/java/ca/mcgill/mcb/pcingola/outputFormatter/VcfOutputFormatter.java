@@ -191,11 +191,9 @@ public class VcfOutputFormatter extends OutputFormatter {
 		// Add LOF info?
 		//---
 		if (lossOfFunction) {
+			// Perform LOF analysis and add annotations
 			LossOfFunction lof = new LossOfFunction();
-			if (lof.isLof(changeEffects)) {
-				Gpr.debug("LOF:" + lof);
-				vcfEntry.addInfo(VCF_INFO_LOF_NAME, lof.toString());
-			}
+			if (lof.isLof(changeEffects)) vcfEntry.addInfo(VCF_INFO_LOF_NAME, lof.toString());
 		}
 
 		needAddInfo = false; // Don't add info twice

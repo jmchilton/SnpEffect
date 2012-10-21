@@ -10,12 +10,16 @@ import ca.mcgill.mcb.pcingola.interval.SeqChange;
 import ca.mcgill.mcb.pcingola.interval.SpliceSite;
 import ca.mcgill.mcb.pcingola.interval.Transcript;
 import ca.mcgill.mcb.pcingola.snpEffect.ChangeEffect.EffectType;
-import ca.mcgill.mcb.pcingola.util.Gpr;
 
 /**
  * Analyze if a set of effects are can create a "Loss Of Function" in a protein.
  * 
+ * TODO: Add branch points? (We have to analyze correlation with expression)
+ * 
+ * TODO: Other NextProt markers? (We have to analyze correlation with expression)
+ * 
  * TODO: What are we supposed to do in cases like UTR_5_DELETED or UTR_3_DELETED?
+ *       So far we are considering them as moderate impact. 
  * 
  * Of course, this is a prediction based on analysis 
  * of groups of "putative effects". Proper wet-lab 
@@ -88,6 +92,12 @@ public class LossOfFunction {
 
 	/**
 	 * Is this single change a LOF?
+	 * 
+	 * Criteria:
+	 * 		1) Core splice sites acceptors or donors (only CORE ones)
+	 * 		2) Stop gained (if this happens at the last part of the protein, we assume it has no effect)
+	 * 		3) Frame shifts
+	 * 
 	 * @param changeEffect
 	 * @return
 	 */
@@ -105,16 +115,11 @@ public class LossOfFunction {
 		switch (changeEffect.getEffectType()) {
 		case SPLICE_SITE_ACCEPTOR:
 		case SPLICE_SITE_DONOR:
-			Gpr.debug("SPLICE: " + changeEffect.getMarker());
 			// Core splice sites are considered LOF
 			if ((changeEffect.getMarker() != null) && (changeEffect.getMarker() instanceof SpliceSite)) {
 				// Get splice site marker and check if it is 'core'
 				SpliceSite spliceSite = (SpliceSite) changeEffect.getMarker();
-				if (spliceSite.isCoreSpliceSite()) return true;
-
-				// TODO: CHECK IF seqChange hits CORE SITE
-				throw new RuntimeException("CHECK IF seqChange hits CORE SITE!");
-
+				if (spliceSite.intersectsCoreSpliceSite(changeEffect.getSeqChange())) return true; // Does it intersect the CORE splice site?
 			}
 			break;
 
@@ -122,11 +127,11 @@ public class LossOfFunction {
 		case FRAME_SHIFT:
 			// It is assumed that even with a protein coding change at the last 5% of the protein, the protein could still be functional.
 			double perc = percentCds(changeEffect);
-			Gpr.debug("PERCENT: " + perc + "\t" + ignoreProteinCodingAfter);
 			return (ignoreProteinCodingBefore <= perc) && (perc <= ignoreProteinCodingAfter);
 
 		case RARE_AMINO_ACID:
-			// This one is not in the referenced papers, but we can assume that RARE AA changes are damaging.
+		case START_LOST:
+			// This one is not in the referenced papers, but we assume that RARE AA and START_LOSS changes are damaging.
 			return true;
 
 		default: // All others are not considered LOF

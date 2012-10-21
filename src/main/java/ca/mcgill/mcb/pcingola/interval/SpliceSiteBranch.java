@@ -25,7 +25,7 @@ public class SpliceSiteBranch extends SpliceSite {
 	 * These are NOT core splice sites
 	 */
 	@Override
-	public boolean isCoreSpliceSite() {
+	public boolean intersectsCoreSpliceSite(Marker marker) {
 		return false;
 	}
 
