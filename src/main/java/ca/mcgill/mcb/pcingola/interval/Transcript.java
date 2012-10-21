@@ -30,16 +30,17 @@ public class Transcript extends IntervalAndSubIntervals<Exon> {
 
 	private static final long serialVersionUID = -2665025617916107311L;
 
-	ArrayList<SpliceSiteBranch> spliceBranchSites;
-	ArrayList<Utr> utrs;
-	ArrayList<Cds> cdss; // Sometimes we have additional CDS information
-	Upstream upstream;
-	Downstream downstream;
-	String cds = null; // Coding sequence
-	String bioType = ""; // Transcript biotype
+	boolean proteinCoding = false; // Is this a protein-coding transcript?
 	int cdsStart = -1;
 	int cdsEnd = -1;
-	boolean proteinCoding = false; // Is this a protein-coding transcript?
+	String bioType = ""; // Transcript biotype
+	String cds = null; // Coding sequence
+	ArrayList<SpliceSiteBranch> spliceBranchSites; // Branch splice sites
+	ArrayList<Utr> utrs; // UTRs
+	ArrayList<Cds> cdss; // CDS information
+	Upstream upstream; // Upstream interval
+	Downstream downstream; // Downstream interval
+	Exon firstCodingExon; // First coding exon. I.e. where transcription start site (TSS) is. 
 
 	protected Transcript() {
 		super();
@@ -127,7 +128,7 @@ public class Transcript extends IntervalAndSubIntervals<Exon> {
 	}
 
 	/**
-	 * Adjust trancript coordiantes
+	 * Adjust transcript coordinates
 	 * @return
 	 */
 	public boolean adjust() {
@@ -176,10 +177,12 @@ public class Transcript extends IntervalAndSubIntervals<Exon> {
 	 * Calculate CDS start and CDS end
 	 */
 	synchronized void calcCdsStartEnd() {
+		// Do we need to calculate these values?
 		if (cdsStart < 0) {
 			// Calculate coding start (after 5 prime UTR)
 
-			if (utrs.isEmpty()) { // No UTRs => use exons
+			if (utrs.isEmpty()) {
+				// No UTRs => Use all exons
 				cdsStart = (isStrandPlus() ? end : start); // cdsStart is the position of the first base in the CDS (i.e. the first base after all 5'UTR)
 				cdsEnd = (isStrandPlus() ? start : end); // cdsEnd is the position of the last base in the CDS (i.e. the first base before all 3'UTR)
 
@@ -192,8 +195,8 @@ public class Transcript extends IntervalAndSubIntervals<Exon> {
 						cdsEnd = Math.min(cdsEnd, ex.getStart());
 					}
 				}
-
 			} else {
+				// We have to take into account UTRs
 				cdsStart = (isStrandPlus() ? start : end); // cdsStart is the position of the first base in the CDS (i.e. the first base after all 5'UTR)
 				cdsEnd = (isStrandPlus() ? end : start); // cdsEnd is the position of the last base in the CDS (i.e. the first base before all 3'UTR)
 
@@ -387,7 +390,7 @@ public class Transcript extends IntervalAndSubIntervals<Exon> {
 			cdss.remove(cds);
 
 		//---
-		// Delete redundant CDS
+		// Delete redundant UTRs
 		//---
 		includedIn = MarkerUtil.redundant(utrs);
 		for (Marker utr : includedIn.keySet())
@@ -498,6 +501,25 @@ public class Transcript extends IntervalAndSubIntervals<Exon> {
 		return downstream;
 	}
 
+	/**
+	 * Get fisrt coding exon
+	 * @return
+	 */
+	public Exon getFirstCodingExon() {
+		if (firstCodingExon == null) {
+			// Get transcription start position
+			long cstart = getCdsStart();
+
+			// Pick exon intersecting cdsStart (TSS)
+			for (Exon exon : sortedStrand())
+				if (exon.intersects(cstart)) firstCodingExon = exon;
+
+			// Sanity check
+			if (firstCodingExon == null) throw new RuntimeException("Error: Cannot find first coding exon for transcript:\n" + this);
+		}
+		return firstCodingExon;
+	}
+
 	public ArrayList<SpliceSiteBranch> getSpliceBranchSites() {
 		return spliceBranchSites;
 	}
@@ -580,6 +602,10 @@ public class Transcript extends IntervalAndSubIntervals<Exon> {
 		return sequence.toString();
 	}
 
+	/**
+	 * Protein sequence (amino acid sequence produced by this transcripts) 
+	 * @return
+	 */
 	public String protein() {
 		if (!Config.get().isTreatAllAsProteinCoding() && !isProteinCoding()) return "";
 		return codonTable().aa(cds());

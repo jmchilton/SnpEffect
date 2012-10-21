@@ -5,11 +5,11 @@ import java.util.List;
 
 import ca.mcgill.mcb.pcingola.interval.Exon;
 import ca.mcgill.mcb.pcingola.interval.Gene;
-import ca.mcgill.mcb.pcingola.interval.Genome;
 import ca.mcgill.mcb.pcingola.interval.Marker;
 import ca.mcgill.mcb.pcingola.interval.SeqChange;
 import ca.mcgill.mcb.pcingola.interval.SpliceSite;
 import ca.mcgill.mcb.pcingola.interval.Transcript;
+import ca.mcgill.mcb.pcingola.snpEffect.ChangeEffect.EffectType;
 import ca.mcgill.mcb.pcingola.util.Gpr;
 
 /**
@@ -51,7 +51,8 @@ public class LossOfFunction {
 	 * It is assumed that even with a protein coding change at the 
 	 * last 5% of the protein, the protein could still be functional.
 	 */
-	public static final double IGNORE_PROTEIN_CODING_AFTER = 0.95;
+	public static final double DEFAULT_IGNORE_PROTEIN_CODING_AFTER = 0.95;
+	public double ignoreProteinCodingAfter;
 
 	/**
 	 *  It is assumed that even with a protein coding change at the 
@@ -60,20 +61,29 @@ public class LossOfFunction {
 	 *  	rescued by transcriptional reinitiation at an 
 	 *  	alternative start codon."
 	 */
-	public static final double IGNORE_PROTEIN_CODING_BEFORE = 0.05;
+	public static final double DEFAULT_IGNORE_PROTEIN_CODING_BEFORE = 0.05;
+	public double ignoreProteinCodingBefore;
 
 	/** 
 	 * Larger deletions removing either the first exon or more than 
 	 * 50% of the protein-coding sequence of the affected transcript
 	 */
-	public static final double DELETE_CODING_AFFECTED = 0.50;
+	public static final double DEFAULT_DELETE_PROTEIN_CODING_BASES = 0.50;
+	public double deleteProteinCodingBases;
 
+	Config config;
 	HashSet<Transcript> transcripts;
 	HashSet<Gene> genes;
 
-	public LossOfFunction(Genome genome) {
+	public LossOfFunction() {
 		transcripts = new HashSet<Transcript>();
 		genes = new HashSet<Gene>();
+
+		// Config parameters
+		config = Config.get();
+		ignoreProteinCodingBefore = config.getLofIgnoreProteinCodingBefore();
+		ignoreProteinCodingAfter = config.getLofIgnoreProteinCodingAfter();
+		deleteProteinCodingBases = config.getLofDeleteProteinCodingBases();
 	}
 
 	/**
@@ -82,10 +92,14 @@ public class LossOfFunction {
 	 * @return
 	 */
 	protected boolean isLof(ChangeEffect changeEffect) {
-		// Deletion?
-		if (changeEffect.getSeqChange().isDel()) return isLofDeletion(changeEffect);
+		// Is this change affecting a protein coding gene?
+		Gene gene = changeEffect.getGene();
+		if ((gene == null) // No gene affected?
+				|| (!gene.isProteinCoding() && !config.isTreatAllAsProteinCoding()) // Not a protein coding gene?
+		) return false;
 
-		Gpr.debug("CHECK IF GENE IS PROTEIN CODING?"); // TODO: Check if 'treatAllAsProteinCoding?"
+		// Deletion? Is another method to check
+		if (changeEffect.getSeqChange().isDel()) return isLofDeletion(changeEffect);
 
 		// The following effect types can be considered LOF
 		switch (changeEffect.getEffectType()) {
@@ -108,8 +122,8 @@ public class LossOfFunction {
 		case FRAME_SHIFT:
 			// It is assumed that even with a protein coding change at the last 5% of the protein, the protein could still be functional.
 			double perc = percentCds(changeEffect);
-			Gpr.debug("PERCENT: " + perc + "\t" + IGNORE_PROTEIN_CODING_AFTER);
-			return (IGNORE_PROTEIN_CODING_BEFORE <= perc) && (perc <= IGNORE_PROTEIN_CODING_AFTER);
+			Gpr.debug("PERCENT: " + perc + "\t" + ignoreProteinCodingAfter);
+			return (ignoreProteinCodingBefore <= perc) && (perc <= ignoreProteinCodingAfter);
 
 		case RARE_AMINO_ACID:
 			// This one is not in the referenced papers, but we can assume that RARE AA changes are damaging.
@@ -144,8 +158,8 @@ public class LossOfFunction {
 	 * Is this deletion a LOF?
 	 * 
 	 * Criteria:
-	 * 		- More than 50% of coding sequence deleted
-	 * 		- First (coding) exon deleted
+	 * 		1) First (coding) exon deleted
+	 * 		2) More than 50% of coding sequence deleted
 	 * 
 	 * @param changeEffect
 	 * @return
@@ -154,10 +168,23 @@ public class LossOfFunction {
 		Transcript tr = changeEffect.getTranscript();
 		if (tr == null) throw new RuntimeException("Transcript not found for change:\n\t" + changeEffect);
 
-		// Find seqChange
-		SeqChange seqChange = changeEffect.getSeqChange();
+		//---
+		// Criteria:
+		// 		1) First (coding) exon deleted
+		//---
+		if (changeEffect.getEffectType() == EffectType.EXON_DELETED) {
+			Exon exon = changeEffect.getExon();
+			if (exon == null) throw new RuntimeException("Cannot retrieve 'exon' from EXON_DELETED effect!");
+			if (tr.getFirstCodingExon() == exon) return true;
+		}
+
+		//---
+		// Criteria:
+		// 		2) More than 50% of coding sequence deleted
+		//---
 
 		// Find coding part of the transcript (i.e. no UTRs)
+		SeqChange seqChange = changeEffect.getSeqChange();
 		int cdsStart = tr.getCdsStart();
 		int cdsEnd = tr.getCdsEnd();
 		Marker coding = new Marker(seqChange.getChromosome(), cdsStart, cdsEnd, 1, "");
@@ -179,7 +206,7 @@ public class LossOfFunction {
 
 		// More than a threshold? => It is a LOF
 		double percDeleted = codingBasesDeleted / ((double) codingBases);
-		return (percDeleted > DELETE_CODING_AFFECTED);
+		return (percDeleted > deleteProteinCodingBases);
 	}
 
 	/**

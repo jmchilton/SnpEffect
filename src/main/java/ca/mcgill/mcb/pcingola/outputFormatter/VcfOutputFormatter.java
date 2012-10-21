@@ -191,7 +191,7 @@ public class VcfOutputFormatter extends OutputFormatter {
 		// Add LOF info?
 		//---
 		if (lossOfFunction) {
-			LossOfFunction lof = new LossOfFunction(genome);
+			LossOfFunction lof = new LossOfFunction();
 			if (lof.isLof(changeEffects)) {
 				Gpr.debug("LOF:" + lof);
 				vcfEntry.addInfo(VCF_INFO_LOF_NAME, lof.toString());

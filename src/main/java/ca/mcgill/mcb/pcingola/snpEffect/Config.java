@@ -24,10 +24,14 @@ public class Config implements Serializable, Iterable<String> {
 	public static final String DEFAULT_DATA_DIR = "./data";
 	public static String GENOMES_DIR = "genomes"; // Directory has one genomes information (FASTA files)
 
-	public static final String GENOME_KEY = ".genome";
-	public static final String REFERENCE_KEY = ".reference";
-	public static final String CODON_KEY = "codon.";
-	public static final String CODONTABLE_KEY = ".codonTable";
+	// Keys in properties file
+	public static final String KEY_GENOME = ".genome";
+	public static final String KEY_REFERENCE = ".reference";
+	public static final String KEY_CODON = "codon.";
+	public static final String KEY_CODONTABLE = ".codonTable";
+	public static final String KEY_LOF_IGNORE_PROTEIN_CODING_AFTER = "lof.ignoreProteinCodingAfter";
+	public static final String KEY_LOF_IGNORE_PROTEIN_CODING_BEFORE = "lof.ignoreProteinCodingBefore";
+	public static final String KEY_LOF_DELETE_PROTEIN_CODING_BASES = "lof.deleteProteinCodingBases";
 
 	public static boolean debug = false; // Debug mode?
 	private static Config configInstance = null; // Config is some kind of singleton because we want to make it accessible from everywhere
@@ -36,7 +40,12 @@ public class Config implements Serializable, Iterable<String> {
 	boolean onlyRegulation = false; // Only use regulation features
 	boolean errorOnMissingChromo = true; // Error if chromosome is missing
 	boolean errorChromoHit = true; // Error if chromosome is not hit in a query
-	String dataDir;
+	double lofIgnoreProteinCodingAfter;
+	double lofIgnoreProteinCodingBefore;
+	double lofDeleteProteinCodingBases;
+
+	String dataDir; // Ditectory containing all databases and genomes
+	Properties properties;
 	Genome genome;
 	HashMap<String, Genome> genomeByVersion;
 	HashMap<String, String> referenceByVersion;
@@ -81,8 +90,8 @@ public class Config implements Serializable, Iterable<String> {
 		// Read codon tables
 		//---
 		for (Object key : properties.keySet()) {
-			if (key.toString().startsWith(CODON_KEY)) {
-				String name = key.toString().substring(CODON_KEY.length());
+			if (key.toString().startsWith(KEY_CODON)) {
+				String name = key.toString().substring(KEY_CODON.length());
 				String table = properties.getProperty(key.toString());
 				CodonTable codonTable = new CodonTable(name, table);
 				CodonTables.getInstance().add(codonTable);
@@ -94,9 +103,9 @@ public class Config implements Serializable, Iterable<String> {
 		//---
 		for (Object key : properties.keySet()) {
 			String keyStr = key.toString();
-			if (keyStr.endsWith(CODONTABLE_KEY) && keyStr.startsWith(genomeVersion + ".")) {
+			if (keyStr.endsWith(KEY_CODONTABLE) && keyStr.startsWith(genomeVersion + ".")) {
 				// Everything between gneomeName and ".codonTable" is assumed to be chromosome name
-				int chrNameEnd = keyStr.length() - CODONTABLE_KEY.length();
+				int chrNameEnd = keyStr.length() - KEY_CODONTABLE.length();
 				int chrNameStart = genomeVersion.length() + 1;
 				int chrNameLen = chrNameEnd - chrNameStart;
 				if (chrNameLen < 0) throw new RuntimeException("Error parsing config entry '" + keyStr + "'.\n\tExpected format: GENOME.CHROMOSOME.codonTable\n\tChromosome name not found!");
@@ -180,6 +189,15 @@ public class Config implements Serializable, Iterable<String> {
 	}
 
 	/**
+	 * Get a property as a double
+	 * @param propertyName
+	 * @return
+	 */
+	protected double getDouble(String propertyName) {
+		return Gpr.parseDoubleSafe(getString(propertyName));
+	}
+
+	/**
 	 * Filenames for reference sequence (fasta files)
 	 * @return
 	 */
@@ -219,6 +237,27 @@ public class Config implements Serializable, Iterable<String> {
 		return genome;
 	}
 
+	public double getLofDeleteProteinCodingBases() {
+		return lofDeleteProteinCodingBases;
+	}
+
+	public double getLofIgnoreProteinCodingAfter() {
+		return lofIgnoreProteinCodingAfter;
+	}
+
+	public double getLofIgnoreProteinCodingBefore() {
+		return lofIgnoreProteinCodingBefore;
+	}
+
+	/**
+	 * Get a property as a long
+	 * @param propertyName
+	 * @return
+	 */
+	protected long getLong(String propertyName) {
+		return Gpr.parseLongSafe(getString(propertyName));
+	}
+
 	public String getName(String genomeVersion) {
 		return nameByVersion.get(genomeVersion);
 	}
@@ -229,6 +268,15 @@ public class Config implements Serializable, Iterable<String> {
 
 	public SnpEffectPredictor getSnpEffectPredictor() {
 		return snpEffectPredictor;
+	}
+
+	/**
+	 * Get a property as a string
+	 * @param propertyName
+	 * @return
+	 */
+	protected String getString(String propertyName) {
+		return properties.getProperty(propertyName);
 	}
 
 	public boolean isErrorChromoHit() {
@@ -270,7 +318,7 @@ public class Config implements Serializable, Iterable<String> {
 		//---
 		// Read properties file
 		//---
-		Properties properties = new Properties();
+		properties = new Properties();
 		try {
 			properties.load(new FileReader(new File(configFileName)));
 		} catch (FileNotFoundException e) {
@@ -308,15 +356,15 @@ public class Config implements Serializable, Iterable<String> {
 		nameByVersion = new HashMap<String, String>();
 		for (Object k : properties.keySet()) {
 			String key = k.toString();
-			if (key.endsWith(GENOME_KEY)) {
-				String genVer = key.substring(0, key.length() - GENOME_KEY.length());
+			if (key.endsWith(KEY_GENOME)) {
+				String genVer = key.substring(0, key.length() - KEY_GENOME.length());
 
 				// Add full namne
-				String name = properties.getProperty(genVer + GENOME_KEY);
+				String name = properties.getProperty(genVer + KEY_GENOME);
 				nameByVersion.put(genVer, name);
 
 				// Add reference
-				String ref = properties.getProperty(genVer + REFERENCE_KEY);
+				String ref = properties.getProperty(genVer + KEY_REFERENCE);
 				referenceByVersion.put(genVer, ref);
 			}
 		}
@@ -326,6 +374,9 @@ public class Config implements Serializable, Iterable<String> {
 
 		// Codon tables
 		createCodonTables(genomeVersion, properties);
+
+		// Set properties
+		setFromProperties();
 	}
 
 	/**
@@ -365,6 +416,15 @@ public class Config implements Serializable, Iterable<String> {
 
 	public void setErrorOnMissingChromo(boolean errorOnMissingChromo) {
 		this.errorOnMissingChromo = errorOnMissingChromo;
+	}
+
+	/**
+	 * Set from parameter properties
+	 */
+	void setFromProperties() {
+		if (properties.contains(KEY_LOF_IGNORE_PROTEIN_CODING_AFTER)) lofIgnoreProteinCodingAfter = getDouble(KEY_LOF_IGNORE_PROTEIN_CODING_AFTER);
+		if (properties.contains(KEY_LOF_IGNORE_PROTEIN_CODING_BEFORE)) lofIgnoreProteinCodingAfter = getDouble(KEY_LOF_IGNORE_PROTEIN_CODING_BEFORE);
+		if (properties.contains(KEY_LOF_DELETE_PROTEIN_CODING_BASES)) lofIgnoreProteinCodingAfter = getDouble(KEY_LOF_DELETE_PROTEIN_CODING_BASES);
 	}
 
 	public void setOnlyRegulation(boolean onlyRegulation) {
