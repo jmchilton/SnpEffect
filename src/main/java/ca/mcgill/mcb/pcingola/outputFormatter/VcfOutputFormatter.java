@@ -27,6 +27,8 @@ import ca.mcgill.mcb.pcingola.vcf.VcfEntry;
  */
 public class VcfOutputFormatter extends OutputFormatter {
 
+	public static final boolean debug = false;
+
 	public static final String VCF_INFO_EFF_NAME = "EFF";
 	public static final String VCF_INFO_LOF_NAME = "LOF";
 
@@ -158,17 +160,19 @@ public class VcfOutputFormatter extends OutputFormatter {
 				// Add effect
 				//---
 				if (!effs.add(effBuff.toString())) {
-					// Effect has already been added? Something is wrong, the information should be unique for each effect
-					StringBuilder sb = new StringBuilder();
-					sb.append("--------------------------------------------------------------------------------\n");
-					sb.append("VCF Entry   :\t" + vcfEntry + "\n");
-					sb.append("REPEAT (VCF):\t" + effBuff + "\n");
-					sb.append("REPEAT (TXT):\t" + changeEffect + "\n");
-					sb.append("All    (TXT):\n");
-					for (ChangeEffect ce : changeEffects)
-						sb.append("\t" + ce + "\n");
-					sb.append("--------------------------------------------------------------------------------\n");
-					Gpr.debug("WARNING: Repeated effect!\n" + sb);
+					if (debug) {
+						// Effect has already been added? Something is wrong, the information should be unique for each effect
+						StringBuilder sb = new StringBuilder();
+						sb.append("--------------------------------------------------------------------------------\n");
+						sb.append("VCF Entry   :\t" + vcfEntry + "\n");
+						sb.append("REPEAT (VCF):\t" + effBuff + "\n");
+						sb.append("REPEAT (TXT):\t" + changeEffect + "\n");
+						sb.append("All    (TXT):\n");
+						for (ChangeEffect ce : changeEffects)
+							sb.append("\t" + ce + "\n");
+						sb.append("--------------------------------------------------------------------------------\n");
+						Gpr.debug("WARNING: Repeated effect!\n" + sb);
+					}
 				}
 			}
 		}
