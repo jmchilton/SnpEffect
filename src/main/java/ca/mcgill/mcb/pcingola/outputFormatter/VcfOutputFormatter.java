@@ -40,6 +40,13 @@ public class VcfOutputFormatter extends OutputFormatter {
 	boolean lossOfFunction;
 	Genome genome;
 
+	/**
+	 * This constructor is used mostly by 'clone()' method
+	 */
+	protected VcfOutputFormatter() {
+		super();
+	}
+
 	public VcfOutputFormatter(Genome genome, FormatVersion formatVersion) {
 		super();
 		this.genome = genome;
@@ -203,6 +210,21 @@ public class VcfOutputFormatter extends OutputFormatter {
 		}
 
 		needAddInfo = false; // Don't add info twice
+	}
+
+	@Override
+	public OutputFormatter clone() {
+		try {
+			VcfOutputFormatter newOutputFormatter = (VcfOutputFormatter) super.clone();
+			newOutputFormatter.formatVersion = formatVersion;
+			newOutputFormatter.needAddInfo = needAddInfo;
+			newOutputFormatter.needAddHeader = needAddHeader;
+			newOutputFormatter.lossOfFunction = lossOfFunction;
+			newOutputFormatter.genome = genome;
+			return newOutputFormatter;
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	/**

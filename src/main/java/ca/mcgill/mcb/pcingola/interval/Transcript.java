@@ -41,6 +41,7 @@ public class Transcript extends IntervalAndSubIntervals<Exon> {
 	Upstream upstream; // Upstream interval
 	Downstream downstream; // Downstream interval
 	Exon firstCodingExon; // First coding exon. I.e. where transcription start site (TSS) is. 
+	int cds2pos[];
 
 	protected Transcript() {
 		super();
@@ -209,14 +210,55 @@ public class Transcript extends IntervalAndSubIntervals<Exon> {
 						else cdsEnd = Math.max(cdsEnd, utr.getEnd() + 1);
 					}
 				}
+
+				// Make sure cdsStart and cdsEnd lie within an exon
+				if (isStrandPlus()) {
+					cdsStart = firstExonPositionAfter(cdsStart);
+					cdsEnd = lastExonPositionBefore(cdsEnd);
+				} else {
+					cdsStart = lastExonPositionBefore(cdsStart);
+					cdsEnd = firstExonPositionAfter(cdsEnd);
+				}
 			}
 		}
 	}
 
 	/**
+	 * Find the first position after 'pos' within an exon
+	 * @param pos
+	 * @return
+	 */
+	int firstExonPositionAfter(int pos) {
+		for (Exon ex : sorted()) {
+			if (pos <= ex.getStart()) return ex.getStart();
+			if (pos <= ex.getEnd()) return pos;
+		}
+
+		throw new RuntimeException("Cannot find first exonic position after " + pos + " for transcript\n" + this);
+	}
+
+	/**
+	 * Find the last position before 'pos' within an exon
+	 * @param pos
+	 * @return
+	 */
+	int lastExonPositionBefore(int pos) {
+		int last = -1;
+		for (Exon ex : sorted()) {
+			if (pos < ex.getStart()) {
+				if (last < 0) throw new RuntimeException("Cannot find last exonic position after " + pos + " for transcript\n" + this);
+				return last;
+			} else if (pos <= ex.getEnd()) return pos;
+			last = ex.getEnd();
+		}
+
+		throw new RuntimeException("Cannot find last exonic position after " + pos + " for transcript\n" + this);
+	}
+
+	/**
 	 * Retrieve coding sequence
 	 */
-	public String cds() {
+	public synchronized String cds() {
 		if (cds != null) return cds;
 
 		// Concatenate all exons
@@ -250,7 +292,7 @@ public class Transcript extends IntervalAndSubIntervals<Exon> {
 	 * 
 	 * @returns Base number or '-1' if it does not map to a coding base
 	 */
-	public int cdsBaseNumber(int pos, boolean usePrevBaseIntron) {
+	public synchronized int cdsBaseNumber(int pos, boolean usePrevBaseIntron) {
 		// Doesn't hit this transcript?
 		if (!intersects(pos)) return -1;
 
@@ -290,10 +332,12 @@ public class Transcript extends IntervalAndSubIntervals<Exon> {
 	 * 
 	 * @returns An array mapping 'pos[cdsBaseNumber] = chromosmalPos' 
 	 */
-	public int[] cdsBaseNumber2ChrPos() {
+	public synchronized int[] cdsBaseNumber2ChrPos() {
+		if (cds2pos != null) return cds2pos;
+
 		calcCdsStartEnd();
 
-		int cds2pos[] = new int[cds().length()];
+		cds2pos = new int[cds().length()];
 		for (int i = 0; i < cds2pos.length; i++)
 			cds2pos[i] = -1;
 
@@ -502,10 +546,10 @@ public class Transcript extends IntervalAndSubIntervals<Exon> {
 	}
 
 	/**
-	 * Get fisrt coding exon
+	 * Get first coding exon
 	 * @return
 	 */
-	public Exon getFirstCodingExon() {
+	public synchronized Exon getFirstCodingExon() {
 		if (firstCodingExon == null) {
 			// Get transcription start position
 			long cstart = getCdsStart();

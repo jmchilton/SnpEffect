@@ -272,6 +272,7 @@ public class LossOfFunction {
 
 		// Find last valid NMD position
 		int lastNmdPos = lastNmdPos(tr);
+		if (lastNmdPos < 0) return false; // No valid 'lastNmdPos'? => There is no NMD event.
 
 		// Does this change affect the region 'before' this last NMD position? => It is assumed to be NMD
 		SeqChange seqChange = changeEffect.getSeqChange();
@@ -297,14 +298,24 @@ public class LossOfFunction {
 	 * @param tr
 	 * @return
 	 */
-	protected int lastNmdPos(Transcript tr) {
+	public int lastNmdPos(Transcript tr) {
+		//	protected int lastNmdPos(Transcript tr) {
 		//---
 		// Get last exon
 		//---
 		int cdsEnd = tr.getCdsEnd();
+		int cdsStart = tr.getCdsStart();
+		Marker cds = new Marker(tr.getChromosome(), Math.min(cdsStart, cdsEnd), Math.max(cdsStart, cdsEnd), tr.getStrand(), ""); // Create a cds marker
 		Exon lastExon = null;
-		for (Exon exon : tr.sortedStrand())
+		int countCodingExons = 0;
+		for (Exon exon : tr.sortedStrand()) {
 			if (exon.intersects(cdsEnd)) lastExon = exon;
+			if (cds.intersects(exon)) countCodingExons++;
+		}
+
+		// Only one coding exon? => No NMD
+		// Note: I'm assuming that we should have a splice event in a coding part of the transcript for NMD to happen.
+		if (countCodingExons <= 1) return -1;
 
 		// Sanity check
 		if (lastExon == null) throw new RuntimeException("Cannot find last coding exon for transcript '" + tr.getId() + "' (cdsEnd: " + cdsEnd + ")\n\t" + tr);
@@ -317,7 +328,7 @@ public class LossOfFunction {
 		int lastNmdPos = -1;
 		for (int cdsi = chrPos.length - 1; cdsi >= 0; cdsi--) {
 			if (chrPos[cdsi] == lastExonJunction) {
-				if (cdsi >= MND_BASES_BEFORE_LAST_JUNCTION) lastNmdPos = chrPos[cdsi - MND_BASES_BEFORE_LAST_JUNCTION - 1];
+				if (cdsi > MND_BASES_BEFORE_LAST_JUNCTION) lastNmdPos = chrPos[cdsi - MND_BASES_BEFORE_LAST_JUNCTION - 1];
 				else return 0; // Out of CDS range
 				return lastNmdPos;
 			}
