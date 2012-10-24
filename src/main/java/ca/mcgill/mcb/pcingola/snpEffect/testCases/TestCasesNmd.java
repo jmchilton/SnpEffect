@@ -3,6 +3,7 @@ package ca.mcgill.mcb.pcingola.snpEffect.testCases;
 import java.util.LinkedList;
 
 import junit.framework.TestCase;
+import ca.mcgill.mcb.pcingola.interval.Exon;
 import ca.mcgill.mcb.pcingola.interval.Gene;
 import ca.mcgill.mcb.pcingola.interval.SeqChange;
 import ca.mcgill.mcb.pcingola.interval.Transcript;
@@ -35,32 +36,24 @@ public class TestCasesNmd extends TestCase {
 		// For each gene, transcript, exon, position
 		for (Gene gene : config.getGenome().getGenes()) {
 			for (Transcript tr : gene) {
+				for (Exon ex : tr) {
+					for (int pos = ex.getStart(); pos < ex.getEnd(); pos++) {
+						//						Gpr.debug(gene.getId() + "\t" + tr.getId() + "\t" + ex.getId() + "\t" + pos);
 
-				//				if (tr.getId().equals("ENST00000367789")) {
-				//for (Exon ex : tr) {
-				// for (int pos = ex.getStart(); pos < ex.getEnd(); pos++) {
+						// Create a seqChange
+						SeqChange seqChange = new SeqChange(tr.getChromosome(), pos, pos, "");
 
-				int pos = tr.getStart();
-				// Gpr.debug(gene.getId() + "\t" + tr.getId() + "\t" + ex.getId() + "\t" + pos);
-				Gpr.debug(gene.getId() + "\t" + tr.getId() + "\t" + pos);
+						// Create a STOP_GAIN effect
+						ChangeEffect changeEffect = new ChangeEffect(seqChange);
+						changeEffect.set(ex, EffectType.STOP_GAINED, "");
+						LinkedList<ChangeEffect> changeEffects = new LinkedList<ChangeEffect>();
+						changeEffects.add(changeEffect);
 
-				// Create a seqChange
-				SeqChange seqChange = new SeqChange(tr.getChromosome(), pos, pos, "");
-
-				// Create a STOP_GAIN effect
-				ChangeEffect changeEffect = new ChangeEffect(seqChange);
-				//changeEffect.set(ex, EffectType.STOP_GAINED, "");
-				changeEffect.set(tr, EffectType.STOP_GAINED, "");
-				LinkedList<ChangeEffect> changeEffects = new LinkedList<ChangeEffect>();
-				changeEffects.add(changeEffect);
-
-				// Create a LOF object and analyze the effect
-				LossOfFunction lof = new LossOfFunction(changeEffects);
-				//				lof.isNmd();
-				lof.lastNmdPos(tr);
-				// }
-				// }
-				//				}
+						// Create a LOF object and analyze the effect
+						LossOfFunction lof = new LossOfFunction(changeEffects);
+						lof.isNmd();
+					}
+				}
 			}
 		}
 	}

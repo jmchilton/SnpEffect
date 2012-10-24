@@ -17,6 +17,8 @@ public class IntervalAndSubIntervals<T extends Marker> extends Marker implements
 
 	private static final long serialVersionUID = 1636197649250882952L;
 	HashMap<String, T> subIntervals;
+	ArrayList<T> sorted;
+	ArrayList<T> sortedStrand;
 
 	public IntervalAndSubIntervals() {
 		super();
@@ -91,11 +93,12 @@ public class IntervalAndSubIntervals<T extends Marker> extends Marker implements
 	 * Return a collection of sub intervals sorted by natural order
 	 * @return
 	 */
-	public List<T> sorted() {
-		ArrayList<T> list = new ArrayList<T>();
-		list.addAll(subIntervals.values());
-		Collections.sort(list);
-		return list;
+	public synchronized List<T> sorted() {
+		if (sorted != null) return sorted;
+		sorted = new ArrayList<T>();
+		sorted.addAll(subIntervals.values());
+		Collections.sort(sorted);
+		return sorted;
 	}
 
 	/**
@@ -103,14 +106,15 @@ public class IntervalAndSubIntervals<T extends Marker> extends Marker implements
 	 * by reverse end position (if strans < 0) 
 	 * @return
 	 */
-	public List<T> sortedStrand() {
-		ArrayList<T> list = new ArrayList<T>();
-		list.addAll(subIntervals.values());
+	public synchronized List<T> sortedStrand() {
+		if (sortedStrand != null) return sortedStrand;
+		sortedStrand = new ArrayList<T>();
+		sortedStrand.addAll(subIntervals.values());
 
-		if (strand >= 0) Collections.sort(list, new IntervalComparatorByStart()); // Sort by start position 
-		else Collections.sort(list, new IntervalComparatorByEnd(true)); // Sort by end position (reversed) 
+		if (strand >= 0) Collections.sort(sortedStrand, new IntervalComparatorByStart()); // Sort by start position 
+		else Collections.sort(sortedStrand, new IntervalComparatorByEnd(true)); // Sort by end position (reversed) 
 
-		return list;
+		return sortedStrand;
 	}
 
 	/**

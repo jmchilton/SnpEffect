@@ -224,38 +224,6 @@ public class Transcript extends IntervalAndSubIntervals<Exon> {
 	}
 
 	/**
-	 * Find the first position after 'pos' within an exon
-	 * @param pos
-	 * @return
-	 */
-	int firstExonPositionAfter(int pos) {
-		for (Exon ex : sorted()) {
-			if (pos <= ex.getStart()) return ex.getStart();
-			if (pos <= ex.getEnd()) return pos;
-		}
-
-		throw new RuntimeException("Cannot find first exonic position after " + pos + " for transcript\n" + this);
-	}
-
-	/**
-	 * Find the last position before 'pos' within an exon
-	 * @param pos
-	 * @return
-	 */
-	int lastExonPositionBefore(int pos) {
-		int last = -1;
-		for (Exon ex : sorted()) {
-			if (pos < ex.getStart()) {
-				if (last < 0) throw new RuntimeException("Cannot find last exonic position after " + pos + " for transcript\n" + this);
-				return last;
-			} else if (pos <= ex.getEnd()) return pos;
-			last = ex.getEnd();
-		}
-
-		throw new RuntimeException("Cannot find last exonic position after " + pos + " for transcript\n" + this);
-	}
-
-	/**
 	 * Retrieve coding sequence
 	 */
 	public synchronized String cds() {
@@ -500,6 +468,20 @@ public class Transcript extends IntervalAndSubIntervals<Exon> {
 	}
 
 	/**
+	 * Find the first position after 'pos' within an exon
+	 * @param pos
+	 * @return
+	 */
+	int firstExonPositionAfter(int pos) {
+		for (Exon ex : sorted()) {
+			if (pos <= ex.getStart()) return ex.getStart();
+			if (pos <= ex.getEnd()) return pos;
+		}
+
+		throw new RuntimeException("Cannot find first exonic position after " + pos + " for transcript\n" + this);
+	}
+
+	/**
 	 * Create a list of 3 prime UTRs
 	 */
 	public List<Utr3prime> get3primeUtrs() {
@@ -629,6 +611,24 @@ public class Transcript extends IntervalAndSubIntervals<Exon> {
 		for (Utr utr : utrs)
 			if (utr.intersects(pos)) return true;
 		return false;
+	}
+
+	/**
+	 * Find the last position before 'pos' within an exon
+	 * @param pos
+	 * @return
+	 */
+	int lastExonPositionBefore(int pos) {
+		int last = -1;
+		for (Exon ex : sorted()) {
+			if (pos < ex.getStart()) {
+				if (last < 0) throw new RuntimeException("Cannot find last exonic position after " + pos + " for transcript\n" + this);
+				return last;
+			} else if (pos <= ex.getEnd()) return pos;
+			last = ex.getEnd();
+		}
+
+		throw new RuntimeException("Cannot find last exonic position after " + pos + " for transcript\n" + this);
 	}
 
 	/**
