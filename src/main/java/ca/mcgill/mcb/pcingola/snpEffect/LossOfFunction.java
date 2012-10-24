@@ -1,7 +1,7 @@
 package ca.mcgill.mcb.pcingola.snpEffect;
 
+import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 
 import ca.mcgill.mcb.pcingola.interval.Exon;
 import ca.mcgill.mcb.pcingola.interval.Gene;
@@ -12,7 +12,8 @@ import ca.mcgill.mcb.pcingola.interval.Transcript;
 import ca.mcgill.mcb.pcingola.snpEffect.ChangeEffect.EffectType;
 
 /**
- * Analyze if a set of effects are can create a "Loss Of Function" in a protein.
+ * Analyze if a set of effects are can create a "Loss Of Function" 
+ * and "Nonsense mediated decays" effects.
  * 
  * TODO: Add branch points? (We have to analyze correlation with expression)
  * 
@@ -78,8 +79,12 @@ public class LossOfFunction {
 	Config config;
 	HashSet<Transcript> transcripts;
 	HashSet<Gene> genes;
+	Collection<ChangeEffect> changeEffects;
+	int lofCount = -1; // Number of loss of function effects
+	int nmdCount = -1; // Number of nonsense mediated decay effects
 
-	public LossOfFunction() {
+	public LossOfFunction(Collection<ChangeEffect> changeEffects) {
+		this.changeEffects = changeEffects;
 		transcripts = new HashSet<Transcript>();
 		genes = new HashSet<Gene>();
 
@@ -88,6 +93,28 @@ public class LossOfFunction {
 		ignoreProteinCodingBefore = config.getLofIgnoreProteinCodingBefore();
 		ignoreProteinCodingAfter = config.getLofIgnoreProteinCodingAfter();
 		deleteProteinCodingBases = config.getLofDeleteProteinCodingBases();
+	}
+
+	/**
+	 * Can this collection of effects produce a "Loss of function" 
+	 * @param changeEffects
+	 * @return
+	 */
+	public boolean isLof() {
+		// Need to calculate?
+		if (lofCount < 0) {
+			lofCount = 0;
+
+			// Iterate over all changeEffects
+			for (ChangeEffect changeEffect : changeEffects) {
+				if (isLof(changeEffect)) lofCount++;
+
+				transcripts.add(changeEffect.getTranscript()); // Unique transcripts affected (WARNING: null will be added)
+				genes.add(changeEffect.getGene()); // Unique genes affected (WARNING: null will be added)
+			}
+		}
+
+		return lofCount > 0;
 	}
 
 	/**
@@ -124,6 +151,8 @@ public class LossOfFunction {
 			break;
 
 		case STOP_GAINED:
+			return isNmd(changeEffect);
+
 		case FRAME_SHIFT:
 			// It is assumed that even with a protein coding change at the last 5% of the protein, the protein could still be functional.
 			double perc = percentCds(changeEffect);
@@ -138,25 +167,6 @@ public class LossOfFunction {
 		}
 
 		return false;
-	}
-
-	/**
-	 * Can this collection of effects produce a "Loss of function" 
-	 * @param changeEffects
-	 * @return
-	 */
-	public boolean isLof(List<ChangeEffect> changeEffects) {
-		int lofCount = 0;
-
-		// Iterate over all changeEffects
-		for (ChangeEffect changeEffect : changeEffects) {
-			if (isLof(changeEffect)) lofCount++;
-
-			transcripts.add(changeEffect.getTranscript()); // Unique transcripts affected (WARNING: null will be added)
-			genes.add(changeEffect.getGene()); // Unique genes affected (WARNING: null will be added)
-		}
-
-		return lofCount > 0;
 	}
 
 	/**
@@ -212,6 +222,32 @@ public class LossOfFunction {
 		// More than a threshold? => It is a LOF
 		double percDeleted = codingBasesDeleted / ((double) codingBases);
 		return (percDeleted > deleteProteinCodingBases);
+	}
+
+	/**
+	 * Can this collection of effects produce a "Nonsense mediated decay"?
+	 * @param changeEffects
+	 * @return
+	 */
+	public boolean isNmd() {
+		if (nmdCount < 0) isLof(); // Need to calculate?
+		return nmdCount > 0;
+	}
+
+	/**
+	 * Is this single change a LOF?
+	 * 
+	 * Criteria:
+	 * 		1) Core splice sites acceptors or donors (only CORE ones)
+	 * 		2) Stop gained (if this happens at the last part of the protein, we assume it has no effect)
+	 * 		3) Frame shifts
+	 * 
+	 * @param changeEffect
+	 * @return
+	 */
+	protected boolean isNmd(ChangeEffect changeEffect) {
+
+		return false;
 	}
 
 	/**
