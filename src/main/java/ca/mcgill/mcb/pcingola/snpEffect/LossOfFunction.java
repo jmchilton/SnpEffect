@@ -52,6 +52,12 @@ import ca.mcgill.mcb.pcingola.snpEffect.ChangeEffect.EffectType;
  */
 public class LossOfFunction {
 
+	/**
+	 * Number of bases before last exon-exon junction that nonsense 
+	 * mediated decay is supposed to occur 
+	 */
+	public static final int MND_BASES_BEFORE_LAST_JUNCTION = 50;
+
 	/** 
 	 * It is assumed that even with a protein coding change at the 
 	 * last 5% of the protein, the protein could still be functional.
@@ -77,16 +83,20 @@ public class LossOfFunction {
 	public double deleteProteinCodingBases;
 
 	Config config;
-	HashSet<Transcript> transcripts;
-	HashSet<Gene> genes;
+	HashSet<Transcript> transcriptsLof;
+	HashSet<Gene> genesLof;
+	HashSet<Transcript> transcriptsNmd;
+	HashSet<Gene> genesNmd;
 	Collection<ChangeEffect> changeEffects;
 	int lofCount = -1; // Number of loss of function effects
 	int nmdCount = -1; // Number of nonsense mediated decay effects
 
 	public LossOfFunction(Collection<ChangeEffect> changeEffects) {
 		this.changeEffects = changeEffects;
-		transcripts = new HashSet<Transcript>();
-		genes = new HashSet<Gene>();
+		transcriptsLof = new HashSet<Transcript>();
+		genesLof = new HashSet<Gene>();
+		transcriptsNmd = new HashSet<Transcript>();
+		genesNmd = new HashSet<Gene>();
 
 		// Config parameters
 		config = Config.get();
@@ -106,12 +116,8 @@ public class LossOfFunction {
 			lofCount = 0;
 
 			// Iterate over all changeEffects
-			for (ChangeEffect changeEffect : changeEffects) {
+			for (ChangeEffect changeEffect : changeEffects)
 				if (isLof(changeEffect)) lofCount++;
-
-				transcripts.add(changeEffect.getTranscript()); // Unique transcripts affected (WARNING: null will be added)
-				genes.add(changeEffect.getGene()); // Unique genes affected (WARNING: null will be added)
-			}
 		}
 
 		return lofCount > 0;
@@ -135,38 +141,50 @@ public class LossOfFunction {
 				|| (!gene.isProteinCoding() && !config.isTreatAllAsProteinCoding()) // Not a protein coding gene?
 		) return false;
 
-		// Deletion? Is another method to check
-		if (changeEffect.getSeqChange().isDel()) return isLofDeletion(changeEffect);
+		// Is this variant a LOF?
+		boolean lof = false;
+		if (changeEffect.getSeqChange().isDel()) lof = isLofDeletion(changeEffect); // Deletion? Is another method to check
+		else {
+			// The following effect types can be considered LOF
+			switch (changeEffect.getEffectType()) {
+			case SPLICE_SITE_ACCEPTOR:
+			case SPLICE_SITE_DONOR:
+				// Core splice sites are considered LOF
+				if ((changeEffect.getMarker() != null) && (changeEffect.getMarker() instanceof SpliceSite)) {
+					// Get splice site marker and check if it is 'core'
+					SpliceSite spliceSite = (SpliceSite) changeEffect.getMarker();
+					if (spliceSite.intersectsCoreSpliceSite(changeEffect.getSeqChange())) lof = true; // Does it intersect the CORE splice site?
+				}
+				break;
 
-		// The following effect types can be considered LOF
-		switch (changeEffect.getEffectType()) {
-		case SPLICE_SITE_ACCEPTOR:
-		case SPLICE_SITE_DONOR:
-			// Core splice sites are considered LOF
-			if ((changeEffect.getMarker() != null) && (changeEffect.getMarker() instanceof SpliceSite)) {
-				// Get splice site marker and check if it is 'core'
-				SpliceSite spliceSite = (SpliceSite) changeEffect.getMarker();
-				if (spliceSite.intersectsCoreSpliceSite(changeEffect.getSeqChange())) return true; // Does it intersect the CORE splice site?
+			case STOP_GAINED:
+				lof = isNmd(changeEffect);
+				break;
+
+			case FRAME_SHIFT:
+				// It is assumed that even with a protein coding change at the last 5% of the protein, the protein could still be functional.
+				double perc = percentCds(changeEffect);
+				lof = (ignoreProteinCodingBefore <= perc) && (perc <= ignoreProteinCodingAfter);
+				break;
+
+			case RARE_AMINO_ACID:
+			case START_LOST:
+				// This one is not in the referenced papers, but we assume that RARE AA and START_LOSS changes are damaging.
+				lof = true;
+				break;
+
+			default: // All others are not considered LOF
+				lof = false;
 			}
-			break;
-
-		case STOP_GAINED:
-			return isNmd(changeEffect);
-
-		case FRAME_SHIFT:
-			// It is assumed that even with a protein coding change at the last 5% of the protein, the protein could still be functional.
-			double perc = percentCds(changeEffect);
-			return (ignoreProteinCodingBefore <= perc) && (perc <= ignoreProteinCodingAfter);
-
-		case RARE_AMINO_ACID:
-		case START_LOST:
-			// This one is not in the referenced papers, but we assume that RARE AA and START_LOSS changes are damaging.
-			return true;
-
-		default: // All others are not considered LOF
 		}
 
-		return false;
+		// Update sets
+		if (lof) {
+			transcriptsLof.add(changeEffect.getTranscript()); // Unique transcripts affected (WARNING: null will be added)
+			genesLof.add(changeEffect.getGene()); // Unique genes affected (WARNING: null will be added)
+		}
+
+		return lof;
 	}
 
 	/**
@@ -246,8 +264,67 @@ public class LossOfFunction {
 	 * @return
 	 */
 	protected boolean isNmd(ChangeEffect changeEffect) {
+		Transcript tr = changeEffect.getTranscript();
+		if (tr == null) throw new RuntimeException("Transcript not found for change:\n\t" + changeEffect);
 
-		return false;
+		// Only one exon? Nothing to do (there is no exon-exon junction)
+		if (tr.numChilds() <= 1) return false;
+
+		// Find last valid NMD position
+		int lastNmdPos = lastNmdPos(tr);
+
+		// Does this change affect the region 'before' this last NMD position? => It is assumed to be NMD
+		SeqChange seqChange = changeEffect.getSeqChange();
+
+		boolean nmd;
+		if (tr.isStrandPlus()) nmd = seqChange.getStart() <= lastNmdPos;
+		else nmd = lastNmdPos <= seqChange.getEnd();
+
+		// Update sets and counters
+		if (nmd) {
+			transcriptsNmd.add(changeEffect.getTranscript()); // Unique transcripts affected (WARNING: null will be added)
+			genesNmd.add(changeEffect.getGene()); // Unique genes affected (WARNING: null will be added)
+			nmdCount++;
+		}
+
+		return nmd;
+	}
+
+	/**
+	 * Find the last position where a nonsense mediated decay is supposed to occurr
+	 * This is 50 bases (MND_BASES_BEFORE_LAST_JUNCTION bases) before the last exon-exon junction.
+	 * 
+	 * @param tr
+	 * @return
+	 */
+	protected int lastNmdPos(Transcript tr) {
+		//---
+		// Get last exon
+		//---
+		int cdsEnd = tr.getCdsEnd();
+		Exon lastExon = null;
+		for (Exon exon : tr.sortedStrand())
+			if (exon.intersects(cdsEnd)) lastExon = exon;
+
+		// Sanity check
+		if (lastExon == null) throw new RuntimeException("Cannot find last coding exon for transcript '" + tr.getId() + "' (cdsEnd: " + cdsEnd + ")\n\t" + tr);
+
+		//---
+		// Find that position of MND_BASES_BEFORE_LAST_JUNCTION before the last exon-exon junction
+		//---
+		int lastExonJunction = tr.isStrandPlus() ? lastExon.getStart() : lastExon.getEnd();
+		int chrPos[] = tr.cdsBaseNumber2ChrPos();
+		int lastNmdPos = -1;
+		for (int cdsi = chrPos.length - 1; cdsi >= 0; cdsi--) {
+			if (chrPos[cdsi] == lastExonJunction) {
+				if (cdsi >= MND_BASES_BEFORE_LAST_JUNCTION) lastNmdPos = chrPos[cdsi - MND_BASES_BEFORE_LAST_JUNCTION - 1];
+				else return 0; // Out of CDS range
+				return lastNmdPos;
+			}
+		}
+
+		throw new RuntimeException("Cannot find last exon junction position for transcript '" + tr.getId() + "'\n\t" + tr);
+		// return -1;
 	}
 
 	/**
@@ -267,7 +344,7 @@ public class LossOfFunction {
 	 * @param gene
 	 * @return 
 	 */
-	double percentOfTranscriptsAffected(Gene gene) {
+	double percentOfTranscriptsAffected(Gene gene, HashSet<Transcript> transcripts) {
 		if (gene == null) return 0;
 
 		// Count how many transcript are affected in each gene
@@ -280,13 +357,39 @@ public class LossOfFunction {
 
 	@Override
 	public String toString() {
+		return (isLof() ? "LOF=" + vcfLofValue() + " " : "") //
+				+ (isNmd() ? "NMD=" + vcfNmdValue() : "") //
+		;
+	}
+
+	/**
+	 * Get LOF value for VCF info field
+	 * @return
+	 */
+	public String vcfLofValue() {
 		StringBuilder sb = new StringBuilder();
 
-		for (Gene gene : genes) {
+		for (Gene gene : genesLof) {
 			if (sb.length() > 0) sb.append(','); // Separate by comma
-			sb.append(String.format("%s|%s|%d|%.2f", gene.getGeneName(), gene.getId(), gene.numChilds(), percentOfTranscriptsAffected(gene)));
+			sb.append(String.format("%s|%s|%d|%.2f", gene.getGeneName(), gene.getId(), gene.numChilds(), percentOfTranscriptsAffected(gene, transcriptsLof)));
 		}
 
 		return sb.toString();
 	}
+
+	/**
+	 * Get NMD value for VCF info field
+	 * @return
+	 */
+	public String vcfNmdValue() {
+		StringBuilder sb = new StringBuilder();
+
+		for (Gene gene : genesNmd) {
+			if (sb.length() > 0) sb.append(','); // Separate by comma
+			sb.append(String.format("%s|%s|%d|%.2f", gene.getGeneName(), gene.getId(), gene.numChilds(), percentOfTranscriptsAffected(gene, transcriptsNmd)));
+		}
+
+		return sb.toString();
+	}
+
 }

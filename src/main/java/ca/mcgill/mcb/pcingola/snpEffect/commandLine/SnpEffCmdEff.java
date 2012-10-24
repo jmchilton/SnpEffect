@@ -848,7 +848,7 @@ public class SnpEffCmdEff extends SnpEff {
 		System.err.println("\t-no-utr                         : Do not show 5_PRIME_UTR or 3_PRIME_UTR changes");
 		System.err.println("\nAnnotations filter options:");
 		System.err.println("\t-canon                          : Only use canonical transcripts.");
-		System.err.println("\t-lof                            : Add loss of function tag (LOF).");
+		System.err.println("\t-lof                            : Add loss of function (LOF) and Nonsense mediated decay (NMD) tags.");
 		System.err.println("\t-reg <name>                     : Regulation track to use (this option can be used add several times).");
 		System.err.println("\t-onlyReg                        : Only use regulation tracks.");
 		System.err.println("\t-onlyTr <file.txt>              : Only use the transcripts in this file. Format: One transcript ID per line.");

@@ -31,6 +31,7 @@ public class VcfOutputFormatter extends OutputFormatter {
 
 	public static final String VCF_INFO_EFF_NAME = "EFF";
 	public static final String VCF_INFO_LOF_NAME = "LOF";
+	public static final String VCF_INFO_NMD_NAME = "NMD";
 
 	boolean needAddInfo = false;
 	boolean needAddHeader = true;
@@ -197,10 +198,8 @@ public class VcfOutputFormatter extends OutputFormatter {
 		if (lossOfFunction) {
 			// Perform LOF analysis and add annotations
 			LossOfFunction lof = new LossOfFunction(changeEffects);
-			if (lof.isLof()) {
-				Gpr.debug("LOF: " + lof);
-				vcfEntry.addInfo(VCF_INFO_LOF_NAME, lof.toString());
-			}
+			if (lof.isLof()) vcfEntry.addInfo(VCF_INFO_LOF_NAME, lof.vcfLofValue());
+			if (lof.isNmd()) vcfEntry.addInfo(VCF_INFO_NMD_NAME, lof.vcfNmdValue());
 		}
 
 		needAddInfo = false; // Don't add info twice
@@ -229,6 +228,10 @@ public class VcfOutputFormatter extends OutputFormatter {
 		newLines.add("##SnpEffVersion=\"" + version + "\"");
 		newLines.add("##SnpEffCmd=\"" + commandLineStr + "\"");
 		newLines.add("##INFO=<ID=EFF,Number=.,Type=String,Description=\"Predicted effects for this variant.Format: 'Effect ( Effect_Impact | Functional_Class | Codon_Change | Amino_Acid_change| Amino_Acid_length | Gene_Name | Gene_BioType | Coding | Transcript | Exon [ | ERRORS | WARNINGS ] )' \">");
+		if (lossOfFunction) {
+			newLines.add("##INFO=<ID=LOF,Number=.,Type=String,Description=\"Predicted loss of function effects for this variant. Format: 'Gene_Name | Gene_ID | Number_of_transcripts_in_gene | Percent_of_transcripts_affected' \">");
+			newLines.add("##INFO=<ID=NMD,Number=.,Type=String,Description=\"Predicted nonsense mediated decay effects for this variant. Format: 'Gene_Name | Gene_ID | Number_of_transcripts_in_gene | Percent_of_transcripts_affected' \">");
+		}
 		return newLines;
 	}
 
