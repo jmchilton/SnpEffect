@@ -67,6 +67,9 @@ public class TestSuiteAll {
 		// Protein coding sequences
 		suite.addTestSuite(TestCasesProtein.class);
 
+		// Nonsense mediated decay
+		suite.addTestSuite(TestCasesNmd.class);
+
 		return suite;
 	}
 }

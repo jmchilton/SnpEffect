@@ -63,16 +63,18 @@ public class TestCasesNmd extends TestCase {
 
 					// Create a LOF object and analyze the effect
 					LossOfFunction lof = new LossOfFunction(changeEffects);
-					int lastNmdPos = lof.lastNmdPos(tr);
 					isNmd[pos] = lof.isNmd();
 
-					// Show info
-					if (debug) Gpr.debug(gene.getId() + "\t" + tr.getId() + "\t" + exon.getId() //
-							+ "\n\tisNmd[" + pos + "]      : " + isNmd[pos] // 
-							+ "\n\tlastNmdPos   : " + lastNmdPos // 
-							+ "\n\tSeqChange    : " + seqChange //
-							+ "\n\tChangeEffect : " + changeEffect //
-					);
+					//					// Show info
+					//					if (debug) {
+					//						int lastNmdPos = lof.lastNmdPos(tr);
+					//						Gpr.debug(gene.getId() + "\t" + tr.getId() + "\t" + exon.getId() //
+					//								+ "\n\tisNmd[" + pos + "]      : " + isNmd[pos] // 
+					//								+ "\n\tlastNmdPos   : " + lastNmdPos // 
+					//								+ "\n\tSeqChange    : " + seqChange //
+					//								+ "\n\tChangeEffect : " + changeEffect //
+					//						);
+					//					}
 
 					nmdStr.append(isNmd[pos] ? '+' : '.');
 					nmdStrSimple.append(isNmd[pos] ? '+' : '.');
@@ -121,9 +123,12 @@ public class TestCasesNmd extends TestCase {
 
 		// For each gene, transcript, check that NMD works
 		for (Gene gene : config.getGenome().getGenes()) {
-			System.err.println("Gene ID:" + gene.getId());
+			System.err.println("NMD test\tGene ID:" + gene.getId());
 			for (Transcript tr : gene) {
+				//				if (tr.getId().equals("ENST00000486084")) {
+				if (debug) System.err.println(tr);
 				checkNmd(gene, tr);
+				//				}
 			}
 		}
 	}

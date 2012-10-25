@@ -328,7 +328,7 @@ public class LossOfFunction {
 		for (int cdsi = chrPos.length - 1; cdsi >= 0; cdsi--) {
 			if (chrPos[cdsi] == lastExonJunction) {
 				if (cdsi > MND_BASES_BEFORE_LAST_JUNCTION) lastNmdPos = chrPos[cdsi - MND_BASES_BEFORE_LAST_JUNCTION - 1];
-				else return 0; // Out of CDS range
+				else return tr.isStrandPlus() ? 0 : Integer.MAX_VALUE; // Out of CDS range
 				return lastNmdPos;
 			}
 		}
