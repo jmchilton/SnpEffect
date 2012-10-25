@@ -3,6 +3,7 @@ package ca.mcgill.mcb.pcingola.snpEffect.testCases;
 import java.util.HashSet;
 import java.util.LinkedList;
 
+import junit.framework.Assert;
 import junit.framework.TestCase;
 import ca.mcgill.mcb.pcingola.interval.Exon;
 import ca.mcgill.mcb.pcingola.interval.Gene;
@@ -38,14 +39,17 @@ public class TestCasesNmd extends TestCase {
 		System.err.print("\tTranscript " + tr.getId() + " " + (tr.isStrandPlus() ? '+' : '-') + " :");
 		int pos = 0;
 		boolean isNmd[] = new boolean[tr.cds().length()];
-		Exon latestCodingExon = null;
 		HashSet<Exon> codingExons = new HashSet<Exon>();
 
+		StringBuilder nmdStr = new StringBuilder();
+		StringBuilder nmdStrSimple = new StringBuilder();
 		for (Exon exon : tr.sortedStrand()) {
-			for (int expos = exon.getStart(); expos < exon.getEnd(); expos++) {
+			int step = exon.isStrandPlus() ? 1 : -1;
+			int from = exon.isStrandPlus() ? exon.getStart() : exon.getEnd();
+
+			for (int expos = from; (exon.getStart() <= expos) && (expos <= exon.getEnd()); expos += step) {
 				// Not in UTR? => Test
 				if (!tr.isUtr(expos)) {
-					latestCodingExon = exon;
 					codingExons.add(exon);
 
 					// Create a seqChange
@@ -70,20 +74,41 @@ public class TestCasesNmd extends TestCase {
 							+ "\n\tChangeEffect : " + changeEffect //
 					);
 
-					System.err.print(isNmd[pos] ? '+' : '.');
+					nmdStr.append(isNmd[pos] ? '+' : '.');
+					nmdStrSimple.append(isNmd[pos] ? '+' : '.');
 					pos++;
-				} else System.err.print('U');
+				} else nmdStr.append('U');
 			}
-			System.err.print(" | ");
+			nmdStr.append('\t');
+			nmdStrSimple.append('\t');
 		}
-		System.err.println("");
+
+		// Show string
+		System.err.println(nmdStr);
+		if (debug) System.err.println("\tCoding Exons:" + codingExons.size());
 
 		//---
 		// Check that NMP prediction is 'correct'
 		//---
-		// We need a spilce event in the coding part 
+		// We need a splice event in the coding part 
 		if (codingExons.size() > 1) {
-			if (latestCodingExon == null) throw new RuntimeException("Cannot find latest coding exon!");
+			// Use the 'simple' string to check
+			StringBuilder sb = new StringBuilder();
+			String ex[] = nmdStrSimple.toString().split("\t");
+			for (int i = 0; i < (ex.length - 1); i++)
+				sb.append(ex[i]);
+
+			// Check that last 50 bases are '.'
+			String simpleNoLast = sb.toString();
+			int lastNmd = Math.max(0, simpleNoLast.length() - LossOfFunction.MND_BASES_BEFORE_LAST_JUNCTION);
+			String points = simpleNoLast.substring(lastNmd) + ex[ex.length - 1];
+			String plus = simpleNoLast.substring(0, lastNmd);
+
+			if (debug) System.err.println("\tPoints: " + points + "\n\tPlus :" + plus);
+
+			// Check
+			Assert.assertEquals(0, points.replace('.', ' ').trim().length());
+			Assert.assertEquals(0, plus.replace('+', ' ').trim().length());
 		}
 	}
 
@@ -96,9 +121,9 @@ public class TestCasesNmd extends TestCase {
 
 		// For each gene, transcript, check that NMD works
 		for (Gene gene : config.getGenome().getGenes()) {
-			//System.err.println("Gene ID:" + gene.getId());
+			System.err.println("Gene ID:" + gene.getId());
 			for (Transcript tr : gene) {
-				if (tr.getId().equals("ENST00000422560")) checkNmd(gene, tr);
+				checkNmd(gene, tr);
 			}
 		}
 	}
