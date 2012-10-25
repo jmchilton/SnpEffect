@@ -113,7 +113,7 @@ public class LossOfFunction {
 	public boolean isLof() {
 		// Need to calculate?
 		if (lofCount < 0) {
-			lofCount = 0;
+			lofCount = nmdCount = 0;
 
 			// Iterate over all changeEffects
 			for (ChangeEffect changeEffect : changeEffects)
@@ -299,7 +299,6 @@ public class LossOfFunction {
 	 * @return
 	 */
 	public int lastNmdPos(Transcript tr) {
-		//	protected int lastNmdPos(Transcript tr) {
 		//---
 		// Get last exon
 		//---

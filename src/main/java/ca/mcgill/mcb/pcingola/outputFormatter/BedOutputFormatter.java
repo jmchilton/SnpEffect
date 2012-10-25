@@ -54,11 +54,8 @@ public class BedOutputFormatter extends OutputFormatter {
 				StringBuffer sb = new StringBuffer();
 				sb.append(changeEffect.effect(true, false, false));
 
-				Marker m = changeEffect.getMarker();
-				if (m != null) {
-					Gene gene = (Gene) m.findParent(Gene.class);
-					if (gene != null) sb.append("|" + gene.getGeneName() + "|" + gene.getBioType()); // Always show gene, add BioType
-				}
+				Gene gene = changeEffect.getGene();
+				if (gene != null) sb.append("|" + gene.getGeneName() + "|" + gene.getBioType()); // Always show gene, add BioType
 
 				chEffs.add(sb.toString());
 			}

@@ -5,7 +5,6 @@ import ca.mcgill.mcb.pcingola.interval.SeqChange;
 import ca.mcgill.mcb.pcingola.interval.Transcript;
 import ca.mcgill.mcb.pcingola.snpEffect.ChangeEffect;
 import ca.mcgill.mcb.pcingola.snpEffect.ChangeEffect.EffectType;
-import ca.mcgill.mcb.pcingola.util.Gpr;
 
 /**
  * Calculate codon changes produced by an insertion
@@ -24,9 +23,6 @@ public class CodonChangeIns extends CodonChange {
 	 */
 	@Override
 	boolean codonChangeSingle(ChangeEffect changeEffect, Exon exon) {
-		if (seqChange.toString().equals("chr1:526_*/+CGGTCA")) //
-			Gpr.debug("!!!");
-
 		String netChange = seqChange.netChange(transcript.getStrand());
 
 		if (netChange.length() % CodonChange.CODON_SIZE != 0) {
@@ -39,7 +35,7 @@ public class CodonChangeIns extends CodonChange {
 			 * 		Insert 'TT' pos 2:	AAT TAC CCG GGA AAC CCG GGA AAC CCG GG
 			 */
 			changeEffect.setCodons("", netChange, codonNum, codonIndex);
-			changeEffect.set(transcript, EffectType.FRAME_SHIFT, "");
+			changeEffect.set(exon, EffectType.FRAME_SHIFT, "");
 		} else if (codonIndex == 0) {
 			/**
 			 * Length multiple of CODON_SIZE and insertion happens at codon boundary => CODON_INSERTION
@@ -47,7 +43,7 @@ public class CodonChangeIns extends CodonChange {
 			 * 		Original:			AAA CCC GGG AAA CCC GGG AAA CCC GGG
 			 * 		Insert 'TTT' pos 0:	TTT AAA CCC GGG AAA CCC GGG AAA CCC GGG
 			 */
-			changeEffect.set(transcript, EffectType.CODON_INSERTION, "");
+			changeEffect.set(exon, EffectType.CODON_INSERTION, "");
 			changeEffect.setCodons("", netChange, codonNum, codonIndex);
 		} else {
 			/**
@@ -67,10 +63,10 @@ public class CodonChangeIns extends CodonChange {
 				 *  	Original:			AAA CCC GGG AAA CCC GGG AAA CCC GGG
 				 *  	Insert 'AAA' pos 1:	AAA AAA CCC GGG AAA CCC GGG AAA CCC GGG
 				 */
-				changeEffect.set(transcript, EffectType.CODON_INSERTION, "");
+				changeEffect.set(exon, EffectType.CODON_INSERTION, "");
 				changeEffect.setCodons(codonsOld, codonsNew, codonNum, codonIndex);
 			} else {
-				changeEffect.set(transcript, EffectType.CODON_CHANGE_PLUS_CODON_INSERTION, "");
+				changeEffect.set(exon, EffectType.CODON_CHANGE_PLUS_CODON_INSERTION, "");
 				changeEffect.setCodons(codonsOld, codonsNew, codonNum, codonIndex);
 			}
 		}

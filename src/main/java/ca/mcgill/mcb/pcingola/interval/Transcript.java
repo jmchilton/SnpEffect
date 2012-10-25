@@ -606,7 +606,7 @@ public class Transcript extends IntervalAndSubIntervals<Exon> {
 	 * @param pos
 	 * @return
 	 */
-	boolean isUtr(int pos) {
+	public boolean isUtr(int pos) {
 		// Is it in UTR instead of CDS? 
 		for (Utr utr : utrs)
 			if (utr.intersects(pos)) return true;

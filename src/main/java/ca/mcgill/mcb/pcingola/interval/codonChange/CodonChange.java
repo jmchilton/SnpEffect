@@ -112,9 +112,7 @@ public class CodonChange {
 		for (Exon exon : exons) {
 			this.exon = exon;
 
-			if (false && seqChange.includes(exon)) {
-				// TODO: Update this!
-			} else if (exon.intersects(seqChange)) {
+			if (exon.intersects(seqChange)) {
 				int cdsBaseInExon; // cdsBaseInExon: base number relative to the beginning of the coding part of this exon (i.e. excluding 5'UTRs)
 
 				if (transcript.isStrandPlus()) {

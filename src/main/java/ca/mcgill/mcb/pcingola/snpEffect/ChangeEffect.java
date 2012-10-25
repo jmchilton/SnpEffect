@@ -355,7 +355,10 @@ public class ChangeEffect implements Cloneable, Comparable<ChangeEffect> {
 	 * @return
 	 */
 	public Exon getExon() {
-		if (marker != null) return (Exon) marker.findParent(Exon.class);
+		if (marker != null) {
+			if (marker instanceof Exon) return (Exon) marker;
+			return (Exon) marker.findParent(Exon.class);
+		}
 		return null;
 	}
 
@@ -378,7 +381,10 @@ public class ChangeEffect implements Cloneable, Comparable<ChangeEffect> {
 	}
 
 	public Gene getGene() {
-		if (marker != null) return (Gene) marker.findParent(Gene.class);
+		if (marker != null) {
+			if (marker instanceof Gene) return (Gene) marker;
+			return (Gene) marker.findParent(Gene.class);
+		}
 		return null;
 	}
 
@@ -457,7 +463,10 @@ public class ChangeEffect implements Cloneable, Comparable<ChangeEffect> {
 	//	}
 
 	public Transcript getTranscript() {
-		if (marker != null) return (Transcript) marker.findParent(Transcript.class);
+		if (marker != null) {
+			if (marker instanceof Transcript) return (Transcript) marker;
+			return (Transcript) marker.findParent(Transcript.class);
+		}
 		return null;
 	}
 

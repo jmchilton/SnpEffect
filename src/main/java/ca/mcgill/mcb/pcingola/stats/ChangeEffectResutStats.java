@@ -189,7 +189,7 @@ public class ChangeEffectResutStats implements SamplingStats<ChangeEffect> {
 		// Count gene and gene region
 		Marker marker = changeEffect.getMarker();
 		if (marker != null) { // E.g. Intergenic is not associated with a marker
-			Gene gene = (Gene) marker.findParent(Gene.class);
+			Gene gene = changeEffect.getGene();
 			if (gene != null) {
 				// Count by region by gene
 				geneCountByRegionTable.sample(gene, marker, geneRegion, changeEffect);
@@ -198,12 +198,6 @@ public class ChangeEffectResutStats implements SamplingStats<ChangeEffect> {
 				// Count by effect by gene
 				String eff = changeEffect.effect(true, false, false);
 				geneCountByEffectTable.sample(gene, marker, eff, changeEffect);
-
-				//				// Count once per gene
-				//				String gid = gene.getId();
-				//				if( !geneSet.contains(gid)) {
-				//					geneSet.add(gid);
-				//				}				
 			}
 		}
 

@@ -39,7 +39,7 @@ public class BedAnnotationOutputFormatter extends BedOutputFormatter {
 				if (m != null) {
 					// Get gene name (if any)
 					String geneName = null;
-					Gene gene = (Gene) m.findParent(Gene.class);
+					Gene gene = changeEffect.getGene();
 					if (gene != null) geneName = gene.getGeneName();
 
 					// Get annotation type

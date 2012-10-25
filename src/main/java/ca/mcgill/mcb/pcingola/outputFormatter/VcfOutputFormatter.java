@@ -155,7 +155,6 @@ public class VcfOutputFormatter extends OutputFormatter {
 
 				// Add exon info
 				Exon ex = changeEffect.getExon();
-				//if (ex != null) effBuff.append(ex.getId());
 				if (ex != null) effBuff.append(ex.getRank());
 
 				// Errors or warnings (this is the last thing in the list)

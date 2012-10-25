@@ -45,7 +45,7 @@ public class CodonChangeDel extends CodonChange {
 			 * 		Delete 'AA' pos 1:	ACC CGG GAA ACC CGG GAA ACC CGG G
 			 * 		Delete 'AC' pos 2:	AAC CGG GAA ACC CGG GAA ACC CGG G
 			 */
-			changeEffect.set(transcript, EffectType.FRAME_SHIFT, "");
+			changeEffect.set(exon, EffectType.FRAME_SHIFT, "");
 			changeEffect.setCodons("", "", codonNum, codonIndex);
 		} else if (codonIndex == 0) {
 			/**
@@ -55,7 +55,7 @@ public class CodonChangeDel extends CodonChange {
 			 * 		Delete 'AAA' pos 0:	CCC GGG AAA CCC GGG AAA CCC GGG
 			 */
 			codonsOld = codonsOld();
-			changeEffect.set(transcript, EffectType.CODON_DELETION, "");
+			changeEffect.set(exon, EffectType.CODON_DELETION, "");
 			changeEffect.setCodons(codonsOld, "", codonNum, codonIndex);
 		} else {
 			/**
@@ -80,10 +80,10 @@ public class CodonChangeDel extends CodonChange {
 				 *  	Original:			ACG TCG TCC GGG AAA CCC GGG AAA CCC GGG
 				 *  	Delete 'CGT' pos 1:	ACG TCC GGG AAA CCC GGG AAA CCC GGG
 				 */
-				changeEffect.set(transcript, EffectType.CODON_DELETION, "");
+				changeEffect.set(exon, EffectType.CODON_DELETION, "");
 				changeEffect.setCodons(codonsOld, codonsNew, codonNum, codonIndex);
 			} else {
-				changeEffect.set(transcript, EffectType.CODON_CHANGE_PLUS_CODON_DELETION, "");
+				changeEffect.set(exon, EffectType.CODON_CHANGE_PLUS_CODON_DELETION, "");
 				changeEffect.setCodons(codonsOld, codonsNew, codonNum, codonIndex);
 			}
 		}
