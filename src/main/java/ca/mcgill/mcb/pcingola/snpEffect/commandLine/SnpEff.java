@@ -147,6 +147,7 @@ public class SnpEff implements CommandLine {
 				|| args[0].equalsIgnoreCase("test") //
 				|| args[0].equalsIgnoreCase("cfg2table") //
 				|| args[0].equalsIgnoreCase("spliceAnalysis") //
+				|| args[0].equalsIgnoreCase("countReads") //
 		) {
 			command = args[0].toLowerCase();
 
@@ -240,6 +241,12 @@ public class SnpEff implements CommandLine {
 			//---
 			snpEff = new SpliceAnalysis();
 			snpEff.parseArgs(shiftArgs);
+		} else if (command.equals("countreads")) {
+			//---
+			// Count reads site analysis
+			//---
+			snpEff = new SnpEffCmdCountReads();
+			snpEff.parseArgs(shiftArgs);
 		} else throw new RuntimeException("Unknown command '" + command + "'");
 
 		//---
@@ -275,6 +282,7 @@ public class SnpEff implements CommandLine {
 		System.err.println("   or: snpEff protein         [options] genome_version");
 		System.err.println("   or: snpEff closestExon     [options] genome_version");
 		System.err.println("   or: snpEff spliceAnalysis  [options] genome_version");
+		System.err.println("   or: snpEff countReads      [options] genome_version");
 		System.exit(-1);
 	}
 }
