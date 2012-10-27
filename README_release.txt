@@ -78,6 +78,6 @@ How to add the libraries to your local Maven repository:
     http://maven.apache.org/general.html#importing-jars
 
     mvn install:install-file -Dfile=picard-1.77.jar -DgroupId=net.sf.picard -DartifactId=Picard -Dversion=1.77 -Dpackaging=jar
-    mvn install:install-file -Dfile=sam-1.77.jar -DgroupId=net/sf/samtools -DartifactId=Sam -Dversion=1.77 -Dpackaging=jar
+    mvn install:install-file -Dfile=sam-1.77.jar -DgroupId=net.sf.samtools -DartifactId=Sam -Dversion=1.77 -Dpackaging=jar
     
 
