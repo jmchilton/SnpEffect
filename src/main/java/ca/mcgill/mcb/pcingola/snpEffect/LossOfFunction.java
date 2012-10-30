@@ -137,8 +137,11 @@ public class LossOfFunction {
 	protected boolean isLof(ChangeEffect changeEffect) {
 		// Is this change affecting a protein coding gene?
 		Gene gene = changeEffect.getGene();
+		Transcript tr = changeEffect.getTranscript();
 		if ((gene == null) // No gene affected?
+				|| (tr == null) // No transcript affected?
 				|| (!gene.isProteinCoding() && !config.isTreatAllAsProteinCoding()) // Not a protein coding gene?
+				|| (!tr.isProteinCoding() && !config.isTreatAllAsProteinCoding()) // Not a protein coding transcript?
 		) return false;
 
 		// Is this variant a LOF?
@@ -206,9 +209,9 @@ public class LossOfFunction {
 		// 		1) First (coding) exon deleted
 		//---
 		if (changeEffect.getEffectType() == EffectType.EXON_DELETED) {
-			Exon exon = changeEffect.getExon();
-			if (exon == null) throw new RuntimeException("Cannot retrieve 'exon' from EXON_DELETED effect!");
-			if (tr.getFirstCodingExon() == exon) return true;
+			SeqChange seqChange = changeEffect.getSeqChange();
+			if (seqChange == null) throw new RuntimeException("Cannot retrieve 'seqChange' from EXON_DELETED effect!");
+			if (seqChange.includes(tr.getFirstCodingExon())) return true;
 		}
 
 		//---
@@ -218,8 +221,8 @@ public class LossOfFunction {
 
 		// Find coding part of the transcript (i.e. no UTRs)
 		SeqChange seqChange = changeEffect.getSeqChange();
-		int cdsStart = tr.getCdsStart();
-		int cdsEnd = tr.getCdsEnd();
+		int cdsStart = tr.isStrandPlus() ? tr.getCdsStart() : tr.getCdsEnd();
+		int cdsEnd = tr.isStrandPlus() ? tr.getCdsEnd() : tr.getCdsStart();
 		Marker coding = new Marker(seqChange.getChromosome(), cdsStart, cdsEnd, 1, "");
 
 		// Create an interval intersecting the CDS and the deletion

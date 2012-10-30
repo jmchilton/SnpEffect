@@ -1,6 +1,7 @@
 package ca.mcgill.mcb.pcingola.snpEffect.testCases;
 
 import java.util.LinkedList;
+import java.util.Random;
 
 import junit.framework.Assert;
 import junit.framework.TestCase;
@@ -10,6 +11,7 @@ import ca.mcgill.mcb.pcingola.interval.Gene;
 import ca.mcgill.mcb.pcingola.interval.Marker;
 import ca.mcgill.mcb.pcingola.interval.Markers;
 import ca.mcgill.mcb.pcingola.interval.SeqChange;
+import ca.mcgill.mcb.pcingola.interval.SeqChange.ChangeType;
 import ca.mcgill.mcb.pcingola.interval.SpliceSite;
 import ca.mcgill.mcb.pcingola.interval.Transcript;
 import ca.mcgill.mcb.pcingola.snpEffect.ChangeEffect;
@@ -25,9 +27,11 @@ import ca.mcgill.mcb.pcingola.util.Gpr;
  */
 public class TestCasesLof extends TestCase {
 
-	public static boolean debug = true;
+	public static boolean debug = false;
+	public static final int NUM_DEL_TEST = 10; // number of random test per transcript
 
 	Config config;
+	Random random = new Random(20121030);
 
 	public TestCasesLof() {
 		super();
@@ -55,6 +59,9 @@ public class TestCasesLof extends TestCase {
 	 * @param tr
 	 */
 	void checkLof(Transcript tr) {
+		// Don't check non-protein coding
+		if (!tr.isProteinCoding()) return;
+
 		// checkLofSplice(tr);
 		//		checkLofStartLost(tr);
 		checkLofExonDeleted(tr);
@@ -67,13 +74,63 @@ public class TestCasesLof extends TestCase {
 	 * @param tr
 	 */
 	void checkLofExonDeleted(Transcript tr) {
-		for (Exon ex : tr) {
-			SeqChange seqChange = new SeqChange(tr.getChromosome(), ex.getStart(), ex.getEnd(), ""); // Create a seqChange
-			Gpr.debug("SeqChange: " + seqChange);
-			LinkedList<ChangeEffect> changeEffects = changeEffects(seqChange, EffectType.EXON_DELETED, ex);
-			LossOfFunction lof = new LossOfFunction(changeEffects);
-			boolean islof = lof.isLof();
-			Assert.assertEquals(true, islof);
+		// First coding exont
+		checkLofExonDeletedFirstExon(tr);
+
+		// More than half protein is lost
+		checkLofExonDeletedHalf(tr);
+	}
+
+	/**
+	 * First coding exon produces a LOF
+	 * @param tr
+	 */
+	void checkLofExonDeletedFirstExon(Transcript tr) {
+		Exon ex = tr.getFirstCodingExon();
+		SeqChange seqChange = new SeqChange(tr.getChromosome(), ex.getStart(), ex.getEnd(), ""); // Create a seqChange
+		seqChange.setChangeType(ChangeType.DEL);
+		LinkedList<ChangeEffect> changeEffects = changeEffects(seqChange, EffectType.EXON_DELETED, ex);
+
+		// Calculate LOF
+		LossOfFunction lof = new LossOfFunction(changeEffects);
+		boolean islof = lof.isLof();
+		Assert.assertEquals(true, islof);
+	}
+
+	/**
+	 * If more than half protein is lost => LOF
+	 * @param tr
+	 */
+	void checkLofExonDeletedHalf(Transcript tr) {
+		// Calculate coding part of the transcript
+		int start = tr.isStrandPlus() ? tr.getCdsStart() : tr.getCdsEnd();
+		int end = tr.isStrandPlus() ? tr.getCdsEnd() : tr.getCdsStart();
+		Marker cds = new Marker(tr.getParent(), start, end, 1, "");
+
+		for (int i = 0; i < NUM_DEL_TEST; i++) {
+			// Create a random seqChange
+			int delStart = random.nextInt(tr.size() - 1) + tr.getStart();
+			int delEnd = random.nextInt(tr.getEnd() - delStart) + delStart + 1;
+			SeqChange seqChange = new SeqChange(tr.getChromosome(), delStart, delEnd, ""); // Create a seqChange
+			seqChange.setChangeType(ChangeType.DEL);
+
+			// How many coding bases are affected?
+			Marker codingDel = cds.intersect(seqChange);
+			if (codingDel != null) { // Does it intersect?
+				int numBases = 0;
+				for (Exon ex : tr)
+					numBases += codingDel.intersectSize(ex);
+
+				// Percent of coding bases?
+				double perc = numBases / ((double) tr.cds().length());
+				boolean delIsLof = perc > LossOfFunction.DEFAULT_DELETE_PROTEIN_CODING_BASES;
+
+				// Calculate LOF
+				LinkedList<ChangeEffect> changeEffects = changeEffects(seqChange, EffectType.TRANSCRIPT, tr); // Notice that we don't care what type of effect is, so we just use 'TRANSCRIPT'
+				LossOfFunction lof = new LossOfFunction(changeEffects);
+				boolean islof = lof.isLof();
+				Assert.assertEquals(delIsLof, islof);
+			}
 		}
 	}
 

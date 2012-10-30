@@ -416,6 +416,10 @@ public class SeqChange extends Marker {
 		return strand >= 0 ? reference : GprSeq.reverseWc(reference);
 	}
 
+	public void setChangeType(ChangeType changeType) {
+		this.changeType = changeType;
+	}
+
 	public void setHeterozygous(Boolean heterozygous) {
 		this.heterozygous = heterozygous;
 	}
