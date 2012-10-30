@@ -420,8 +420,7 @@ public class Transcript extends IntervalAndSubIntervals<Exon> {
 		List<SpliceSite> list = new LinkedList<SpliceSite>();
 
 		// For each gene, transcript and exon
-		ArrayList<Exon> exons = new ArrayList<Exon>();
-		exons.addAll(sortedStrand());
+		ArrayList<Exon> exons = (ArrayList<Exon>) sortedStrand();
 
 		if (exons.size() > 0) {
 			for (int i = 0; i < exons.size(); i++) {
@@ -571,6 +570,23 @@ public class Transcript extends IntervalAndSubIntervals<Exon> {
 		for (Exon ei : this)
 			if (ei.intersects(interval)) return ei;
 		return null;
+	}
+
+	/**
+	 * Return the intron size for intron number 'intronNum'
+	 * 
+	 * Note: Intron number 'N' is the intron between exon number N and exon number N+1
+	 * Note: Numbering is zero-based (not to be confused with exon 'ranking', which is one-based)
+	 * 
+	 * @param intronNum
+	 * @return
+	 */
+	public int intronSize(int intronNum) {
+		if (intronNum >= (numChilds() - 1)) return -1;
+		ArrayList<Exon> exons = (ArrayList<Exon>) sortedStrand();
+		Exon exon = exons.get(intronNum);
+		Exon next = exons.get(intronNum + 1);
+		return (isStrandPlus() ? (next.getStart() - exon.getEnd()) : (exon.getStart() - next.getEnd())) - 1;
 	}
 
 	@Override

@@ -108,6 +108,7 @@ public class IntervalAndSubIntervals<T extends Marker> extends Marker implements
 	 */
 	public synchronized List<T> sortedStrand() {
 		if (sortedStrand != null) return sortedStrand;
+
 		sortedStrand = new ArrayList<T>();
 		sortedStrand.addAll(subIntervals.values());
 

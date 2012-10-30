@@ -65,17 +65,6 @@ public class TestCasesNmd extends TestCase {
 					LossOfFunction lof = new LossOfFunction(changeEffects);
 					isNmd[pos] = lof.isNmd();
 
-					//					// Show info
-					//					if (debug) {
-					//						int lastNmdPos = lof.lastNmdPos(tr);
-					//						Gpr.debug(gene.getId() + "\t" + tr.getId() + "\t" + exon.getId() //
-					//								+ "\n\tisNmd[" + pos + "]      : " + isNmd[pos] // 
-					//								+ "\n\tlastNmdPos   : " + lastNmdPos // 
-					//								+ "\n\tSeqChange    : " + seqChange //
-					//								+ "\n\tChangeEffect : " + changeEffect //
-					//						);
-					//					}
-
 					nmdStr.append(isNmd[pos] ? '+' : '.');
 					nmdStrSimple.append(isNmd[pos] ? '+' : '.');
 					pos++;
@@ -125,10 +114,8 @@ public class TestCasesNmd extends TestCase {
 		for (Gene gene : config.getGenome().getGenes()) {
 			System.err.println("NMD test\tGene ID:" + gene.getId());
 			for (Transcript tr : gene) {
-				//				if (tr.getId().equals("ENST00000486084")) {
 				if (debug) System.err.println(tr);
 				checkNmd(gene, tr);
-				//				}
 			}
 		}
 	}
