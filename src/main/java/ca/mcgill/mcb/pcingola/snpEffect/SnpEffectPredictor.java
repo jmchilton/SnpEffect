@@ -255,7 +255,10 @@ public class SnpEffectPredictor implements Serializable {
 								regionsAddHit(hits, tr, marker, showGeneDetails, compareTemplate);
 
 								for (Utr utr : tr.getUtrs())
-									if (utr.intersects(marker)) regionsAddHit(hits, utr, marker, showGeneDetails, compareTemplate);
+									if (utr.intersects(marker)) {
+										regionsAddHit(hits, utr, marker, showGeneDetails, compareTemplate);
+										hitExon = true;
+									}
 
 								for (Exon ex : tr)
 									if (ex.intersects(marker)) { // Does it intersect this UTR? Add 'Exon'
@@ -317,6 +320,62 @@ public class SnpEffectPredictor implements Serializable {
 		}
 
 		hits.add(hitStr); // Add marker name to the list
+	}
+
+	/**
+	 * Regions hit by a marker
+	 * @return
+	 */
+	public Set<Marker> regionsMarkers(Marker marker) {
+		boolean hitChromo = false;
+		boolean hitGene = false;
+		HashSet<Marker> hits = new HashSet<Marker>();
+
+		Markers intersects = intersects(marker);
+		if (intersects.size() > 0) {
+			for (Marker markerInt : intersects) {
+				hits.add(markerInt);
+
+				if (markerInt instanceof Chromosome) {
+					hitChromo = true; // OK (we have to hit a chromosome, otherwise it's an error
+				} else if (markerInt instanceof Gene) {
+					// Analyze Genes
+					Gene gene = (Gene) markerInt;
+					hitGene = true;
+
+					// For all transcripts...
+					for (Transcript tr : gene) {
+
+						if (tr.intersects(marker)) { // Does it intersect this transcript?
+							boolean hitExon = false;
+							hits.add(tr);
+
+							for (Utr utr : tr.getUtrs())
+								if (utr.intersects(marker)) {
+									hits.add(utr);
+									hitExon = true;
+								}
+
+							for (Exon ex : tr)
+								if (ex.intersects(marker)) { // Does it intersect this UTR? Add 'Exon'
+									hits.add(ex);
+									hitExon = true;
+								}
+
+							// Not in an exon? => Add 'Intron'
+							if (!hitExon) {
+								Intron intron = new Intron(tr, marker.getStart(), marker.getEnd(), tr.getStrand(), "");
+								hits.add(intron);
+							}
+						}
+					}
+				}
+			}
+		}
+
+		if (!hitChromo) throw new RuntimeException("ERROR: Out of chromosome range. " + marker);
+		if (!hitGene) hits.add(new Intergenic(marker.getChromosome(), marker.getStart(), marker.getEnd(), marker.getStrand(), ""));
+		return hits;
 	}
 
 	/**
