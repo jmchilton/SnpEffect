@@ -144,41 +144,45 @@ public class LossOfFunction {
 				|| (!tr.isProteinCoding() && !config.isTreatAllAsProteinCoding()) // Not a protein coding transcript?
 		) return false;
 
+		//---
 		// Is this variant a LOF?
+		//---
 		boolean lof = false;
-		if (changeEffect.getSeqChange().isDel()) lof = isLofDeletion(changeEffect); // Deletion? Is another method to check
-		else {
-			// The following effect types can be considered LOF
-			switch (changeEffect.getEffectType()) {
-			case SPLICE_SITE_ACCEPTOR:
-			case SPLICE_SITE_DONOR:
-				// Core splice sites are considered LOF
-				if ((changeEffect.getMarker() != null) && (changeEffect.getMarker() instanceof SpliceSite)) {
-					// Get splice site marker and check if it is 'core'
-					SpliceSite spliceSite = (SpliceSite) changeEffect.getMarker();
-					if (spliceSite.intersectsCoreSpliceSite(changeEffect.getSeqChange())) lof = true; // Does it intersect the CORE splice site?
-				}
-				break;
 
-			case STOP_GAINED:
-				lof = isNmd(changeEffect);
-				break;
+		// Frame shifts
+		if (changeEffect.getEffectType() == EffectType.FRAME_SHIFT) {
+			// It is assumed that even with a protein coding change at the last 5% of the protein, the protein could still be functional.
+			double perc = percentCds(changeEffect);
+			lof |= (ignoreProteinCodingBefore <= perc) && (perc <= ignoreProteinCodingAfter);
+		}
 
-			case FRAME_SHIFT:
-				// It is assumed that even with a protein coding change at the last 5% of the protein, the protein could still be functional.
-				double perc = percentCds(changeEffect);
-				lof = (ignoreProteinCodingBefore <= perc) && (perc <= ignoreProteinCodingAfter);
-				break;
+		// Deletion? Is another method to check
+		if (changeEffect.getSeqChange().isDel()) lof |= isLofDeletion(changeEffect);
 
-			case RARE_AMINO_ACID:
-			case START_LOST:
-				// This one is not in the referenced papers, but we assume that RARE AA and START_LOSS changes are damaging.
-				lof = true;
-				break;
-
-			default: // All others are not considered LOF
-				lof = false;
+		// The following effect types can be considered LOF
+		switch (changeEffect.getEffectType()) {
+		case SPLICE_SITE_ACCEPTOR:
+		case SPLICE_SITE_DONOR:
+			// Core splice sites are considered LOF
+			if ((changeEffect.getMarker() != null) && (changeEffect.getMarker() instanceof SpliceSite)) {
+				// Get splice site marker and check if it is 'core'
+				SpliceSite spliceSite = (SpliceSite) changeEffect.getMarker();
+				if (spliceSite.intersectsCoreSpliceSite(changeEffect.getSeqChange())) lof = true; // Does it intersect the CORE splice site?
 			}
+			break;
+
+		case STOP_GAINED:
+			lof |= isNmd(changeEffect);
+			break;
+
+		case RARE_AMINO_ACID:
+		case START_LOST:
+			// This one is not in the referenced papers, but we assume that RARE AA and START_LOSS changes are damaging.
+			lof = true;
+			break;
+
+		default: // All others are not considered LOF
+			break;
 		}
 
 		// Update sets

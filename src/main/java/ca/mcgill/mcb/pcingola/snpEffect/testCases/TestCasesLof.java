@@ -37,6 +37,12 @@ public class TestCasesLof extends TestCase {
 		super();
 	}
 
+	Marker cdsMarker(Transcript tr) {
+		int start = tr.isStrandPlus() ? tr.getCdsStart() : tr.getCdsEnd();
+		int end = tr.isStrandPlus() ? tr.getCdsEnd() : tr.getCdsStart();
+		return new Marker(tr.getParent(), start, end, 1, "");
+	}
+
 	/**
 	 * Create change effects
 	 * @param seqChange
@@ -62,11 +68,10 @@ public class TestCasesLof extends TestCase {
 		// Don't check non-protein coding
 		if (!tr.isProteinCoding()) return;
 
-		// checkLofSplice(tr);
-		//		checkLofStartLost(tr);
+		checkLofSplice(tr);
+		checkLofStartLost(tr);
 		checkLofExonDeleted(tr);
-
-		//		checkLofFrameShift(tr);
+		checkLofFrameShift(tr);
 	}
 
 	/**
@@ -103,9 +108,7 @@ public class TestCasesLof extends TestCase {
 	 */
 	void checkLofExonDeletedHalf(Transcript tr) {
 		// Calculate coding part of the transcript
-		int start = tr.isStrandPlus() ? tr.getCdsStart() : tr.getCdsEnd();
-		int end = tr.isStrandPlus() ? tr.getCdsEnd() : tr.getCdsStart();
-		Marker cds = new Marker(tr.getParent(), start, end, 1, "");
+		Marker cds = cdsMarker(tr);
 
 		for (int i = 0; i < NUM_DEL_TEST; i++) {
 			// Create a random seqChange
@@ -134,8 +137,44 @@ public class TestCasesLof extends TestCase {
 		}
 	}
 
+	/**
+	 * Frame shifts are LOF
+	 * @param tr
+	 */
 	void checkLofFrameShift(Transcript tr) {
-		throw new RuntimeException("Unimplemented!");
+		Marker cds = cdsMarker(tr);
+
+		int codingBase = 0;
+
+		for (Exon ex : tr.sortedStrand()) {
+			int start = tr.isStrandPlus() ? ex.getStart() : ex.getEnd();
+			int step = tr.isStrandPlus() ? 1 : -1;
+
+			// All exonic positions
+			for (int pos = start; ex.intersects(pos); pos += step) {
+				SeqChange seqChange = new SeqChange(tr.getChromosome(), pos, pos, ""); // Create a seqChange
+				seqChange.setChangeType(random.nextBoolean() ? ChangeType.INS : ChangeType.DEL); // Randomly choose INS or DEL
+
+				// Create change effect
+				LinkedList<ChangeEffect> changeEffects = changeEffects(seqChange, EffectType.FRAME_SHIFT, ex);
+				ChangeEffect changeEffect = changeEffects.get(0);
+				changeEffect.setCodons("", "", codingBase / 3, codingBase % 3); // Set codon affected
+				int aaLen = changeEffect.getAaLength();
+
+				// Should this be a LOF?
+				boolean isFsLof = false;
+				if (cds.intersects(pos)) {
+					double perc = (codingBase / 3) / ((double) aaLen);
+					isFsLof = (LossOfFunction.DEFAULT_IGNORE_PROTEIN_CODING_BEFORE <= perc) && (perc <= LossOfFunction.DEFAULT_IGNORE_PROTEIN_CODING_AFTER);
+					codingBase++;
+				}
+
+				// Is LOF as expected?
+				LossOfFunction lof = new LossOfFunction(changeEffects);
+				boolean islof = lof.isLof();
+				Assert.assertEquals(isFsLof, islof);
+			}
+		}
 	}
 
 	void checkLofSplice(Transcript tr) {
@@ -282,13 +321,12 @@ public class TestCasesLof extends TestCase {
 
 		// For each gene, transcript, check that NMD works
 		Gpr.debug("Testing");
+		int i = 1;
 		for (Gene gene : config.getGenome().getGenes()) {
-			System.err.println("LOF test\tGene ID:" + gene.getId());
+			Gpr.showMark(i++, 1);
 			for (Transcript tr : gene) {
-				//				if (tr.getId().equals("ENST00000327057")) {
 				if (debug) System.err.println(tr);
 				checkLof(tr);
-				//				}
 			}
 		}
 	}
