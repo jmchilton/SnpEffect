@@ -170,7 +170,7 @@ public class VcfHeader {
 			vcfInfoById.put("CICN", new VcfInfo("CICN", VcfInfoType.Integer, "2", "Confidence interval around copy number for the segment"));
 			vcfInfoById.put("CICNADJ", new VcfInfo("CICNADJ", VcfInfoType.Integer, ".", "Confidence interval around copy number for the adjacency"));
 
-			// Add SnpEff fields
+			// Add SnpEff 'EFF' fields
 			vcfInfoById.put("EFF.EFFECT", new VcfInfo("EFF.EFFECT", VcfInfoType.String, ".", "SnpEff effect"));
 			vcfInfoById.put("EFF.IMPACT", new VcfInfo("EFF.IMPACT", VcfInfoType.String, ".", "SnpEff impact (HIGH, MODERATE, LOW, MODIFIER)"));
 			vcfInfoById.put("EFF.FUNCLASS", new VcfInfo("EFF.FUNCLASS", VcfInfoType.String, ".", "SnpEff functional class (NONE, SILENT, MISSENSE, NONSENSE)"));
@@ -182,6 +182,18 @@ public class VcfHeader {
 			vcfInfoById.put("EFF.CODING", new VcfInfo("EFF.CODING", VcfInfoType.String, ".", "SnpEff gene coding (CODING, NON_CODING)"));
 			vcfInfoById.put("EFF.TRID", new VcfInfo("EFF.TRID", VcfInfoType.String, ".", "SnpEff transcript ID"));
 			vcfInfoById.put("EFF.EXID", new VcfInfo("EFF.EXID", VcfInfoType.String, ".", "SnpEff exon ID"));
+
+			// Add SnpEff 'LOF' fields
+			vcfInfoById.put("LOF.GENE", new VcfInfo("LOF.GENE", VcfInfoType.String, ".", "SnpEff LOF gene name"));
+			vcfInfoById.put("LOF.GENEID", new VcfInfo("LOF.GENEID", VcfInfoType.String, ".", "SnpEff LOF gene ID"));
+			vcfInfoById.put("LOF.NUMTR", new VcfInfo("LOF.NUMTR", VcfInfoType.Integer, ".", "SnpEff LOF number of transcripts in gene"));
+			vcfInfoById.put("LOF.PERC", new VcfInfo("LOF.PERC", VcfInfoType.Float, ".", "SnpEff LOF percentage of transcripts in this gene that are affected"));
+
+			// Add SnpEff 'NMD' fields
+			vcfInfoById.put("NMD.GENE", new VcfInfo("NMD.GENE", VcfInfoType.String, ".", "SnpEff NMD gene name"));
+			vcfInfoById.put("NMD.GENEID", new VcfInfo("NMD.GENEID", VcfInfoType.String, ".", "SnpEff NMD gene ID"));
+			vcfInfoById.put("NMD.NUMTR", new VcfInfo("NMD.NUMTR", VcfInfoType.Integer, ".", "SnpEff NMD number of transcripts in gene"));
+			vcfInfoById.put("NMD.PERC", new VcfInfo("NMD.PERC", VcfInfoType.Float, ".", "SnpEff NMD percentage of transcripts in this gene that are affected"));
 
 			// Add all INFO fields from header
 			String headerLines[] = header.toString().split("\n");
