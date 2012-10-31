@@ -98,8 +98,11 @@ cd - > /dev/null
 
 rm -vf queue_build.txt
 
+# Build from refseq files
+echo "java -Xmx10G -jar snpEff.jar build -v -refseq hg19"
+
 # Build from TXT files
-for genes in data/*/genes.txt*
+for genes in `ls data/*/genes.txt* | grep -v hg19`
 do
 	dir=`dirname $genes`
 	genomeName=`basename $dir`

@@ -7,6 +7,11 @@ Run JUnit tests (TestSuiteAll) and make sure all of them pass
 
 Run integration tests
 
+Create JAR files
+
+	cd ~/snpEff
+	./scripts/make.sh 
+
 Download ENSEMBL databases:
 
 	./scripts/download.sh
@@ -26,8 +31,6 @@ Check that databases have been built correctly:
 	cat check.txt | grep -v "0.0%" > check.non_zero.txt 
 	vi check.non_zero.txt
 	# Note: All error percentages should be below 1%
-	
-- Create snpEff.jar (running buils.xml ANT script from Eclipse)
 
 - Update download page
 
@@ -79,5 +82,4 @@ How to add the libraries to your local Maven repository:
 
     mvn install:install-file -Dfile=picard-1.77.jar -DgroupId=net.sf.picard -DartifactId=Picard -Dversion=1.77 -Dpackaging=jar
     mvn install:install-file -Dfile=sam-1.77.jar -DgroupId=net.sf.samtools -DartifactId=Sam -Dversion=1.77 -Dpackaging=jar
-    
-
+   
