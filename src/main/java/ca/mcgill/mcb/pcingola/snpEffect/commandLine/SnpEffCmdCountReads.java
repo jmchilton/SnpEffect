@@ -29,7 +29,7 @@ import ca.mcgill.mcb.pcingola.util.Timer;
  */
 public class SnpEffCmdCountReads extends SnpEff {
 
-	public static int SHOW_EVERY = 1000;
+	public static int SHOW_EVERY = 10000;
 	public static boolean debug = true;
 
 	List<String> samFileNames;
