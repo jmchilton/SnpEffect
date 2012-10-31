@@ -33,13 +33,15 @@ public class SnpEffCmdCountReads extends SnpEff {
 	public static boolean debug = true;
 
 	List<String> samFileNames;
-	ArrayList<CountByKey<Marker>> countByFile;
+	ArrayList<CountByKey<Marker>> countReadsByFile;
+	ArrayList<CountByKey<Marker>> countBasesByFile;
 	SnpEffectPredictor snpEffectPredictor;
 	boolean verbose = false;
 
 	public SnpEffCmdCountReads() {
 		samFileNames = new ArrayList<String>();
-		countByFile = new ArrayList<CountByKey<Marker>>();
+		countReadsByFile = new ArrayList<CountByKey<Marker>>();
+		countBasesByFile = new ArrayList<CountByKey<Marker>>();
 	}
 
 	/**
@@ -134,13 +136,13 @@ public class SnpEffCmdCountReads extends SnpEff {
 	public void print() {
 		// Show title
 		System.out.print("chr\tstart\tend\ttype\tIDs");
-		for (int j = 0; j < countByFile.size(); j++)
-			System.out.print("\t" + samFileNames.get(j));
+		for (int j = 0; j < countReadsByFile.size(); j++)
+			System.out.print("\tReads:" + samFileNames.get(j) + "\tBases:" + samFileNames.get(j));
 		System.out.print("\n");
 
 		// Retrieve all possible keys, sort them
 		HashSet<Marker> keys = new HashSet<Marker>();
-		for (CountByKey<Marker> cbt : countByFile)
+		for (CountByKey<Marker> cbt : countReadsByFile)
 			keys.addAll(cbt.keySet());
 
 		ArrayList<Marker> keysSorted = new ArrayList<Marker>(keys.size());
@@ -149,13 +151,16 @@ public class SnpEffCmdCountReads extends SnpEff {
 
 		// Show results
 		for (Marker key : keysSorted) {
+			// Show 'key' information in first columns
 			System.out.print(key.getChromosomeName() //
 					+ "\t" + (key.getStart() + 1) //
 					+ "\t" + (key.getEnd() + 1) //
 					+ "\t" + idChain(key) //
 					+ "\t");
-			for (CountByKey<Marker> cbt : countByFile)
-				System.out.print("\t" + cbt.get(key));
+
+			// Show counter data
+			for (int idx = 0; idx < countReadsByFile.size(); idx++)
+				System.out.print("\t" + countReadsByFile.get(idx).get(key) + "\t" + countBasesByFile.get(idx).get(key));
 			System.out.print("\n");
 		}
 		System.out.print("\n");
@@ -199,6 +204,7 @@ public class SnpEffCmdCountReads extends SnpEff {
 			try {
 				if (verbose) Timer.showStdErr("Reading reads file '" + samFileName + "'");
 				CountByKey<Marker> countReads = new CountByKey<Marker>();
+				CountByKey<Marker> countBases = new CountByKey<Marker>();
 
 				// Open file
 				int readNum = 1;
@@ -214,9 +220,10 @@ public class SnpEffCmdCountReads extends SnpEff {
 
 								// Find all intersects
 								Set<Marker> regions = snpEffectPredictor.regionsMarkers(read);
-								for (Marker m : regions)
-									countReads.inc(m);
-
+								for (Marker m : regions) {
+									countReads.inc(m); // Count reads
+									countBases.inc(m, m.intersectSize(read)); // Count number bases that intersect
+								}
 							}
 						}
 
@@ -229,7 +236,9 @@ public class SnpEffCmdCountReads extends SnpEff {
 				}
 				sam.close();
 
-				countByFile.add(countReads); // Add count to list
+				// Add count to list
+				countReadsByFile.add(countReads);
+				countBasesByFile.add(countBases);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
