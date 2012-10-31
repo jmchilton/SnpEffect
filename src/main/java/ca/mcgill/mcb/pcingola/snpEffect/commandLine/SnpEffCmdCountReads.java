@@ -110,7 +110,6 @@ public class SnpEffCmdCountReads extends SnpEff {
 
 		// Prepend type
 		sb.insert(0, marker.getClass().getSimpleName() + "\t");
-		sb.append("\t");
 
 		return sb.toString();
 	}
@@ -156,7 +155,7 @@ public class SnpEffCmdCountReads extends SnpEff {
 					+ "\t" + (key.getStart() + 1) //
 					+ "\t" + (key.getEnd() + 1) //
 					+ "\t" + idChain(key) //
-					+ "\t");
+			);
 
 			// Show counter data
 			for (int idx = 0; idx < countReadsByFile.size(); idx++)
