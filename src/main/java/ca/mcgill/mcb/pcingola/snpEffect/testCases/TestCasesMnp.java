@@ -73,7 +73,7 @@ public class TestCasesMnp extends TestCase {
 	void addIfDiff(char codonOld[], char codonNew[]) {
 		String cold = new String(codonOld);
 		String cnew = new String(codonNew);
-		if( !cold.equals(cnew) ) {
+		if (!cold.equals(cnew)) {
 			codonsOld += transcript.isStrandPlus() ? cold : GprSeq.wc(cold);
 			codonsNew += transcript.isStrandPlus() ? cnew : GprSeq.wc(cnew);
 		}
@@ -93,22 +93,22 @@ public class TestCasesMnp extends TestCase {
 
 		// Show
 		ChangeEffect effect = null;
-		if( effects.size() > 1 ) { // Usually there is only one effect
-			for( ChangeEffect ce : effects ) {
-				if( (ce.getEffectType() != EffectType.SPLICE_SITE_ACCEPTOR) //
-						&& (ce.getEffectType() != EffectType.SPLICE_SITE_DONOR) ) //
-				effect = ce;
+		if (effects.size() > 1) { // Usually there is only one effect
+			for (ChangeEffect ce : effects) {
+				if ((ce.getEffectType() != EffectType.SPLICE_SITE_ACCEPTOR) //
+						&& (ce.getEffectType() != EffectType.SPLICE_SITE_DONOR)) //
+					effect = ce;
 			}
 		} else effect = effects.get(0);
 
 		String effStr = effect.effect(true, true, true);
 
-		if( codons.length() > 1 ) {
+		if (codons.length() > 1) {
 			String codonsExp[] = codons.split("/");
 
 			boolean error = (!codonsExp[0].toUpperCase().equals(effect.getCodonsOld().toUpperCase()) || !codonsExp[1].toUpperCase().equals(effect.getCodonsNew().toUpperCase()));
 
-			if( error || debug ) Gpr.debug("Fatal error:"//
+			if (error || debug) Gpr.debug("Fatal error:"//
 					+ "\n\tPos           : " + pos //
 					+ "\n\tSeqChange     : " + seqChange + (seqChange.getStrand() >= 0 ? "+" : "-") //
 					+ "\n\tCodon (exp)   : " + codons//
@@ -121,7 +121,7 @@ public class TestCasesMnp extends TestCase {
 			/**
 			 * Error? Dump so we can debug...
 			 */
-			if( error ) {
+			if (error) {
 				System.err.println("Error. Dumping data");
 				Save save = new Save();
 				save.snpEffectPredictor = snpEffectPredictor;
@@ -136,7 +136,7 @@ public class TestCasesMnp extends TestCase {
 			}
 
 			// Check warnings
-			if( !effect.getWarning().isEmpty() ) Gpr.debug("WARN:" + effect.getWarning() + "\t" + seqChange + "\t" + seqChangeStrand);
+			if (!effect.getWarning().isEmpty()) Gpr.debug("WARN:" + effect.getWarning() + "\t" + seqChange + "\t" + seqChangeStrand);
 			Assert.assertEquals(true, effect.getWarning().isEmpty());
 		}
 
@@ -153,19 +153,19 @@ public class TestCasesMnp extends TestCase {
 		int step = transcript.isStrandPlus() ? 1 : -1;
 		char codonOld[] = new char[3];
 		char codonNew[] = new char[3];
-		for( Exon ex : transcript.sortedStrand() ) {
+		for (Exon ex : transcript.sortedStrand()) {
 			int start = ex.isStrandPlus() ? ex.getStart() : ex.getEnd();
-			for( i = start; ex.intersects(i); i += step, codonIdx = (codonIdx + 1) % 3 ) {
+			for (i = start; ex.intersects(i); i += step, codonIdx = (codonIdx + 1) % 3) {
 				codonOld[codonIdx] = seq[i];
 				codonNew[codonIdx] = seqNew[i];
-				if( codonIdx == 2 ) addIfDiff(codonOld, codonNew);
+				if (codonIdx == 2) addIfDiff(codonOld, codonNew);
 			}
 		}
 
-		for( ; codonIdx != 0; i += step, codonIdx = (codonIdx + 1) % 3 ) {
+		for (; codonIdx != 0; i += step, codonIdx = (codonIdx + 1) % 3) {
 			codonOld[codonIdx] = 'N';
 			codonNew[codonIdx] = 'N';
-			if( codonIdx == 2 ) addIfDiff(codonOld, codonNew);
+			if (codonIdx == 2) addIfDiff(codonOld, codonNew);
 		}
 
 		return codonsOld + "/" + codonsNew;
@@ -181,7 +181,7 @@ public class TestCasesMnp extends TestCase {
 		char chSeqNew[] = chromoSequence.toCharArray();
 
 		String mnp = "";
-		for( int i = pos; i < (pos + mnpLen); i++ ) {
+		for (int i = pos; i < (pos + mnpLen); i++) {
 			chSeqNew[i] = snp(chSeq[i]);
 			mnp += chSeqNew[i];
 		}
@@ -234,7 +234,7 @@ public class TestCasesMnp extends TestCase {
 	 */
 	char snp(char ref) {
 		char snp = ref;
-		while(snp == ref) {
+		while (snp == ref) {
 			snp = Character.toUpperCase(GprSeq.randBase(rand));
 		}
 		return snp;
@@ -247,22 +247,22 @@ public class TestCasesMnp extends TestCase {
 		//	- Create a random gene transcript, exons
 		//	- Change each base in the exon
 		//	- Calculate effect
-		for( int i = 0; i < N; i++ ) {
+		for (int i = 0; i < N; i++) {
 			initSnpEffPredictor();
 
-			if( debug ) System.out.println("MNP Test iteration: " + i + "\nChromo:\t" + chromoSequence + "\n" + transcript);
+			if (debug) System.out.println("MNP Test iteration: " + i + "\nChromo:\t" + chromoSequence + "\n" + transcript);
 			else System.out.println("MNP Test iteration: " + i + "\t" + (transcript.getStrand() >= 0 ? "+" : "-") + "\t" + transcript.cds());
 
-			if( debug ) {
-				for( Exon exon : transcript.sortedStrand() )
+			if (debug) {
+				for (Exon exon : transcript.sortedStrand())
 					System.out.println("\tExon: " + exon + "\tSEQ:\t" + (exon.isStrandMinus() ? GprSeq.reverseWc(exon.getSequence()) : exon.getSequence()).toUpperCase());
 			}
 
 			// For each base in this exon...
-			for( int pos = 0; pos < chromoSequence.length() - 2; pos++ ) {
+			for (int pos = 0; pos < chromoSequence.length() - 2; pos++) {
 
-				if( (i == 587) && (pos == 712) ) //
-				Gpr.debug("!!!");
+				if ((i == 587) && (pos == 712)) //
+					Gpr.debug("!!!");
 
 				// MNP length
 				int mnpLen = rand.nextInt(MAX_MNP_LEN) + 2;

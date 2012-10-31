@@ -797,7 +797,11 @@ public class Transcript extends IntervalAndSubIntervals<Exon> {
 
 		// Does it hit an intron?
 		for (Intron intron : introns())
-			if (intron.intersects(seqChange)) changeEffect.set(intron, EffectType.INTRON, "");
+			if (intron.intersects(seqChange)) {
+				ChangeEffect cheff = changeEffect.clone();
+				cheff.set(intron, EffectType.INTRON, "");
+				changeEffectList.add(cheff);
+			}
 
 		return changeEffectList;
 	}

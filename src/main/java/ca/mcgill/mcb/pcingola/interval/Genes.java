@@ -59,7 +59,7 @@ public class Genes implements Iterable<Gene>, Serializable {
 			int end = gene.getStart() - 1;
 
 			// Valid intergenic region?
-			if ((genePrev == null) || (start < end)) {
+			if (start < end) {
 				String id = (genePrev != null ? genePrev.getGeneName() + "..." : "") + gene.getGeneName();
 				Intergenic intergenic = new Intergenic(gene.getChromosome(), start, end, 1, id);
 				intergenics.add(intergenic);
