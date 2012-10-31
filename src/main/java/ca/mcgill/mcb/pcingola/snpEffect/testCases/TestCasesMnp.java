@@ -96,50 +96,58 @@ public class TestCasesMnp extends TestCase {
 		if (effects.size() > 1) { // Usually there is only one effect
 			for (ChangeEffect ce : effects) {
 				if ((ce.getEffectType() != EffectType.SPLICE_SITE_ACCEPTOR) //
-						&& (ce.getEffectType() != EffectType.SPLICE_SITE_DONOR)) //
+						&& (ce.getEffectType() != EffectType.SPLICE_SITE_DONOR) //
+						&& (ce.getEffectType() != EffectType.INTRON) //
+						&& (ce.getEffectType() != EffectType.INTERGENIC) //
+				) //
 					effect = ce;
 			}
 		} else effect = effects.get(0);
 
-		String effStr = effect.effect(true, true, true);
+		if (effect != null) {
+			String effStr = effect.effect(true, true, true);
 
-		if (codons.length() > 1) {
-			String codonsExp[] = codons.split("/");
+			if (codons.length() > 1) {
+				String codonsExp[] = codons.split("/");
 
-			boolean error = (!codonsExp[0].toUpperCase().equals(effect.getCodonsOld().toUpperCase()) || !codonsExp[1].toUpperCase().equals(effect.getCodonsNew().toUpperCase()));
+				boolean error = (!codonsExp[0].toUpperCase().equals(effect.getCodonsOld().toUpperCase()) //
+				|| !codonsExp[1].toUpperCase().equals(effect.getCodonsNew().toUpperCase()));
 
-			if (error || debug) Gpr.debug("Fatal error:"//
-					+ "\n\tPos           : " + pos //
-					+ "\n\tSeqChange     : " + seqChange + (seqChange.getStrand() >= 0 ? "+" : "-") //
-					+ "\n\tCodon (exp)   : " + codons//
-					+ "\n\tCodon (pred)  : " + effect.getCodonsOld().toUpperCase() + "/" + effect.getCodonsNew().toUpperCase() //
-					+ "\n\tEffect (pred) : " + effStr //
-					+ "\n\tGene          : " + gene//
-					+ "\n\tChromo        : " + chromoSequence//
-			);
+				if (error || debug) {
+					Gpr.debug("Fatal error:"//
+							+ "\n\tPos           : " + pos //
+							+ "\n\tSeqChange     : " + seqChange + (seqChange.getStrand() >= 0 ? "+" : "-") //
+							+ "\n\tCodon (exp)   : " + codons//
+							+ "\n\tCodon (pred)  : " + effect.getCodonsOld().toUpperCase() + "/" + effect.getCodonsNew().toUpperCase() //
+							+ "\n\tEffect (pred) : " + effStr //
+							+ "\n\tEffect (pred) : " + effect //
+							+ "\n\tGene          : " + gene//
+							+ "\n\tChromo        : " + chromoSequence//
+					);
+				}
 
-			/**
-			 * Error? Dump so we can debug...
-			 */
-			if (error) {
-				System.err.println("Error. Dumping data");
-				Save save = new Save();
-				save.snpEffectPredictor = snpEffectPredictor;
-				save.chromoSequence = chromoSequence;
-				save.chromoNewSequence = chromoNewSequence;
-				save.ref = ref;
-				save.pos = pos;
-				save.mnp = mnp;
-				String outFile = "/tmp/sep_" + i + "_" + pos + ".bin";
-				Gpr.toFileSerialize(outFile, save);
-				throw new RuntimeException("Codons do not match!\n\tData dumped: '" + outFile + "'");
+				/**
+				 * Error? Dump so we can debug...
+				 */
+				if (error) {
+					System.err.println("Error. Dumping data");
+					Save save = new Save();
+					save.snpEffectPredictor = snpEffectPredictor;
+					save.chromoSequence = chromoSequence;
+					save.chromoNewSequence = chromoNewSequence;
+					save.ref = ref;
+					save.pos = pos;
+					save.mnp = mnp;
+					String outFile = "/tmp/sep_" + i + "_" + pos + ".bin";
+					Gpr.toFileSerialize(outFile, save);
+					throw new RuntimeException("Codons do not match!\n\tData dumped: '" + outFile + "'");
+				}
+
+				// Check warnings
+				if (!effect.getWarning().isEmpty()) Gpr.debug("WARN:" + effect.getWarning() + "\t" + seqChange + "\t" + seqChangeStrand);
+				Assert.assertEquals(true, effect.getWarning().isEmpty());
 			}
-
-			// Check warnings
-			if (!effect.getWarning().isEmpty()) Gpr.debug("WARN:" + effect.getWarning() + "\t" + seqChange + "\t" + seqChangeStrand);
-			Assert.assertEquals(true, effect.getWarning().isEmpty());
 		}
-
 	}
 
 	String codons() {
@@ -240,7 +248,7 @@ public class TestCasesMnp extends TestCase {
 		return snp;
 	}
 
-	public void test_02() {
+	public void test() {
 		int N = 1000;
 
 		// Test N times
@@ -260,10 +268,6 @@ public class TestCasesMnp extends TestCase {
 
 			// For each base in this exon...
 			for (int pos = 0; pos < chromoSequence.length() - 2; pos++) {
-
-				if ((i == 587) && (pos == 712)) //
-					Gpr.debug("!!!");
-
 				// MNP length
 				int mnpLen = rand.nextInt(MAX_MNP_LEN) + 2;
 				int maxMnpLen = chromoSequence.length() - pos;
