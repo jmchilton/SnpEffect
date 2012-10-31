@@ -38,6 +38,7 @@ public class Transcript extends IntervalAndSubIntervals<Exon> {
 	ArrayList<SpliceSiteBranch> spliceBranchSites; // Branch splice sites
 	ArrayList<Utr> utrs; // UTRs
 	ArrayList<Cds> cdss; // CDS information
+	ArrayList<Intron> introns; // Intron markers
 	Upstream upstream; // Upstream interval
 	Downstream downstream; // Downstream interval
 	Exon firstCodingExon; // First coding exon. I.e. where transcription start site (TSS) is. 
@@ -573,6 +574,34 @@ public class Transcript extends IntervalAndSubIntervals<Exon> {
 	}
 
 	/**
+	 * Get all introns (lazy init)
+	 * @return
+	 */
+	public ArrayList<Intron> introns() {
+		if (introns == null) {
+			introns = new ArrayList<Intron>();
+
+			Exon exBefore = null;
+			for (Exon ex : sortedStrand()) {
+				if (exBefore != null) {
+					// Create intron
+					Intron intron;
+					int rank = introns.size() + 1;
+
+					if (isStrandPlus()) intron = new Intron(this, exBefore.getEnd() + 1, ex.getStart() - 1, strand, id + "_intron_" + rank);
+					else intron = new Intron(this, ex.getEnd() + 1, exBefore.getStart() - 1, strand, id + "_intron_" + rank);
+					intron.setRank(rank);
+
+					// Add to list
+					introns.add(intron);
+				}
+				exBefore = ex;
+			}
+		}
+		return introns;
+	}
+
+	/**
 	 * Return the intron size for intron number 'intronNum'
 	 * 
 	 * Note: Intron number 'N' is the intron between exon number N and exon number N+1
@@ -766,11 +795,9 @@ public class Transcript extends IntervalAndSubIntervals<Exon> {
 			changeEffectList.addAll(codonChange.calculate());
 		}
 
-		// No exons? => It's intronic region
-		if (changeEffectList.isEmpty()) {
-			changeEffect.set(this, EffectType.INTRON, "");
-			return changeEffect.newList();
-		}
+		// Does it hit an intron?
+		for (Intron intron : introns())
+			if (intron.intersects(seqChange)) changeEffect.set(intron, EffectType.INTRON, "");
 
 		return changeEffectList;
 	}
@@ -881,5 +908,4 @@ public class Transcript extends IntervalAndSubIntervals<Exon> {
 		if (missingUtrs.size() > 0) return addMissingUtrs(missingUtrs, verbose); // Anything left? => There was a missing UTR
 		return false;
 	}
-
 }

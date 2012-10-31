@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 
 import ca.mcgill.mcb.pcingola.util.GprHtml;
 
@@ -20,12 +21,10 @@ public class CountByType implements Serializable {
 	public static final String TOTAL_TYPE = "Total";
 
 	HashMap<String, Long> countByType;
-	HashMap<String, Double> pValueByType;
 	HashMap<String, Double> scoreByType;
 
 	public CountByType() {
 		countByType = new HashMap<String, Long>();
-		pValueByType = new HashMap<String, Double>();
 		scoreByType = new HashMap<String, Double>();
 	}
 
@@ -128,6 +127,10 @@ public class CountByType implements Serializable {
 	 */
 	public void inc(String type, int increment) {
 		inc(countByType, type, increment);
+	}
+
+	public Set<String> keySet() {
+		return countByType.keySet();
 	}
 
 	/**

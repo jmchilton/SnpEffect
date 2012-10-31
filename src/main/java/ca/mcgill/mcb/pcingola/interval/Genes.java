@@ -36,6 +36,46 @@ public class Genes implements Iterable<Gene>, Serializable {
 	}
 
 	/**
+	 * Creates a list of Intergenic regions 
+	 */
+	public List<Intergenic> createIntergenic() {
+		ArrayList<Intergenic> intergenics = new ArrayList<Intergenic>(genesById.size());
+
+		// Create a list of genes sorted by position
+		ArrayList<Gene> genesSorted = new ArrayList<Gene>(genesById.size());
+		genesSorted.addAll(genesById.values());
+		Collections.sort(genesSorted);
+
+		// For each gene, transcript
+		Gene genePrev = null;
+		Chromosome chrPrev = null;
+		for (Gene gene : genesSorted) {
+
+			// Chromosome change? Invaludate genePrev
+			if (chrPrev != gene.getChromosome()) genePrev = null;
+
+			// Intergenic region's [start, end] interval
+			int start = (genePrev != null ? genePrev.getEnd() + 1 : 0);
+			int end = gene.getStart() - 1;
+
+			// Valid intergenic region?
+			if ((genePrev == null) || (start < end)) {
+				String id = (genePrev != null ? genePrev.getGeneName() + "..." : "") + gene.getGeneName();
+				Intergenic intergenic = new Intergenic(gene.getChromosome(), start, end, 1, id);
+				intergenics.add(intergenic);
+			}
+
+			// Is it null or ends before this one? update 'genePrev'
+			if ((genePrev == null) || (gene.getEnd() > genePrev.getEnd())) genePrev = gene;
+
+			// Update chrPrev
+			chrPrev = gene.getChromosome();
+		}
+
+		return intergenics;
+	}
+
+	/**
 	 * Creates a list of UP/DOWN stream regions (for each transcript)
 	 * Upstream (downstream) stream is defined as upDownLength before (after) transcript
 	 * 
@@ -64,22 +104,17 @@ public class Genes implements Iterable<Gene>, Serializable {
 	 * For a definition of splice site, see comments at the beginning of SpliceSite.java
 	 */
 	public Collection<Marker> findSpliceSites(boolean createIfMissing) {
-		HashMap<String, Marker> map = new HashMap<String, Marker>(); // Use a map in order to remove repeated splice sites (different transcripts may have the same exons)
+		ArrayList<Marker> spliceSites = new ArrayList<Marker>();
 
-		// For each gene, transcript and exon
+		// For each gene, transcript
 		for (Gene gene : this) {
 			for (Transcript tr : gene) {
-				List<SpliceSite> slist = tr.findSpliceSites(createIfMissing);
-
-				// Store all markers in hash
-				for (SpliceSite ss : slist) {
-					String key = ss.getClass().getSimpleName() + " " + ss.getChromosomeName() + ":" + ss.getStart() + "-" + ss.getEnd() + "_" + ss.getId();
-					map.put(key, ss);
-				}
+				List<SpliceSite> slist = tr.findSpliceSites(createIfMissing); // Find (or create) splice sites
+				spliceSites.addAll(slist); // Store all markers 
 			}
 		}
 
-		return map.values();
+		return spliceSites;
 	}
 
 	/**

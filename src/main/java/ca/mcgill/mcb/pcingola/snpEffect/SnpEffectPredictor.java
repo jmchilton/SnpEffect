@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import net.sf.samtools.util.RuntimeEOFException;
 import ca.mcgill.mcb.pcingola.interval.Cds;
 import ca.mcgill.mcb.pcingola.interval.Chromosome;
 import ca.mcgill.mcb.pcingola.interval.Exon;
@@ -132,12 +133,16 @@ public class SnpEffectPredictor implements Serializable {
 		// Add to markers to 'markers'
 		//---
 		// Add up-down stream intervals
-		for (Marker m : genome.getGenes().createUpDownStream(upDownStreamLength))
-			add(m);
+		for (Marker upDownStream : genome.getGenes().createUpDownStream(upDownStreamLength))
+			add(upDownStream);
 
 		// Add splice site intervals
-		for (Marker m : genome.getGenes().findSpliceSites(true))
-			add(m);
+		for (Marker spliceSite : genome.getGenes().findSpliceSites(true))
+			add(spliceSite);
+
+		// Intergenic markers
+		for (Intergenic intergenic : genome.getGenes().createIntergenic())
+			add(intergenic);
 
 		intervalForest.add(markers); // Add all 'markers' to forest (includes custom intervals)
 
@@ -175,6 +180,18 @@ public class SnpEffectPredictor implements Serializable {
 	 */
 	public Markers intersects(Marker marker) {
 		return intervalForest.query(marker);
+	}
+
+	/**
+	 * Is the chromosome missing in this marker?
+	 * @param marker
+	 * @return
+	 */
+	boolean isChromosomeMissing(Marker marker) {
+		return !intervalForest.hasTree(marker.getChromosomeName()) // Tree not found?
+				|| (marker.getChromosome() == null) // Chromosome not found?
+				|| (marker.getChromosome().size() <= 1) // Chromosome found, but size is too small?
+		;
 	}
 
 	/**
@@ -228,8 +245,9 @@ public class SnpEffectPredictor implements Serializable {
 	 * @return
 	 */
 	public Set<String> regions(Marker marker, boolean showGeneDetails, boolean compareTemplate, String id) {
+		if (Config.get().isErrorOnMissingChromo() && isChromosomeMissing(marker)) throw new RuntimeEOFException("Chromosome missing for marker: " + marker);
+
 		boolean hitChromo = false;
-		boolean hitGene = false;
 		HashSet<String> hits = new HashSet<String>();
 
 		Markers intersects = intersects(marker);
@@ -242,35 +260,27 @@ public class SnpEffectPredictor implements Serializable {
 				} else if (markerInt instanceof Gene) {
 					// Analyze Genes
 					Gene gene = (Gene) markerInt;
-					hitGene = true;
 					regionsAddHit(hits, gene, marker, showGeneDetails, compareTemplate);
 
 					// For all transcripts...
 					for (Transcript tr : gene) {
 						if ((id == null) || gene.getId().equals(id) || tr.getId().equals(id)) { // Mathes ID? (...or no ID to match)
 
-							if (tr.intersects(marker)) { // Does it intersect this transcript?
-								boolean hitExon = false;
-
+							// Does it intersect this transcript?
+							if (tr.intersects(marker)) {
 								regionsAddHit(hits, tr, marker, showGeneDetails, compareTemplate);
 
+								// Does it intersect a UTR? 
 								for (Utr utr : tr.getUtrs())
-									if (utr.intersects(marker)) {
-										regionsAddHit(hits, utr, marker, showGeneDetails, compareTemplate);
-										hitExon = true;
-									}
+									if (utr.intersects(marker)) regionsAddHit(hits, utr, marker, showGeneDetails, compareTemplate);
 
+								// Does it intersect an exon?
 								for (Exon ex : tr)
-									if (ex.intersects(marker)) { // Does it intersect this UTR? Add 'Exon'
-										regionsAddHit(hits, ex, marker, showGeneDetails, compareTemplate);
-										hitExon = true;
-									}
+									if (ex.intersects(marker)) regionsAddHit(hits, ex, marker, showGeneDetails, compareTemplate);
 
-								// Not in an exon? => Add 'Intron'
-								if (!hitExon) {
-									Intron intron = new Intron(tr, marker.getStart(), marker.getEnd(), tr.getStrand(), "");
-									regionsAddHit(hits, intron, marker, showGeneDetails, compareTemplate);
-								}
+								// Does it intersect an intron?
+								for (Intron intron : tr.introns())
+									if (intron.intersects(marker)) regionsAddHit(hits, intron, marker, showGeneDetails, compareTemplate);
 							}
 						}
 					}
@@ -287,14 +297,12 @@ public class SnpEffectPredictor implements Serializable {
 							Gene gene = (Gene) markerInt.findParent(Gene.class);
 							if ((gene != null) && (gene.getId().equals(id))) regionsAddHit(hits, markerInt, marker, showGeneDetails, compareTemplate); // Gene ID matches => count
 						}
-
 					}
 				}
 			}
 		}
 
 		if (!hitChromo) throw new RuntimeException("ERROR: Out of chromosome range. " + marker);
-		if (!hitGene) hits.add(Intergenic.class.getSimpleName());
 		return hits;
 	}
 
@@ -327,8 +335,9 @@ public class SnpEffectPredictor implements Serializable {
 	 * @return
 	 */
 	public Set<Marker> regionsMarkers(Marker marker) {
+		if (Config.get().isErrorOnMissingChromo() && isChromosomeMissing(marker)) throw new RuntimeEOFException("Chromosome missing for marker: " + marker);
+
 		boolean hitChromo = false;
-		boolean hitGene = false;
 		HashSet<Marker> hits = new HashSet<Marker>();
 
 		Markers intersects = intersects(marker);
@@ -341,32 +350,21 @@ public class SnpEffectPredictor implements Serializable {
 				} else if (markerInt instanceof Gene) {
 					// Analyze Genes
 					Gene gene = (Gene) markerInt;
-					hitGene = true;
 
 					// For all transcripts...
 					for (Transcript tr : gene) {
 
 						if (tr.intersects(marker)) { // Does it intersect this transcript?
-							boolean hitExon = false;
 							hits.add(tr);
 
 							for (Utr utr : tr.getUtrs())
-								if (utr.intersects(marker)) {
-									hits.add(utr);
-									hitExon = true;
-								}
+								if (utr.intersects(marker)) hits.add(utr);
 
 							for (Exon ex : tr)
-								if (ex.intersects(marker)) { // Does it intersect this UTR? Add 'Exon'
-									hits.add(ex);
-									hitExon = true;
-								}
+								if (ex.intersects(marker)) hits.add(ex);
 
-							// Not in an exon? => Add 'Intron'
-							if (!hitExon) {
-								Intron intron = new Intron(tr, marker.getStart(), marker.getEnd(), tr.getStrand(), "");
-								hits.add(intron);
-							}
+							for (Intron intron : tr.introns())
+								if (intron.intersects(marker)) hits.add(intron);
 						}
 					}
 				}
@@ -374,7 +372,6 @@ public class SnpEffectPredictor implements Serializable {
 		}
 
 		if (!hitChromo) throw new RuntimeException("ERROR: Out of chromosome range. " + marker);
-		if (!hitGene) hits.add(new Intergenic(marker.getChromosome(), marker.getStart(), marker.getEnd(), marker.getStrand(), ""));
 		return hits;
 	}
 
@@ -405,8 +402,8 @@ public class SnpEffectPredictor implements Serializable {
 
 		ChangeEffect results = new ChangeEffect(seqChange);
 
-		// Chromosome not found?
-		if (Config.get().isErrorOnMissingChromo() && !intervalForest.hasTree(seqChange.getChromosomeName())) {
+		// Chromosome missing?
+		if (Config.get().isErrorOnMissingChromo() && isChromosomeMissing(seqChange)) {
 			results.addError("ERROR_CHROMOSOME_NOT_FOUND");
 			return results.newList();
 		}
