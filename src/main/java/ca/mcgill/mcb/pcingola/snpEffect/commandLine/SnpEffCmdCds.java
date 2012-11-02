@@ -40,7 +40,7 @@ public class SnpEffCmdCds extends SnpEff {
 
 	public SnpEffCmdCds(Config config) {
 		this.config = config;
-		this.cdsFile = config.getFileNameCds();
+		cdsFile = config.getFileNameCds();
 	}
 
 	public SnpEffCmdCds(String genomeVer, String configFile, String cdsFile) {

@@ -26,6 +26,7 @@ import ca.mcgill.mcb.pcingola.util.GprSeq;
  */
 public abstract class SnpEffPredictorFactoryFeatures extends SnpEffPredictorFactory {
 
+	public static boolean debug = false;
 	public static final int OFFSET = 1;
 	Chromosome chromosome; // It is assumed that there is only one 'Chromosome' (i.e. only one 'SOURCE' feature)
 	FeaturesFile featuresFile;
@@ -70,9 +71,8 @@ public abstract class SnpEffPredictorFactoryFeatures extends SnpEffPredictorFact
 		//---
 		// Add a genes
 		//---
-		for (Feature f : features.getFeatures()) {
+		for (Feature f : features.getFeatures())
 			if (f.getType() == Type.GENE) findOrCreateGene(f, chromosome, false);
-		}
 
 		//---
 		// Add transcripts
@@ -103,17 +103,16 @@ public abstract class SnpEffPredictorFactoryFeatures extends SnpEffPredictorFact
 				int start = f.getStart() - inOffset;
 				int end = f.getEnd() - inOffset;
 
-				// Try to fing transcript
+				// Try to find transcript
 				String trId = getTrId(f);
 
 				Transcript tr = findTranscript(trId);
 				if (tr == null) {
 					// Not found? => Create gene and transcript
 					Gene gene = findOrCreateGene(f, chromosome, false); // Find or create gene
+					if (debug) System.err.println("Transcript '" + trId + "' not found. Creating new transcript for gene '" + gene.getId() + "'.\n" + f);
 
-					if (verbose) System.err.println("WARNING: Transcript '" + trId + "' not found. Creating new transcript for gene '" + gene.getId() + "'.\n" + f);
-
-					trId = "Tr_" + start + "_" + end;
+					// trId = "Tr_" + start + "_" + end;
 					tr = findTranscript(trId);
 					if (tr == null) {
 						tr = new Transcript(gene, start, end, f.isComplement() ? -1 : 1, trId);
@@ -200,7 +199,7 @@ public abstract class SnpEffPredictorFactoryFeatures extends SnpEffPredictorFact
 		if (gene == null) {
 			gene = new Gene(chr, start, end, f.isComplement() ? -1 : 1, geneId, geneName, "");
 			add(gene);
-			if (verbose) System.err.println("WARNING: Gene '" + geneId + "' not found: created.");
+			if (debug) System.err.println("WARNING: Gene '" + geneId + "' not found: created.");
 		}
 
 		return gene;
@@ -252,12 +251,17 @@ public abstract class SnpEffPredictorFactoryFeatures extends SnpEffPredictorFact
 	 * @return
 	 */
 	protected String getTrId(Feature f) {
-		if (f.get("gene") != null) return "Tr_" + f.get("gene");
+		// Try 'locus'...
+		String trId = f.get("locus_tag");
+		if (trId != null) return trId;
 
-		String id = f.get("product");
-		if (id != null) id = id.replaceAll("\\s", "_");
+		trId = f.get("gene");
+		if (trId != null) return "Tr_" + trId;
 
-		return id;
+		trId = f.get("product");
+		if (trId != null) trId = trId.replaceAll("\\s", "_");
+
+		return trId;
 	}
 
 	/**

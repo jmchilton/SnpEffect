@@ -52,6 +52,7 @@ public class SnpEffCmdBuild extends SnpEff {
 		System.out.print("CDS check:\n\t");
 		String cdsFile = config.getFileNameCds();
 		if (Gpr.canRead(cdsFile)) {
+			// Use FASTA format
 			SnpEffCmdCds snpEffCmdCds = new SnpEffCmdCds(config);
 			snpEffCmdCds.setVerbose(verbose);
 			snpEffCmdCds.run();
@@ -64,6 +65,11 @@ public class SnpEffCmdBuild extends SnpEff {
 		String protFile = config.getFileNameProteins();
 		if (Gpr.canRead(protFile)) {
 			SnpEffCmdProtein snpEffCmdProtein = new SnpEffCmdProtein(config);
+			snpEffCmdProtein.setVerbose(verbose);
+			snpEffCmdProtein.run();
+		} else if (geneDatabaseFormat == GeneDatabaseFormat.GENBANK) {
+			// GenBank format
+			SnpEffCmdProtein snpEffCmdProtein = new SnpEffCmdProtein(config, config.getBaseFileNameGenes() + ".gb");
 			snpEffCmdProtein.setVerbose(verbose);
 			snpEffCmdProtein.run();
 		} else System.out.println("\tOptional file '" + protFile + "' not found, nothing done.");
