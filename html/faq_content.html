@@ -41,6 +41,7 @@
 - <a class="body" href="#Why_are_TXT_and_VCF_coordinates_different?"> Why are TXT and VCF coordinates different? </a> <br>
 - <a class="body" href="#counting_effects"> The total number of XXX effects in the summary does not match with the output file </a> <br>
 - <a class="body" href="#gatk"> What is the adecuate output for GATK?  </a> <br>
+- <a class="body" href="#lof"> How it 'loss of function' / 'nonsense-mediated decay' used? </a> <br>
 <p>
 <b> Output summary page </b> <br>
 - <a class="body" href="#Effects_by_type_vs_Effects_by_region"> "Effects by type" vs "Effects by region"? </a> <br>
@@ -61,6 +62,9 @@
 - <a class="body" href="#When_I_run_SnpEff_from_GATK_I_only_get_one_effect!"> When I run SnpEff from GATK I only get one effect! </a> <br>
 - <a class="body" href="#Why_SnpEff_is_reporting_an_effect_that_doesn't_match_ENSEMBL_(web)?"> Why SnpEff is reporting an effect that doesn't match ENSEMBL (web)? </a> <br>
 - <a class="body" href="#Why_is_snpEff_reporting_a_SYNONYMOUS_and_a_NON_SYNONYMOUS_effect_on_te_same_gene?"> Why is snpEff reporting a SYNONYMOUS and a NON_SYNONYMOUS effect on te same gene? </a> </br>
+<p>
+<b> Other utilities </b> <br>
+- <a class="body" href="#countReads"> SnpEff countReads: Counting how many reads / bases from a BAM file hit a gene, transcript, exon, intron, etc. </a> <br>
 <p>
 <b> Troubleshooting </b> <br>
 - <a class="body" href="#I_get_an_OutOfMemoryError"> I get an OutOfMemoryError </a> <br>
@@ -558,6 +562,9 @@ cat output.eff.vcf | cut -f 8 | tr ";" "\n" | grep ^EFF= | cut -f 2 -d = | tr ",
 				The reason is that, even though GATK uses VCF, but sometimes new formats of the 'EFF' info field might cause trouble.
 				This happens when switching from SnpEff v2.X to SnpEff v3.0, since the latest GATK version still uses an older format.<br>
 
+				<p style="font-size: 14pt"> <b> <a class="body" name="lof"> How it 'loss of function' / 'nonsense-mediated decay' used? </a> </b></p>
+				Take a look at <a class="body" href="snpEff_lof_nmd.pdf">these slides </p>
+
 				<hr> <center> <p style="font-size: 16pt"> <b> Output summary page </b></center></p>
 				<p style="font-size: 14pt"> <b> <a class="body" name="Effects_by_type_vs_Effects_by_region"> "Effects by type" vs "Effects by region" </a> </b></p>
 				SnpEff annotates variants. 
@@ -805,6 +812,52 @@ chr5 137622242 . C T . . EFF=NON_SYNONYMOUS_CODING(MODERATE|MISSENSE|Gaa/Aaa|E/K
 </pre>
 
 				in this example (it was devided into multiple lines for ligibility), the first transcript ENST0000051401 has a NON_SYNONYMOUS effect, but all other transcripts have a SYNONYMOUS effect.
+				<p>
+
+				<hr> <center> <p style="font-size: 16pt"> <b> Other utilities </b></center></p>
+				<p style="font-size: 14pt"> <b> <a class="body" name="countReads"> SnpEff countReads: Counting how many reads / bases from a BAM file hit a gene, transcript, exon, intron, etc. </a> </b></p>
+				If you need to count how many reads (and bases) from a BAM file hit each genomic region, you can use 'countReads' utility.<br>
+				The command line is quite simple. E.g. in order to count how many reads reads (from N BAM files) hit regions of the human genome, you simply run: <br>
+<pre>
+java -Xmx4g -jar snpEff.jar countReads GRCh37.68 readsFile_1.bam readsFile_2.bam ...  readsFile_N.bam > countReads.txt 
+</pre>
+				<p>
+				The output is a TXT (tab-separated) file, that looks like this:
+				<p>
+<pre>
+chr  start  end       type                IDs                         Reads:readsFile_1.bam  Bases:readsFile_1.bam  Reads:readsFile_2.bam  Bases:readsFile_2.bam ...
+1    1      11873     Intergenic          DDX11L1                     130                    6631                   50                     2544
+1    1      249250621 Chromosome          1                           2527754                251120400              2969569                328173439
+1    6874   11873     Upstream            NR_046018;DDX11L1           130                    6631                   50                     2544
+1    9362   14361     Downstream          NR_024540;WASH7P            243                    13702                  182                    9279
+1    11874  12227     Exon                exon_1;NR_046018;DDX11L1    4                      116                    2                      102
+1    11874  14408     Gene                DDX11L1                     114                    7121                   135                    6792
+1    11874  14408     Transcript          NR_046018;DDX11L1           114                    7121                   135                    6792
+1    12228  12229     SpliceSiteDonor     exon_1;NR_046018;DDX11L1    3                      6                      0                      0
+1    12228  12612     Intron              intron_1;NR_046018;DDX11L1  13                     649                    0                      0
+1    12611  12612     SpliceSiteAcceptor  exon_2;NR_046018;DDX11L1    0                      0                      0                      0
+1    12613  12721     Exon                exon_2;NR_046018;DDX11L1    3                      24                     1                      51
+1    12722  12723     SpliceSiteDonor     exon_2;NR_046018;DDX11L1    3                      6                      0                      0
+1    12722  13220     Intron              intron_2;NR_046018;DDX11L1  22                     2110                   20                     987
+1    13219  13220     SpliceSiteAcceptor  exon_3;NR_046018;DDX11L1    5                      10                     1                      2
+1    13221  14408     Exon                exon_3;NR_046018;DDX11L1    82                     4222                   113                    5652
+1    14362  14829     Exon                exon_11;NR_024540;WASH7P    37                     1830                   7                      357
+1    14362  29370     Transcript          NR_024540;WASH7P            704                    37262                  524                    34377
+1    14362  29370     Gene                WASH7P                      704                    37262                  524                    34377
+1    14409  19408     Downstream          NR_046018;DDX11L1           122                    7633                   39                     4254
+</pre>
+
+				The columns are:
+				<ul>
+					<li> Column 1: Chromosome name
+					<li> Column 2: Genomic region start
+					<li> Column 3: Genomic region end
+					<li> Column 4: Genomic region type (e.g. Exon, Gene, SpliceSiteDonor, etc.)
+					<li> Column 5: ID (e.g. exon ID ; transcript ID; gene ID)
+					<li> Column 6: Count of reads (in file readsFile_1.bam) intersecting genomic region.
+					<li> Column 7: Count of bases (in file readsFile_1.bam) intersecting genomic region, i.e. each read is intersected and the resulting number of bases added.
+					<li> Column ...:  (repeat count reads and bases for each BAM file provided)
+				</ul>
 
 				<hr> <center> <p style="font-size: 16pt"> <b> Troubleshooting </b></center></p>
 

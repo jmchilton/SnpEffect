@@ -7,7 +7,7 @@
 #                                      Pablo Cingolani 2010
 #------------------------------------------------------------------------------
 
-VERSION="3_0"
+VERSION="3_1"
 VERSION_REV=$VERSION""
 DIR=$HOME/snpEff_$VERSION_REV
 rm -rvf $DIR
@@ -28,11 +28,8 @@ rm -f $ZIP 2> /dev/null
 zip -r $ZIP snpEff_$VERSION_REV
 cd -
 
-echo "FORCED PREMATURE EXIT"
-exit;
-
 # Create ZIP file for each database
-for d in `ls data/grape*/snpEffectPredictor.bin`
+for d in `ls data/*/snpEffectPredictor.bin`
 do
 	DIR=`dirname $d`
 	GEN=`basename $DIR`
