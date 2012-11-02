@@ -1,4 +1,4 @@
-hg37.61
+testHg37.61
 Y	0-59373565 CHROMOSOME 'Y'
 Y:20137898-20139674, strand:1, id:ENSG00000182415, name:CDY2A, bioType:mRNA
 Transcipts:

@@ -1,4 +1,4 @@
-hg37.61
+testHg37.61
 Y	0-59373565 CHROMOSOME 'Y'
 Y:15360258-15592552, strand:-1, id:ENSG00000183878, name:UTY, bioType:mRNA
 Transcipts:

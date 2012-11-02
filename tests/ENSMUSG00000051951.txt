@@ -1,5 +1,4 @@
-
-mm37.61
+testMm37.61
 1	0-3661578 CHROMOSOME '1'
 1:3195981-3661578, strand:-1, id:ENSMUSG00000051951, name:Xkr4, bioType:mRNA
 Transcipts:

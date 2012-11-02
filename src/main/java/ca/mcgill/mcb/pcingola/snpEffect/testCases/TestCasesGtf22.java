@@ -85,7 +85,7 @@ public class TestCasesGtf22 extends TestCase {
 	}
 
 	public void testCaseHg37_61_ENST00000250838() {
-		String genome = "hg37.61";
+		String genome = "testHg37.61";
 		String gtfFile = "tests/ENST00000250838.gtf";
 		String fastaFile = "tests/chrY.fa.gz";
 		String resultFile = "tests/ENST00000250838.txt";
@@ -93,7 +93,7 @@ public class TestCasesGtf22 extends TestCase {
 	}
 
 	public void testCaseHg37_61_ENST00000331397() {
-		String genome = "hg37.61";
+		String genome = "testHg37.61";
 		String gtfFile = "tests/ENST00000331397.gtf22";
 		String fastaFile = "tests/chrY.fa.gz";
 		String resultFile = "tests/ENST00000331397.txt";
@@ -101,7 +101,7 @@ public class TestCasesGtf22 extends TestCase {
 	}
 
 	public void testCaseMm37_61_ENSMUSG00000051951() {
-		String genome = "mm37.61";
+		String genome = "testMm37.61";
 		String gtfFile = "tests/ENSMUSG00000051951.gtf";
 		String resultFile = "tests/ENSMUSG00000051951.txt";
 		buildAndCompare(genome, gtfFile, null, resultFile);

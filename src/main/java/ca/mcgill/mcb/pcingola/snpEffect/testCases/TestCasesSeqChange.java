@@ -403,7 +403,7 @@ public class TestCasesSeqChange extends TestCase {
 		// Build snpEffect
 		//---
 		String gtfFile = "tests/ENSMUSG00000005763.gtf";
-		String genome = "mm37.61";
+		String genome = "testMm37.61";
 		int inOffset = 1;
 
 		config = new Config(genome, Config.DEFAULT_CONFIG_FILE);
