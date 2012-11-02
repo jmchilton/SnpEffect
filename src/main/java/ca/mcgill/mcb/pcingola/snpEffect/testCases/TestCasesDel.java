@@ -285,6 +285,7 @@ public class TestCasesDel extends TestCase {
 
 						if (eff.getEffectType() == EffectType.SPLICE_SITE_ACCEPTOR) copy = false;
 						if (eff.getEffectType() == EffectType.SPLICE_SITE_DONOR) copy = false;
+						if (eff.getEffectType() == EffectType.INTRON) copy = false;
 
 						if (copy) effects.add(eff);
 					}

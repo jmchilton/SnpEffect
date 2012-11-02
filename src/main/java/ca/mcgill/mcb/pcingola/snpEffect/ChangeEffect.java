@@ -7,6 +7,7 @@ import ca.mcgill.mcb.pcingola.codons.CodonTable;
 import ca.mcgill.mcb.pcingola.interval.Custom;
 import ca.mcgill.mcb.pcingola.interval.Exon;
 import ca.mcgill.mcb.pcingola.interval.Gene;
+import ca.mcgill.mcb.pcingola.interval.Intron;
 import ca.mcgill.mcb.pcingola.interval.Marker;
 import ca.mcgill.mcb.pcingola.interval.Regulation;
 import ca.mcgill.mcb.pcingola.interval.SeqChange;
@@ -448,6 +449,18 @@ public class ChangeEffect implements Cloneable, Comparable<ChangeEffect> {
 		default:
 			throw new RuntimeException("Unknown gene region for effect type: '" + effectType + "'");
 		}
+	}
+
+	/**
+	 * Get intron (if any)
+	 * @return
+	 */
+	public Intron getIntron() {
+		if (marker != null) {
+			if (marker instanceof Intron) return (Intron) marker;
+			return (Intron) marker.findParent(Intron.class);
+		}
+		return null;
 	}
 
 	public Marker getMarker() {

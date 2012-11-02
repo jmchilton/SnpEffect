@@ -9,6 +9,7 @@ import ca.mcgill.mcb.pcingola.fileIterator.VcfFileIterator;
 import ca.mcgill.mcb.pcingola.interval.Exon;
 import ca.mcgill.mcb.pcingola.interval.Gene;
 import ca.mcgill.mcb.pcingola.interval.Genome;
+import ca.mcgill.mcb.pcingola.interval.Intron;
 import ca.mcgill.mcb.pcingola.interval.Marker;
 import ca.mcgill.mcb.pcingola.interval.Regulation;
 import ca.mcgill.mcb.pcingola.interval.Transcript;
@@ -153,9 +154,17 @@ public class VcfOutputFormatter extends OutputFormatter {
 				if (tr != null) effBuff.append(tr.getId());
 				effBuff.append("|");
 
-				// Add exon info
+				// Add exon (or intron) rank info
 				Exon ex = changeEffect.getExon();
-				if (ex != null) effBuff.append(ex.getRank());
+				int rank = -1;
+				if (ex != null) rank = ex.getRank();
+				else {
+					// Do we have an intron?
+					Intron intron = changeEffect.getIntron();
+					if (intron != null) rank = intron.getRank();
+				}
+
+				effBuff.append(rank >= 0 ? rank : "");
 
 				// Errors or warnings (this is the last thing in the list)
 				if (!changeEffect.getWarning().isEmpty()) effBuff.append("|" + changeEffect.getWarning());
@@ -174,6 +183,9 @@ public class VcfOutputFormatter extends OutputFormatter {
 						sb.append("VCF Entry   :\t" + vcfEntry + "\n");
 						sb.append("REPEAT (VCF):\t" + effBuff + "\n");
 						sb.append("REPEAT (TXT):\t" + changeEffect + "\n");
+						sb.append("All    (VCF):\n");
+						for (String ce : effs)
+							sb.append("\t" + ce + "\n");
 						sb.append("All    (TXT):\n");
 						for (ChangeEffect ce : changeEffects)
 							sb.append("\t" + ce + "\n");

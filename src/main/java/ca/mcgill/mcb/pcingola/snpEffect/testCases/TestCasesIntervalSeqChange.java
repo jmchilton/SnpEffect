@@ -10,6 +10,7 @@ import ca.mcgill.mcb.pcingola.interval.Chromosome;
 import ca.mcgill.mcb.pcingola.interval.Exon;
 import ca.mcgill.mcb.pcingola.interval.Gene;
 import ca.mcgill.mcb.pcingola.interval.Genome;
+import ca.mcgill.mcb.pcingola.interval.Intron;
 import ca.mcgill.mcb.pcingola.interval.SeqChange;
 import ca.mcgill.mcb.pcingola.interval.Transcript;
 import ca.mcgill.mcb.pcingola.snpEffect.ChangeEffect;
@@ -112,21 +113,24 @@ public class TestCasesIntervalSeqChange extends TestCase {
 				//---
 				// Expected Effect
 				//---
-				String expectedEffect = "INTERGENIC";
+				String expectedEffect = null;
 				if (transcript.intersects(seqChange)) {
 					// Does it intersect any exon?
 					for (Exon ex : transcript)
 						if (ex.intersects(seqChange)) expectedEffect = "EXON";
 
-					// Not an exon? => intron
-					if (!expectedEffect.equals("EXON")) expectedEffect = "INTRON";
-				}
+					for (Intron intron : transcript.introns())
+						if (intron.intersects(seqChange)) expectedEffect = "INTRON";
+
+					// Neither exon not intron? => Intragenic
+					if (expectedEffect == null) expectedEffect = "INTRAGENIC";
+				} else expectedEffect = "INTERGENIC";
 
 				//---
 				// Calculate effects
 				//---
 
-				// COpy only some effect (other effects are not tested)
+				// Copy only some effect (other effects are not tested)
 				List<ChangeEffect> effectsAll = snpEffectPredictor.seqChangeEffect(seqChange);
 				List<ChangeEffect> effects = new ArrayList<ChangeEffect>();
 				for (ChangeEffect eff : effectsAll) {
@@ -148,11 +152,21 @@ public class TestCasesIntervalSeqChange extends TestCase {
 
 				//---
 				// Check effect
-				//---
-				ChangeEffect effect = effects.get(0);
-				String effStr = effect.effect(true, true, true);
-				if (debug) System.out.println("\t" + seqChange + "\t\tEffect: " + effStr);
-				Assert.assertEquals(expectedEffect, effStr);
+				//---		
+				boolean isExpectedOK = false;
+				StringBuilder effSb = new StringBuilder();
+				for (ChangeEffect effect : effects) {
+					String effstr = effect.effect(true, true, true);
+					isExpectedOK |= effstr.equals(expectedEffect);
+					effSb.append(effstr + " ");
+
+				}
+				if (debug) System.out.println("SeqChange: " + seqChange //
+						+ "\nExpected Effect :\t" + expectedEffect //
+						+ "\nEffects         :\t" + effSb //
+						+ "\n--------------------------------------------------------------\n" //
+				);
+				Assert.assertEquals(true, isExpectedOK);
 			}
 		}
 	}

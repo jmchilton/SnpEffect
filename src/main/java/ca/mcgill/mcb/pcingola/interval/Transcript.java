@@ -754,6 +754,14 @@ public class Transcript extends IntervalAndSubIntervals<Exon> {
 			}
 		if (included) return changeEffectList; // SeqChange fully included in the Branch site? => We are done.
 
+		// Does it hit an intron?
+		for (Intron intron : introns())
+			if (intron.intersects(seqChange)) {
+				ChangeEffect cheff = changeEffect.clone();
+				cheff.set(intron, EffectType.INTRON, "");
+				changeEffectList.add(cheff);
+			}
+
 		//---
 		// Analyze non-coding transcripts (or 'interval' seqChanges)
 		//---
@@ -769,12 +777,12 @@ public class Transcript extends IntervalAndSubIntervals<Exon> {
 					}
 				}
 
-				// Did not hit an exon or a UTR? => Must hit an intron
-				if (changeEffectList.isEmpty()) {
-					ChangeEffect cheff = changeEffect.clone();
-					cheff.set(this, EffectType.INTRON, "");
-					changeEffectList.add(cheff);
-				}
+				//				// Did not hit an exon or a UTR? => Must hit an intron
+				//				if (changeEffectList.isEmpty()) {
+				//					ChangeEffect cheff = changeEffect.clone();
+				//					cheff.set(this, EffectType.INTRON, "");
+				//					changeEffectList.add(cheff);
+				//				}
 			} else {
 				// No exons annotated? Just mark it as hitting a transcript
 				ChangeEffect cheff = changeEffect.clone();
@@ -794,14 +802,6 @@ public class Transcript extends IntervalAndSubIntervals<Exon> {
 			CodonChange codonChange = new CodonChange(seqChange, this, changeEffect);
 			changeEffectList.addAll(codonChange.calculate());
 		}
-
-		// Does it hit an intron?
-		for (Intron intron : introns())
-			if (intron.intersects(seqChange)) {
-				ChangeEffect cheff = changeEffect.clone();
-				cheff.set(intron, EffectType.INTRON, "");
-				changeEffectList.add(cheff);
-			}
 
 		return changeEffectList;
 	}
