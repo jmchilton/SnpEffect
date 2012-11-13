@@ -209,14 +209,14 @@ public class SnpEffectPredictor implements Serializable {
 	 * Dump to sdtout
 	 */
 	public void print() {
-		genome.showStats();
+		System.out.println(genome);
 
-		// Show genome
-		System.out.println("Genome: " + genome.getVersion());
-
-		// Show chromosomes
-		for (Chromosome chr : genome)
-			System.out.println("Chromosome: \t" + chr.getId() + "\t" + chr.getStart() + "\t" + chr.getEnd());
+		//		// Show genome
+		//		System.out.println("Genome: " + genome.getVersion());
+		//
+		//		// Show chromosomes
+		//		for (Chromosome chr : genome)
+		//			System.out.println("Chromosome: \t" + chr.getId() + "\t" + chr.getStart() + "\t" + chr.getEnd());
 
 		// Show genes
 		for (Gene gene : genome.getGenes().sorted())

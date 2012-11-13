@@ -128,7 +128,7 @@ public class SnpEffPredictorFactoryRefSeq extends SnpEffPredictorFactory {
 		finishUp(false); // Perform adjustments
 
 		// Check that exons have sequences
-		boolean error = config.getGenome().showStats();
+		boolean error = config.getGenome().isMostExonsHaveSequence();
 		System.out.println("# Ignored transcripts        : " + ignoredTr);
 		if (error && readSequences) throw new RuntimeException("Most Exons do not have sequences!");
 

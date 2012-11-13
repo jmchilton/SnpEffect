@@ -167,6 +167,28 @@ public class Genome extends Marker implements Serializable, Iterable<Chromosome>
 		return chromosomes.values();
 	}
 
+	/**
+	 * Return chromosomes sorted by size (largest chromosomes first)
+	 * @return
+	 */
+	public List<Chromosome> getChromosomesSortedSize() {
+		ArrayList<Chromosome> chrs = new ArrayList<Chromosome>();
+		chrs.addAll(chromosomes.values());
+
+		// Sort by size (and then by name)
+		Collections.sort(chrs, new Comparator<Chromosome>() {
+
+			@Override
+			public int compare(Chromosome chr1, Chromosome chr2) {
+				int cmp = chr2.size() - chr1.size();
+				if (cmp != 0) return cmp;
+				return chr1.getId().compareTo(chr2.getId());
+			}
+		});
+
+		return chrs;
+	}
+
 	public String getFastaDir() {
 		return fastaDir;
 	}
@@ -255,6 +277,25 @@ public class Genome extends Marker implements Serializable, Iterable<Chromosome>
 		}
 
 		return codingInfo;
+	}
+
+	/**
+	 * Do most exons have sequence?
+	 * This is an indicator that something went really bad building the database.
+	 * 
+	 * @return Check if most exons have sequence assigned.
+	 */
+	public boolean isMostExonsHaveSequence() {
+		int exonSeq = 0, exonNoSeq = 0;
+
+		// For each gene, transcript and exon, count the ones having sequences
+		for (Gene g : getGenes())
+			for (Transcript tr : g)
+				for (Exon e : tr)
+					if (e.getSequence().isEmpty()) exonNoSeq++;
+					else exonSeq++;
+
+		return exonSeq < exonNoSeq;
 	}
 
 	@Override
@@ -362,7 +403,10 @@ public class Genome extends Marker implements Serializable, Iterable<Chromosome>
 	 * Show number of genes, transcripts & exons 
 	 * @return true : If there is an error condition (most exons do not have sequences)
 	 */
-	public boolean showStats() {
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+
 		int exonSeq = 0, exonNoSeq = 0;
 		int countGenes = 0, countGenesProteinCoding = 0;
 		int countTranscripts = 0, countTranscriptsProteinCoding = 0;
@@ -394,40 +438,50 @@ public class Genome extends Marker implements Serializable, Iterable<Chromosome>
 		// Show summary
 		double avgTrPerGene = countTranscripts / ((double) countGenes);
 		double avgExonPerTr = countExons / ((double) countTranscripts);
-		System.out.println("# Has protein coding info    : " + hasCodingInfo());
-		System.out.println("# Genes                      : " + countGenes);
-		System.out.println("# Protein coding genes       : " + countGenesProteinCoding);
-		System.out.println("# Transcripts                : " + countTranscripts);
-		System.out.println(String.format("# Avg. transcripts per gene  : %.2f", avgTrPerGene));
-		System.out.println("# Protein coding transcripts : " + countTranscriptsProteinCoding);
-		System.out.println("# Cds                        : " + countCds);
-		System.out.println("# Exons                      : " + countExons);
-		System.out.println("# Exons with sequence        : " + exonSeq);
-		System.out.println("# Exons without sequence     : " + exonNoSeq);
-		System.out.println(String.format("# Avg. exons per transcript  : %.2f", avgExonPerTr));
-		return exonSeq < exonNoSeq;
-	}
 
-	@Override
-	public String toString() {
-		StringBuilder sb = new StringBuilder(version + ": " + species);
+		sb.append("# Genome name                : '" + species + "'" + "\n");
+		sb.append("# Genome version             : '" + version + "'\n");
+		sb.append("# Has protein coding info    : " + hasCodingInfo() + "\n");
+		sb.append("# Genes                      : " + countGenes + "\n");
+		sb.append("# Protein coding genes       : " + countGenesProteinCoding + "\n");
+		sb.append("# Transcripts                : " + countTranscripts + "\n");
+		sb.append(String.format("# Avg. transcripts per gene  : %.2f", avgTrPerGene) + "\n");
+		sb.append("# Protein coding transcripts : " + countTranscriptsProteinCoding + "\n");
+		sb.append("# Cds                        : " + countCds + "\n");
+		sb.append("# Exons                      : " + countExons + "\n");
+		sb.append("# Exons with sequence        : " + exonSeq + "\n");
+		sb.append("# Exons without sequence     : " + exonNoSeq + "\n");
+		sb.append(String.format("# Avg. exons per transcript  : %.2f", avgExonPerTr) + "\n");
 
-		if (chromosomeNames.size() > 0) {
-			sb.append("\n\tChromosomes: ");
-			for (String chr : chromosomeNames)
-				sb.append(chr + " ");
-			sb.append("\n");
-		}
-
-		if ((chromoFastaFiles != null) && (chromoFastaFiles.length > 0)) {
-			sb.append("\tFasta files: ");
-			for (String ff : chromoFastaFiles)
-				sb.append(fastaDir + "/" + ff + " ");
-
-			sb.append("\n");
-		}
+		// Show chromosomes info
+		sb.append("# Number of chromosomes      : " + getChromosomes().size() + "\n");
+		sb.append("# Chromosomes names [sizes]  : ");
+		for (Chromosome chr : getChromosomesSortedSize())
+			sb.append("'" + chr.getId() + "' [" + chr.size() + "]\t");
 
 		return sb.toString();
 	}
+
+	//	@Override
+	//	public String toString() {
+	//		StringBuilder sb = new StringBuilder(version + ": " + species);
+	//
+	//		if (chromosomeNames.size() > 0) {
+	//			sb.append("\n\tChromosomes: ");
+	//			for (String chr : chromosomeNames)
+	//				sb.append(chr + " ");
+	//			sb.append("\n");
+	//		}
+	//
+	//		if ((chromoFastaFiles != null) && (chromoFastaFiles.length > 0)) {
+	//			sb.append("\tFasta files: ");
+	//			for (String ff : chromoFastaFiles)
+	//				sb.append(fastaDir + "/" + ff + " ");
+	//
+	//			sb.append("\n");
+	//		}
+	//
+	//		return sb.toString();
+	//	}
 
 }

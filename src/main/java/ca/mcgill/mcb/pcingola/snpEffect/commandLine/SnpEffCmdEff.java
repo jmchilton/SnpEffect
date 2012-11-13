@@ -664,6 +664,9 @@ public class SnpEffCmdEff extends SnpEff {
 		config.getSnpEffectPredictor().buildForest();
 		if (verbose) Timer.showStdErr("done.");
 
+		// Show some genome stats. Chromosome names are shown, a lot of people has problems with the correct chromosome names.
+		if (verbose) Timer.showStdErr("Genome stats :\n" + config.getGenome());
+
 		// Store VCF results in a list?
 		if (createList) vcfEntriesDebug = new ArrayList<VcfEntry>();
 
