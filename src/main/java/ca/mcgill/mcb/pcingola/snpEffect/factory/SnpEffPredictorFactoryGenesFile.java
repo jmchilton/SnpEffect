@@ -40,6 +40,7 @@ public class SnpEffPredictorFactoryGenesFile extends SnpEffPredictorFactory {
 		finishUp(false); // Perform adjustments
 
 		// Check that exons have sequences
+		System.out.println(config.getGenome());
 		boolean error = config.getGenome().isMostExonsHaveSequence();
 		if (error) throw new RuntimeException("Most Exons do not have sequences!");
 

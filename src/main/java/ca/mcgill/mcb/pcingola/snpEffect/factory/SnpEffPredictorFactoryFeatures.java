@@ -171,6 +171,7 @@ public abstract class SnpEffPredictorFactoryFeatures extends SnpEffPredictorFact
 			finishUp(false);
 
 			// Check that exons have sequences
+			System.out.println(config.getGenome());
 			boolean error = config.getGenome().isMostExonsHaveSequence();
 			if (error) throw new RuntimeException("Most Exons do not have sequences!");
 		} catch (Exception e) {
