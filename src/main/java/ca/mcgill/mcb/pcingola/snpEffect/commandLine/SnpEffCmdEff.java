@@ -591,7 +591,7 @@ public class SnpEffCmdEff extends SnpEff {
 			config.setErrorChromoHit(false); // A chromosome's length might be smaller than the real (it's calculated using regulation features, not real chromo data)
 		} else {
 			// Read
-			if (verbose) Timer.showStdErr("Reading database for genome '" + genomeVer + "' (this might take a while)");
+			if (verbose) Timer.showStdErr("Reading database for genome version '" + genomeVer + "' from file '" + config.getFileSnpEffectPredictor() + "' (this might take a while)");
 			config.loadSnpEffectPredictor(); // Read snpEffect predictor
 			if (verbose) Timer.showStdErr("done");
 		}
