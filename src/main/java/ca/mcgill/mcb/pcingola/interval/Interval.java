@@ -10,7 +10,7 @@ import java.io.Serializable;
  * 
  * @author pcingola
  */
-public class Interval implements Comparable<Interval>, Serializable {
+public class Interval implements Comparable<Interval>, Serializable, Cloneable {
 
 	private static final long serialVersionUID = -3547434510230920403L;
 
@@ -35,6 +35,15 @@ public class Interval implements Comparable<Interval>, Serializable {
 		this.id = id;
 		this.strand = (byte) strand;
 		this.parent = parent;
+	}
+
+	@Override
+	public Interval clone() {
+		try {
+			return (Interval) super.clone();
+		} catch (CloneNotSupportedException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	/**

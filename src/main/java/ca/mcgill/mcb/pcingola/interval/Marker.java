@@ -53,6 +53,11 @@ public class Marker extends Interval {
 		end = Math.max(end, child.getEnd());
 	}
 
+	@Override
+	public Marker clone() {
+		return (Marker) super.clone();
+	}
+
 	/**
 	 * Get a suitable codon table
 	 * @return

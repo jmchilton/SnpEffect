@@ -36,6 +36,7 @@ public class TestSuiteAll {
 
 		// Intervals
 		suite.addTestSuite(TestCasesIntervals.class);
+		suite.addTestSuite(TestCasesMarkerUtils.class);
 
 		// Codon tables
 		suite.addTestSuite(TestCasesCodonTable.class);

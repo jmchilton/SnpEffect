@@ -60,6 +60,52 @@ public class Markers implements Iterable<Marker>, Serializable {
 	}
 
 	/**
+	 * Collapse adjacent intervals (i.e. intervals separated by a gap of zero length
+	 * E.g.: The markers [1-100] and [101-200] are collapsed into one single marker [1-200]
+	 *  
+	 * @return A set of new markers that can replace the old ones, or the same set if no change is required.
+	 */
+	public Markers collapseZeroGap() {
+		if (size() <= 1) return this; // One marker or less? => Nothing to do
+
+		// Sort markers by start and end
+		Markers sorted = new Markers();
+		sorted.add(this);
+		sort(false, false);
+
+		// Create new set of markers
+		Markers newMarkers = new Markers();
+		Marker markerPrev = null; // Previous marker in the list
+		Marker markerToAdd = null;
+		int countCollapsed = 0;
+		for (Marker m : sorted) {
+			if (markerToAdd == null) markerToAdd = m.clone();
+
+			if (markerPrev != null) {
+				// Find start, end and gap size
+				int start = markerPrev.getEnd() + 1;
+				int end = m.getStart() - 1;
+				int gapSize = end - start + 1;
+
+				if (gapSize <= 0) {
+					countCollapsed++;
+					markerToAdd.setEnd(m.getEnd()); // Set new end for this marker (we are collapsing it with the previous one)
+				} else {
+					newMarkers.add(markerToAdd);
+					markerToAdd = m.clone(); // Get ready for next iteration
+				}
+			}
+			markerPrev = m;
+		}
+		newMarkers.add(markerToAdd);// Add last marker
+
+		// Sanity check
+		if ((size() - countCollapsed) != newMarkers.size()) throw new RuntimeException("Sanitycheck failed. This should never happen!\n\tsize: " + size() + "\n\tcountCollapsed: " + countCollapsed + "\n\tnewMarkers.size : " + newMarkers.size());
+
+		return countCollapsed > 0 ? newMarkers : this; // Did we reduce the marker? => Return new markers
+	}
+
+	/**
 	 * Are all intervals equal?
 	 * @param intervals
 	 * @return
@@ -347,4 +393,5 @@ public class Markers implements Iterable<Marker>, Serializable {
 
 		return unionOfOverlaps;
 	}
+
 }

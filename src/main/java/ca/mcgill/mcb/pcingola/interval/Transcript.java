@@ -10,6 +10,7 @@ import ca.mcgill.mcb.pcingola.snpEffect.ChangeEffect;
 import ca.mcgill.mcb.pcingola.snpEffect.ChangeEffect.EffectType;
 import ca.mcgill.mcb.pcingola.snpEffect.Config;
 import ca.mcgill.mcb.pcingola.stats.ObservedOverExpectedCpG;
+import ca.mcgill.mcb.pcingola.util.Gpr;
 
 /**
  * Codon position
@@ -588,12 +589,28 @@ public class Transcript extends IntervalAndSubIntervals<Exon> {
 					Intron intron;
 					int rank = introns.size() + 1;
 
-					if (isStrandPlus()) intron = new Intron(this, exBefore.getEnd() + 1, ex.getStart() - 1, strand, id + "_intron_" + rank);
-					else intron = new Intron(this, ex.getEnd() + 1, exBefore.getStart() - 1, strand, id + "_intron_" + rank);
-					intron.setRank(rank);
+					// Find intron start and end
+					int start, end;
+					if (isStrandPlus()) {
+						start = exBefore.getEnd() + 1;
+						end = ex.getStart() - 1;
+					} else {
+						start = ex.getEnd() + 1;
+						end = exBefore.getStart() - 1;
+					}
 
-					// Add to list
-					introns.add(intron);
+					//					if (size > 0) {
+					try {
+						intron = new Intron(this, start, end, strand, id + "_intron_" + rank);
+						intron.setRank(rank);
+
+						// Add to list
+						introns.add(intron);
+					} catch (Throwable t) {
+						Gpr.debug("TRANSCRIPT: " + this);
+						t.printStackTrace();
+					}
+					//					}
 				}
 				exBefore = ex;
 			}
