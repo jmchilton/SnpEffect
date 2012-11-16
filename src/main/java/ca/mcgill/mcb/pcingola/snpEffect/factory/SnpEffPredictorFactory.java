@@ -144,11 +144,18 @@ public abstract class SnpEffPredictorFactory {
 							System.err.println("Ignoring exon outside chromosome range (chromo length: " + chrSeq.length() + "). Exon: " + exon);
 							seqsIgnored++;
 						} else {
-							String seq = chrSeq.substring(ssStart, ssEnd).toUpperCase();
-							// Reverse strand? => reverse complement of the sequence
-							if (exon.isStrandMinus()) seq = GprSeq.reverseWc(seq);
-							exon.setSequence(seq);
-							seqsAdded++;
+							try {
+								if (ssEnd < chrSeq.length()) {
+									String seq = chrSeq.substring(ssStart, ssEnd).toUpperCase();
+									// Reverse strand? => reverse complement of the sequence
+									if (exon.isStrandMinus()) seq = GprSeq.reverseWc(seq);
+									exon.setSequence(seq);
+									seqsAdded++;
+								}
+							} catch (Throwable t) {
+								t.printStackTrace();
+								throw new RuntimeException("Error trying to add sequence to exon:\n\tChromosome sequence length: " + chrSeq.length() + "\n\tExon: " + exon);
+							}
 						}
 					}
 				}
@@ -199,6 +206,9 @@ public abstract class SnpEffPredictorFactory {
 
 		// Some annotation formats split exons in two parts (e.g. stop-codon not part of exon in GTF).
 		deleteRedundant();
+
+		// Some annotations introduce zero size introns
+		collapseZeroGap();
 	}
 
 	/**
@@ -209,6 +219,15 @@ public abstract class SnpEffPredictorFactory {
 	void chromoLen(String chromoName, int len) {
 		Chromosome chromo = getOrCreateChromosome(chromoName);
 		chromo.setLength(len);
+	}
+
+	/**
+	 * Collapse exons having zero size introns between them
+	 */
+	protected void collapseZeroGap() {
+		for (Gene gene : genome.getGenes())
+			for (Transcript tr : gene)
+				tr.collapseZeroGap();
 	}
 
 	/**

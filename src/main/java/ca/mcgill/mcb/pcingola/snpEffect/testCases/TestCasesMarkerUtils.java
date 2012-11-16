@@ -1,11 +1,14 @@
 package ca.mcgill.mcb.pcingola.snpEffect.testCases;
 
+import java.util.HashSet;
+import java.util.Map;
 import java.util.Random;
 
 import junit.framework.TestCase;
 import ca.mcgill.mcb.pcingola.interval.Chromosome;
 import ca.mcgill.mcb.pcingola.interval.Genome;
 import ca.mcgill.mcb.pcingola.interval.Marker;
+import ca.mcgill.mcb.pcingola.interval.MarkerUtil;
 import ca.mcgill.mcb.pcingola.interval.Markers;
 import ca.mcgill.mcb.pcingola.util.Gpr;
 import ca.mcgill.mcb.pcingola.util.Tuple;
@@ -88,6 +91,7 @@ public class TestCasesMarkerUtils extends TestCase {
 		StringBuilder sb = new StringBuilder();
 
 		int prevEnd = -1;
+		markers.sort(false, false);
 		for (Marker m : markers) {
 			if (prevEnd >= 0) {
 				for (int i = prevEnd; i < m.getStart(); i++)
@@ -123,13 +127,13 @@ public class TestCasesMarkerUtils extends TestCase {
 
 			// Are generated intervasl OK?
 			if (!mStr.equals(mColOriStr)) {
-				Gpr.debug("Markers : ");
+				System.err.println("Markers : ");
 				for (Marker m : markersOri)
-					Gpr.debug(m);
+					System.err.println(m);
 
-				Gpr.debug("Markers collapsed: ");
+				System.err.println("Markers collapsed: ");
 				for (Marker m : markersCollapsedOri)
-					Gpr.debug(m);
+					System.err.println(m);
 
 				throw new RuntimeException("Error creating markers! Markers and collapsed marker do not match!\n\t" + mStr + "\n\t" + mColOriStr);
 			}
@@ -137,22 +141,29 @@ public class TestCasesMarkerUtils extends TestCase {
 			//---
 			// Compare to Markers.collapseZeroGap
 			//---
-			Markers markersCollapsed = markersOri.collapseZeroGap();
-			String mColStr = markers2string(markersCollapsed);
+
+			// Collapse
+			Map<Marker, Marker> collapse = MarkerUtil.collapseZeroGap(markersOri);
+			// Get unique markers
+			HashSet<Marker> collapsed = new HashSet<Marker>();
+			collapsed.addAll(collapse.values());
+			String mColStr = markers2string((new Markers()).addAll(collapsed)); // Create string 
 
 			// Are generated intervasl OK?
 			if (!mColStr.equals(mStr)) {
-				Gpr.debug("Markers : ");
+				Gpr.debug("Error checing markers! Markers and collapsed marker do not match!\n\t" + mStr + "\n\t" + mColStr);
+
+				System.err.println("Markers : ");
 				for (Marker m : markersOri)
-					Gpr.debug(m);
+					System.err.println(m);
 
-				Gpr.debug("Markers collapsed: ");
-				for (Marker m : markersCollapsed)
-					Gpr.debug(m);
+				System.err.println("Markers collapsed: ");
+				Markers keySorted = (new Markers()).addAll(collapse.keySet()).sort(false, false);
+				for (Marker mkey : keySorted)
+					System.err.println(mkey + "\t->\t" + collapse.get(mkey));
 
-				throw new RuntimeException("Error creating markers! Markers and collapsed marker do not match!\n\t" + mStr + "\n\t" + mColOriStr);
+				throw new RuntimeException("Error checing markers! Markers and collapsed marker do not match!\n\t" + mStr + "\n\t" + mColStr);
 			}
 		}
 	}
-
 }

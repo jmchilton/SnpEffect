@@ -138,6 +138,7 @@ public class Interval implements Comparable<Interval>, Serializable, Cloneable {
 	}
 
 	public void setEnd(int end) {
+		if (end < start) throw new RuntimeException("Trying to set end before start:\n\tstart: " + start + "\n\tend : " + end + "\n\t" + this);
 		this.end = end;
 	}
 

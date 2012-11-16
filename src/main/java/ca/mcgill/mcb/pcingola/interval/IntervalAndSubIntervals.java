@@ -22,7 +22,7 @@ public class IntervalAndSubIntervals<T extends Marker> extends Marker implements
 
 	public IntervalAndSubIntervals() {
 		super();
-		subIntervals = new HashMap<String, T>();
+		reset();
 	}
 
 	public IntervalAndSubIntervals(Marker parent, int start, int end, int strand, String id) {
@@ -36,6 +36,24 @@ public class IntervalAndSubIntervals<T extends Marker> extends Marker implements
 	 */
 	public void add(T t) {
 		if (subIntervals.put(t.getId(), t) != null) throw new RuntimeException(t.getClass().getSimpleName() + " '" + t.getId() + "' is already in " + this.getClass().getSimpleName() + " '" + id + "'");
+	}
+
+	/**
+	 * Add all intervals
+	 * @param ts
+	 */
+	public void addAll(Iterable<T> ts) {
+		for (T t : ts)
+			add(t);
+	}
+
+	/**
+	 * Add all markers
+	 * @param ts
+	 */
+	public void addAll(Markers markers) {
+		for (Marker m : markers)
+			add((T) m);
 	}
 
 	/**
@@ -62,6 +80,13 @@ public class IntervalAndSubIntervals<T extends Marker> extends Marker implements
 	 */
 	public void remove(T t) {
 		subIntervals.remove(t.getId());
+	}
+
+	/**
+	 * Remove all intervals
+	 */
+	public void reset() {
+		subIntervals = new HashMap<String, T>();
 	}
 
 	/**

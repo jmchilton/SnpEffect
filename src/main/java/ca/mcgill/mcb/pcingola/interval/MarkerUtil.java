@@ -3,6 +3,7 @@ package ca.mcgill.mcb.pcingola.interval;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 
 import ca.mcgill.mcb.pcingola.fileIterator.LineFileIterator;
@@ -13,6 +14,52 @@ import ca.mcgill.mcb.pcingola.fileIterator.LineFileIterator;
  * @author pcingola
  */
 public class MarkerUtil {
+
+	/**
+	 * Collapse adjacent intervals (i.e. intervals separated by a gap of zero length
+	 * E.g.: The markers [1-100] and [101-200] are collapsed into one single marker [1-200]
+	 *  
+	 * @return A set of new markers that can replace the old ones, or the same set if no change is required.
+	 */
+	public static Map<Marker, Marker> collapseZeroGap(Markers markersOri) {
+		//		if (markersOri.size() <= 1) return this; // One marker or less? => Nothing to do
+		Map<Marker, Marker> collapse = new HashMap<Marker, Marker>();
+
+		// Sort markers by start and end
+		Markers sorted = new Markers();
+		sorted.add(markersOri);
+		sorted.sort(false, false);
+
+		// Create new set of markers
+		Marker markerPrev = null; // Previous marker in the list
+		Marker markerToAdd = null;
+		int countCollapsed = 0;
+		for (Marker m : sorted) {
+			if (markerToAdd == null) markerToAdd = m.clone();
+
+			if (markerPrev != null) {
+				// Find start, end and gap size
+				int start = markerPrev.getEnd() + 1;
+				int end = m.getStart() - 1;
+				int gapSize = end - start + 1;
+
+				if (gapSize <= 0) {
+					countCollapsed++;
+					if (markerToAdd.getEnd() < m.getEnd()) markerToAdd.setEnd(m.getEnd()); // Set new end for this marker (we are collapsing it with the previous one)
+				} else markerToAdd = m.clone(); // Get ready for next iteration
+
+			}
+			collapse.put(m, markerToAdd);
+			markerPrev = m;
+		}
+
+		// Sanity check
+		HashSet<Marker> collapsed = new HashSet<Marker>();
+		collapsed.addAll(collapse.values());
+		if ((markersOri.size() - countCollapsed) != collapsed.size()) throw new RuntimeException("Sanitycheck failed. This should never happen!\n\tmarkers.size: " + markersOri.size() + "\n\tcountCollapsed: " + countCollapsed + "\n\treplaced.size : " + collapsed.size());
+
+		return collapse;
+	}
 
 	/**
 	 * Read intervals from a file using a simplt TXT format

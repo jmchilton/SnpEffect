@@ -1,6 +1,7 @@
 package ca.mcgill.mcb.pcingola.interval;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -10,7 +11,6 @@ import ca.mcgill.mcb.pcingola.snpEffect.ChangeEffect;
 import ca.mcgill.mcb.pcingola.snpEffect.ChangeEffect.EffectType;
 import ca.mcgill.mcb.pcingola.snpEffect.Config;
 import ca.mcgill.mcb.pcingola.stats.ObservedOverExpectedCpG;
-import ca.mcgill.mcb.pcingola.util.Gpr;
 
 /**
  * Codon position
@@ -339,6 +339,62 @@ public class Transcript extends IntervalAndSubIntervals<Exon> {
 	}
 
 	/**
+	 * Collapses exons having gaps of zero (i.e. exons that followed by other exons).
+	 * Does the same for CDSs.
+	   Does the same for UTRs.
+	 */
+	public void collapseZeroGap() {
+		introns = null; // These need to be recalculated
+
+		//---
+		// Collapse Exons
+		//---
+		Map<Marker, Marker> collapse = MarkerUtil.collapseZeroGap(new Markers().addAll(subintervals())); // Create a map of collapsed exons
+
+		// Replace exons
+		for (Marker exon : collapse.keySet()) {
+			Exon collapsedExon = (Exon) collapse.get(exon);
+
+			// Is this exon to be replaced?
+			if (exon != collapsedExon) {
+				// Replace exon
+				remove((Exon) exon);
+				add(collapsedExon);
+
+				// Change parent exon in UTRs
+				for (Marker m : getUtrs()) {
+					Utr utr = (Utr) m;
+					if (utr.getParent() == exon) utr.setParent(collapsedExon);
+				}
+			}
+		}
+
+		//---
+		// Collapse CDS
+		//---
+		collapse = MarkerUtil.collapseZeroGap(new Markers().addAll(cdss));
+		// Create a set of unique CDSs
+		HashSet<Cds> uniqCollapsedCds = new HashSet<Cds>();
+		for (Marker cds : collapse.values())
+			uniqCollapsedCds.add((Cds) cds);
+		// Re-generate CDSs list
+		cdss = new ArrayList<Cds>();
+		cdss.addAll(uniqCollapsedCds);
+
+		//---
+		// Collapse UTRs
+		//---
+		collapse = MarkerUtil.collapseZeroGap(new Markers().addAll(utrs));
+		// Create a set of unique CDSs
+		HashSet<Utr> uniqCollapsedUtrs = new HashSet<Utr>();
+		for (Marker utr : collapse.values())
+			uniqCollapsedUtrs.add((Utr) utr);
+		// Re-generate CDSs list
+		utrs = new ArrayList<Utr>();
+		utrs.addAll(uniqCollapsedUtrs);
+	}
+
+	/**
 	 * Calculate CpG bias: number of CpG / expected[CpG]
 	 * @return
 	 */
@@ -380,19 +436,19 @@ public class Transcript extends IntervalAndSubIntervals<Exon> {
 	   Does the same for UTRs.
 	 */
 	public void deleteRedundant() {
+		introns = null; // These need to be recalculated
+
 		//---
 		// Delete redundant exons
 		//---
 		Map<Marker, Marker> includedIn = MarkerUtil.redundant(subintervals());
 		for (Marker exon : includedIn.keySet()) {
-			subIntervals.remove(exon.getId());
+			remove((Exon) exon);
 
 			// Change parent exon in UTRs
 			for (Marker m : getUtrs()) {
 				Utr utr = (Utr) m;
-				if (utr.getParent() == exon) {
-					utr.setParent(includedIn.get(exon));
-				}
+				if (utr.getParent() == exon) utr.setParent(includedIn.get(exon));
 			}
 		}
 
@@ -599,18 +655,13 @@ public class Transcript extends IntervalAndSubIntervals<Exon> {
 						end = exBefore.getStart() - 1;
 					}
 
-					//					if (size > 0) {
-					try {
+					int size = end - start + 1;
+					if (size > 0) {
+						// Add intron to list
 						intron = new Intron(this, start, end, strand, id + "_intron_" + rank);
 						intron.setRank(rank);
-
-						// Add to list
 						introns.add(intron);
-					} catch (Throwable t) {
-						Gpr.debug("TRANSCRIPT: " + this);
-						t.printStackTrace();
 					}
-					//					}
 				}
 				exBefore = ex;
 			}

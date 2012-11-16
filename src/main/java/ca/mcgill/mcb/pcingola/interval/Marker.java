@@ -55,7 +55,10 @@ public class Marker extends Interval {
 
 	@Override
 	public Marker clone() {
-		return (Marker) super.clone();
+		Marker m = (Marker) super.clone();
+		if (m.getStart() != start) throw new RuntimeException("Cloned start does not match!");
+		if (m.getEnd() != end) throw new RuntimeException("Cloned end does not match!");
+		return m;
 	}
 
 	/**
