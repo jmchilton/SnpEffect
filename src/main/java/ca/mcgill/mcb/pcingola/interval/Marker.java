@@ -58,6 +58,8 @@ public class Marker extends Interval {
 		Marker m = (Marker) super.clone();
 		if (m.getStart() != start) throw new RuntimeException("Cloned start does not match!");
 		if (m.getEnd() != end) throw new RuntimeException("Cloned end does not match!");
+		if (m.getStrand() != strand) throw new RuntimeException("Cloned strand does not match!");
+		if (m.getParent() != parent) throw new RuntimeException("Cloned parent does not match!");
 		return m;
 	}
 

@@ -23,8 +23,11 @@ import ca.mcgill.mcb.pcingola.util.Gpr;
 public class TestCasesNmd extends TestCase {
 
 	public static boolean debug = false;
+	public static boolean verbose = false;
+	public static int SHOW_EVERY = 10;
 
 	Config config;
+	int countTest = 1;
 
 	public TestCasesNmd() {
 		super();
@@ -36,7 +39,9 @@ public class TestCasesNmd extends TestCase {
 	 * @param tr
 	 */
 	void checkNmd(Gene gene, Transcript tr) {
-		System.err.print("\tTranscript " + tr.getId() + " " + (tr.isStrandPlus() ? '+' : '-') + " :");
+		if (verbose) System.err.print("\tTranscript " + tr.getId() + " " + (tr.isStrandPlus() ? '+' : '-') + " :");
+		else Gpr.showMark(countTest++, SHOW_EVERY);
+
 		int pos = 0;
 		boolean isNmd[] = new boolean[tr.cds().length()];
 		HashSet<Exon> codingExons = new HashSet<Exon>();
@@ -75,7 +80,7 @@ public class TestCasesNmd extends TestCase {
 		}
 
 		// Show string
-		System.err.println(nmdStr);
+		if (verbose) System.err.println(nmdStr);
 		if (debug) System.err.println("\tCoding Exons:" + codingExons.size());
 
 		//---
@@ -112,7 +117,7 @@ public class TestCasesNmd extends TestCase {
 
 		// For each gene, transcript, check that NMD works
 		for (Gene gene : config.getGenome().getGenes()) {
-			System.err.println("NMD test\tGene ID:" + gene.getId());
+			if (verbose) System.err.println("NMD test\tGene ID:" + gene.getId());
 			for (Transcript tr : gene) {
 				if (debug) System.err.println(tr);
 				checkNmd(gene, tr);

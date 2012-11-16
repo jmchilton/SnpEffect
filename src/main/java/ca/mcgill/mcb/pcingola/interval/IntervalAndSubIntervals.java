@@ -51,9 +51,19 @@ public class IntervalAndSubIntervals<T extends Marker> extends Marker implements
 	 * Add all markers
 	 * @param ts
 	 */
+	@SuppressWarnings("unchecked")
 	public void addAll(Markers markers) {
 		for (Marker m : markers)
 			add((T) m);
+	}
+
+	/**
+	 * Is 'id' in the subintervals?
+	 * @param id
+	 * @return
+	 */
+	public boolean containsId(String id) {
+		return subIntervals.containsKey(id);
 	}
 
 	/**
@@ -87,6 +97,7 @@ public class IntervalAndSubIntervals<T extends Marker> extends Marker implements
 	 */
 	public void reset() {
 		subIntervals = new HashMap<String, T>();
+		sorted = sortedStrand = null;
 	}
 
 	/**

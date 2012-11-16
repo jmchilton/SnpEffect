@@ -188,7 +188,6 @@ public abstract class SnpEffPredictorFactory {
 			Integer len = lenByChr.get(chrName);
 			int max = Math.max(gene.getEnd(), (len != null ? len : 0));
 			lenByChr.put(chrName, max);
-			Gpr.debug("CHROMO LEN: " + chrName + "\t\t" + max);
 		}
 
 		// Set length
@@ -225,9 +224,17 @@ public abstract class SnpEffPredictorFactory {
 	 * Collapse exons having zero size introns between them
 	 */
 	protected void collapseZeroGap() {
+		System.out.print("\n\tCollapsing zero length introns (if needed): ");
+
+		int count = 0;
 		for (Gene gene : genome.getGenes())
 			for (Transcript tr : gene)
-				tr.collapseZeroGap();
+				if (tr.collapseZeroGap()) {
+					count++;
+					System.out.print('.');
+				}
+
+		System.out.println("\n\tTotal collapsed transcripts: " + count);
 	}
 
 	/**
@@ -265,9 +272,16 @@ public abstract class SnpEffPredictorFactory {
 	 * This happens mostly in GTF files, where the stop-codon is specified separated from the exon info.
 	 */
 	protected void deleteRedundant() {
+		System.out.print("\n\tDeleting redundant exons (if needed): ");
+		int count = 0;
 		for (Gene gene : genome.getGenes())
 			for (Transcript tr : gene)
-				tr.deleteRedundant();
+				if (tr.deleteRedundant()) {
+					count++;
+					System.out.print('.');
+				}
+
+		System.out.println("\n\tTotal transcripts with deleted exons: " + count);
 	}
 
 	/**
@@ -283,6 +297,8 @@ public abstract class SnpEffPredictorFactory {
 	 */
 	protected void exonsFromCds() {
 		System.out.print("\n\tCreate exons from CDS (if needed): ");
+
+		int count = 0;
 		for (Gene gene : genome.getGenes()) {
 			for (Transcript tr : gene) {
 				// CDS length
@@ -296,10 +312,13 @@ public abstract class SnpEffPredictorFactory {
 					lenExons += ex.size();
 
 				// Cds length larger than exons? => something is missing
-				if (lenCds > lenExons) exonsFromCds(tr);
+				if (lenCds > lenExons) {
+					exonsFromCds(tr);
+					count++;
+				}
 			}
 		}
-		System.out.println("");
+		System.out.println("\n\tTotal created: " + count);
 	}
 
 	/**
@@ -405,7 +424,7 @@ public abstract class SnpEffPredictorFactory {
 
 		// Adjust exons: Most file formats don't have exon rank information.
 		i = 1;
-		System.out.print("\n\tAdjusting exons: ");
+		System.out.print("\n\tRanking exons: ");
 		for (Gene gene : genome.getGenes())
 			for (Transcript tr : gene)
 				if (tr.rankExons()) Gpr.showMark(i++, showEvery);
@@ -415,7 +434,7 @@ public abstract class SnpEffPredictorFactory {
 		utrFromCds(verbose, showEvery);
 
 		// Remove empty chromosomes
-		removeEmptryChromos();
+		removeEmptyChromos();
 
 		// Done
 		System.out.println("");
@@ -494,9 +513,9 @@ public abstract class SnpEffPredictorFactory {
 	}
 
 	/**
-	 * Remove emptry chromosomes
+	 * Remove empty chromosomes
 	 */
-	void removeEmptryChromos() {
+	void removeEmptyChromos() {
 		System.out.println("\n\tRemove empty chromosomes: ");
 		ArrayList<Chromosome> chrToDelete = new ArrayList<Chromosome>();
 		for (Chromosome chr : config.getGenome())
@@ -605,7 +624,7 @@ public abstract class SnpEffPredictorFactory {
 	 * @param msg
 	 */
 	void warning(String msg) {
-		System.err.println("WARNING: " + msg + ". File '" + fileName + "' line " + lineNum + "\t'" + line + "'");
+		if (verbose) System.err.println("WARNING: " + msg + ". File '" + fileName + "' line " + lineNum + "\t'" + line + "'");
 	}
 
 }

@@ -60,6 +60,9 @@ public class SnpEffPredictorFactoryGtf22 extends SnpEffPredictorFactoryGff {
 			add(gene);
 		}
 
+		// Check that they are in the same chromosome
+		if (!gene.getChromosomeName().equals(chromosome.getId())) error("Gene chromosome does not match !" + "\n\tPosition    : " + chromo + ":" + start + "-" + end + "\n\t" + gene);
+
 		// Get (or create) transcript
 		Transcript tr = null;
 		if (!transcriptId.isEmpty()) {
@@ -73,6 +76,9 @@ public class SnpEffPredictorFactoryGtf22 extends SnpEffPredictorFactoryGff {
 
 			if (proteinCoding) tr.setProteinCoding(proteinCoding); // Set protein coding (if available)
 		}
+
+		// Check that they are in the same chromosome
+		if (!tr.getChromosomeName().equals(chromosome.getId())) error("Transcript chromosome does not match !" + "\n\tPosition    : " + chromo + ":" + start + "-" + end + "\n\t" + gene);
 
 		if (is(type, EXON)) {
 			// This can be added in different ways

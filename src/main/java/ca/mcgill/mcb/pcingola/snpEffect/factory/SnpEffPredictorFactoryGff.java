@@ -120,7 +120,7 @@ public abstract class SnpEffPredictorFactoryGff extends SnpEffPredictorFactory {
 				else readExonSequences(); // Read them from FASTA file
 			}
 
-			System.out.println("Total: " + totalSeqsAdded + " sequences added, " + totalSeqsIgnored + " sequences ignored.");
+			System.out.println("\tTotal: " + totalSeqsAdded + " sequences added, " + totalSeqsIgnored + " sequences ignored.");
 
 			// Finish up (fix problems, add missing info, etc.)
 			finishUp(false);
@@ -237,8 +237,7 @@ public abstract class SnpEffPredictorFactoryGff extends SnpEffPredictorFactory {
 				}
 			}
 		} catch (Exception e) {
-			Gpr.debug("Offending line (lineNum: " + lineNum + "): '" + line + "'");
-			throw new RuntimeException(e);
+			error("Offending line (lineNum: " + lineNum + "): '" + line + "'");
 		}
 
 		reader.close();

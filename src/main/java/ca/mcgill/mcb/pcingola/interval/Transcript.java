@@ -1,7 +1,6 @@
 package ca.mcgill.mcb.pcingola.interval;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -343,7 +342,8 @@ public class Transcript extends IntervalAndSubIntervals<Exon> {
 	 * Does the same for CDSs.
 	   Does the same for UTRs.
 	 */
-	public void collapseZeroGap() {
+	public boolean collapseZeroGap() {
+		boolean ret = false;
 		introns = null; // These need to be recalculated
 
 		//---
@@ -357,9 +357,11 @@ public class Transcript extends IntervalAndSubIntervals<Exon> {
 
 			// Is this exon to be replaced?
 			if (exon != collapsedExon) {
+				ret = true;
+
 				// Replace exon
 				remove((Exon) exon);
-				add(collapsedExon);
+				if (!containsId(collapsedExon.getId())) add(collapsedExon); // Add collapsedExon. Make sure we don't add it twice (since many exons can be collapsed into one).
 
 				// Change parent exon in UTRs
 				for (Marker m : getUtrs()) {
@@ -372,26 +374,22 @@ public class Transcript extends IntervalAndSubIntervals<Exon> {
 		//---
 		// Collapse CDS
 		//---
-		collapse = MarkerUtil.collapseZeroGap(new Markers().addAll(cdss));
-		// Create a set of unique CDSs
-		HashSet<Cds> uniqCollapsedCds = new HashSet<Cds>();
-		for (Marker cds : collapse.values())
-			uniqCollapsedCds.add((Cds) cds);
-		// Re-generate CDSs list
-		cdss = new ArrayList<Cds>();
-		cdss.addAll(uniqCollapsedCds);
+		collapse = MarkerUtil.collapseZeroGap(new Markers(cdss));
+		cdss = new ArrayList<Cds>(); // Re-create CDSs list
+		Markers uniqCollapsedCds = new Markers(collapse.values()).unique(); // Create a set of unique CDSs and add them to CDSs list
+		for (Marker cds : uniqCollapsedCds)
+			cdss.add((Cds) cds);
 
 		//---
 		// Collapse UTRs
 		//---
-		collapse = MarkerUtil.collapseZeroGap(new Markers().addAll(utrs));
-		// Create a set of unique CDSs
-		HashSet<Utr> uniqCollapsedUtrs = new HashSet<Utr>();
-		for (Marker utr : collapse.values())
-			uniqCollapsedUtrs.add((Utr) utr);
-		// Re-generate CDSs list
-		utrs = new ArrayList<Utr>();
-		utrs.addAll(uniqCollapsedUtrs);
+		collapse = MarkerUtil.collapseZeroGap(new Markers(utrs));
+		Markers uniqCollapsedUtrs = new Markers(collapse.values()).unique(); // Create a set of unique UTRs, and add them to the list
+		utrs = new ArrayList<Utr>(); // Re-generate UTRs list
+		for (Marker utr : uniqCollapsedUtrs)
+			utrs.add((Utr) utr);
+
+		return ret;
 	}
 
 	/**
@@ -435,7 +433,8 @@ public class Transcript extends IntervalAndSubIntervals<Exon> {
 	 * Does the same for CDSs.
 	   Does the same for UTRs.
 	 */
-	public void deleteRedundant() {
+	public boolean deleteRedundant() {
+		boolean ret = false;
 		introns = null; // These need to be recalculated
 
 		//---
@@ -443,6 +442,7 @@ public class Transcript extends IntervalAndSubIntervals<Exon> {
 		//---
 		Map<Marker, Marker> includedIn = MarkerUtil.redundant(subintervals());
 		for (Marker exon : includedIn.keySet()) {
+			ret = true;
 			remove((Exon) exon);
 
 			// Change parent exon in UTRs
@@ -465,6 +465,8 @@ public class Transcript extends IntervalAndSubIntervals<Exon> {
 		includedIn = MarkerUtil.redundant(utrs);
 		for (Marker utr : includedIn.keySet())
 			utrs.remove(utr);
+
+		return ret;
 	}
 
 	/**
@@ -517,7 +519,10 @@ public class Transcript extends IntervalAndSubIntervals<Exon> {
 
 				// Sanity check
 				int rank = i + 1;
-				if (exon.getRank() != rank) throw new RuntimeException("Rank numbers do not march: " + rank + " != " + exon.getRank());
+				if (exon.getRank() != rank) {
+					String msg = "Rank numbers do not march: " + rank + " != " + exon.getRank() + "\n\tTranscript: " + this;
+					throw new RuntimeException(msg);
+				}
 			}
 		}
 

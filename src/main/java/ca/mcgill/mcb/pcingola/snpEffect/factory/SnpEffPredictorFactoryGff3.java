@@ -76,6 +76,9 @@ public class SnpEffPredictorFactoryGff3 extends SnpEffPredictorFactoryGff {
 			// Update bio-type (if needed)
 			if ((gene.getBioType() == null) || (!gene.getBioType().equals(type))) gene.setBioType(type);
 
+			// Check that they are in the same chromosome
+			if (!gene.getChromosomeName().equals(chromosome.getId())) error("Trying to assign Transcript to a gene in a different chromosome!" + "\n\tPosition    : " + chromo + ":" + start + "-" + end + "\n\t" + gene);
+
 			// Create and add transcript
 			Transcript tr = new Transcript(gene, start, end, strand, id);
 			if (proteinCoding) tr.setProteinCoding(proteinCoding); // Set protein coding (if available)
@@ -121,6 +124,9 @@ public class SnpEffPredictorFactoryGff3 extends SnpEffPredictorFactoryGff {
 					add(tr);
 					warning("Cannot find transcript '" + par + "'. Created transcript '" + tr.getId() + "' and gene '" + gene.getId() + "' for this exon");
 				}
+
+				// Check that they are in the same chromosome
+				if (!tr.getChromosomeName().equals(chromosome.getId())) error("Trying to assign Exon or CDS to a transcript in a different chromosome!" + "\n\tPosition    : " + chromo + ":" + start + "-" + end + "\n\t" + tr);
 
 				// This can be added in different ways
 				if (type.equalsIgnoreCase("exon")) {
