@@ -24,6 +24,7 @@ import ca.mcgill.mcb.pcingola.util.Timer;
  */
 public class SnpEffCmdProtein extends SnpEff {
 
+	public static boolean debug = false;
 	public static boolean onlyOneError = false; // This is used in some test-cases
 	public static double maxErrorPercentage = 0.01; // Maximum allowed error is 1% (otherwise test fails)
 
@@ -105,6 +106,7 @@ public class SnpEffCmdProtein extends SnpEff {
 		if (trId.indexOf(' ') > 0) trId = trId.split("\\s")[0];
 
 		proteinByTrId.put(trId, seq); // Add it to the hash
+		if (debug) Gpr.debug("Adding proteinByTrId{'" + trId + "'} :\t" + seq);
 	}
 
 	/**

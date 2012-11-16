@@ -21,6 +21,7 @@ import ca.mcgill.mcb.pcingola.util.Timer;
  */
 public class SnpEffCmdCds extends SnpEff {
 
+	public static boolean debug = false;
 	public static boolean onlyOneError = false; // This is used in some test-cases
 	public static double maxErrorPercentage = 0.01; // Maximum allowed error is 1% (otherwise test fails)
 
@@ -61,6 +62,7 @@ public class SnpEffCmdCds extends SnpEff {
 			System.err.println("\t\t'+' : OK");
 			System.err.println("\t\t'.' : Missing");
 			System.err.println("\t\t'*' : Error");
+			System.err.print("\t");
 		}
 
 		// Compare all genes
@@ -72,8 +74,12 @@ public class SnpEffCmdCds extends SnpEff {
 
 				if (cdsReference != null) cdsReference = cdsReference.toUpperCase();
 
-				if ((cdsReference == null) || cds.isEmpty()) {
-					if (verbose) System.err.println("\nWARNING:Cannot find CDS for transcript " + tint.getId());
+				if (cdsReference == null) {
+					if (verbose) System.err.println("\nWARNING:Cannot find reference CDS for transcript '" + tint.getId() + "'");
+					else System.out.print('.');
+					totalNotFound++;
+				} else if (cds.isEmpty()) {
+					if (verbose) System.err.println("\nWARNING:Empty CDS for transcript '" + tint.getId() + "'");
 					else System.out.print('.');
 					totalNotFound++;
 				} else if (cds.equals(cdsReference)) {
@@ -205,6 +211,7 @@ public class SnpEffCmdCds extends SnpEff {
 			if ((cdsByTrId.get(trId) != null) && (!cdsByTrId.get(trId).equals(seq))) System.err.println("ERROR: Different CDS for the same transcript ID. This should never happen!!!\n\tLine number: " + ffi.getLineNum() + "\n\tTranscript ID:\t" + trId + "\n\tCDS:\t\t" + cdsByTrId.get(trId) + "\n\tCDS (new):\t" + seq);
 
 			cdsByTrId.put(trId, seq); // Add it to the hash
+			if (debug) Gpr.debug("Adding cdsByTrId{'" + trId + "'} :\t" + seq);
 		}
 	}
 
