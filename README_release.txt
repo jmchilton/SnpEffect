@@ -43,8 +43,8 @@ Check that databases have been built correctly:
 - Upload to sourceforge
 		
 		# Core program
-		scp snpEff_v3_1_core.zip pcingola,snpeff@frs.sourceforge.net:/home/frs/project/s/sn/snpeff/
 		scp snpEff_v3_1_core.zip pcingola,snpeff@frs.sourceforge.net:/home/frs/project/s/sn/snpeff/snpEff_latest_core.zip
+		scp snpEff_v3_1_core.zip pcingola,snpeff@frs.sourceforge.net:/home/frs/project/s/sn/snpeff/
 				
 		# Individual databases
 		scp snpEff_v3_1_*.zip pcingola,snpeff@frs.sourceforge.net:/home/frs/project/s/sn/snpeff/databases/v3_1/
