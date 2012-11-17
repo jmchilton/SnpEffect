@@ -13,7 +13,7 @@ cd download
 # wget -r -A "*gtf.gz" "ftp://ftp.ensembl.org/pub/release-$RELEASE/gtf/"
 # 
 # # Download FASTA files (reference genomes)
-# wget -r -A "*toplevel.fa.gz" "ftp://ftp.ensembl.org/pub/release-$RELEASE/fasta/"
+# wget -r -A "*dna.toplevel.fa.gz" "ftp://ftp.ensembl.org/pub/release-$RELEASE/fasta/"
 # 
 # # Download CDS sequences
 # wget -r -A "*cdna.all.fa.gz" "ftp://ftp.ensembl.org/pub/release-$RELEASE/fasta/"
