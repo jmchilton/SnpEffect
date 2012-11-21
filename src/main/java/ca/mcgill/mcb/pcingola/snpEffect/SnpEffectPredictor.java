@@ -188,10 +188,22 @@ public class SnpEffectPredictor implements Serializable {
 	 * @return
 	 */
 	boolean isChromosomeMissing(Marker marker) {
-		return !intervalForest.hasTree(marker.getChromosomeName()) // Tree not found?
-				|| (marker.getChromosome() == null) // Chromosome not found?
-				|| (marker.getChromosome().size() <= 1) // Chromosome found, but size is too small?
-		;
+		// Missing chromosome in marker?
+		if (marker.getChromosome() == null) return true;
+
+		// Missing chromosome in genome?
+		String chrName = marker.getChromosomeName();
+		Chromosome chr = genome.getChromosome(chrName);
+		if (chr == null) return true;
+
+		// Chromosome length is 1 or less?
+		if (chr.size() < 1) return true;
+
+		// Tree not found in interval forest?
+		if (!intervalForest.hasTree(chrName)) return true;
+
+		// OK, we have the chromosome
+		return false;
 	}
 
 	/**
@@ -210,13 +222,6 @@ public class SnpEffectPredictor implements Serializable {
 	 */
 	public void print() {
 		System.out.println(genome);
-
-		//		// Show genome
-		//		System.out.println("Genome: " + genome.getVersion());
-		//
-		//		// Show chromosomes
-		//		for (Chromosome chr : genome)
-		//			System.out.println("Chromosome: \t" + chr.getId() + "\t" + chr.getStart() + "\t" + chr.getEnd());
 
 		// Show genes
 		for (Gene gene : genome.getGenes().sorted())

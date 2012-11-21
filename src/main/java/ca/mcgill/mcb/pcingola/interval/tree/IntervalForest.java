@@ -88,8 +88,8 @@ public class IntervalForest implements Serializable, Iterable<IntervalTree> {
 	 * @param chromo
 	 * @return
 	 */
-	public boolean hasTree(String chromo) {
-		chromo = Chromosome.simpleName(chromo);
+	public boolean hasTree(String chromoOri) {
+		String chromo = Chromosome.simpleName(chromoOri);
 		IntervalTree intervalTree = forest.get(chromo);
 		return intervalTree != null;
 	}

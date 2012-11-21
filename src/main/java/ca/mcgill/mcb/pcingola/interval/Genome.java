@@ -120,7 +120,7 @@ public class Genome extends Marker implements Serializable, Iterable<Chromosome>
 	 * Add a chromosome
 	 * @param chromo
 	 */
-	public void add(Chromosome chromo) {
+	public synchronized void add(Chromosome chromo) {
 		chromosomeNames.add(chromo.getId());
 		chromosomes.put(chromo.getId(), chromo);
 	}
@@ -143,6 +143,19 @@ public class Genome extends Marker implements Serializable, Iterable<Chromosome>
 			chromosomeNamesSorted.add(chromosArr.get(i).getId());
 
 		return chromosomeNamesSorted;
+	}
+
+	/**
+	 * Create a chromosome named 'chromoName'
+	 * @param chromoName
+	 * @return
+	 */
+	synchronized Chromosome createChromosome(String chromoName) {
+		Chromosome chr = getChromosome(chromoName);
+		if (chr != null) return chr; // Already created => Nothing done (some race condition might get you here)
+		chr = new Chromosome(this, 0, 0, 1, chromoName);
+		add(chr);
+		return chr;
 	}
 
 	public String[] getChromoFastaFiles() {
@@ -232,13 +245,8 @@ public class Genome extends Marker implements Serializable, Iterable<Chromosome>
 	 * @return
 	 */
 	public Chromosome getOrCreateChromosome(String chromoName) {
-		String ch = Chromosome.simpleName(chromoName);
-		Chromosome chr = getChromosome(ch);
-
-		if (chr == null) {
-			chr = new Chromosome(this, 0, 0, 1, chromoName);
-			add(chr);
-		}
+		Chromosome chr = getChromosome(chromoName);
+		if (chr == null) chr = createChromosome(chromoName);
 		return chr;
 	}
 
