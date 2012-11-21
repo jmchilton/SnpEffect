@@ -21,7 +21,7 @@ public class SnpEff implements CommandLine {
 	 *  Available gene database formats
 	 */
 	public enum GeneDatabaseFormat {
-		BIOMART, GFF3, GFF2, GTF22, REFSEQ, GENBANK, EMBL
+		BIOMART, GFF3, GFF2, GTF22, REFSEQ, KNOWN_GENES, GENBANK, EMBL
 	}
 
 	/**
@@ -40,9 +40,9 @@ public class SnpEff implements CommandLine {
 
 	public static final int COMMAND_LINE_WIDTH = 40;
 
-	public static final String BUILD = "2012-11-16";
+	public static final String BUILD = "2012-11-20";
 	public static final String VERSION_MAJOR = "3.1";
-	public static final String REVISION = "b";
+	public static final String REVISION = "c";
 	public static final String VERSION_SHORT = VERSION_MAJOR + REVISION;
 	public static final String VERSION = "SnpEff " + VERSION_SHORT + " (build " + BUILD + "), by " + Pcingola.BY;
 

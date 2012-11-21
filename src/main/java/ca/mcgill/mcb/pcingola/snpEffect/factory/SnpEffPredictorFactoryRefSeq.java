@@ -16,7 +16,7 @@ import ca.mcgill.mcb.pcingola.snpEffect.SnpEffectPredictor;
 import ca.mcgill.mcb.pcingola.util.Gpr;
 
 /**
- * This class creates a SnpEffectPredictor from a GFF3 file
+ * This class creates a SnpEffectPredictor from a TXT file dumped using UCSC table browser
  * 
  * RefSeq table schema: http://genome.ucsc.edu/cgi-bin/hgTables
  * 

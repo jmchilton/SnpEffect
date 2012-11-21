@@ -19,6 +19,7 @@ import ca.mcgill.mcb.pcingola.snpEffect.factory.SnpEffPredictorFactoryGenesFile;
 import ca.mcgill.mcb.pcingola.snpEffect.factory.SnpEffPredictorFactoryGff2;
 import ca.mcgill.mcb.pcingola.snpEffect.factory.SnpEffPredictorFactoryGff3;
 import ca.mcgill.mcb.pcingola.snpEffect.factory.SnpEffPredictorFactoryGtf22;
+import ca.mcgill.mcb.pcingola.snpEffect.factory.SnpEffPredictorFactoryKnownGene;
 import ca.mcgill.mcb.pcingola.snpEffect.factory.SnpEffPredictorFactoryRefSeq;
 import ca.mcgill.mcb.pcingola.util.Gpr;
 import ca.mcgill.mcb.pcingola.util.Timer;
@@ -86,6 +87,7 @@ public class SnpEffCmdBuild extends SnpEff {
 		else if (geneDatabaseFormat == GeneDatabaseFormat.GFF3) factory = new SnpEffPredictorFactoryGff3(config, inOffset);
 		else if (geneDatabaseFormat == GeneDatabaseFormat.GFF2) factory = new SnpEffPredictorFactoryGff2(config, inOffset);
 		else if (geneDatabaseFormat == GeneDatabaseFormat.REFSEQ) factory = new SnpEffPredictorFactoryRefSeq(config);
+		else if (geneDatabaseFormat == GeneDatabaseFormat.KNOWN_GENES) factory = new SnpEffPredictorFactoryKnownGene(config);
 		else if (geneDatabaseFormat == GeneDatabaseFormat.GENBANK) factory = new SnpEffPredictorFactoryGenBank(config);
 		else if (geneDatabaseFormat == GeneDatabaseFormat.EMBL) factory = new SnpEffPredictorFactoryEmbl(config);
 		else if (geneDatabaseFormat == GeneDatabaseFormat.BIOMART) factory = new SnpEffPredictorFactoryGenesFile(config, inOffset);
@@ -124,6 +126,9 @@ public class SnpEffCmdBuild extends SnpEff {
 					inOffset = outOffset = 0; // This command implies '-0' since UCSC files are zero-based
 				} else if (args[i].equals("-genbank")) {
 					geneDatabaseFormat = GeneDatabaseFormat.GENBANK;
+					inOffset = outOffset = 1; // This command implies '-1' since GenBank files are one-based
+				} else if (args[i].equals("-knowngenes")) {
+					geneDatabaseFormat = GeneDatabaseFormat.KNOWN_GENES;
 					inOffset = outOffset = 1; // This command implies '-1' since GenBank files are one-based
 				} else if (args[i].equals("-embl")) {
 					geneDatabaseFormat = GeneDatabaseFormat.EMBL;
