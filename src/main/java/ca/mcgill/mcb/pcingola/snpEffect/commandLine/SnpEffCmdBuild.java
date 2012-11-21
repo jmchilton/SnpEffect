@@ -246,8 +246,8 @@ public class SnpEffCmdBuild extends SnpEff {
 			config.setSnpEffectPredictor(snpEffectPredictor);
 
 			// Catacterize exons (if possible)
-			if (verbose) Timer.showStdErr("Caracterizing exons by splicing.");
 			ExonSpliceCaracterizer exonSpliceCaracterizer = new ExonSpliceCaracterizer(snpEffectPredictor.getGenome());
+			exonSpliceCaracterizer.setVerbose(verbose);
 			exonSpliceCaracterizer.caracterize();
 
 			// Add read rare codons annotations, if possible

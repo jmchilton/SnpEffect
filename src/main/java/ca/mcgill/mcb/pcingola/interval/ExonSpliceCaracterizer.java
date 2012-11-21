@@ -6,6 +6,7 @@ import ca.mcgill.mcb.pcingola.interval.Exon.ExonSpliceType;
 import ca.mcgill.mcb.pcingola.snpEffect.Config;
 import ca.mcgill.mcb.pcingola.snpEffect.SnpEffectPredictor;
 import ca.mcgill.mcb.pcingola.stats.CountByType;
+import ca.mcgill.mcb.pcingola.util.Gpr;
 import ca.mcgill.mcb.pcingola.util.Timer;
 
 /**
@@ -17,7 +18,10 @@ import ca.mcgill.mcb.pcingola.util.Timer;
  */
 public class ExonSpliceCaracterizer {
 
-	//	boolean verbose = false;
+	public static final int MAX_EXONS = 1000; // Do not characterize transcripts having more than this number of exons
+	public static final int SHOW_EVERY = 1000;
+
+	boolean verbose = false;
 	Genome genome;
 	HashMap<Exon, Exon.ExonSpliceType> typeByExon;
 	CountByType countByType = new CountByType();
@@ -133,7 +137,7 @@ public class ExonSpliceCaracterizer {
 			}
 
 		//---
-		// For each unque exon, compare if it is mutually exclusive with 'exon'
+		// For each unique exon, compare if it is mutually exclusive with 'exon'
 		//---
 		Transcript exonTr = (Transcript) exon.getParent();
 		for (Exon e : uniqEx.values()) {
@@ -163,12 +167,20 @@ public class ExonSpliceCaracterizer {
 		return m.getChromosomeName() + ":" + m.getStart() + "-" + m.getEnd();
 	}
 
+	public void setVerbose(boolean verbose) {
+		this.verbose = verbose;
+	}
+
 	/**
 	 * Mark exons types
 	 */
 	void type() {
+		if (verbose) Timer.showStdErr("Caracterizing exons by splicing (stage 1) : ");
+
 		// Find retained exons
+		int numExon = 1;
 		for (Gene g : genome.getGenes()) {
+
 			// Count exons
 			CountByType count = new CountByType();
 			for (Transcript tr : g)
@@ -179,6 +191,8 @@ public class ExonSpliceCaracterizer {
 			int countTr = g.numChilds();
 			for (Transcript tr : g) {
 				for (Exon e : tr) {
+					Gpr.showMark(numExon++, SHOW_EVERY);
+
 					String eKey = key(e);
 					int countEx = (int) count.get(eKey);
 
@@ -197,18 +211,31 @@ public class ExonSpliceCaracterizer {
 			}
 		}
 
+		if (verbose) {
+			System.err.println("");
+			Timer.showStdErr("Caracterizing exons by splicing (stage 2) : ");
+		}
+
 		// Now analyze if there are mutually exclusive exons
-		for (Gene g : genome.getGenes())
+		numExon = 1;
+		for (Gene g : genome.getGenes()) {
 			for (Transcript tr : g) {
-				for (Exon e : tr) {
-					ExonSpliceType type = typeByExon.get(e);
-					if (type == ExonSpliceType.SKIPPED) { // Try to re-annotate only these
-						if (isMutEx(e, g)) type(e, Exon.ExonSpliceType.MUTUALLY_EXCLUSIVE);
+				if (tr.numChilds() < MAX_EXONS) {
+					for (Exon e : tr) {
+						Gpr.showMark(numExon++, SHOW_EVERY);
+						ExonSpliceType type = typeByExon.get(e);
+						if (type == ExonSpliceType.SKIPPED) { // Try to re-annotate only these
+							if (isMutEx(e, g)) type(e, Exon.ExonSpliceType.MUTUALLY_EXCLUSIVE);
+						}
 					}
+				} else {
+					System.err.println("");
+					Gpr.debug("WARNING: Gene '" + g.getId() + "', transcript '" + tr.getId() + "' has too many exons (" + tr.numChilds() + " exons). Skipped");
 				}
 			}
+		}
 
-		Timer.showStdErr("done.");
+		if (verbose) Timer.showStdErr("done.");
 	}
 
 	/**
