@@ -3,7 +3,6 @@ package ca.mcgill.mcb.pcingola.osCmd;
 import java.io.File;
 
 import ca.mcgill.mcb.pcingola.util.Gpr;
-import ca.mcgill.mcb.pcingola.util.Timer;
 
 /**
  * Run an OS command 
@@ -34,42 +33,14 @@ public class OsCmdRunner extends Thread {
 	* @param opts
 	* @param outputFile
 	* @param redirectToOutput
-	* @return true if command excecuted OK or outputFile exists
+	* @return true if command executed OK or outputFile exists
 	*/
 	public static boolean runIfNotExists(String[] opts, String outputFile, boolean redirectToOutput) {
-		// Already done?
-		if (Gpr.exists(outputFile)) return true;
-
-		try {
-			// Create command and execute it
-			String id = opts[0];
-			OsCmdRunner cmd = new OsCmdRunner(id, opts);
-			cmd.getOsCmd().setQuiet(false, false);
-
-			// Have to redirect?
-			if (redirectToOutput) {
-				cmd.getOsCmd().setBinaryStdout(true);
-				cmd.getOsCmd().setRedirectStdout(outputFile);
-			}
-
-			Timer.show("\tExecuting command: " + cmd.getOsCmd());
-			cmd.run();
-		} catch (Throwable t) {
-			t.printStackTrace();
-
-			// Try to delete output file
-			if ((outputFile != null) && (!outputFile.isEmpty())) {
-				try {
-					(new File(outputFile)).delete();
-				} catch (Exception e) {
-					// Nothing to do
-				}
-			}
-
-			return false;
-		}
-
-		return true;
+		if (Gpr.exists(outputFile)) return true; // File exists? => Don't run
+		String id = opts[0];
+		OsCmdRunner cmd = new OsCmdRunner(id, opts);
+		cmd.getOsCmd().setQuiet(false, false);
+		return cmd.runIfNotExists(outputFile, redirectToOutput);
 	}
 
 	public OsCmdRunner(String jobId, String osCmdStr[]) {
@@ -173,7 +144,7 @@ public class OsCmdRunner extends Thread {
 			while ((osCmd.getStdin() == null) && isExecuting())
 				Thread.sleep(defaultWaitTime);
 
-			// Now the comamnd started executing
+			// Now the command started executing
 			started = true;
 
 			synchronized (this) {
@@ -191,6 +162,43 @@ public class OsCmdRunner extends Thread {
 			executing = false;
 			started = true;
 		}
+	}
+
+	/**
+	 * Run a command only if 'outputFile' does not exist
+	 * @param outputFile
+	 * @param redirectToOutput
+	 * @return
+	 */
+	public boolean runIfNotExists(String outputFile, boolean redirectToOutput) {
+		// Already done?
+		if (Gpr.exists(outputFile)) return true;
+
+		try {
+			// Have to redirect?
+			if (redirectToOutput) {
+				getOsCmd().setBinaryStdout(true);
+				getOsCmd().setRedirectStdout(outputFile);
+			}
+
+			run();
+		} catch (Throwable t) {
+			t.printStackTrace();
+
+			// Command failed => Try to delete output file
+			if ((outputFile != null) && (!outputFile.isEmpty())) {
+				try {
+					(new File(outputFile)).delete();
+				} catch (Exception e) {
+					// Nothing to do
+				}
+			}
+
+			return false;
+		}
+
+		return true;
+
 	}
 
 	public void setDefaultWaitTime(long defaultWaitTime) {

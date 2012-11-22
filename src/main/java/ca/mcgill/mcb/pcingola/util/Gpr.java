@@ -98,8 +98,10 @@ public class Gpr {
 		}
 	}
 
+	// Number of cores in this computer
 	public static final int NUM_CORES = Runtime.getRuntime().availableProcessors();
 
+	// User's home directory
 	public static final String HOME = System.getProperty("user.home");
 
 	/**
