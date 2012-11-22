@@ -201,6 +201,7 @@ public class Transcript extends IntervalAndSubIntervals<Exon> {
 				// We have to take into account UTRs
 				cdsStart = (isStrandPlus() ? start : end); // cdsStart is the position of the first base in the CDS (i.e. the first base after all 5'UTR)
 				cdsEnd = (isStrandPlus() ? end : start); // cdsEnd is the position of the last base in the CDS (i.e. the first base before all 3'UTR)
+				int cdsStartNotExon = cdsStart;
 
 				for (Utr utr : utrs) {
 					if (utr instanceof Utr5prime) {
@@ -220,6 +221,11 @@ public class Transcript extends IntervalAndSubIntervals<Exon> {
 					cdsStart = lastExonPositionBefore(cdsStart);
 					cdsEnd = firstExonPositionAfter(cdsEnd);
 				}
+
+				// We were not able to find cdsStart & cdsEnd within exon limits. 
+				// Probably there is something wrong with the database and the transcript does 
+				// not have a single coding base (e.g. all of it is UTR).
+				if (cdsStart < 0 || cdsEnd < 0) cdsStart = cdsEnd = cdsStartNotExon;
 			}
 		}
 	}
@@ -540,7 +546,8 @@ public class Transcript extends IntervalAndSubIntervals<Exon> {
 			if (pos <= ex.getEnd()) return pos;
 		}
 
-		throw new RuntimeException("Cannot find first exonic position after " + pos + " for transcript\n" + this);
+		System.err.println("WARNING: Cannot find first exonic position after " + pos + " for transcript '" + id + "'");
+		return -1;
 	}
 
 	/**
@@ -740,13 +747,18 @@ public class Transcript extends IntervalAndSubIntervals<Exon> {
 		int last = -1;
 		for (Exon ex : sorted()) {
 			if (pos < ex.getStart()) {
-				if (last < 0) throw new RuntimeException("Cannot find last exonic position after " + pos + " for transcript\n" + this);
+				// Nothing found?
+				if (last < 0) {
+					System.err.println("WARNING: Cannot find last exonic position before " + pos + " for transcript '" + id + "'");
+					return -1;
+				}
 				return last;
 			} else if (pos <= ex.getEnd()) return pos;
 			last = ex.getEnd();
 		}
 
-		throw new RuntimeException("Cannot find last exonic position after " + pos + " for transcript\n" + this);
+		System.err.println("WARNING: Cannot find last exonic position before " + pos + " for transcript '" + id + "'");
+		return -1;
 	}
 
 	/**

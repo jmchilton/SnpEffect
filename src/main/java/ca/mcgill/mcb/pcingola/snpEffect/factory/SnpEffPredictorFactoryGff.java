@@ -103,6 +103,8 @@ public abstract class SnpEffPredictorFactoryGff extends SnpEffPredictorFactory {
 
 			// This features are not present in GFF2 and are optional in GTF 2.2
 			if (!version.equals("GFF2")) {
+				exonsFromCds(); // We need to create exons from CDSs before UTRs are added, since UTR require exons as parents
+
 				System.out.print("\tReading UTRs (5)    : ");
 				readGff(UTR5);
 

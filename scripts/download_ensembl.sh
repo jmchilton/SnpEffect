@@ -1,6 +1,6 @@
 #!/bin/sh -e
 
-RELEASE=68
+RELEASE=69
 
 #mkdir download
 cd download
@@ -20,13 +20,6 @@ cd download
 # 
 # # Download PROTEIN sequences
 # wget -r -A "*.pep.all.fa.gz" "ftp://ftp.ensembl.org/pub/release-$RELEASE/fasta/"
-
-
-#---
-# Download from NCBI (Bacterial genoms)
-#---
-
-# wget -r -np -nc -A "gbk,html" "http://ftp.ncbi.nih.gov/genomes/Bacteria/"
 
 #---
 # Create directory structure
@@ -78,16 +71,16 @@ cd download
 # Config file entries
 #---
 
-for fasta in *.cdna.all.fa.gz
-do
-	genome=`../scripts/file2GenomeName.pl $fasta | cut -f 4`
-	short=`../scripts/file2GenomeName.pl $fasta | cut -f 5`
-
-	# Individual genome entry
-	echo -e "$short.genome : $genome"
-	echo -e "$short.reference : ftp://ftp.ensembl.org/pub/release-$RELEASE/gtf/"
-	echo
-done
+# for fasta in *.cdna.all.fa.gz
+# do
+# 	genome=`../scripts/file2GenomeName.pl $fasta | cut -f 4`
+# 	short=`../scripts/file2GenomeName.pl $fasta | cut -f 5`
+# 
+# 	# Individual genome entry
+# 	echo -e "$short.genome : $genome"
+# 	echo -e "$short.reference : ftp://ftp.ensembl.org/pub/release-$RELEASE/gtf/"
+# 	echo
+# done
 
 # Back to parent dir
 cd - > /dev/null
@@ -96,10 +89,12 @@ cd - > /dev/null
 # Create build queue entries
 #---
 
+echo Creating build queue 'queue_build.txt' file
 rm -vf queue_build.txt
 
 # Build from refseq files
-echo "java -Xmx10G -jar snpEff.jar build -v -refseq hg19"
+echo "java -Xmx10G -jar snpEff.jar build -v -refseq hg19" >> queue_build.txt
+echo "java -Xmx10G -jar snpEff.jar build -v -refseq hg19" >> queue_build.txt
 
 # Build from TXT files
 for genes in `ls data/*/genes.txt* | grep -v hg19`

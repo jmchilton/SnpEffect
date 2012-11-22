@@ -285,6 +285,7 @@ public class SnpEffCmdBuild extends SnpEff {
 		System.err.println("\t-gff2                   : Use GFF2 format (obsolete). It implies '-1'.");
 		System.err.println("\t-gff3                   : Use GFF3 format. It implies '-1'");
 		System.err.println("\t-gtf22                  : Use GTF 2.2 format. It implies '-1'. Default");
+		System.err.println("\t-knowngenes             : Use KnownGenes table from UCSC. It implies '-0'.");
 		System.err.println("\t-refseq                 : Use RefSeq table from UCSC. It implies '-0'.");
 		System.err.println("\t-txt                    : Use TXT format (obsolete).");
 		System.err.println("\t-onlyReg                : Only build regulation tracks.");

@@ -63,8 +63,8 @@
 - <a class="body" href="#How_do_I_represent_a_heterozygous_SNP?_(TXT_format)"> How do I represent a heterozygous SNP? (TXT format)  </a> <br>
 <p>
 <b> Output file formats </b> <br>
-- <a class="body" href="#What_is_the_TXT_output_format_like?"> What is the TXT output format like?  </a> <br>
 - <a class="body" href="#What_is_the_VCF_output_format_like?"> What is the VCF output format like?  </a> <br>
+- <a class="body" href="#What_is_the_TXT_output_format_like?"> What is the TXT output format like?  </a> <br>
 - <a class="body" href="#What_effects_are_predicted?"> What effects are predicted? </a> <br>
 - <a class="body" href="#How_is_impact_categorized?_(VCF_output)"> How is impact categorized? (VCF output) </a> <br>
 - <a class="body" href="#Why_do_I_see_the_same_SNP_in_different_output_lines?_(TXT_output_format)"> Why do I see the same SNP in different output lines? (TXT output format) </a> <br>
@@ -288,8 +288,42 @@ svn co https://snpeff.svn.sourceforge.net/svnroot/snpeff/SnpEffect/trunk
 				There are two output formats: TXT (default) and VCF (can only be used if the input is also in VCF format).<br>
 				SnpEff also creates two dditional output files: Stats (and HTML file with statistics) and Genes files (a TXT file with SNPs per gene and region)<p>
 
+				<p style="font-size: 14pt"> <b> <a class="body" name="What_is_the_VCF_output_format_like?"> What is the VCF output format like?  </a> </b></p>
+				<a class="body"class="body" href="http://www.1000genomes.org/wiki/Analysis/Variant%20Call%20Format/vcf-variant-call-format-version-41">VCF</a> is the default output format. 
+				It is highly recomended to use VCF as input and output format, since it is a standard format that can be also used by other tools and software packages.
+				Thus VCF makes it much easier to integrate genomic data processing pipelines. <br>
+				<p>
+				Effects information is added to the INFO field. 
+				There can be multiple effects separated by comma. The format for each effect is:<p>
+				Effect ( Effefct_Impact | Codon_Change | Amino_Acid_change | Gene_Name | Gene_BioType | Coding | Transcript | Exon [ | ERRORS | WARNINGS ] )<br>
+				
+				<center>
+				<table>
+					<tr bgcolor=aaaaaa> <th>  Sub-field </th> <th>  Notes </th> </tr>
+					<tr bgcolor=ffffff> <td>  Effect </td> <td>  Effect of this variant. See details <a class="body" href="#What_effects_are_predicted?">here</a>. </td> </tr>
+					<tr bgcolor=eeeeee> <td>  Effect impact </td> <td>  Effect impact {High, Moderate, Low, Modifier}. See details <a class="body" href="#How_is_impact_categorized?_(VCF_output)">here</a>. </td> </tr>
+					<tr bgcolor=ffffff> <td>  Functional class </td> <td>  Functional class {NONE, SILENT, MISSENSE, NONSENSE}. </td> </tr>
+					<tr bgcolor=eeeeee> <td>  Codon_Change </td> <td>  Codon change: old_codon/new_codon  </td> </tr>
+					<tr bgcolor=ffffff> <td>  Amino_Acid_change </td> <td>  Amino acid change: old_AA AA_position/new_AA (e.g. 'E30K') </td> </tr>
+					<tr bgcolor=eeeeee> <td>  Amino_Acid_length</td> <td>  Length of protein in amino acids (actually, transcription length divided by 3). </td> </tr>
+					<tr bgcolor=ffffff> <td>  Gene_name </td> <td>  Gene name </td> </tr>
+					<tr bgcolor=eeeeee> <td>  Transcript_bioType </td> <td>  Transcript bioType, if available. </td> </tr>
+					<tr bgcolor=ffffff> <td>  Gene_Coding </td> <td>  [CODING | NON_CODING]. This field is 'CODING' if any transcript of the gene is marked as protein codin. </td> </tr>
+					<tr bgcolor=eeeeee> <td>  Trancript </td> <td>  Transcript ID (usually ENSEMBL IDs) </td> </tr>
+					<tr bgcolor=ffffff> <td>  Exon </td> <td>  Exon ID (usually ENSEMBL IDs) </td> </tr>
+					<tr bgcolor=eeeeee> <td>  Warnings </td> <td>  Any warnings or errors (not shown if empty). </td> </tr>
+				</table>
+				</center>
+				<p>
+				The following meta-information lines are added to the header:
+				<pre>
+##SnpEffVersion="SnpEff program version"
+##SnpEffCmd="Command line arguments used to run the program"
+##INFO=&lt;ID=EFF,Number=.,Type=String,Description="Predicted effects for this variant.Format: 'Effect ( Effect_Impact | Functional_Class | Codon_Change | Amino_Acid_change| Amino_Acid_length | Gene_Name | Gene_BioType | Coding | Transcript | Exon [ | ERRORS | WARNINGS ] )' \"&gt;
+</pre>
+
 				<p style="font-size: 14pt"> <b> <a class="body" name="What_is_the_TXT_output_format_like?"> What is the TXT output format like?  </a> </b></p>
-				TXT output is the default format. Since version 2.0 VCF is also supported as output format (see next question).<br>
+				<b>WARNING: </b> TXT output is now deprecated. Since version 2.0 VCF format is supported and recommended as output format (see previous question).<p>
 				The TXT output format consist of one line per effect. This means that you usually get more than one line per SNP since the same SNP may affect several different transcripts in the same gene.<br>
 				<p>
 				The format is tab separated columns:
@@ -337,38 +371,6 @@ chr2L   871556  G       R       SNP     Het     228                     FBgn0053
 chr2L   878267  T       W       SNP     Het     228             WARNING: Base is 'G' but SNP says 'T'.  FBgn0031292     CG15824         FBtr0078029     CG15824:14      14      3PRIME_UTR: 14 bases from transcript end  
 				</pre>
 				</small>
-
-				<p style="font-size: 14pt"> <b> <a class="body" name="What_is_the_VCF_output_format_like?"> What is the VCF output format like?  </a> </b></p>
-				Since version 2.0 <a class="body"class="body" href="http://www.1000genomes.org/wiki/Analysis/Variant%20Call%20Format/vcf-variant-call-format-version-41">VCF</a> is also supported as output format. Effects information is added to the INFO field. 
-
-				<p>
-				There can be multiple effects separated by comma. The format for each effect is:<br>
-				Effect ( Effefct_Impact | Codon_Change | Amino_Acid_change | Gene_Name | Gene_BioType | Coding | Transcript | Exon [ | ERRORS | WARNINGS ] )<br>
-				
-				<center>
-				<table>
-					<tr bgcolor=aaaaaa> <th>  Sub-field </th> <th>  Notes </th> </tr>
-					<tr bgcolor=ffffff> <td>  Effect </td> <td>  Effect of this variant. See details <a class="body" href="#What_effects_are_predicted?">here</a>. </td> </tr>
-					<tr bgcolor=eeeeee> <td>  Effect impact </td> <td>  Effect impact {High, Moderate, Low, Modifier}. See details <a class="body" href="#How_is_impact_categorized?_(VCF_output)">here</a>. </td> </tr>
-					<tr bgcolor=ffffff> <td>  Functional class </td> <td>  Functional class {NONE, SILENT, MISSENSE, NONSENSE}. </td> </tr>
-					<tr bgcolor=eeeeee> <td>  Codon_Change </td> <td>  Codon change: old_codon/new_codon  </td> </tr>
-					<tr bgcolor=ffffff> <td>  Amino_Acid_change </td> <td>  Amino acid change: old_AA AA_position/new_AA (e.g. 'E30K') </td> </tr>
-					<tr bgcolor=eeeeee> <td>  Amino_Acid_length</td> <td>  Length of protein in amino acids (actually, transcription length divided by 3). </td> </tr>
-					<tr bgcolor=ffffff> <td>  Gene_name </td> <td>  Gene name </td> </tr>
-					<tr bgcolor=eeeeee> <td>  Transcript_bioType </td> <td>  Transcript bioType, if available. </td> </tr>
-					<tr bgcolor=ffffff> <td>  Gene_Coding </td> <td>  [CODING | NON_CODING]. This field is 'CODING' if any transcript of the gene is marked as protein codin. </td> </tr>
-					<tr bgcolor=eeeeee> <td>  Trancript </td> <td>  Transcript ID (usually ENSEMBL IDs) </td> </tr>
-					<tr bgcolor=ffffff> <td>  Exon </td> <td>  Exon ID (usually ENSEMBL IDs) </td> </tr>
-					<tr bgcolor=eeeeee> <td>  Warnings </td> <td>  Any warnings or errors (not shown if empty). </td> </tr>
-				</table>
-				</center>
-				<p>
-				The following meta-information lines are added to the header:
-				<pre>
-##SnpEffVersion="SnpEff program version"
-##SnpEffCmd="Command line arguments used to run the program"
-##INFO=&lt;ID=EFF,Number=.,Type=String,Description="Predicted effects for this variant.Format: 'Effect ( Effect_Impact | Functional_Class | Codon_Change | Amino_Acid_change| Amino_Acid_length | Gene_Name | Gene_BioType | Coding | Transcript | Exon [ | ERRORS | WARNINGS ] )' \"&gt;
-</pre>
 
 				<p style="font-size: 14pt"> <b> <a class="body" name="What_effects_are_predicted?"> What effects are predicted? </a> </b></p>
 				Here is a list of effects and some brief explanations:

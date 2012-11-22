@@ -318,7 +318,7 @@ public abstract class SnpEffPredictorFactory {
 				}
 			}
 		}
-		System.out.println("\n\tTotal created: " + count);
+		System.out.println("\n\tExons created for " + count + " transcripts.");
 	}
 
 	/**
