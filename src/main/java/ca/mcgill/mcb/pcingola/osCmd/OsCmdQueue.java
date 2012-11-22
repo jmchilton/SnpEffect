@@ -86,7 +86,7 @@ public class OsCmdQueue implements Iterable<OsCmdRunner> {
 
 		// Move from running list to done
 		for (OsCmdRunner cmd : toDelete) {
-			Timer.showStdErr("Finished command: " + cmd);
+			if (verbose) Timer.showStdErr("Finished command: " + cmd);
 			commandsRunning.remove(cmd);
 			commandsDone.add(cmd);
 		}
@@ -134,7 +134,8 @@ public class OsCmdQueue implements Iterable<OsCmdRunner> {
 
 				doneCommands(); // Have commands finished?
 				sleep();
-				Timer.showStdErr("Queue processes:\tPending : " + commandsToRun.size() + "\tRunning: " + commandsRunning.size() + "\tDone: " + commandsDone.size());
+
+				if (debug) Timer.showStdErr("Queue processes:\tPending : " + commandsToRun.size() + "\tRunning: " + commandsRunning.size() + "\tDone: " + commandsDone.size());
 			}
 		} catch (Throwable t) {
 			// Kill all commands
@@ -150,7 +151,7 @@ public class OsCmdQueue implements Iterable<OsCmdRunner> {
 		// Run only if outFile exists?
 		String outputFile = outputFiles.get(cmd);
 
-		Timer.showStdErr("Running command: '" + cmd + "'");
+		if (verbose) Timer.showStdErr("Running command: '" + cmd + "'");
 
 		if (outputFile == null) {
 			// No 'outFile'? => Always run
