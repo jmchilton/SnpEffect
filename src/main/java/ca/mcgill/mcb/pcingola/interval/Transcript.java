@@ -646,7 +646,7 @@ public class Transcript extends IntervalAndSubIntervals<Exon> {
 	 * Get all introns (lazy init)
 	 * @return
 	 */
-	public ArrayList<Intron> introns() {
+	public synchronized ArrayList<Intron> introns() {
 		if (introns == null) {
 			introns = new ArrayList<Intron>();
 

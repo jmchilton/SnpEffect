@@ -72,7 +72,8 @@ public class WorkerEff extends WorkerVcfStr {
 			outputFormatter.endSection(vcfEntry);
 
 		} catch (Throwable t) {
-			snpEffCmdEff.error(t, "Error while processing VCF entry (line " + vcfEntry.getLineNum() + ") :\n\t" + vcfEntry + "\n" + t);
+			snpEffCmdEff.error(t, "Error while processing VCF entry (line " + vcfEntry.getLineNum() + ") :\n\t" + vcfEntry);
+			t.printStackTrace();
 		}
 
 		return vcfEntry.toString();
