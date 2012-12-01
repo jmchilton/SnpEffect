@@ -78,7 +78,7 @@ public class SnpEffCmdDump extends SnpEff {
 			for (Marker i : tree) {
 				printBed(i);
 
-				// Shoe gene specifics
+				// Show gene specifics
 				if (i instanceof Gene) {
 					Gene g = (Gene) i;
 

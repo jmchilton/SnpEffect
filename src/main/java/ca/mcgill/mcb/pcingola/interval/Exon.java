@@ -78,11 +78,9 @@ public class Exon extends Marker {
 
 		int mstart = Math.max(seqChange.getStart(), start);
 		int idxStart = mstart - start;
-		if (sequence.length() <= 0) {
-			results.addWarning("WARNING_SEQUENCE_NOT_AVAILABLE");
-		} else if (idxStart >= sequence.length()) {
-			results.addError("ERROR_OUT_OF_EXON");
-		} else {
+		if (sequence.length() <= 0) results.addWarning("WARNING_SEQUENCE_NOT_AVAILABLE");
+		else if (idxStart >= sequence.length()) results.addError("ERROR_OUT_OF_EXON");
+		else {
 			int mend = Math.min(seqChange.getEnd(), end);
 			int len = mend - mstart + 1;
 
@@ -90,9 +88,7 @@ public class Exon extends Marker {
 			String changeReference = seqChange.reference().substring(mstart - seqChange.getStart(), mend - seqChange.getStart() + 1);
 
 			// Reference sequence different than expected?
-			if (!realReference.equals(changeReference)) {
-				results.addWarning("WARNING_REF_IS_" + realReference + "_NOT_" + seqChange.getReference());
-			}
+			if (!realReference.equals(changeReference)) results.addWarning("WARNING_REF_IS_" + realReference + "_NOT_" + seqChange.getReference());
 		}
 	}
 

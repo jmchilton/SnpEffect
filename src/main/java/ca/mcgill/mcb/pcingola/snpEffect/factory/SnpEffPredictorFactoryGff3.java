@@ -70,7 +70,7 @@ public class SnpEffPredictorFactoryGff3 extends SnpEffPredictorFactoryGff {
 				// Create and add 'fake' gene
 				gene = new Gene(chromosome, start, end, strand, geneId, geneId, "mRNA");
 				add(gene);
-				warning("Cannot find gene '" + geneId + "'. Created gene '" + gene.getId() + "' for this transcript");
+				warning("Cannot find gene '" + geneId + "'. Created gene '" + gene.getId() + "' for transcript '" + id + "'");
 			}
 
 			// Update bio-type (if needed)
@@ -205,7 +205,12 @@ public class SnpEffPredictorFactoryGff3 extends SnpEffPredictorFactoryGff {
 		String source = fields[1];
 		int start = parsePosition(fields[3]);
 		int end = parsePosition(fields[4]);
-		int strand = (fields[6].equals("-") ? -1 : +1);
+
+		// Parse strand
+		int strand = 0;
+		if (fields[6].equals("+")) strand = +1;
+		else if (fields[6].equals("-")) strand = -1;
+
 		int frame = (fields[7].equals(".") ? -1 : Gpr.parseIntSafe(fields[7]));
 		String name = null;
 		String parent = "";

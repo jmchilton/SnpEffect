@@ -27,7 +27,7 @@ public class IntervalAndSubIntervals<T extends Marker> extends Marker implements
 
 	public IntervalAndSubIntervals(Marker parent, int start, int end, int strand, String id) {
 		super(parent, start, end, strand, id);
-		subIntervals = new HashMap<String, T>();
+		reset();
 	}
 
 	/**
@@ -36,6 +36,7 @@ public class IntervalAndSubIntervals<T extends Marker> extends Marker implements
 	 */
 	public void add(T t) {
 		if (subIntervals.put(t.getId(), t) != null) throw new RuntimeException(t.getClass().getSimpleName() + " '" + t.getId() + "' is already in " + this.getClass().getSimpleName() + " '" + id + "'");
+		invalidateSorted();
 	}
 
 	/**
@@ -45,6 +46,7 @@ public class IntervalAndSubIntervals<T extends Marker> extends Marker implements
 	public void addAll(Iterable<T> ts) {
 		for (T t : ts)
 			add(t);
+		invalidateSorted();
 	}
 
 	/**
@@ -55,6 +57,7 @@ public class IntervalAndSubIntervals<T extends Marker> extends Marker implements
 	public void addAll(Markers markers) {
 		for (Marker m : markers)
 			add((T) m);
+		invalidateSorted();
 	}
 
 	/**
@@ -75,6 +78,13 @@ public class IntervalAndSubIntervals<T extends Marker> extends Marker implements
 		return subIntervals.get(id);
 	}
 
+	/**
+	 * Invalidate sorted collections
+	 */
+	protected void invalidateSorted() {
+		sorted = sortedStrand = null;
+	}
+
 	@Override
 	public Iterator<T> iterator() {
 		return subIntervals.values().iterator();
@@ -90,6 +100,7 @@ public class IntervalAndSubIntervals<T extends Marker> extends Marker implements
 	 */
 	public void remove(T t) {
 		subIntervals.remove(t.getId());
+		invalidateSorted();
 	}
 
 	/**
@@ -97,7 +108,7 @@ public class IntervalAndSubIntervals<T extends Marker> extends Marker implements
 	 */
 	public void reset() {
 		subIntervals = new HashMap<String, T>();
-		sorted = sortedStrand = null;
+		invalidateSorted();
 	}
 
 	/**
@@ -123,6 +134,17 @@ public class IntervalAndSubIntervals<T extends Marker> extends Marker implements
 	@Override
 	public String serializeSave(MarkerSerializer markerSerializer) {
 		return super.serializeSave(markerSerializer) + "\t" + markerSerializer.save((Collection<Marker>) subIntervals.values());
+	}
+
+	@Override
+	public void setStrand(int strand) {
+		this.strand = (byte) strand;
+
+		// Change all subintervals
+		for (T t : this)
+			t.setStrand(strand);
+
+		invalidateSorted(); // These are no longer correct
 	}
 
 	/**

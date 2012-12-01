@@ -10,6 +10,7 @@ import ca.mcgill.mcb.pcingola.snpEffect.ChangeEffect;
 import ca.mcgill.mcb.pcingola.snpEffect.ChangeEffect.EffectType;
 import ca.mcgill.mcb.pcingola.snpEffect.Config;
 import ca.mcgill.mcb.pcingola.stats.ObservedOverExpectedCpG;
+import ca.mcgill.mcb.pcingola.util.Gpr;
 
 /**
  * Codon position
@@ -142,22 +143,31 @@ public class Transcript extends IntervalAndSubIntervals<Exon> {
 			newEnd = Integer.MIN_VALUE;
 		}
 
+		int countStrandPlus = 0, countStrandMinus = 0;
 		for (Exon exon : sortedStrand()) {
 			newStart = Math.min(newStart, exon.getStart());
 			newEnd = Math.max(newEnd, exon.getEnd());
-			strandSumTr += exon.getStrand(); // Some exons have incorrect strands, we use the strand indicated by most exons
+
+			// Conun exon strands
+			if (exon.getStrand() > 0) countStrandPlus++;
+			else if (exon.getStrand() < 0) countStrandMinus++;
 		}
 
+		// UTRs
 		for (Utr utr : getUtrs()) {
 			newStart = Math.min(newStart, utr.getStart());
 			newEnd = Math.max(newEnd, utr.getEnd());
 		}
 
-		// Change transcript strand?
+		// Sanity check
+		strandSumTr = countStrandPlus - countStrandMinus; // Some exons have incorrect strands, we use the strand indicated by most exons
 		int newStrand = strandSumTr >= 0 ? 1 : -1;
+		if ((countStrandPlus > 0) && (countStrandMinus > 0)) Gpr.debug("Transcript '" + id + "' has " + countStrandPlus + " exons on the plus and " + countStrandMinus + " exons on the minus strand! This should never happen!");
+
+		// Change transcript strand?
 		if (strand != newStrand) {
-			strand = (byte) newStrand;
 			changed = true;
+			setStart(newStrand); // Change strand
 		}
 
 		// Change start?
