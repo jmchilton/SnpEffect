@@ -256,18 +256,26 @@ public class Transcript extends IntervalAndSubIntervals<Exon> {
 			utr5len += utr.size();
 
 		// Append all exon sequences
-		for (Exon eint : exons)
-			sequence.append(eint.getSequence());
+		boolean missingSequence = false;
+		for (Exon exon : exons) {
+			missingSequence |= !exon.hasSequence(); // If there is no sequence, we are in trouble
+			sequence.append(exon.getSequence());
+		}
 
-		// 3 prime UTR length
-		for (Utr utr : get3primeUtrs())
-			utr3len += utr.size();
+		if (missingSequence) cds = ""; // One or more exons does not have sequence. Nothing to do
+		else {
+			// OK, all exons have sequences
 
-		// Cut 5 prime UTR and 3 prime UTR points
-		int subEnd = sequence.length() - utr3len;
+			// 3 prime UTR length
+			for (Utr utr : get3primeUtrs())
+				utr3len += utr.size();
 
-		if (utr5len > subEnd) cds = "";
-		else cds = sequence.substring(utr5len, subEnd);
+			// Cut 5 prime UTR and 3 prime UTR points
+			int subEnd = sequence.length() - utr3len;
+
+			if (utr5len > subEnd) cds = "";
+			else cds = sequence.substring(utr5len, subEnd);
+		}
 
 		return cds;
 	}
@@ -486,6 +494,18 @@ public class Transcript extends IntervalAndSubIntervals<Exon> {
 	}
 
 	/**
+	 * Return the Exon that hits position 'pos'
+	 * @param pos
+	 * @return An exon intersecting 'pos' (null if not found)
+	 */
+	public Exon findExon(int pos) {
+		// Is it in UTR instead of CDS? 
+		for (Exon exon : this)
+			if (exon.intersects(pos)) return exon;
+		return null;
+	}
+
+	/**
 	 * Find all splice sites.
 	 * 
 	 * @param createIfMissing : If true, create canonical splice sites if they are missing.
@@ -543,6 +563,18 @@ public class Transcript extends IntervalAndSubIntervals<Exon> {
 		}
 
 		return list;
+	}
+
+	/**
+	 * Return the UTR that hits position 'pos'
+	 * @param pos
+	 * @return An UTR intersecting 'pos' (null if not found)
+	 */
+	public Utr findUtr(int pos) {
+		// Is it in UTR instead of CDS? 
+		for (Utr utr : utrs)
+			if (utr.intersects(pos)) return utr;
+		return null;
 	}
 
 	/**
@@ -742,10 +774,7 @@ public class Transcript extends IntervalAndSubIntervals<Exon> {
 	 * @return
 	 */
 	public boolean isUtr(int pos) {
-		// Is it in UTR instead of CDS? 
-		for (Utr utr : utrs)
-			if (utr.intersects(pos)) return true;
-		return false;
+		return findUtr(pos) != null;
 	}
 
 	/**
@@ -871,13 +900,6 @@ public class Transcript extends IntervalAndSubIntervals<Exon> {
 						changeEffectList.add(cheff);
 					}
 				}
-
-				//				// Did not hit an exon or a UTR? => Must hit an intron
-				//				if (changeEffectList.isEmpty()) {
-				//					ChangeEffect cheff = changeEffect.clone();
-				//					cheff.set(this, EffectType.INTRON, "");
-				//					changeEffectList.add(cheff);
-				//				}
 			} else {
 				// No exons annotated? Just mark it as hitting a transcript
 				ChangeEffect cheff = changeEffect.clone();
@@ -980,6 +1002,24 @@ public class Transcript extends IntervalAndSubIntervals<Exon> {
 		}
 
 		return sb.toString();
+	}
+
+	/**
+	 * Show a transcript as an ASCII Art
+	 * @return
+	 */
+	public String toStringAsciiArt() {
+		char art[] = new char[size()];
+		for (int i = start, j = 0; i <= end; i++, j++) {
+			Utr utr = findUtr(i);
+			if (utr != null) art[j] = utr.isUtr5prime() ? '5' : '3';
+			else {
+				Exon exon = findExon(i);
+				if (exon != null) art[j] = exon.isStrandPlus() ? '>' : '<';
+				else art[j] = '-';
+			}
+		}
+		return new String(art);
 	}
 
 	/**

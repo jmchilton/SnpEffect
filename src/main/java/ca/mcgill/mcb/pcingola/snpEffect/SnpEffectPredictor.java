@@ -23,6 +23,7 @@ import ca.mcgill.mcb.pcingola.interval.Transcript;
 import ca.mcgill.mcb.pcingola.interval.Utr;
 import ca.mcgill.mcb.pcingola.interval.tree.IntervalForest;
 import ca.mcgill.mcb.pcingola.snpEffect.ChangeEffect.EffectType;
+import ca.mcgill.mcb.pcingola.snpEffect.ChangeEffect.ErrorType;
 import ca.mcgill.mcb.pcingola.util.Gpr;
 
 /**
@@ -409,7 +410,7 @@ public class SnpEffectPredictor implements Serializable {
 
 		// Chromosome missing?
 		if (Config.get().isErrorOnMissingChromo() && isChromosomeMissing(seqChange)) {
-			results.addError("ERROR_CHROMOSOME_NOT_FOUND");
+			results.addError(ErrorType.ERROR_CHROMOSOME_NOT_FOUND);
 			return results.newList();
 		}
 
@@ -434,7 +435,7 @@ public class SnpEffectPredictor implements Serializable {
 		// Any errors or intergenic (i.e. did not hit any gene)
 		if (!hitChromo) {
 			if (Config.get().isErrorChromoHit()) {
-				results.addError("ERROR_OUT_OF_CHROMOSOME_RANGE");
+				results.addError(ErrorType.ERROR_OUT_OF_CHROMOSOME_RANGE);
 				return results.newList();
 			}
 		} else if (!hitSomething) {

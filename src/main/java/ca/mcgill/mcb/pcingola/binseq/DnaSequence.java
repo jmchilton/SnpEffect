@@ -34,7 +34,7 @@ public class DnaSequence extends BinarySequence {
 	 * @return
 	 */
 	public static DnaSequence empty() {
-		if( EMPTY == null ) EMPTY = new DnaSequence("");
+		if (EMPTY == null) EMPTY = new DnaSequence("");
 		return EMPTY;
 	}
 
@@ -44,20 +44,20 @@ public class DnaSequence extends BinarySequence {
 	}
 
 	public DnaSequence(String seqStr) {
-		if( seqStr != null ) set(seqStr);
+		if (seqStr != null) set(seqStr);
 	}
 
 	public DnaSequence(String seqStr, boolean ignoreErrors) {
-		if( seqStr != null ) set(seqStr, ignoreErrors);
+		if (seqStr != null) set(seqStr, ignoreErrors);
 	}
 
 	@Override
 	public int compareTo(BinarySequence o) {
 		DnaSequence bs = (DnaSequence) o;
 		int minlen = Math.min(length, bs.length);
-		for( int i = 0; i < minlen; i++ ) {
-			if( codes[i] < bs.codes[i] ) return -1;
-			if( codes[i] > bs.codes[i] ) return 1;
+		for (int i = 0; i < minlen; i++) {
+			if (codes[i] < bs.codes[i]) return -1;
+			if (codes[i] > bs.codes[i]) return 1;
 		}
 		return 0;
 	}
@@ -97,10 +97,10 @@ public class DnaSequence extends BinarySequence {
 		char bases[] = new char[len];
 		int j = index / coder.basesPerWord();
 		int k = coder.lastBaseinWord() - (index % coder.basesPerWord());
-		for( int i = 0; i < len; i++ ) {
+		for (int i = 0; i < len; i++) {
 			bases[i] = coder.toBase(codes[j], k);
 			k--;
-			if( k < 0 ) {
+			if (k < 0) {
 				k = coder.lastBaseinWord();
 				j++;
 			}
@@ -115,7 +115,7 @@ public class DnaSequence extends BinarySequence {
 	 */
 	@Override
 	public int getCode(int index) {
-		if( (index < 0) || (index > length) ) throw new IndexOutOfBoundsException("Index requested " + index + ", sequence length is " + length);
+		if ((index < 0) || (index > length)) throw new IndexOutOfBoundsException("Index requested " + index + ", sequence length is " + length);
 		int idx = index / coder.basesPerWord();
 		int off = coder.lastBaseinWord() - (index % coder.basesPerWord());
 		return coder.decodeWord(codes[idx], off);
@@ -138,10 +138,18 @@ public class DnaSequence extends BinarySequence {
 	@Override
 	public int hashCode() {
 		long hash = 0;
-		for( int i = 0; i < codes.length; i++ )
+		for (int i = 0; i < codes.length; i++)
 			hash = hash * 33 + codes[i];
 
 		return (int) hash;
+	}
+
+	/**
+	 * Is this sequence empty?
+	 * @return
+	 */
+	public boolean isEmpty() {
+		return length <= 0;
 	}
 
 	/**
@@ -193,26 +201,26 @@ public class DnaSequence extends BinarySequence {
 		long[] newCodes = null;
 		int newLen = 0;
 		int len = length();
-		if( start >= 0 ) {
+		if (start >= 0) {
 			newLen = start + sequence.length();
 			int newLenWords = newLen / coder.basesPerWord();
-			if( newLen % coder.basesPerWord() != 0 ) newLenWords++;
+			if (newLen % coder.basesPerWord() != 0) newLenWords++;
 
-			if( len >= newLen ) {
+			if (len >= newLen) {
 				newLen = len;
 				newCodes = new long[codes.length]; // 'sequence' is totally included in 'this' => Just create a copy
 				System.arraycopy(codes, 0, newCodes, 0, codes.length);
 			} else {
 				newCodes = new long[newLenWords];
 				int lenWords = len / coder.basesPerWord();
-				if( (len % coder.basesPerWord()) > 0 ) lenWords++;
+				if ((len % coder.basesPerWord()) > 0) lenWords++;
 				System.arraycopy(codes, 0, newCodes, 0, lenWords);
 				coder.copyBases(seq.codes, len - start, newCodes, len, newLen - len);
 			}
 		} else {
 			newLen = Math.max(-start + len, seq.length());
 			int newLenWords = newLen / coder.basesPerWord();
-			if( newLen % coder.basesPerWord() != 0 ) newLenWords++;
+			if (newLen % coder.basesPerWord() != 0) newLenWords++;
 			newCodes = new long[newLenWords];
 			System.arraycopy(seq.codes, 0, newCodes, 0, seq.codes.length);
 			coder.copyBases(codes, 0, newCodes, -start, length);
@@ -232,7 +240,7 @@ public class DnaSequence extends BinarySequence {
 		DnaSequence binSeq = factory();
 		try {
 			binSeq.readDataStream(dataInStream);
-		} catch(EOFException e) {
+		} catch (EOFException e) {
 			return null;
 		}
 		return binSeq;
@@ -248,7 +256,7 @@ public class DnaSequence extends BinarySequence {
 		length = dataInStream.readInt();
 		int ilen = coder.length2words(length);
 		codes = new long[ilen];
-		for( int i = 0; i < codes.length; i++ )
+		for (int i = 0; i < codes.length; i++)
 			codes[i] = dataInStream.readLong();
 	}
 
@@ -262,7 +270,7 @@ public class DnaSequence extends BinarySequence {
 		// Reverse all words and perform WC 
 		int j = 0, k = 0;
 		long s = 0;
-		for( int index = length - 1; index >= 0; index-- ) {
+		for (int index = length - 1; index >= 0; index--) {
 			int idx = index / coder.basesPerWord();
 			int off = coder.lastBaseinWord() - (index % coder.basesPerWord());
 			int c = coder.decodeWord(codes[idx], off);
@@ -273,7 +281,7 @@ public class DnaSequence extends BinarySequence {
 			s <<= 2;
 			s |= c;
 			k++;
-			if( k >= coder.basesPerWord() ) {
+			if (k >= coder.basesPerWord()) {
 				rwc.codes[j] = s;
 				k = 0;
 				j++;
@@ -282,7 +290,7 @@ public class DnaSequence extends BinarySequence {
 		}
 
 		// Rotate last word
-		if( (k < Coder.BITS_PER_LONGWORD) && (k != 0) ) {
+		if ((k < Coder.BITS_PER_LONGWORD) && (k != 0)) {
 			s <<= Coder.BITS_PER_LONGWORD - (k << 1);
 			rwc.codes[j] = s;
 		}
@@ -300,7 +308,7 @@ public class DnaSequence extends BinarySequence {
 	}
 
 	public void set(String seqStr, boolean ignoreErrors) {
-		if( seqStr == null ) {
+		if (seqStr == null) {
 			length = 0;
 			codes = null;
 		} else {
@@ -312,11 +320,11 @@ public class DnaSequence extends BinarySequence {
 			// Create binary sequence
 			int j = 0, i = 0, k = 0;
 			long s = 0;
-			for( ; i < seqChar.length; i++ ) {
+			for (; i < seqChar.length; i++) {
 				s <<= 2;
 				s |= coder.baseToBits(seqChar[i], ignoreErrors);
 				k++;
-				if( k >= coder.basesPerWord() ) {
+				if (k >= coder.basesPerWord()) {
 					codes[j] = s;
 					k = 0;
 					j++;
@@ -325,7 +333,7 @@ public class DnaSequence extends BinarySequence {
 			}
 
 			// Last word: Shift the last bits
-			if( (k < Coder.BITS_PER_LONGWORD) && (k != 0) ) {
+			if ((k < Coder.BITS_PER_LONGWORD) && (k != 0)) {
 				s <<= Coder.BITS_PER_LONGWORD - (k << 1);
 				codes[j] = s;
 			}
@@ -360,7 +368,7 @@ public class DnaSequence extends BinarySequence {
 	@Override
 	public void write(DataOutputStream dataOutStream) throws IOException {
 		dataOutStream.writeInt(length);
-		for( int i = 0; i < codes.length; i++ )
+		for (int i = 0; i < codes.length; i++)
 			dataOutStream.writeLong(codes[i]);
 	}
 }

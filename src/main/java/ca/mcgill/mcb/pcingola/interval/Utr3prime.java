@@ -27,6 +27,16 @@ public class Utr3prime extends Utr {
 	}
 
 	@Override
+	public boolean isUtr3prime() {
+		return true;
+	}
+
+	@Override
+	public boolean isUtr5prime() {
+		return false;
+	}
+
+	@Override
 	public List<ChangeEffect> seqChangeEffect(SeqChange seqChange, ChangeEffect changeEffect) {
 		if (seqChange.includes(this) && (seqChange.getChangeType() == ChangeType.DEL)) {
 			changeEffect.set(this, EffectType.UTR_3_DELETED, ""); // A UTR was removed entirely

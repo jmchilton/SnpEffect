@@ -5,6 +5,7 @@ import ca.mcgill.mcb.pcingola.interval.SeqChange;
 import ca.mcgill.mcb.pcingola.interval.Transcript;
 import ca.mcgill.mcb.pcingola.snpEffect.ChangeEffect;
 import ca.mcgill.mcb.pcingola.snpEffect.ChangeEffect.EffectType;
+import ca.mcgill.mcb.pcingola.snpEffect.ChangeEffect.ErrorType;
 
 /**
  * Calculate codon changes produced by a SNP
@@ -25,6 +26,8 @@ public class CodonChangeSnp extends CodonChange {
 	boolean codonChangeSingle(ChangeEffect changeEffect, Exon exon) {
 		// Get old and new codons
 		codonsOld = codonsOld();
+		if (codonsOld.isEmpty()) changeEffect.addError(ErrorType.ERROR_MISSING_CDS_SEQUENCE);
+
 		codonsNew = codonsNew();
 		changeEffect.set(transcript, EffectType.CODON_CHANGE, "");
 		changeEffect.setCodons(codonsOld, codonsNew, codonNum, codonIndex);
@@ -37,6 +40,9 @@ public class CodonChangeSnp extends CodonChange {
 	 */
 	@Override
 	String codonsNew() {
+		// Was there a problem getting 'codonsOld'? => We cannot do anything 
+		if (codonsOld.isEmpty()) return "";
+
 		char codonChars[] = codonsOld.toLowerCase().toCharArray();
 		char snpBase = seqChange.netChange(transcript.getStrand()).charAt(0);
 		codonChars[codonIndex] = Character.toUpperCase(snpBase);
@@ -53,14 +59,26 @@ public class CodonChangeSnp extends CodonChange {
 	@Override
 	public String codonsOld() {
 		int numCodons = 1;
+
+		// Get CDS
+		String cdsStr = transcript.cds();
+		int cdsLen = cdsStr.length();
+
+		// Calculate minBase (first codon base in the CDS)
 		int minBase = codonNum * CodonChange.CODON_SIZE;
 		if (minBase < 0) minBase = 0;
 
-		int len = transcript.cds().length();
+		// Calculate maxBase (last codon base in the CDS)
 		int maxBase = codonNum * CodonChange.CODON_SIZE + numCodons * CodonChange.CODON_SIZE;
-		if (maxBase > len) maxBase = len;
+		if (maxBase > cdsLen) maxBase = cdsLen;
 
-		char codonChars[] = transcript.cds().substring(minBase, maxBase).toLowerCase().toCharArray();
+		// Sanity checks
+		if (cdsStr.isEmpty() // Empty CDS => Cannot get codon (e.g. one or more exons are missing their sequences
+				|| (cdsLen <= minBase) // Codon past CDS sequence => Cannot get codon 
+		) return "";
+
+		// Create codon sequence
+		char codonChars[] = cdsStr.substring(minBase, maxBase).toLowerCase().toCharArray();
 		codonChars[codonIndex] = Character.toUpperCase(codonChars[codonIndex]);
 		String codon = new String(codonChars);
 		return codon;

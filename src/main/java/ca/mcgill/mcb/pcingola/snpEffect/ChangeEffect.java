@@ -80,6 +80,18 @@ public class ChangeEffect implements Cloneable, Comparable<ChangeEffect> {
 	};
 
 	/**
+	 * Errors for change effect
+	 * @author pcingola
+	 *
+	 */
+	public enum ErrorType {
+		ERROR_CHROMOSOME_NOT_FOUND //
+		, ERROR_OUT_OF_CHROMOSOME_RANGE //
+		, ERROR_OUT_OF_EXON //
+		, ERROR_MISSING_CDS_SEQUENCE //
+	}
+
+	/**
 	 * This class is only getFused for SNPs
 	 */
 	public enum FunctionalClass {
@@ -114,7 +126,7 @@ public class ChangeEffect implements Cloneable, Comparable<ChangeEffect> {
 		this.seqChange = seqChange;
 	}
 
-	public void addError(String err) {
+	public void addError(ErrorType err) {
 		error += (error.isEmpty() ? "" : "|") + err;
 	}
 

@@ -5,6 +5,7 @@ import ca.mcgill.mcb.pcingola.binseq.DnaSequence;
 import ca.mcgill.mcb.pcingola.interval.SeqChange.ChangeType;
 import ca.mcgill.mcb.pcingola.snpEffect.ChangeEffect;
 import ca.mcgill.mcb.pcingola.snpEffect.ChangeEffect.EffectType;
+import ca.mcgill.mcb.pcingola.snpEffect.ChangeEffect.ErrorType;
 import ca.mcgill.mcb.pcingola.util.GprSeq;
 
 /**
@@ -79,7 +80,7 @@ public class Exon extends Marker {
 		int mstart = Math.max(seqChange.getStart(), start);
 		int idxStart = mstart - start;
 		if (sequence.length() <= 0) results.addWarning("WARNING_SEQUENCE_NOT_AVAILABLE");
-		else if (idxStart >= sequence.length()) results.addError("ERROR_OUT_OF_EXON");
+		else if (idxStart >= sequence.length()) results.addError(ErrorType.ERROR_OUT_OF_EXON);
 		else {
 			int mend = Math.min(seqChange.getEnd(), end);
 			int len = mend - mstart + 1;
@@ -156,32 +157,19 @@ public class Exon extends Marker {
 		return spliceType;
 	}
 
+	/**
+	 * Do we have a sequence for this exon?
+	 * @return
+	 */
+	public boolean hasSequence() {
+		if (size() <= 0) return true; // This interval has zero length, so sequence should be empty anyway (it is OK if its empty)
+		return (sequence != null) && (!sequence.isEmpty());
+	}
+
 	@Override
 	protected boolean isAdjustIfParentDoesNotInclude(Marker parent) {
 		return true;
 	}
-
-	//	/**
-	//	 * Get some details about the effect on this transcript
-	//	 * @param seqChange
-	//	 * @return
-	//	 */
-	//	@Override
-	//	public List<ChangeEffect> seqChangeEffect(SeqChange seqChange, ChangeEffect changeEffect) {
-	//		if (Math.random() < 2) throw new RuntimeException("REMOVE THIS CODE!!!");
-	//		if (!intersects(seqChange)) return ChangeEffect.emptyResults(); // Sanity check
-	//
-	//		// An exon was removed entirely?
-	//		if (seqChange.includes(this) && seqChange.isDel()) {
-	//			changeEffect.setCodons("", "", -1, -1);
-	//			changeEffect.set(this, EffectType.EXON_DELETED, "");
-	//			return changeEffect.newList();
-	//		}
-	//
-	//		changeEffect.setMarker(this); // We do NOT use changeEffect.set(this, EXON, "") because the information has already been set by 'Transcript'
-	//		check(seqChange, changeEffect); // Check that the base in the exon corresponds with the one in the SNP
-	//		return changeEffect.newList();
-	//	}
 
 	/**
 	 * Parse a line from a serialized file

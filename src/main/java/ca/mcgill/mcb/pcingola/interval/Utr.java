@@ -18,6 +18,10 @@ public abstract class Utr extends Marker {
 		super(parent, start, end, strand, id);
 	}
 
+	public abstract boolean isUtr3prime();
+
+	public abstract boolean isUtr5prime();
+
 	abstract String utrDistance(SeqChange snp, Transcript tint);
 
 }

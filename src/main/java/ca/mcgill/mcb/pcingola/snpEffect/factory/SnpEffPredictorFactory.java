@@ -145,13 +145,11 @@ public abstract class SnpEffPredictorFactory {
 							seqsIgnored++;
 						} else {
 							try {
-								if (ssEnd < chrSeq.length()) {
-									String seq = chrSeq.substring(ssStart, ssEnd).toUpperCase();
-									// Reverse strand? => reverse complement of the sequence
-									if (exon.isStrandMinus()) seq = GprSeq.reverseWc(seq);
-									exon.setSequence(seq);
-									seqsAdded++;
-								}
+								String seq = chrSeq.substring(ssStart, ssEnd).toUpperCase();
+								// Reverse strand? => reverse complement of the sequence
+								if (exon.isStrandMinus()) seq = GprSeq.reverseWc(seq);
+								exon.setSequence(seq);
+								seqsAdded++;
 							} catch (Throwable t) {
 								t.printStackTrace();
 								throw new RuntimeException("Error trying to add sequence to exon:\n\tChromosome sequence length: " + chrSeq.length() + "\n\tExon: " + exon);
