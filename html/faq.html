@@ -40,7 +40,7 @@
 <b> Background </b> <br>
 - <a class="body" href="#What_is_snpEff?"> What is snpEff? </a> <br>
 - <a class="body" href="#What_is_a_variant?_Does_snpEff_support_variants?"> What is a variant? Does snpEff support variants?  </a> <br>
-- <a class="body" href="#What_orgranisms_does_it_support?"> What orgranisms does it support?  </a> <br>
+- <a class="body" href="#What_organisms_does_it_support?"> What organisms does it support?  </a> <br>
 - <a class="body" href="#How_do_I_cite_your_work?"> How do I cite your work?  </a> <br>
 <p>
 <b> Install </b> <br>
@@ -49,7 +49,7 @@
 - <a class="body" href="#How_is_it_licensed?"> How is it licensed?  </a> <br>
 - <a class="body" href="#Where_is_the_source_code?"> Where is the source code?  </a> <br>
 - <a class="body" href="#Can_you_explain_the_configuration_file?"> Can you explain the configuration file?  </a> <br>
-- <a class="body" href="#How_do_I_get_the_same_web_interface_you_how_in_the_main_page?"> How do I get the same web interface you how in the main page?  </a> <br>
+- <a class="body" href="#How_do_I_get_the_same_web_interface_you_show_in_the_main_page?"> How do I get the same web interface you show in the main page?  </a> <br>
 <p>
 <b> Run </b> <br>
 - <a class="body" href="#How_do_I_run_snpEff?"> How do I run snpEff?  </a> <br>
@@ -87,12 +87,12 @@
 - <a class="body" href="#How_do_I_add_support_for_XXX_genome?"> How do I add support for XXX genome? How do I build a database? </a> <br>
 - <a class="body" href="#How_do_I_add_support_for_regulatory_annotations?"> How do I add support for regulatory annotations?  </a> <br>
 - <a class="body" href="#How_do_I_add_another_codon_table?"> How do I add another codon table?  </a> <br>
-- <a class="body" href="#When_I_biuld_the_database_using_GFF_3_it_says_that_Exons_don't_have_s"> When I biuld the database using GFF 3 it says that Exons don't have sequences </a> <br>
+- <a class="body" href="#When_I_build_the_database_using_GFF_3_it_says_that_Exons_don't_have_s"> When I build the database using GFF 3 it says that Exons don't have sequences </a> <br>
 - <a class="body" href="#I_get_zero_protein_coding_genes">When building a database, I get zero protein coding genes</a> <br>
 - <a class="body" href="#I_get_too_many_warnings">When building a database, I get too many warnings</a> <br>
 <p>
 <b> Unexpected results </b> <br>
-- <a class="body" href="#Why_are_coordiantes_changed_in_InDels?"> Why are coordiantes changed in InDels?  </a> <br>
+- <a class="body" href="#Why_are_coordinates_changed_in_InDels?"> Why are coordinates changed in InDels?  </a> <br>
 - <a class="body" href="#When_I_look_at_the_UCSC_borwser_for_hg19,_it_doesn't_match_the_information_from_snpEff?"> When I look at the UCSC borwser for hg19, it doesn't match the information from snpEff?  </a> <br>
 - <a class="body" href="#When_I_run_SnpEff_from_GATK_I_only_get_one_effect!"> When I run SnpEff from GATK I only get one effect! </a> <br>
 - <a class="body" href="#Why_SnpEff_is_reporting_an_effect_that_doesn't_match_ENSEMBL_(web)?"> Why SnpEff is reporting an effect that doesn't match ENSEMBL (web)? </a> <br>
@@ -132,8 +132,8 @@
 				A variant can be either a SNP (single-nucleotide polymorphism), an InDel (insertion or deletion) or a MNP (multiple-nucleotide polymorphism).<br>
 				Yes, snpEff suports all these variants. <br>
 
-				<p style="font-size: 14pt"> <b> <a class="body" name="What_orgranisms_does_it_support?"> What orgranisms does it support?  </a> </b></p>
-				So far we support over 260 genome versions and the number is growing. If you have problems adding you own organism, send me an email and I'll be happy to support the orgranism of your choice.<p>
+				<p style="font-size: 14pt"> <b> <a class="body" name="What_organisms_does_it_support?"> What organisms does it support?  </a> </b></p>
+				So far we support over 260 genome versions and the number is growing. If you have problems adding you own organism, send me an email and I'll be happy to support the organism of your choice.<p>
 
 				<p style="font-size: 14pt"> <b> <a class="body" name="How_do_I_cite_your_work?"> How do I cite your work?  </a> </b></p>
 				<a class="body" href="SnpEff_paper.pdf">"A program for annotating and predicting the effects of single nucleotide polymorphisms, SnpEff: SNPs in the genome of Drosophila melanogaster strain w1118; iso-2; iso-3", Cingolani, P. and Platts, A. and Coon, M. and Nguyen, T. and Wang, L. and Land, S.J. and Lu, X. and Ruden, D.M., Fly, 6, 2, 2012.</a>
@@ -174,7 +174,7 @@ svn co https://snpeff.svn.sourceforge.net/svnroot/snpeff/SnpEffect/trunk
 				The file snpEff.config has some configuration parameters, which are explained in the comments in the config file, so I won't repeat the explanation here :-)<p>
 				Most of the time you do not need to change anything except for "data_dir" parameter, which points to the "data" directory where you installed the tool (i.e. path/to/your/intall/snpEff/data).<p>
 
-				<p style="font-size: 14pt"> <b> <a class="body" name="How_do_I_get_the_same_web_interface_you_how_in_the_main_page?"> How do I get the same web interface you how in the main page?  </a> </b></p>
+				<p style="font-size: 14pt"> <b> <a class="body" name="How_do_I_get_the_same_web_interface_you_show_in_the_main_page?"> How do I get the same web interface you show in the main page?  </a> </b></p>
 				That is the <a class="body"class="body" href="http://usegalaxy.org">Galaxy</a> project. You can either install your own server and add the snpEff tool or use it in an open Galaxy server.
 
 				<hr> <center> <p style="font-size: 16pt"> <b> Run </b></center></p>
@@ -202,15 +202,17 @@ svn co https://snpeff.svn.sourceforge.net/svnroot/snpeff/SnpEffect/trunk
 				Also, take a look at the <a class="body"class="body" href="manual.html">manual page</a>.
 
 				<p style="font-size: 14pt"> <b> <a class="body" name="Why_does_it_take_a_some_seconds_to_start?"> Why does it take a some seconds to start?  </a> </b></p>
-				snpEff has to load the database before starting to analyze your SNPs. Usually it takes 15 to 30 seconds (depending on which databse, how powerfull your computer is, etc.). After that, it can analyzed thousands of SNPs per second.
+				snpEff has to load the database before starting to analyze your SNPs. Usually it takes 15 to 30 seconds (depending on which database, how powerful your computer is, etc.). 
+				After that, it can analyze thousands of SNPs per second.
 
 				<p style="font-size: 14pt"> <b> <a class="body" name="Why_do_I_get_an_OutOfMemory_error?"> Why do I get an "OutOfMemory" error?  </a> </b></p>
-				You should probably use more memory in you java virtual machine. You can do this by using the "-XmX" option. E.g. in this case I use 4Gb (note that there is no space between the "-Xmx" and the "4G"):
+				You should probably use more memory in you java virtual machine. 
+				You can do this by using the "-XmX" option. E.g. in this case I use 4Gb:
 <pre>
 	# Run this from snpEff directory
 	java -Xmx4G snpEff.jar hg37 path/to/your/files/snps.txt
 </pre>
-				Note that there is no space between the "-Xmx" and the "4G".
+				<b>Note:</b> There is no space between "-Xmx" and "4G".
 
 				<p style="font-size: 14pt"> <b> <a class="body" name="I_sequenced_a_genome,_how_do_I_analyze_the_variants?"> I sequenced a genome, how do I analyze the variants?  </a> </b></p>
 				This is an extremelly simplified version on how to analyze the data from scratch (this is not meant to be a tutorial on sequencing analysis).<p>
@@ -250,7 +252,7 @@ svn co https://snpeff.svn.sourceforge.net/svnroot/snpeff/SnpEffect/trunk
 				<p style="font-size: 14pt"> <b> <a class="body" name="What_is_the_input_format_like?"> What is the input format like?  </a> </b></p>
 				Since version 2.0 the default input format is <a class="body"class="body" href="http://www.1000genomes.org/wiki/Analysis/Variant%20Call%20Format/vcf-variant-call-format-version-40">variant call format (VCF)</a>. This is the format used by the "1000 Genomes Project".<p>
 
-				<b>Obsolete input formats:</b> Pileup and TXT. The use of Pileup and TXT input formats is discurraged and support may be discontinued in the future.<p>
+				<b>Obsolete input formats:</b> Pileup and TXT. The use of Pileup and TXT input formats is discouraged and support may be discontinued in the future.<p>
 
 				<b>Pileup:</b> Since version 1.4 you can also use <a class="body"class="body" href="https://sourceforge.net/apps/mediawiki/samtools/index.php?title=SAM_FAQ#I_do_not_understand_the_columns_in_the_pileup_output.">pileup</a> format from SamTools by setting the "-pileup" option in the command line. Please note that we use a pileup version with calls (not the basic one).<br>
 				<b>WARNING:</b> This format is deprecated, not only in SnpEff but also in SAMTools.</b><p>
@@ -286,7 +288,7 @@ svn co https://snpeff.svn.sourceforge.net/svnroot/snpeff/SnpEffect/trunk
 				<hr> <center> <p style="font-size: 16pt"> <b> Output file formats </b></center></p>
 
 				There are two output formats: TXT (default) and VCF (can only be used if the input is also in VCF format).<br>
-				SnpEff also creates two dditional output files: Stats (and HTML file with statistics) and Genes files (a TXT file with SNPs per gene and region)<p>
+				SnpEff also creates two additional output files: Stats (and HTML file with statistics) and Genes files (a TXT file with SNPs per gene and region)<p>
 
 				<p style="font-size: 14pt"> <b> <a class="body" name="What_is_the_VCF_output_format_like?"> What is the VCF output format like?  </a> </b></p>
 				<a class="body"class="body" href="http://www.1000genomes.org/wiki/Analysis/Variant%20Call%20Format/vcf-variant-call-format-version-41">VCF</a> is the default output format. 
@@ -548,7 +550,7 @@ INS reported by SnpEff:     "chr10   102770315       *       +GCGGCT INS"
 </pre>
 <p>
 
-				At first glace, these two look different, since 102770293 is not the same as 102770293. 
+				At first glace, these two look different, since 102770293 is not the same as 102770315. 
 				But if you look at the sequences:
 
 <p>
@@ -755,7 +757,7 @@ codon.Invertebrate_Mitochondrial:  TTT/F, TTC/F, TAC/Y, TAA/*, ATG/M+, ATG/M+, A
 
 				...of course, chromosome 'M' is not a real chromosome, it is just a way to mark the sequence as mitochondrial DNA.
 
-				<p style="font-size: 14pt"> <b> <a class="body" name="When_I_biuld_the_database_using_GFF_3_it_says_that_Exons_don't_have_s"> When I biuld the database using GFF 3 it says that Exons don't have sequences </a> </b></p>
+				<p style="font-size: 14pt"> <b> <a class="body" name="When_I_build_the_database_using_GFF_3_it_says_that_Exons_don't_have_s"> When I build the database using GFF 3 it says that Exons don't have sequences </a> </b></p>
 
 				GFF3 files can have sequence information either in the same file or in a separate fasta file.<p>
 				In order to add sequence information in the GFF file, you can do this:
@@ -767,7 +769,7 @@ cat sequence.fa  >> genes.gff
 </pre>
 
 				<p style="font-size: 14pt"> <b> <a class="body" name="I_get_zero_protein_coding_genes"> When building a database, I get zero protein coding genes</a> </b></p>
-				When building a database, snpEff tries to find which transctipts are protein coding. This is doen using the 'bioType' information.<br>
+				When building a database, snpEff tries to find which transcripts are protein coding. This is done using the 'bioType' information.<br>
 				The bioType information is not a standard GFF or GTF feature. So I follow ENSEMBL's convention of using the second column ('source') for bioType, as well as the gene_biotype attribute.<br>
  				If your file was not produced by ENSEMBL, it probably doesn't have this information. This means that snpEff doesn't know which genes are protein coding and which ones are not. <br>
 				Having no information, snpEff will treat all genes as protein coding (assuming you have '-treatAllAsProteinCoding Auto' option in the command line, which is the default).<br>
@@ -786,7 +788,7 @@ java -jar snpEff.jar dump myGenome | less
 
 				<hr> <center> <p style="font-size: 16pt"> <b> Unexpected results </b></center></p>
 
-				<p style="font-size: 14pt"> <b> <a class="body" name="Why_are_coordiantes_changed_in_InDels?"> Why are coordiantes changed in InDels?  </a> </b></p>
+				<p style="font-size: 14pt"> <b> <a class="body" name="Why_are_coordinates_changed_in_InDels?"> Why are coordinates changed in InDels?  </a> </b></p>
 
 				This is not a bug, just a feature of VCF input files.
 				Suppose that you have an InDel like this one
@@ -803,7 +805,7 @@ java -jar snpEff.jar dump myGenome | less
 
 				<p style="font-size: 14pt"> <b> <a class="body" name="When_I_look_at_the_UCSC_borwser_for_hg19,_it_doesn't_match_the_information_from_snpEff?"> When I look at the UCSC borwser for hg19, it doesn't match the information from snpEff?  </a> </b></p>
 
-				<b>WARNING:</b> Usage of hg19 genome is deprecated and discurraged, you should use GRChXX.YY instead<p>
+				<b>WARNING:</b> Usage of hg19 genome is deprecated and discouraged, you should use GRChXX.YY instead<p>
 
 				Reference sequence and annotations are made for an organism, version and sub-version. 
 				For examples human genome, version 37, sub-version 63 would be called (GRCh37.63 or hg37.63 aka hg19.63).<br>
@@ -829,7 +831,7 @@ java -jar snpEff.jar dump myGenome | less
 1       processed_transcript    exon    1653905 1654270 .       -       .        gene_id "ENSG00000008128"; transcript_id "ENST00000487462"; exon_number "2"; gene_name "CDK11A"; gene_biotype "protein_coding"; transcript_name "CDK11A-013";
 </pre>
 
-				This means that you'll get different results for this transcript using sub-version 63 or 64. I assume that latest versions are improved, so I always encurrage to upgrade.<p>
+				This means that you'll get different results for this transcript using sub-version 63 or 64. I assume that latest versions are improved, so I always encourage to upgrade.<p>
 				As I mentioned before it might even be the case that latest released dataabse and the one shown on the web interface may be out of sync.<br>
 
 				<p style="font-size: 14pt"> <b> <a class="body" name="Why_is_snpEff_reporting_a_SYNONYMOUS_and_a_NON_SYNONYMOUS_effect_on_te_same_gene?"> Why is snpEff reporting a SYNONYMOUS and a NON_SYNONYMOUS effect on te same gene? </a> </b></p>
@@ -848,7 +850,7 @@ chr5 137622242 . C T . . EFF=NON_SYNONYMOUS_CODING(MODERATE|MISSENSE|Gaa/Aaa|E/K
                              SYNONYMOUS_CODING(LOW|SILENT|caG/caA|Q|CDC25C|protein_coding|CODING|ENST00000534892|exon_5_137622186_137622319)
 </pre>
 
-				in this example (it was devided into multiple lines for ligibility), the first transcript ENST0000051401 has a NON_SYNONYMOUS effect, but all other transcripts have a SYNONYMOUS effect.
+				in this example (it was divided into multiple lines for legibility), the first transcript ENST0000051401 has a NON_SYNONYMOUS effect, but all other transcripts have a SYNONYMOUS effect.
 				<p>
 
 				<hr> <center> <p style="font-size: 16pt"> <b> Other utilities </b></center></p>
