@@ -303,7 +303,7 @@ public class VcfOutputFormatter extends OutputFormatter {
 	 */
 	public String vcfInfoSafeString(String value) {
 		if (value == null) return value;
-		value = value.replaceAll("[ ,;|=]", "_");
+		value = value.replaceAll("[ ,;|=()]", "_");
 		return value;
 	}
 }
