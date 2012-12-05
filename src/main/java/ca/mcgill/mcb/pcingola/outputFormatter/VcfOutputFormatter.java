@@ -129,7 +129,7 @@ public class VcfOutputFormatter extends OutputFormatter {
 				Transcript tr = changeEffect.getTranscript();
 				if (gene != null) {
 					// Gene name
-					effBuff.append(gene.getGeneName());
+					effBuff.append(vcfInfoSafeString(gene.getGeneName()));
 					effBuff.append("|");
 
 					// Transcript ID
@@ -151,7 +151,7 @@ public class VcfOutputFormatter extends OutputFormatter {
 				} else effBuff.append("|||");
 
 				// Add transcript info
-				if (tr != null) effBuff.append(tr.getId());
+				if (tr != null) effBuff.append(vcfInfoSafeString(tr.getId()));
 				effBuff.append("|");
 
 				// Add exon (or intron) rank info
@@ -296,5 +296,14 @@ public class VcfOutputFormatter extends OutputFormatter {
 		VcfEntry vcfEntry = (VcfEntry) section;
 		VcfFileIterator vcfFile = vcfEntry.getVcfFileIterator();
 		return vcfFile.getVcfHeader().toString();
+	}
+
+	/**
+	 * Create a string that is safe (i.e. valid) to add in an INFO field
+	 */
+	public String vcfInfoSafeString(String value) {
+		if (value == null) return value;
+		value = value.replaceAll("[ ,;|=]", "_");
+		return value;
 	}
 }

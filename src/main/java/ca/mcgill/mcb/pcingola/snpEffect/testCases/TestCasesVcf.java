@@ -8,6 +8,7 @@ import junit.framework.TestCase;
 import ca.mcgill.mcb.pcingola.fileIterator.VcfFileIterator;
 import ca.mcgill.mcb.pcingola.interval.Genome;
 import ca.mcgill.mcb.pcingola.interval.SeqChange;
+import ca.mcgill.mcb.pcingola.outputFormatter.VcfOutputFormatter;
 import ca.mcgill.mcb.pcingola.snpEffect.Config;
 import ca.mcgill.mcb.pcingola.util.Gpr;
 import ca.mcgill.mcb.pcingola.util.Timer;
@@ -318,6 +319,17 @@ public class TestCasesVcf extends TestCase {
 			chr = vcfEntry.getChromosomeNameOri();
 
 		Assert.assertEquals("chr1", chr);
+	}
+
+	public void test_14_OutputFormatter_AddInfo() {
+		VcfOutputFormatter vof = new VcfOutputFormatter(null);
+		String testIn[] = { "Hi ", "Hi how;", "Hi how;are|", "Hi how;are|you,", "Hi how;are|you,doing=", "Hi how;are|you,doing=today." };
+		String testOut[] = { "Hi_", "Hi_how_", "Hi_how_are_", "Hi_how_are_you_", "Hi_how_are_you_doing_", "Hi_how_are_you_doing_today." };
+		for (int i = 0; i < testIn.length; i++) {
+			String safe = vof.vcfInfoSafeString(testIn[i]);
+			System.out.println("'" + testIn[i] + "'\t'" + safe + "'\t'" + testOut[i] + "'");
+			Assert.assertEquals(testOut[i], safe);
+		}
 	}
 
 }

@@ -276,57 +276,6 @@ public class Gpr {
 		return file;
 	}
 
-	/**
-	 * Indicates if passed rid is invalid 
-	 * @return true if rid must not be used
-	 */
-	public static boolean isInvalidRid(int rid) {
-		return !isValidRid(rid);
-	}
-
-	/**
-	 * Indicates that two names are similar if one is contained in the other
-	 * @param  name1
-	 * @param name2
-	 * @return false if none of two names can be contained by the other
-	 * This method should be in a class Name (or something like that)
-	 */
-	public static boolean isSimilName(String name1, String name2) {
-		return name1.contains(name2) || name2.contains(name1);
-	}
-
-	/**
-	 * An invoice number should be nnnn-nnnnnnnn
-	 * prefix can be between 1 and 4 digits
-	 * sufix can be between 1 and 8 digits
-	 * @return false if not a valid number
-	 */
-	public static boolean isValidInvoiceNumber(String invoiceNumber) {
-		if (invoiceNumber == null || invoiceNumber.equals("")) return false;
-
-		if (invoiceNumber.indexOf("-") == -1) return false;
-		if (invoiceNumber.length() < 3) return false;
-
-		String[] parts = invoiceNumber.split("-");
-		if (parts.length != 2) return false;
-		if (parts[0].length() > 4 || parts[0].length() < 1) return false;
-		if (parts[1].length() > 8 || parts[1].length() < 1) return false;
-
-		try {
-			Integer.parseInt(parts[0]);
-		} catch (NumberFormatException e) {
-			return false;
-		}
-		try {
-			int tmp = Integer.parseInt(parts[1]);
-			if (tmp == 0) return false;
-		} catch (NumberFormatException e) {
-			return false;
-		}
-
-		return true;
-	}
-
 	public static boolean isValidIp(String ip) {
 		if (ip == null) return false;
 
