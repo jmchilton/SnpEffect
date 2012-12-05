@@ -274,15 +274,18 @@ public class SnpEff implements CommandLine {
 	public void usage(String message) {
 		if (message != null) System.err.println("Error: " + message + "\n");
 		System.err.println("snpEff version " + VERSION);
-		System.err.println("Usage: snpEff [eff]           [options] genome_version snp_file");
-		System.err.println("   or: snpEff download        [options] genome_version");
-		System.err.println("   or: snpEff build           [options] genome_version");
-		System.err.println("   or: snpEff dump            [options] genome_version");
-		System.err.println("   or: snpEff cds             [options] genome_version");
-		System.err.println("   or: snpEff protein         [options] genome_version");
-		System.err.println("   or: snpEff closestExon     [options] genome_version");
-		System.err.println("   or: snpEff spliceAnalysis  [options] genome_version");
-		System.err.println("   or: snpEff countReads      [options] genome_version");
+		System.err.println("Usage: snpEff [command] [options] [files]");
+		System.err.println("\nAvailable vommands: ");
+		System.err.println("   [eff]           : Calculate effect of variants. Default (no command or 'eff').");
+		System.err.println("   download        : Download a SnpEff database.");
+		System.err.println("   build           : Build a SnpEff database.");
+		System.err.println("   dump            : Dump to STDOUT a SnpEff database (mostly used for debugging).");
+		System.err.println("   cds             : Compare CDS sequences calculated form a SnpEff database to the one in a FASTA file. Used for checking databases correctness.");
+		System.err.println("   protein         : Compare protein sequences calculated form a SnpEff database to the one in a FASTA file. Used for checking databases correctness.");
+		System.err.println("   closestExon     : Calculate closes exon/s given a set of genomic positions or intervals.");
+		System.err.println("   spliceAnalysis  : Perform an analysis of splice sites. Experimental feature.");
+		System.err.println("   countReads      : Count how many reads (from a BAM file) overlap with each genomic interval. Experimental feature.");
+		System.err.println("\nRun 'java -jar snpEff.jar command' for help on each specifig command");
 		System.exit(-1);
 	}
 }
