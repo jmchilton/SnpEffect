@@ -267,6 +267,13 @@ public class Gene extends IntervalAndSubIntervals<Transcript> implements Seriali
 					all.add(ex);
 			break;
 
+		case CDS:
+			// Add all cds
+			for (Transcript tr : this)
+				for (Cds cds : tr.getCds())
+					all.add(cds);
+			break;
+
 		case TRANSCRIPT:
 			// Add all transcripts
 			for (Transcript tr : this)
