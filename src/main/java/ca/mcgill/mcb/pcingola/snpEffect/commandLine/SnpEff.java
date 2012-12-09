@@ -40,11 +40,12 @@ public class SnpEff implements CommandLine {
 
 	public static final int COMMAND_LINE_WIDTH = 40;
 
+	public static final String SOFTWARE_NAME = "SnpEff";
 	public static final String BUILD = "2012-12-04";
 	public static final String VERSION_MAJOR = "3.1";
-	public static final String REVISION = "h";
+	public static final String REVISION = "g";
 	public static final String VERSION_SHORT = VERSION_MAJOR + REVISION;
-	public static final String VERSION = "SnpEff " + VERSION_SHORT + " (build " + BUILD + "), by " + Pcingola.BY;
+	public static final String VERSION = SOFTWARE_NAME + " " + VERSION_SHORT + " (build " + BUILD + "), by " + Pcingola.BY;
 
 	public static final String DEFAULT_SUMMARY_FILE = "snpEff_summary.html";
 	public static final String DEFAULT_SUMMARY_GENES_FILE = "snpEff_genes.txt";
@@ -158,6 +159,7 @@ public class SnpEff implements CommandLine {
 				else argsList.add(args[i]);
 
 				if (args[i].equals("-v")) verbose = true; // Make this option available here as well
+				if (args[i].equals("-q")) quiet = true; // Make this option available here as well
 			}
 			shiftArgs = argsList.toArray(new String[0]);
 		} else {
@@ -261,7 +263,17 @@ public class SnpEff implements CommandLine {
 		}
 
 		// Report to server (usage statistics) 
-		if (log) LogStats.report(VERSION, ok, verbose, args, err, snpEff.reportValues());
+		if (log) {
+			LogStats logStats = LogStats.report(SOFTWARE_NAME, VERSION_SHORT, VERSION, ok, verbose, args, err, snpEff.reportValues());
+			if (!quiet && logStats.isNewVersion()) {
+				System.err.println("New version available: " //
+						+ "\n\tNew version  : " + logStats.getLatestVersion() // 
+						+ "\n\tRelease date : " + logStats.getLatestReleaseDate() //
+						+ "\n\tDownload URL : " + logStats.getLatestUrl() //
+						+ "\n\nTo update run:\n\tjava snpEff.jar download -v snpeff\n" //
+				);
+			}
+		}
 
 		return ok;
 	}

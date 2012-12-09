@@ -1,6 +1,11 @@
 package ca.mcgill.mcb.pcingola;
 
-import ca.mcgill.mcb.pcingola.outputFormatter.VcfOutputFormatter;
+import java.util.HashMap;
+
+import ca.mcgill.mcb.pcingola.logStatsServer.LogStats;
+import ca.mcgill.mcb.pcingola.snpEffect.commandLine.SnpEff;
+import ca.mcgill.mcb.pcingola.snpEffect.commandLine.SnpEffCmdDownload;
+import ca.mcgill.mcb.pcingola.util.Gpr;
 
 /**
  * Simple test program
@@ -9,12 +14,23 @@ import ca.mcgill.mcb.pcingola.outputFormatter.VcfOutputFormatter;
 public class Zzz {
 
 	public static void main(String[] args) {
-		VcfOutputFormatter vof = new VcfOutputFormatter(null);
-		String testIn[] = { "Hi ", "Hi how;", "Hi how;are|", "Hi how;are|you,", "Hi how;are|you,doing=", "Hi how;are|you,doing=today." };
-		String testOut[] = { "Hi ", "Hi_how_", "Hi_how_are_", "Hi_how_are_you_", "Hi_how_are_you_doing_", "Hi_how_are_you_doing_today." };
-		for (int i = 0; i < testIn.length; i++) {
-			System.out.println("'" + testIn[i] + "'\t'" + vof.vcfInfoSafeString(testIn[i]) + "'\t'" + testOut[i] + "'");
+		HashMap<String, String> reportValues = new HashMap<String, String>();
+		LogStats logStats = LogStats.report(SnpEff.SOFTWARE_NAME, SnpEff.VERSION_SHORT, SnpEff.VERSION, true, true, args, "", reportValues);
+
+		if (logStats.isNewVersion()) {
+			Gpr.debug("New version found: " //
+					+ "\n\tNew version  : " + logStats.getLatestVersion() // 
+					+ "\n\tRelease date : " + logStats.getLatestReleaseDate() //
+					+ "\n\tDownload URL : " + logStats.getLatestUrl() //
+			);
+
+			// Invoke download command
+			SnpEffCmdDownload download = new SnpEffCmdDownload();
+			String argsDownload[] = { "-v", "snpeff" };
+			download.parseArgs(argsDownload);
+			download.run();
 		}
 
+		Gpr.debug("DONE!");
 	}
 }

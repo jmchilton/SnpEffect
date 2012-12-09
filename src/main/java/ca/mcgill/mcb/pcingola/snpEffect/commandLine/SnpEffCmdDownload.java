@@ -11,11 +11,14 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.HashMap;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
+import java.util.zip.ZipOutputStream;
 
+import ca.mcgill.mcb.pcingola.logStatsServer.LogStats;
 import ca.mcgill.mcb.pcingola.snpEffect.Config;
-import ca.mcgill.mcb.pcingola.util.Gpr;
 import ca.mcgill.mcb.pcingola.util.Timer;
 
 /**
@@ -26,12 +29,35 @@ import ca.mcgill.mcb.pcingola.util.Timer;
 public class SnpEffCmdDownload extends SnpEff {
 
 	public static boolean debug = false;
-	private static int BUFFER_SIZE = 10480;
+	private static int BUFFER_SIZE = 102400;
 
 	String version = SnpEff.VERSION_MAJOR;
+	boolean update; // Are we updating SnpEff?
 
 	public SnpEffCmdDownload() {
 		super();
+	}
+
+	/**
+	 * Add files to 'backup' zip file
+	 * @param zos
+	 * @param fileName
+	 */
+	void backupFile(ZipOutputStream zos, String fileName) {
+		try {
+			FileInputStream fis = new FileInputStream(fileName);
+
+			zos.putNextEntry(new ZipEntry(fileName));
+			int len;
+			byte[] buf = new byte[BUFFER_SIZE];
+			while ((len = fis.read(buf)) > 0)
+				zos.write(buf, 0, len);
+
+			zos.closeEntry();
+			fis.close();
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	/**
@@ -167,15 +193,95 @@ public class SnpEffCmdDownload extends SnpEff {
 	}
 
 	/**
+	 * Parse an entry path from a ZIP file
+	 * @param entryName
+	 * @return
+	 */
+	String parseEntryPath(String entryName) {
+		if (update) {
+			// Entry name should be something like 'snpEff_vXX/dir/file';
+			int idx = entryName.indexOf('/');
+			if (idx > 0) entryName = config.getDirMain() + entryName.substring(idx);
+			else throw new RuntimeException("Expecting at least one directory in path '" + entryName + "'");
+		} else {
+			String entryPath[] = entryName.split("/"); // Entry name should be something like 'data/genomeVer/file';
+			String dataName = entryPath[entryPath.length - 2] + "/" + entryPath[entryPath.length - 1]; // remove the 'data/' part
+			entryName = config.getDirData() + "/" + dataName; // Ad local 'data' dir
+			if (verbose) Timer.show("Local file name: '" + entryName + "'");
+		}
+
+		return entryName;
+	}
+
+	/**
 	 * Download database from server
 	 */
 	@Override
 	public boolean run() {
+		if (genomeVer.equals("snpeff")) {
+			// Download SnpEff latest version
+			update = true;
+			return runDownloadSnpEff();
+		} else {
+			// Download a genome
+			return runDownloadGenome();
+		}
+	}
+
+	/**
+	 * Download a genome file
+	 * @return
+	 */
+	boolean runDownloadGenome() {
 		config = new Config(genomeVer, configFile);
 
 		if (verbose) Timer.show("Downloading database for '" + genomeVer + "'");
 
 		URL url = buildUrl();
+		String localFile = baseName(url.toString());
+
+		// Download and unzip
+		if (download(url, localFile)) {
+			if (unzip(localFile) && verbose) Timer.show("Unzip: OK");
+		}
+
+		if (verbose) Timer.show("Done");
+		return true;
+	}
+
+	/**
+	 * Download snpEff
+	 * @return
+	 */
+	boolean runDownloadSnpEff() {
+		config = new Config("", configFile); // No genome version
+
+		//---
+		// Get latest version data from server
+		//---
+		HashMap<String, String> reportValues = new HashMap<String, String>();
+		LogStats logStats = LogStats.report(SnpEff.SOFTWARE_NAME, SnpEff.VERSION_SHORT, SnpEff.VERSION, true, true, args, "", reportValues);
+		if (logStats.isNewVersion()) {
+			Timer.showStdErr("New version: " //
+					+ "\n\tNew version  : " + logStats.getLatestVersion() // 
+					+ "\n\tRelease date : " + logStats.getLatestReleaseDate() //
+					+ "\n\tDownload URL : " + logStats.getLatestUrl() //
+			);
+		} else {
+			// Already updated?
+			Timer.showStdErr("No new version found. This seems to be the latest version (" + logStats.getLatestVersion() + ") or server could not be contacted. Nothing done.");
+			return false;
+		}
+
+		// OK, download
+		if (verbose) Timer.show("Downloading SnpEff");
+
+		URL url;
+		try {
+			url = new URL(logStats.getLatestUrl());
+		} catch (MalformedURLException e) {
+			throw new RuntimeException(e);
+		}
 		String localFile = baseName(url.toString());
 
 		// Download and unzip
@@ -194,42 +300,56 @@ public class SnpEffCmdDownload extends SnpEff {
 	boolean unzip(String zipFile) {
 		try {
 			FileInputStream fis = new FileInputStream(zipFile);
-			ZipInputStream zin = new ZipInputStream(new BufferedInputStream(fis));
+			ZipInputStream zipIn = new ZipInputStream(new BufferedInputStream(fis));
+			ZipOutputStream zipBackup = null;
+			String backupFile = "";
 
-			ZipEntry entry;
-			while ((entry = zin.getNextEntry()) != null) {
-
-				byte data[] = new byte[BUFFER_SIZE];
-				if (verbose) Timer.show("Extracting file '" + entry.getName() + "'");
-
-				//---
-				// Move to 'data' dir
-				//---
-				String entryName = entry.getName();
-				String entryPath[] = entryName.split("/"); // Entry name should be something like 'data/genomeVer/file';
-				String dataName = entryPath[entryPath.length - 2] + "/" + entryPath[entryPath.length - 1]; // remove the 'data/' part
-				entryName = config.getDirData() + "/" + dataName; // Ad local 'data' dir
-				if (verbose) Timer.show("Local file name: '" + entryName + "'");
-
-				// Create local dir
-				String dir = Gpr.dirName(entryName);
-				if (verbose) Timer.show("Creating local directory: '" + dir + "'");
-				new File(dir).mkdirs();
-
-				//---
-				// Extract data
-				//---
-				FileOutputStream fos = new FileOutputStream(entryName);
-				BufferedOutputStream dest = new BufferedOutputStream(fos, BUFFER_SIZE);
-
-				int count = 0;
-				while ((count = zin.read(data, 0, BUFFER_SIZE)) != -1)
-					dest.write(data, 0, count);
-
-				dest.flush();
-				dest.close();
+			// Create a ZIP backup file (only if we are updating)
+			if (update) {
+				backupFile = String.format("%s/backup_%2$tY-%2$tm-%2$td_%2$tH:%2$tM:%2$tS.zip", config.getDirMain(), new GregorianCalendar());
+				if (verbose) Timer.showStdErr("Creating backup file '" + backupFile + "'");
+				zipBackup = new ZipOutputStream(new FileOutputStream(backupFile));
 			}
-			zin.close();
+
+			//---
+			// Extract zip file
+			//---
+			ZipEntry entry;
+			while ((entry = zipIn.getNextEntry()) != null) {
+
+				if (!entry.isDirectory()) {
+					String localEntryName = parseEntryPath(entry.getName());
+					if (verbose) Timer.showStdErr("Extracting file '" + entry.getName() + "' to '" + localEntryName + "'");
+
+					// Backup entry
+					if (zipBackup != null) backupFile(zipBackup, localEntryName);
+
+					//---
+					// Extract entry
+					//---
+					FileOutputStream fos = new FileOutputStream(localEntryName);
+					BufferedOutputStream dest = new BufferedOutputStream(fos, BUFFER_SIZE);
+
+					int count = 0;
+					byte data[] = new byte[BUFFER_SIZE];
+					while ((count = zipIn.read(data, 0, BUFFER_SIZE)) != -1)
+						dest.write(data, 0, count);
+
+					dest.flush();
+					dest.close();
+				} else if (entry.isDirectory()) {
+					String dir = parseEntryPath(entry.getName());
+					if (verbose) Timer.show("Extracting directory: '" + entry.getName() + "' to local directory '" + dir + "'");
+					new File(dir).mkdirs(); // Create local dir
+				}
+			}
+
+			// Close zip files
+			zipIn.close();
+			if (zipBackup != null) {
+				zipBackup.close();
+				Timer.showStdErr("Backup file created: '" + backupFile + "'");
+			}
 
 		} catch (Exception e) {
 			throw new RuntimeException(e);
@@ -246,12 +366,13 @@ public class SnpEffCmdDownload extends SnpEff {
 	public void usage(String message) {
 		if (message != null) System.err.println("Error: " + message + "\n");
 		System.err.println("snpEff version " + VERSION);
-		System.err.println("Usage: snpEff download [options] genome_version");
+		System.err.println("Usage: snpEff download [options] {snpeff | genome_version}");
 		System.err.println("\nGeneric options:");
 		System.err.println("\t-c , -config            : Specify config file");
 		System.err.println("\t-h , -help              : Show this help and exit");
 		System.err.println("\t-v , -verbose           : Verbose mode");
 		System.err.println("\t-noLog                  : Do not report usage statistics to server");
+		System.err.println("If 'snpeff' is used instead of a genome, SnpEff latest version will be downloaded");
 		System.exit(-1);
 	}
 }

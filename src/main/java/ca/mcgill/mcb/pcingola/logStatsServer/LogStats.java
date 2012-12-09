@@ -8,7 +8,6 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Properties;
 
 import ca.mcgill.mcb.pcingola.snpEffect.commandLine.SnpEff;
 import ca.mcgill.mcb.pcingola.util.Gpr;
@@ -32,40 +31,42 @@ public class LogStats extends Thread {
 	}
 
 	// Parameters for LOG thread (a thread that logs information to a server)
-	public static final int LOG_THREAD_WAIT_TIME = 3000; // 3 Seconds
-	public static final int LOG_THREAD_WAIT_TIME_REPEAT = 3;
+	public static final int LOG_THREAD_WAIT_TIME = 1000; // 1 Second
+	public static final int LOG_THREAD_WAIT_TIME_REPEAT = 5;
 	public static boolean debug = false; // Debug mode?
 
 	// Log server parameters
-	private static final String URL_ROOT = "http://www.tacner.com/special/recuse.php";
+	private static final String URL_WWW = "http://www.tacner.com/";
+	private static final String URL_ROOT = URL_WWW + "special/recuse.php";
 	private static final String HTTP_CHARSET = "ISO-8859-1";
 	private static final int HTTP_CONNECT_TIMEOUT_MSECS = 22000;
 	private static final int HTTP_READ_TIMEOUT_MSECS = 23000;
 
 	// Class variables
-	private final Properties response = new Properties(); // empty if bad connection
 	public StringBuilder msg = new StringBuilder(); // info for the user
-	private final String version;
+	private final String versionFull, versionShort, software;
 	private RequestResult res = RequestResult.NOINFO;
 	private long duration; // time to complete the request, in msecs - succuessfull or not
 	protected boolean log = true; // Log to server (statistics)
 	protected boolean verbose = false; // Be verbose
 	HashMap<String, String> values; // Values to report
+	String latestVersion, latestUrl, latestReleaseDate;
+	boolean newVersion = false;
 
 	/**
 	 * Report stats to server
-	 * @param version : Program name and version
+	 * @param versionFull : Program name and version
 	 * @param ok : Did the program finished OK?
 	 * @param verbose : Be verbose while reporting
 	 * @param args : Program's command line arguments
 	 * @param errorMessage : Error messages (if any)
 	 * @param reportValues : A hash containing <name, value> pairs to report
 	 */
-	public static void report(String version, boolean ok, boolean verbose, String args[], String errorMessage, HashMap<String, String> reportValues) {
+	public static LogStats report(String software, String versionShort, String versionFull, boolean ok, boolean verbose, String args[], String errorMessage, HashMap<String, String> reportValues) {
 		//---
 		// Create logStats & add data 
 		//---
-		LogStats logStats = new LogStats(version);
+		LogStats logStats = new LogStats(software, versionShort, versionFull);
 
 		//---
 		// Add command line arguments
@@ -114,28 +115,27 @@ public class LogStats extends Thread {
 		logStats.start();
 
 		// Finish up
-		if (verbose) Timer.showStdErr("Finishing up");
+		if (verbose) Timer.showStdErr("Logging");
 		for (int i = 0; i < LOG_THREAD_WAIT_TIME_REPEAT; i++) {
 			if (!logStats.isAlive()) break;
-
 			try {
-				Thread.sleep(LOG_THREAD_WAIT_TIME); // Sleep 1 sec
+				Thread.sleep(LOG_THREAD_WAIT_TIME); // Sleep some time
 			} catch (InterruptedException e) {
 				; // Nothing to do
 			}
 		}
 
-		// Interrupt?
-		if (logStats.isAlive() && !logStats.isInterrupted()) {
-			// Some people freak out about this 'Interrupting thread' message
-			// if( verbose ) Timer.showStdErr("Interrupting thread");
-			logStats.interrupt();
-		}
+		// Interrupt if not done?
+		if (logStats.isAlive() && !logStats.isInterrupted()) logStats.interrupt();
+
+		return logStats;
 	}
 
 	// Constructor
-	public LogStats(String version) {
-		this.version = version;
+	public LogStats(String software, String versionShort, String versionFull) {
+		this.software = software;
+		this.versionShort = versionShort;
+		this.versionFull = versionFull;
 		values = new HashMap<String, String>();
 	}
 
@@ -174,7 +174,7 @@ public class LogStats extends Thread {
 
 		// Add program and version
 		urlsb.append("program=").append(encode2url(SnpEff.class.getSimpleName()));
-		urlsb.append("&version=").append(encode2url(version));
+		urlsb.append("&version=").append(encode2url(versionFull));
 
 		// Add all other 'name=value' pairs in alphabetical order
 		ArrayList<String> names = new ArrayList<String>();
@@ -197,22 +197,23 @@ public class LogStats extends Thread {
 			// Step 1: Open connection
 			step = 1;
 			if (debug) Gpr.debug("Connect Step = " + step);
-			URLConnection hc = url.openConnection();
+			URLConnection httpConnection = url.openConnection();
 
 			// Step 2: Set parameters
 			step = 2;
 			if (debug) Gpr.debug("Connect Step = " + step);
-			hc.setConnectTimeout(HTTP_CONNECT_TIMEOUT_MSECS);
-			hc.setReadTimeout(HTTP_READ_TIMEOUT_MSECS);
+			httpConnection.setConnectTimeout(HTTP_CONNECT_TIMEOUT_MSECS);
+			httpConnection.setReadTimeout(HTTP_READ_TIMEOUT_MSECS);
 
 			// Step 3: Connect to server
 			step = 3;
 			if (debug) Gpr.debug("Connect Step = " + step);
-			response.load(hc.getInputStream());
 
 			// Step 4: Parse results (nothing done here)
 			step = 4;
-			if (debug) Gpr.debug("Connect Step = " + step);
+			String responseStr = Gpr.read(httpConnection.getInputStream());
+			parseResponse(responseStr);
+
 			res = RequestResult.OK;
 		} catch (Exception e) {
 			msg.append(step > 3 ? "Bad response" : "Error in connection. ").append(" Step " + step).append("(").append(e.toString()).append(")");
@@ -238,8 +239,56 @@ public class LogStats extends Thread {
 		}
 	}
 
+	public String getLatestReleaseDate() {
+		return latestReleaseDate;
+	}
+
+	public String getLatestUrl() {
+		return latestUrl;
+	}
+
+	public String getLatestVersion() {
+		return latestVersion;
+	}
+
 	public RequestResult getRes() {
 		return res;
+	}
+
+	public boolean isNewVersion() {
+		return newVersion;
+	}
+
+	void parseResponse(String responseStr) {
+		if (responseStr == null) return; // Nothing to do?
+		if (debug) Gpr.debug("Parsing response:\n---------------- Begin: Response --------\n" + responseStr + "\n---------------- End: Response --------\n");
+
+		latestVersion = versionShort;
+		newVersion = false;
+
+		String lines[] = responseStr.split("\n");
+		for (String line : lines) {
+			if (line.startsWith("#")) {
+				// Ignore comments
+			} else if (line.length() < 1) {
+				// Ignore empty lines
+			} else {
+				String recs[] = line.split("\t");
+				String softwareName = recs[0];
+				String version = recs[1];
+				String date = recs[2];
+				String url = recs[3];
+
+				// Update latest
+				if (softwareName.toUpperCase().equals(software.toUpperCase()) && version.compareTo(latestVersion) > 0) {
+					latestVersion = version;
+					latestReleaseDate = date;
+					latestUrl = url;
+					newVersion = true;
+					if (debug) Gpr.debug("Found new release:\t" + latestVersion + "\t" + latestReleaseDate + "\t" + latestUrl);
+				}
+			}
+		}
 	}
 
 	/**

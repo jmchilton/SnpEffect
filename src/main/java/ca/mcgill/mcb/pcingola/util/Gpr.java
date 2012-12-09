@@ -380,6 +380,30 @@ public class Gpr {
 	}
 
 	/**
+	 * Read an input stream
+	 * @param is
+	 * @return
+	 */
+	public static String read(InputStream is) {
+		if (is == null) return null;
+		StringBuffer strb = new StringBuffer();
+		char buff[] = new char[10240];
+		int len = 0;
+
+		try {
+			BufferedReader inFile = new BufferedReader(new InputStreamReader(is));
+			while ((len = inFile.read(buff)) >= 0)
+				strb.append(buff, 0, len);
+			inFile.close();
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+
+		return strb.toString();
+
+	}
+
+	/**
 	 * Try to open a file (BufferedReader) using either the file or a gzip file (appending '.gz' to fileName)
 	 * @param fileName
 	 * @return

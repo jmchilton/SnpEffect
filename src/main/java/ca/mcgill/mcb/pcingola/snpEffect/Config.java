@@ -75,9 +75,12 @@ public class Config implements Serializable, Iterable<String> {
 	 */
 	public Config(String genomeVersion, String configFileName) {
 		read(genomeVersion, configFileName); // Read config file and get a genome
-		genome = genomeByVersion.get(genomeVersion); // Set a genome
-		if (genome == null) throw new RuntimeException("No such genome '" + genomeVersion + "'");
-		configInstance = this;
+
+		if (!genomeVersion.isEmpty()) {
+			genome = genomeByVersion.get(genomeVersion); // Set a genome
+			if (genome == null) throw new RuntimeException("No such genome '" + genomeVersion + "'");
+			configInstance = this;
+		}
 	}
 
 	/**
@@ -178,6 +181,15 @@ public class Config implements Serializable, Iterable<String> {
 	 */
 	public String getDirDataVersion() {
 		return dataDir + "/" + genome.getVersion();
+	}
+
+	/**
+	 * Main dir 
+	 * @return
+	 */
+	public String getDirMain() {
+		File dir = new File(dataDir);
+		return dir.getParent();
 	}
 
 	/**
@@ -373,14 +385,17 @@ public class Config implements Serializable, Iterable<String> {
 			}
 		}
 
-		// Read config file for genome version (if any)
-		readGenomeConfig(genomeVersion, properties);
+		// Genome specified?
+		if (!genomeVersion.isEmpty()) {
+			// Read config file for genome version (if any)
+			readGenomeConfig(genomeVersion, properties);
 
-		// Codon tables
-		createCodonTables(genomeVersion, properties);
+			// Codon tables
+			createCodonTables(genomeVersion, properties);
 
-		// Set properties
-		setFromProperties();
+			// Set properties
+			setFromProperties();
+		}
 	}
 
 	/**
