@@ -76,7 +76,102 @@ public class ChangeEffect implements Cloneable, Comparable<ChangeEffect> {
 		, INTRAGENIC //
 		, REGULATION //
 		, MICRO_RNA //
-		, CUSTOM
+		, CUSTOM //
+		;
+
+		//		public String toSequenceOntology() {
+		//			switch (this) {
+		//			case NONE:
+		//				return "";
+		//			case CHROMOSOME:
+		//				return "chromosome";
+		//			case INTERGENIC:
+		//				return "intergenic_region";
+		//			case UPSTREAM:
+		//				return "";
+		//			case UTR_5_PRIME:
+		//				return "five_prime_UTR";
+		//			case UTR_5_DELETED:
+		//				return "five_prime_UTR";
+		//			case START_GAINED:
+		//				return "";
+		//			case SPLICE_SITE_ACCEPTOR:
+		//				return "";
+		//			case SPLICE_SITE_BRANCH:
+		//				return "";
+		//			case SPLICE_SITE_BRANCH_U12:
+		//				return "";
+		//			case SPLICE_SITE_DONOR:
+		//				return "";
+		//			case START_LOST:
+		//				return "";
+		//			case SYNONYMOUS_START:
+		//				return "";
+		//			case NON_SYNONYMOUS_START:
+		//				return "";
+		//			case CDS:
+		//				return "CDS";
+		//			case GENE:
+		//				return "";
+		//			case GENOME:
+		//				return "";
+		//			case TRANSCRIPT:
+		//				return "";
+		//			case EXON:
+		//				return "";
+		//			case EXON_DELETED:
+		//				return "";
+		//			case NON_SYNONYMOUS_CODING:
+		//				return "";
+		//			case SYNONYMOUS_CODING:
+		//				return "";
+		//			case FRAME_SHIFT:
+		//				return "";
+		//			case CODON_CHANGE:
+		//				return "";
+		//			case CODON_INSERTION:
+		//				return "";
+		//			case CODON_CHANGE_PLUS_CODON_INSERTION:
+		//				return "";
+		//			case CODON_DELETION:
+		//				return "";
+		//			case CODON_CHANGE_PLUS_CODON_DELETION:
+		//				return "";
+		//			case RARE_AMINO_ACID:
+		//				return "";
+		//			case STOP_GAINED:
+		//				return "";
+		//			case SYNONYMOUS_STOP:
+		//				return "";
+		//			case NON_SYNONYMOUS_STOP:
+		//				return "";
+		//			case STOP_LOST:
+		//				return "";
+		//			case INTRON:
+		//				return "";
+		//			case UTR_3_PRIME:
+		//				return "";
+		//			case UTR_3_DELETED:
+		//				return "";
+		//			case DOWNSTREAM:
+		//				return "";
+		//			case INTRON_CONSERVED:
+		//				return "";
+		//			case INTERGENIC_CONSERVED:
+		//				return "";
+		//			case INTRAGENIC:
+		//				return "";
+		//			case REGULATION:
+		//				return "";
+		//			case MICRO_RNA:
+		//				return "";
+		//			case CUSTOM:
+		//				return "";
+		//
+		//			default:
+		//				throw new RuntimeException("Sequence Ontology term not found for EffectType '" + this + "'");
+		//			}
+		//		}
 	};
 
 	/**

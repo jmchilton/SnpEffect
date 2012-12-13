@@ -27,6 +27,7 @@ import ca.mcgill.mcb.pcingola.interval.Custom;
 import ca.mcgill.mcb.pcingola.interval.Genome;
 import ca.mcgill.mcb.pcingola.interval.Regulation;
 import ca.mcgill.mcb.pcingola.interval.SeqChange;
+import ca.mcgill.mcb.pcingola.interval.SpliceSite;
 import ca.mcgill.mcb.pcingola.interval.codonChange.CodonChange;
 import ca.mcgill.mcb.pcingola.interval.tree.IntervalForest;
 import ca.mcgill.mcb.pcingola.outputFormatter.BedAnnotationOutputFormatter;
@@ -70,6 +71,7 @@ public class SnpEffCmdEff extends SnpEff {
 	boolean onlyRegulation = false; // Only build regulation tracks
 	boolean lossOfFunction = false; // Create loss of function LOF tag?
 	int upDownStreamLength = SnpEffectPredictor.DEFAULT_UP_DOWN_LENGTH; // Upstream & downstream interval length
+	int spliceSiteSize = SpliceSite.CORE_SPLICE_SITE_SIZE; // Splice site size default: 2 bases (cannonical splice site)
 	int totalErrs = 0;
 	long countInputLines = 0, countVariants = 0, countEffects = 0, countVariantsFilteredOut = 0;
 	String chrStr = "";
@@ -423,6 +425,8 @@ public class SnpEffCmdEff extends SnpEff {
 					if ((i + 1) < args.length) seqChangeFilter.setMaxCoverage(Gpr.parseIntSafe(args[++i]));
 				} else if ((args[i].equals("-ud") || args[i].equalsIgnoreCase("-upDownStreamLen"))) {
 					if ((i + 1) < args.length) upDownStreamLength = Gpr.parseIntSafe(args[++i]);
+				} else if ((args[i].equals("-ss") || args[i].equalsIgnoreCase("-spliceSiteSize"))) {
+					if ((i + 1) < args.length) spliceSiteSize = Gpr.parseIntSafe(args[++i]);
 				} else if (args[i].equals("-hom")) seqChangeFilter.setHeterozygous(false);
 				else if (args[i].equals("-het")) seqChangeFilter.setHeterozygous(true);
 				else if (args[i].equals("-snp")) seqChangeFilter.setChangeType(SeqChange.ChangeType.SNP);
@@ -637,6 +641,9 @@ public class SnpEffCmdEff extends SnpEff {
 
 		// Set upstream-downstream interval length
 		config.getSnpEffectPredictor().setUpDownStreamLength(upDownStreamLength);
+
+		// Set splice site size
+		config.getSnpEffectPredictor().setSpliceSiteSize(spliceSiteSize);
 
 		// Filter canonical transcripts
 		if (canonical) {
@@ -855,8 +862,9 @@ public class SnpEffCmdEff extends SnpEff {
 		System.err.println("\t-reg <name>                     : Regulation track to use (this option can be used add several times).");
 		System.err.println("\t-onlyReg                        : Only use regulation tracks.");
 		System.err.println("\t-onlyTr <file.txt>              : Only use the transcripts in this file. Format: One transcript ID per line.");
+		System.err.println("\t-ss, -spliceSiteSize <int>      : Set size for splice sites (donor and acceptor) in bases. Default: " + spliceSiteSize);
 		System.err.println("\t-treatAllAsProteinCoding <bool> : If true, all transcript are treated as if they were protein conding. Default: Auto");
-		System.err.println("\t-ud, -upDownStreamLen           : Set upstream downstream interval length (in bases)");
+		System.err.println("\t-ud, -upDownStreamLen <int>     : Set upstream downstream interval length (in bases)");
 		System.err.println("\nGeneric options:");
 		System.err.println("\t-0                      : File positions are zero-based (same as '-inOffset 0 -outOffset 0')");
 		System.err.println("\t-1                      : File positions are one-based (same as '-inOffset 1 -outOffset 1')");

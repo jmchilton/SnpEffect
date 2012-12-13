@@ -41,6 +41,7 @@ public class SnpEffectPredictor implements Serializable {
 
 	boolean useChromosomes = true;
 	int upDownStreamLength = DEFAULT_UP_DOWN_LENGTH;
+	int spliceSiteSize = SpliceSite.CORE_SPLICE_SITE_SIZE;
 	Genome genome;
 	Markers markers; // All other markers are stored here (e.g. custom markers, intergenic, etc.)
 	IntervalForest intervalForest;
@@ -138,7 +139,7 @@ public class SnpEffectPredictor implements Serializable {
 			add(upDownStream);
 
 		// Add splice site intervals
-		for (Marker spliceSite : genome.getGenes().findSpliceSites(true))
+		for (Marker spliceSite : genome.getGenes().findSpliceSites(true, spliceSiteSize))
 			add(spliceSite);
 
 		// Intergenic markers
@@ -449,6 +450,10 @@ public class SnpEffectPredictor implements Serializable {
 		}
 
 		return resultsList;
+	}
+
+	public void setSpliceSiteSize(int spliceSiteSize) {
+		this.spliceSiteSize = spliceSiteSize;
 	}
 
 	public void setUpDownStreamLength(int upDownStreamLength) {

@@ -103,13 +103,13 @@ public class Genes implements Iterable<Gene>, Serializable {
 	 * 
 	 * For a definition of splice site, see comments at the beginning of SpliceSite.java
 	 */
-	public Collection<Marker> findSpliceSites(boolean createIfMissing) {
+	public Collection<Marker> findSpliceSites(boolean createIfMissing, int spliceSiteSize) {
 		ArrayList<Marker> spliceSites = new ArrayList<Marker>();
 
 		// For each gene, transcript
 		for (Gene gene : this) {
 			for (Transcript tr : gene) {
-				List<SpliceSite> slist = tr.findSpliceSites(createIfMissing); // Find (or create) splice sites
+				List<SpliceSite> slist = tr.findSpliceSites(createIfMissing, spliceSiteSize); // Find (or create) splice sites
 				spliceSites.addAll(slist); // Store all markers 
 			}
 		}

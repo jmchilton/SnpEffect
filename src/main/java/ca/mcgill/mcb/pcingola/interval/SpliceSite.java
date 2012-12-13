@@ -24,6 +24,7 @@ import ca.mcgill.mcb.pcingola.snpEffect.ChangeEffect;
 public abstract class SpliceSite extends Marker {
 
 	private static final long serialVersionUID = 1636197649250882952L;
+
 	public static final int CORE_SPLICE_SITE_SIZE = 2;
 
 	public SpliceSite() {
