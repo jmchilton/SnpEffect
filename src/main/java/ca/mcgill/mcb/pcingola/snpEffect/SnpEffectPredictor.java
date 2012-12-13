@@ -116,6 +116,15 @@ public class SnpEffectPredictor implements Serializable {
 	}
 
 	/**
+	 * Add a set of markers
+	 * @param markersToAdd
+	 */
+	public void addAll(Markers markersToAdd) {
+		for (Marker marker : markersToAdd)
+			markers.add(marker);
+	}
+
+	/**
 	 * Create interval trees (forest)
 	 */
 	public void buildForest() {
@@ -378,7 +387,7 @@ public class SnpEffectPredictor implements Serializable {
 			}
 		}
 
-		if (!hitChromo) throw new RuntimeException("ERROR: Out of chromosome range. " + marker);
+		if (!hitChromo && Config.get().isErrorChromoHit()) throw new RuntimeException("ERROR: Out of chromosome range. " + marker);
 		return hits;
 	}
 
@@ -462,6 +471,11 @@ public class SnpEffectPredictor implements Serializable {
 
 	public void setUseChromosomes(boolean useChromosomes) {
 		this.useChromosomes = useChromosomes;
+	}
+
+	public int size() {
+		if (intervalForest == null) return 0;
+		return intervalForest.size();
 	}
 
 	@Override

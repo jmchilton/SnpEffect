@@ -36,10 +36,10 @@ public class Config implements Serializable, Iterable<String> {
 	public static boolean debug = false; // Debug mode?
 	private static Config configInstance = null; // Config is some kind of singleton because we want to make it accessible from everywhere
 
-	boolean treatAllAsProteinCoding = true; // Calculate effect only in coding genes. Default is true for testing and debugging reasons (command line default is 'false')
-	boolean onlyRegulation = false; // Only use regulation features
-	boolean errorOnMissingChromo = true; // Error if chromosome is missing
-	boolean errorChromoHit = true; // Error if chromosome is not hit in a query
+	boolean treatAllAsProteinCoding; // Calculate effect only in coding genes. Default is true for testing and debugging reasons (command line default is 'false')
+	boolean onlyRegulation; // Only use regulation features
+	boolean errorOnMissingChromo; // Error if chromosome is missing
+	boolean errorChromoHit; // Error if chromosome is not hit in a query
 	double lofIgnoreProteinCodingAfter;
 	double lofIgnoreProteinCodingBefore;
 	double lofDeleteProteinCodingBases;
@@ -57,11 +57,25 @@ public class Config implements Serializable, Iterable<String> {
 		return configInstance;
 	}
 
+	public Config() {
+		genome = new Genome();
+		treatAllAsProteinCoding = false;
+		onlyRegulation = false;
+		errorOnMissingChromo = false; // Empty genome => No chromos
+		errorChromoHit = false; // Empty genome => No chromos
+		configInstance = this;
+	}
+
 	/**
 	 * Create a config (uses DEFAULT_CONFIG_FILE)
 	 * @param genomeVersion
 	 */
 	public Config(String genomeVersion) {
+		treatAllAsProteinCoding = false;
+		onlyRegulation = false;
+		errorOnMissingChromo = true;
+		errorChromoHit = true;
+
 		read(genomeVersion, DEFAULT_CONFIG_FILE); // Read config file and get a genome
 		genome = genomeByVersion.get(genomeVersion); // Set a genome
 		if (genome == null) throw new RuntimeException("No such genome '" + genomeVersion + "'");

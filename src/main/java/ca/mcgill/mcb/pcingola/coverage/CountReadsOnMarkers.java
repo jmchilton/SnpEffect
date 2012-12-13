@@ -67,13 +67,12 @@ public class CountReadsOnMarkers {
 				CountByKey<Marker> countBases = new CountByKey<Marker>();
 
 				// Open file
-				int readNum = 1;
+				int countHits = 1;
 				SAMFileReader sam = new SAMFileReader(new File(samFileName));
 				for (SAMRecord samRecord : sam) {
 					try {
-
 						if (!samRecord.getReadUnmappedFlag()) { // Mapped?
-							Chromosome chr = genome.getChromosome(samRecord.getReferenceName());
+							Chromosome chr = genome.getOrCreateChromosome(samRecord.getReferenceName());
 							if (chr != null) {
 								// Create a marker
 								Marker read = new Marker(chr, samRecord.getAlignmentStart(), samRecord.getAlignmentEnd(), 1, "");
@@ -84,11 +83,14 @@ public class CountReadsOnMarkers {
 									countReads.inc(m); // Count reads
 									countBases.inc(m, m.intersectSize(read)); // Count number bases that intersect
 								}
+
+								// Hit anything?
+								if (regions.size() > 0) countHits++;
 							}
 						}
 
-						if (verbose) Gpr.showMark(readNum, SHOW_EVERY);
-						readNum++;
+						if (verbose) Gpr.showMark(countHits, SHOW_EVERY);
+						//readNum++;
 					} catch (Exception e) {
 						e.printStackTrace();
 					}

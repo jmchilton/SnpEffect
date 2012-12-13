@@ -183,6 +183,13 @@ public class IntervalForest implements Serializable, Iterable<IntervalTree> {
 		return ints;
 	}
 
+	public int size() {
+		int size = 0;
+		for (IntervalTree it : forest.values())
+			size += it.size();
+		return size;
+	}
+
 	/**
 	 * Obtain all intervals that intersect with 'marker.start'
 	 * @param interval

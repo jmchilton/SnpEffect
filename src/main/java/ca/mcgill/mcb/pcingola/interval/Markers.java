@@ -270,6 +270,13 @@ public class Markers implements Iterable<Marker>, Serializable {
 
 	/**
 	 * Sort intervals
+	 */
+	public Markers sort() {
+		return sort(false, false);
+	}
+
+	/**
+	 * Sort intervals
 	 * @param byEnd : If true, sort by end. Otherwise sort by start
 	 * @param reverse : Reverse order
 	 */
