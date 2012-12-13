@@ -46,6 +46,7 @@ public class DiffChipSeq implements CommandLine {
 	public static final String VERSION = SOFTWARE_NAME + " " + VERSION_SHORT + " (build " + BUILD + "), by " + Pcingola.BY;
 
 	boolean verbose = true; // Be verbose
+	String genomeVer;
 	String bamFile1, bamInputFile1, bamFile2, bamInputFile2;
 	String peaksFile1, peaksFile2;
 	Genome genome;
@@ -64,10 +65,21 @@ public class DiffChipSeq implements CommandLine {
 	}
 
 	DiffChipSeq() {
-		config = new Config();
-		genome = config.getGenome();
-		snpEffectPredictor = new SnpEffectPredictor(genome);
-		countReadsOnMarkers = new CountReadsOnMarkers(snpEffectPredictor);
+	}
+
+	/**
+	 * Annotate peaks
+	 * @param peaks
+	 */
+	void annotatePeaks(Markers peaks) {
+		if (verbose) Timer.showStdErr("Loading database");
+		SnpEffectPredictor sep = config.loadSnpEffectPredictor();
+		if (verbose) Timer.showStdErr("Building forest");
+		sep.buildForest();
+
+		if (verbose) Timer.showStdErr("Annotating peaks");
+		for (Marker m : peaks) {
+		}
 	}
 
 	/**
@@ -130,6 +142,7 @@ public class DiffChipSeq implements CommandLine {
 		if (args.length != 6) usage(null);
 
 		int i = 0;
+		genomeVer = args[i++];
 		bamFile1 = args[i++];
 		bamInputFile1 = args[i++];
 		peaksFile1 = args[i++];
@@ -140,6 +153,9 @@ public class DiffChipSeq implements CommandLine {
 
 	@Override
 	public boolean run() {
+		config = new Config(genomeVer, Config.DEFAULT_CONFIG_FILE);
+		genome = config.getGenome();
+
 		// Read BED files and collapse intervals into one set
 		if (verbose) Timer.showStdErr("Reading peaks from file '" + peaksFile1 + "'");
 		SeqChangeBedFileIterator bedFile1 = new SeqChangeBedFileIterator(peaksFile1);
@@ -154,14 +170,19 @@ public class DiffChipSeq implements CommandLine {
 		// Collapse peaks
 		Markers peaks = collapsePeaks(peaks1, peaks2);
 
+		// Annotate reads
+		annotatePeaks(peaks);
+
 		// Build predictor
 		if (verbose) Timer.showStdErr("Building interval forest");
+		snpEffectPredictor = new SnpEffectPredictor(genome);
 		snpEffectPredictor.addAll(peaks);
 		snpEffectPredictor.buildForest();
 		if (verbose) Timer.showStdErr("done. Size: " + snpEffectPredictor.size());
 
 		// Count reads on each interval
 		if (verbose) Timer.showStdErr("Counting reads");
+		countReadsOnMarkers = new CountReadsOnMarkers(snpEffectPredictor);
 		countReadsOnMarkers.setVerbose(verbose);
 		countReadsOnMarkers.addFile(bamFile1);
 		countReadsOnMarkers.addFile(bamInputFile1);
@@ -177,7 +198,7 @@ public class DiffChipSeq implements CommandLine {
 	public void usage(String message) {
 		if (message != null) System.err.println("Error: " + message + "\n");
 		System.err.println("DiffChipSeq version " + VERSION);
-		System.err.println("Usage: DiffChipSeq reads_1.bam reads_1_input.bam peaks_1.bed reads_2.bam reads_2_input.bam peaks_2.bed");
+		System.err.println("Usage: DiffChipSeq genome reads_1.bam reads_1_input.bam peaks_1.bed reads_2.bam reads_2_input.bam peaks_2.bed");
 		System.exit(-1);
 	}
 
