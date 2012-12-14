@@ -79,99 +79,94 @@ public class ChangeEffect implements Cloneable, Comparable<ChangeEffect> {
 		, CUSTOM //
 		;
 
-		//		public String toSequenceOntology() {
-		//			switch (this) {
-		//			case NONE:
-		//				return "";
-		//			case CHROMOSOME:
-		//				return "chromosome";
-		//			case INTERGENIC:
-		//				return "intergenic_region";
-		//			case UPSTREAM:
-		//				return "";
-		//			case UTR_5_PRIME:
-		//				return "five_prime_UTR";
-		//			case UTR_5_DELETED:
-		//				return "five_prime_UTR";
-		//			case START_GAINED:
-		//				return "";
-		//			case SPLICE_SITE_ACCEPTOR:
-		//				return "";
-		//			case SPLICE_SITE_BRANCH:
-		//				return "";
-		//			case SPLICE_SITE_BRANCH_U12:
-		//				return "";
-		//			case SPLICE_SITE_DONOR:
-		//				return "";
-		//			case START_LOST:
-		//				return "";
-		//			case SYNONYMOUS_START:
-		//				return "";
-		//			case NON_SYNONYMOUS_START:
-		//				return "";
-		//			case CDS:
-		//				return "CDS";
-		//			case GENE:
-		//				return "";
-		//			case GENOME:
-		//				return "";
-		//			case TRANSCRIPT:
-		//				return "";
-		//			case EXON:
-		//				return "";
-		//			case EXON_DELETED:
-		//				return "";
-		//			case NON_SYNONYMOUS_CODING:
-		//				return "";
-		//			case SYNONYMOUS_CODING:
-		//				return "";
-		//			case FRAME_SHIFT:
-		//				return "";
-		//			case CODON_CHANGE:
-		//				return "";
-		//			case CODON_INSERTION:
-		//				return "";
-		//			case CODON_CHANGE_PLUS_CODON_INSERTION:
-		//				return "";
-		//			case CODON_DELETION:
-		//				return "";
-		//			case CODON_CHANGE_PLUS_CODON_DELETION:
-		//				return "";
-		//			case RARE_AMINO_ACID:
-		//				return "";
-		//			case STOP_GAINED:
-		//				return "";
-		//			case SYNONYMOUS_STOP:
-		//				return "";
-		//			case NON_SYNONYMOUS_STOP:
-		//				return "";
-		//			case STOP_LOST:
-		//				return "";
-		//			case INTRON:
-		//				return "";
-		//			case UTR_3_PRIME:
-		//				return "";
-		//			case UTR_3_DELETED:
-		//				return "";
-		//			case DOWNSTREAM:
-		//				return "";
-		//			case INTRON_CONSERVED:
-		//				return "";
-		//			case INTERGENIC_CONSERVED:
-		//				return "";
-		//			case INTRAGENIC:
-		//				return "";
-		//			case REGULATION:
-		//				return "";
-		//			case MICRO_RNA:
-		//				return "";
-		//			case CUSTOM:
-		//				return "";
-		//
-		//			default:
-		//				throw new RuntimeException("Sequence Ontology term not found for EffectType '" + this + "'");
-		//			}
-		//		}
+		public String toSequenceOntology() {
+			switch (this) {
+			case CHROMOSOME:
+				return "chromosome";
+			case INTERGENIC:
+				return "intergenic_region";
+			case UPSTREAM:
+				return "upstream_gene_variant";
+			case UTR_5_PRIME:
+				return "5_prime_UTR_variant";
+			case UTR_5_DELETED:
+				return "five_prime_UTR";
+			case SPLICE_SITE_ACCEPTOR:
+				return "splice_region_variant";
+			case SPLICE_SITE_BRANCH:
+				return "splice_region_variant";
+			case SPLICE_SITE_BRANCH_U12:
+				return "splice_region_variant";
+			case SPLICE_SITE_DONOR:
+				return "splice_region_variant";
+			case START_LOST:
+				return "initiator_codon_variant";
+			case SYNONYMOUS_START:
+				return "initiator_codon_variant";
+			case NON_SYNONYMOUS_START:
+				return "initiator_codon_variant";
+			case TRANSCRIPT:
+				return "nc_transcript_variant";
+			case EXON:
+				return "non_coding_exon_variant";
+			case EXON_DELETED:
+				return "exon_lost";
+			case NON_SYNONYMOUS_CODING:
+				return "missense";
+			case SYNONYMOUS_CODING:
+				return "synonymous_variant";
+			case FRAME_SHIFT:
+				return "frameshift_variant";
+			case CODON_CHANGE:
+				return "coding_sequence_variant";
+			case CODON_INSERTION:
+				return "inframe_insertion";
+			case CODON_CHANGE_PLUS_CODON_INSERTION:
+				return "inframe_insertion";
+			case CODON_DELETION:
+				return "inframe_deletion";
+			case CODON_CHANGE_PLUS_CODON_DELETION:
+				return "inframe_deletion";
+			case STOP_GAINED:
+				return "stop_gained";
+			case SYNONYMOUS_STOP:
+				return "stop_retained_variant";
+			case NON_SYNONYMOUS_STOP:
+				return "stop_retained_variant";
+			case STOP_LOST:
+				return "stop_lost";
+			case INTRON:
+				return "intron_variant";
+			case UTR_3_PRIME:
+				return "3_prime_UTR_variant";
+			case UTR_3_DELETED:
+				return "";
+			case DOWNSTREAM:
+				return "downstream_gene_variant";
+			case INTRON_CONSERVED:
+				return "intron_variant";
+			case INTERGENIC_CONSERVED:
+				return "intergenic_variant";
+			case INTRAGENIC:
+				return "intergenic_variant";
+			case REGULATION:
+				return "regulatory_region_variant";
+			case RARE_AMINO_ACID:
+				return "non_conservative_missense_variant";
+
+			case START_GAINED:
+			case MICRO_RNA:
+			case NONE:
+			case GENE:
+			case CDS:
+			case GENOME:
+			case CUSTOM:
+				return this.toString().toLowerCase(); // Just a wild guess ... this should probably throw an Exception
+
+			default:
+				throw new RuntimeException("Sequence Ontology term not found for EffectType '" + this + "'");
+			}
+		}
 	};
 
 	/**
@@ -243,12 +238,12 @@ public class ChangeEffect implements Cloneable, Comparable<ChangeEffect> {
 	 * @param showAaChange : If true, include codon change, biotype, etc.
 	 * @return
 	 */
-	String codonEffect(boolean showAaChange, boolean showBioType) {
+	String codonEffect(boolean showAaChange, boolean showBioType, boolean useSeqOntology) {
 		String codonEffect = "";
 		if ((marker == null) || (codonNum < 0)) return codonEffect;
 
 		// Add codon effect
-		codonEffect += effectType;
+		codonEffect += getEffectTypeString(useSeqOntology);
 
 		// Append codon change
 		if (showAaChange) codonEffect += "(" + getAaChange() + ")";
@@ -275,18 +270,20 @@ public class ChangeEffect implements Cloneable, Comparable<ChangeEffect> {
 	 * @param showAaChange
 	 * @return
 	 */
-	public String effect(boolean shortFormat, boolean showAaChange, boolean showBioType) {
+	public String effect(boolean shortFormat, boolean showAaChange, boolean showBioType, boolean useSeqOntology) {
 		String e = "";
-		String codonEffect = codonEffect(showAaChange, showBioType); // Codon effect
+		String codonEffect = codonEffect(showAaChange, showBioType, useSeqOntology); // Codon effect
 
+		// Create effect string
 		if (!codonEffect.isEmpty()) e = codonEffect;
-		else if (isRegulation()) e = effectType.toString() + "[" + ((Regulation) marker).getName() + "]";
-		else if (isIntergenic() || isIntron() || isSpliceSite()) e = effectType.toString();
-		else if (!message.isEmpty()) e = effectType.toString() + ": " + message;
-		else if (marker == null) e = effectType.toString(); // There are cases when no marker is associated (e.g. "Out of chromosome", "No such chromosome", etc.)
-		else e = effectType.toString() + ": " + marker.getId();
+		else if (isRegulation()) e = getEffectTypeString(useSeqOntology) + "[" + ((Regulation) marker).getName() + "]";
+		else if (isIntergenic() || isIntron() || isSpliceSite()) e = getEffectTypeString(useSeqOntology);
+		else if (!message.isEmpty()) e = getEffectTypeString(useSeqOntology) + ": " + message;
+		else if (marker == null) e = getEffectTypeString(useSeqOntology); // There are cases when no marker is associated (e.g. "Out of chromosome", "No such chromosome", etc.)
+		else e = getEffectTypeString(useSeqOntology) + ": " + marker.getId();
 
 		if (shortFormat) e = e.split(":")[0];
+
 		return e;
 	}
 
@@ -452,6 +449,17 @@ public class ChangeEffect implements Cloneable, Comparable<ChangeEffect> {
 
 	public EffectType getEffectType() {
 		return effectType;
+	}
+
+	/**
+	 * Get Effect Type as a string
+	 * @param useSeqOntology
+	 * @return
+	 */
+	public String getEffectTypeString(boolean useSeqOntology) {
+		if (effectType == null) return "";
+		if (useSeqOntology) return effectType.toSequenceOntology();
+		return effectType.toString();
 	}
 
 	public String getError() {
@@ -791,6 +799,10 @@ public class ChangeEffect implements Cloneable, Comparable<ChangeEffect> {
 
 	@Override
 	public String toString() {
+		return toString(false);
+	}
+
+	public String toString(boolean useSeqOntology) {
 		// Get data to show
 		String geneId = "", geneName = "", bioType = "", transcriptId = "", exonId = "", customId = "";
 		int exonRank = -1;
@@ -838,7 +850,7 @@ public class ChangeEffect implements Cloneable, Comparable<ChangeEffect> {
 				+ "\t" + transcriptId //
 				+ "\t" + exonId //
 				+ "\t" + (exonRank >= 0 ? exonRank : "") //
-				+ "\t" + effect(false, false, false) //
+				+ "\t" + effect(false, false, false, useSeqOntology) //
 				+ "\t" + ((aaOld.length() + aaNew.length()) > 0 ? aaOld + "/" + aaNew : "") //
 				+ "\t" + ((codonsOld.length() + codonsNew.length()) > 0 ? codonsOld + "/" + codonsNew : "") //
 				+ "\t" + (codonNum >= 0 ? (codonNum + 1) : "") //
@@ -864,7 +876,7 @@ public class ChangeEffect implements Cloneable, Comparable<ChangeEffect> {
 		Exon exon = getExon();
 		if (exon != null) exonId = exon.getId();
 
-		String eff = effect(shortFormat, true, true);
+		String eff = effect(shortFormat, true, true, false);
 		if (eff.length() > 0) return eff;
 		if (exonId.length() > 0) return exonId;
 		if (transcriptId.length() > 0) return transcriptId;

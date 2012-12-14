@@ -105,7 +105,7 @@ public class TestCasesMnp extends TestCase {
 		} else effect = effects.get(0);
 
 		if (effect != null) {
-			String effStr = effect.effect(true, true, true);
+			String effStr = effect.effect(true, true, true, false);
 
 			if (codons.length() > 1) {
 				String codonsExp[] = codons.split("/");

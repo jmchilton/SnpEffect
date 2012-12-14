@@ -18,6 +18,7 @@ import ca.mcgill.mcb.pcingola.snpEffect.ChangeEffect;
 public abstract class OutputFormatter {
 
 	boolean supressOutput = false; // Do not print anything
+	boolean useSequenceOntolgy = false; // Use Sequence Ontolgy terms
 	boolean showHeader = true; // Show header information
 	int sectionNum = 0;
 	int outOffset = 1;
@@ -123,6 +124,10 @@ public abstract class OutputFormatter {
 
 	public void setSupressOutput(boolean supressOutput) {
 		this.supressOutput = supressOutput;
+	}
+
+	public void setUseSequenceOntolgy(boolean useSequenceOntolgy) {
+		this.useSequenceOntolgy = useSequenceOntolgy;
 	}
 
 	public void setVersion(String version) {

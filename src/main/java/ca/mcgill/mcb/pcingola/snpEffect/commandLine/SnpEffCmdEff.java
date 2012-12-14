@@ -66,6 +66,7 @@ public class SnpEffCmdEff extends SnpEff {
 	boolean supressOutput = false; // Only used for debugging purposes 
 	boolean createSummary = true; // Do not create summary output file 
 	boolean useLocalTemplate = false; // Use template from 'local' file instead of 'jar' (this is only used for development and debugging)
+	boolean useSequenceOntolgy = false; // Use Sequence Ontolgy terms
 	Boolean treatAllAsProteinCoding = null; // Only use coding genes. Default is 'null' which means 'auto'
 	boolean chromoPlots = true; // Create methylation by chromosome plots?
 	boolean onlyRegulation = false; // Only build regulation tracks
@@ -371,6 +372,7 @@ public class SnpEffCmdEff extends SnpEff {
 					}
 				} else if (args[i].equalsIgnoreCase("-canon")) canonical = true; // Use canonical transcripts
 				else if (args[i].equalsIgnoreCase("-lof")) lossOfFunction = true; // Add LOF tag
+				else if (args[i].equalsIgnoreCase("-sequenceOntolgy")) useSequenceOntolgy = true; // Use SO temrs
 				else if (args[i].equalsIgnoreCase("-onlyTr")) {
 					if ((i + 1) < args.length) onlyTranscriptsFile = args[++i]; // Only use the transcripts in this file
 				}
@@ -690,8 +692,10 @@ public class SnpEffCmdEff extends SnpEff {
 	 * @param snpEffFile
 	 */
 	public void runAnalysis() {
+		// Create 'stats' objects
 		seqChangeStats = new SeqChangeStats(config.getGenome());
 		changeEffectResutStats = new ChangeEffectResutStats(config.getGenome());
+		changeEffectResutStats.setUseSequenceOntolgy(useSequenceOntolgy);
 		vcfStats = new VcfStats();
 
 		int totalErrs = 0;
@@ -720,12 +724,14 @@ public class SnpEffCmdEff extends SnpEff {
 		default:
 			throw new RuntimeException("Unknown output format '" + outputFormat + "'");
 		}
+
 		outputFormatter.setVersion(VERSION);
 		outputFormatter.setCommandLineStr(commandLineStr(false));
 		outputFormatter.setChangeEffectResutFilter(changeEffectResutFilter);
 		outputFormatter.setSupressOutput(supressOutput);
 		outputFormatter.setOutOffset(outOffset);
 		outputFormatter.setChrStr(chrStr);
+		outputFormatter.setUseSequenceOntolgy(useSequenceOntolgy);
 
 		//---
 		// Iterate over all changes
@@ -862,6 +868,7 @@ public class SnpEffCmdEff extends SnpEff {
 		System.err.println("\t-reg <name>                     : Regulation track to use (this option can be used add several times).");
 		System.err.println("\t-onlyReg                        : Only use regulation tracks.");
 		System.err.println("\t-onlyTr <file.txt>              : Only use the transcripts in this file. Format: One transcript ID per line.");
+		System.err.println("\t-sequenceOntolgy                : Use Sequence Ontolgy terms. Default: off" + useSequenceOntolgy);
 		System.err.println("\t-ss, -spliceSiteSize <int>      : Set size for splice sites (donor and acceptor) in bases. Default: " + spliceSiteSize);
 		System.err.println("\t-treatAllAsProteinCoding <bool> : If true, all transcript are treated as if they were protein conding. Default: Auto");
 		System.err.println("\t-ud, -upDownStreamLen <int>     : Set upstream downstream interval length (in bases)");

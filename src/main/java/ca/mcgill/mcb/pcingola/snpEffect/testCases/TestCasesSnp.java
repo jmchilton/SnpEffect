@@ -162,7 +162,7 @@ public class TestCasesSnp extends TestCase {
 						// Show
 						if (effects.size() == 1) {
 							ChangeEffect effect = effects.get(0);
-							String effStr = effect.effect(true, true, true);
+							String effStr = effect.effect(true, true, true, false);
 							if (debug) System.out.println("\tPos: " + pos //
 									+ "\tCDS base num: " + cdsBaseNum + " [" + cdsCodonNum + ":" + cdsCodonPos + "]" //
 									+ "\t" + seqChange + (seqChange.getStrand() >= 0 ? "+" : "-") //

@@ -300,7 +300,7 @@ public class TestCasesDel extends TestCase {
 
 					// Show
 					ChangeEffect effect = effects.get(0);
-					String effStr = effect.effect(true, true, true);
+					String effStr = effect.effect(true, true, true, false);
 					if (debug) System.out.println("\tIteration: " + i + "\tPos: " + pos //
 							+ "\n\t\tCDS base [codon] : " + cdsBaseNum + " [" + cdsCodonNum + ":" + cdsCodonPos + "]" //
 							+ "\n\t\tSeqChange        : " + seqChange + "_strand" + (seqChangeStrand >= 0 ? "+" : "-") + "\tsize: " + seqChange.size() + "\tdelPlus: " + delPlus//

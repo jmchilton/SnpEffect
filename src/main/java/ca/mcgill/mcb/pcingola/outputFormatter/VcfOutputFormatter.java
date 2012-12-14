@@ -97,7 +97,7 @@ public class VcfOutputFormatter extends OutputFormatter {
 				StringBuilder effBuff = new StringBuilder();
 
 				// Add effect
-				effBuff.append(changeEffect.effect(true, false, false));
+				effBuff.append(changeEffect.effect(true, false, false, useSequenceOntolgy));
 				effBuff.append("(");
 
 				// Add effect impact

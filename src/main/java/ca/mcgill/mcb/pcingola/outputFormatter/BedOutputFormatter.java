@@ -52,7 +52,7 @@ public class BedOutputFormatter extends OutputFormatter {
 			if ((changeEffectResutFilter == null) || (!changeEffectResutFilter.filter(changeEffect))) {
 
 				StringBuffer sb = new StringBuffer();
-				sb.append(changeEffect.effect(true, false, false));
+				sb.append(changeEffect.effect(true, false, false, useSequenceOntolgy));
 
 				Gene gene = changeEffect.getGene();
 				if (gene != null) sb.append("|" + gene.getGeneName() + "|" + gene.getBioType()); // Always show gene, add BioType

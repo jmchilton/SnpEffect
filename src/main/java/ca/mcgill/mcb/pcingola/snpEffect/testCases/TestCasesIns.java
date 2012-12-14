@@ -164,7 +164,7 @@ public class TestCasesIns extends TestCase {
 
 						// Show
 						ChangeEffect effect = effects.get(0);
-						String effStr = effect.effect(true, true, true);
+						String effStr = effect.effect(true, true, true, false);
 						if (debug) System.out.println("\tPos: " + pos //
 								+ "\tCDS base num: " + cdsBaseNum + " [" + cdsCodonNum + ":" + cdsCodonPos + "]" //
 								+ "\t" + seqChange + "\tstrand" + (seqChange.getStrand() >= 0 ? "+" : "-") //

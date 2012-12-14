@@ -159,7 +159,7 @@ public class TestCasesSeqChange extends TestCase {
 								+ "\t" + sc.getReference() //
 								+ "\t" + sc.getChange() //
 								+ "\t+\t0\t0" //
-								+ "\t" + res.effect(true, true, true)//
+								+ "\t" + res.effect(true, true, true, false) //
 						// + "\t" + res.getCodonsOld() + "/" + res.getCodonsNew() //
 								);
 					}

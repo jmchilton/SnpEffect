@@ -156,7 +156,7 @@ public class TestCasesIntervalSeqChange extends TestCase {
 				boolean isExpectedOK = false;
 				StringBuilder effSb = new StringBuilder();
 				for (ChangeEffect effect : effects) {
-					String effstr = effect.effect(true, true, true);
+					String effstr = effect.effect(true, true, true, false);
 					isExpectedOK |= effstr.equals(expectedEffect);
 					effSb.append(effstr + " ");
 
