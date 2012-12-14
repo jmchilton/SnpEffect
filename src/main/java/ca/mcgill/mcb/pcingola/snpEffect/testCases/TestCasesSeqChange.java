@@ -150,7 +150,6 @@ public class TestCasesSeqChange extends TestCase {
 			// StringBuilder resultsSoFar = new StringBuilder();
 			boolean ok = anyResultMatches(transcriptId, seqChange, resultsList, useShort);//, resultsSoFar);
 			if (!ok) {
-
 				if (createOutputFile) {
 					for (ChangeEffect res : resultsList) {
 						SeqChange sc = res.getSeqChange();
@@ -225,16 +224,6 @@ public class TestCasesSeqChange extends TestCase {
 		String trId = "ENST00000250823";
 		snpEffect("tests/" + trId + ".out", trId, true);
 	}
-
-	// TODO : Re-build this test
-	//	/**
-	//	 * Test SNP effect predictor for a transcript (negative strand)
-	//	 */
-	//	public void test_10() {
-	//		initSnpEffPredictor();
-	//		String trId = "ENST00000382764";
-	//		snpEffect("tests/" + trId + ".out", trId, false);
-	//	}
 
 	/**
 	 * Test SNP effect predictor: Test UTR distances, Up/Downstream distances

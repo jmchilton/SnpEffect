@@ -59,7 +59,7 @@ public class Config implements Serializable, Iterable<String> {
 
 	public Config() {
 		genome = new Genome();
-		treatAllAsProteinCoding = false;
+		treatAllAsProteinCoding = true;
 		onlyRegulation = false;
 		errorOnMissingChromo = false; // Empty genome => No chromos
 		errorChromoHit = false; // Empty genome => No chromos
@@ -71,7 +71,7 @@ public class Config implements Serializable, Iterable<String> {
 	 * @param genomeVersion
 	 */
 	public Config(String genomeVersion) {
-		treatAllAsProteinCoding = false;
+		treatAllAsProteinCoding = true;
 		onlyRegulation = false;
 		errorOnMissingChromo = true;
 		errorChromoHit = true;
@@ -88,8 +88,12 @@ public class Config implements Serializable, Iterable<String> {
 	 * @param configFileName
 	 */
 	public Config(String genomeVersion, String configFileName) {
-		read(genomeVersion, configFileName); // Read config file and get a genome
+		treatAllAsProteinCoding = true;
+		onlyRegulation = false;
+		errorOnMissingChromo = true;
+		errorChromoHit = true;
 
+		read(genomeVersion, configFileName); // Read config file and get a genome
 		if (!genomeVersion.isEmpty()) {
 			genome = genomeByVersion.get(genomeVersion); // Set a genome
 			if (genome == null) throw new RuntimeException("No such genome '" + genomeVersion + "'");
