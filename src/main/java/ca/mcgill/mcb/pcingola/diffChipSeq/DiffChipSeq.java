@@ -15,7 +15,6 @@ import ca.mcgill.mcb.pcingola.interval.tree.IntervalForest;
 import ca.mcgill.mcb.pcingola.snpEffect.Config;
 import ca.mcgill.mcb.pcingola.snpEffect.SnpEffectPredictor;
 import ca.mcgill.mcb.pcingola.snpEffect.commandLine.CommandLine;
-import ca.mcgill.mcb.pcingola.util.Gpr;
 import ca.mcgill.mcb.pcingola.util.Timer;
 
 /**
@@ -80,7 +79,6 @@ public class DiffChipSeq implements CommandLine {
 			if (gene != null) {
 				int dist = m.distance(gene);
 				m.setId(gene.getGeneName() + ";" + gene.getId() + (dist > 0 ? ";" + m.distance(gene) : ""));
-				Gpr.debug(m);
 			}
 		}
 	}
