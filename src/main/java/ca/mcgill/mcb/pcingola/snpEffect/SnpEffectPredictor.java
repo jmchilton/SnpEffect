@@ -162,6 +162,48 @@ public class SnpEffectPredictor implements Serializable {
 	}
 
 	/**
+	 * Find closest gene to this interval
+	 * @param inputInterval
+	 */
+	public Gene findClosestGene(Marker inputInterval) {
+		int initialExtension = 1000;
+
+		String chrName = inputInterval.getChromosomeName();
+		Chromosome chr = genome.getChromosome(chrName);
+		if (chr.size() > 0) {
+			// Extend interval to capture 'close' exons
+			for (int extend = initialExtension; extend < chr.size(); extend *= 2) {
+				int start = Math.max(inputInterval.getStart() - extend, 0);
+				int end = inputInterval.getEnd() + extend;
+				Marker extended = new Marker(chr, start, end, 1, "");
+
+				// Find all exons that intersect with the interval
+				Markers markers = intersects(extended);
+				int minDist = Integer.MAX_VALUE;
+				Gene minDistMarker = null;
+				for (Marker m : markers) {
+					if (m instanceof Gene) {
+						int dist = m.distance(inputInterval);
+						if (dist < minDist) {
+							minDistMarker = (Gene) m;
+							minDist = dist;
+						}
+
+						// Zero distance? Cannot be lower than this => return
+						if (minDist <= 0) return minDistMarker;
+					}
+				}
+
+				// Found something?
+				if (minDistMarker != null) return minDistMarker;
+			}
+		}
+
+		// Nothing found
+		return null;
+	}
+
+	/**
 	 * Obtain a gene interval
 	 * @param geneIntervalId
 	 * @return

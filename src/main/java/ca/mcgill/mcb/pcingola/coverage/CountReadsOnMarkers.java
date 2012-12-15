@@ -119,7 +119,6 @@ public class CountReadsOnMarkers {
 		StringBuilder sb = new StringBuilder();
 
 		for (Marker m = marker; (m != null) && !(m instanceof Chromosome) && !(m instanceof Genome); m = m.getParent()) {
-
 			switch (m.getType()) {
 			case EXON:
 				if (sb.length() > 0) sb.append(";");

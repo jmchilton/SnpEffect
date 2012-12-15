@@ -31,6 +31,10 @@ public class SeqChangeBedFileIterator extends SeqChangeFileIterator {
 		super(fileName, 0);
 	}
 
+	public SeqChangeBedFileIterator(String fileName, Genome genome) {
+		super(fileName, genome, 0);
+	}
+
 	public SeqChangeBedFileIterator(String fileName, Genome genome, int inOffset) {
 		super(fileName, genome, inOffset);
 	}

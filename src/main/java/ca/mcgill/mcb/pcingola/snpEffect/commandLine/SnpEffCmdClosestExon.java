@@ -16,7 +16,6 @@ import ca.mcgill.mcb.pcingola.interval.SeqChange;
 import ca.mcgill.mcb.pcingola.interval.Transcript;
 import ca.mcgill.mcb.pcingola.interval.tree.IntervalForest;
 import ca.mcgill.mcb.pcingola.snpEffect.Config;
-import ca.mcgill.mcb.pcingola.util.Gpr;
 import ca.mcgill.mcb.pcingola.util.Timer;
 import ca.mcgill.mcb.pcingola.vcf.VcfEntry;
 
@@ -188,7 +187,7 @@ public class SnpEffCmdClosestExon extends SnpEff {
 				// Found something?
 				if (minDistMarker != null) return minDistMarker;
 			}
-		} else Gpr.debug("CHROMOSOME LENGTH IS " + chr.size());
+		}
 
 		// Nothing found
 		return null;

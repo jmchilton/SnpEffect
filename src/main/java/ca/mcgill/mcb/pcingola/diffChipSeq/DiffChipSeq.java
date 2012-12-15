@@ -6,6 +6,7 @@ import java.util.List;
 import ca.mcgill.mcb.pcingola.Pcingola;
 import ca.mcgill.mcb.pcingola.coverage.CountReadsOnMarkers;
 import ca.mcgill.mcb.pcingola.fileIterator.SeqChangeBedFileIterator;
+import ca.mcgill.mcb.pcingola.interval.Gene;
 import ca.mcgill.mcb.pcingola.interval.Genome;
 import ca.mcgill.mcb.pcingola.interval.Marker;
 import ca.mcgill.mcb.pcingola.interval.Markers;
@@ -14,6 +15,7 @@ import ca.mcgill.mcb.pcingola.interval.tree.IntervalForest;
 import ca.mcgill.mcb.pcingola.snpEffect.Config;
 import ca.mcgill.mcb.pcingola.snpEffect.SnpEffectPredictor;
 import ca.mcgill.mcb.pcingola.snpEffect.commandLine.CommandLine;
+import ca.mcgill.mcb.pcingola.util.Gpr;
 import ca.mcgill.mcb.pcingola.util.Timer;
 
 /**
@@ -68,17 +70,18 @@ public class DiffChipSeq implements CommandLine {
 	}
 
 	/**
-	 * Annotate peaks
+	 * Annotate peaks with closes gene
 	 * @param peaks
 	 */
 	void annotatePeaks(Markers peaks) {
-		if (verbose) Timer.showStdErr("Loading database");
-		SnpEffectPredictor sep = config.loadSnpEffectPredictor();
-		if (verbose) Timer.showStdErr("Building forest");
-		sep.buildForest();
-
 		if (verbose) Timer.showStdErr("Annotating peaks");
 		for (Marker m : peaks) {
+			Gene gene = snpEffectPredictor.findClosestGene(m);
+			if (gene != null) {
+				int dist = m.distance(gene);
+				m.setId(gene.getGeneName() + ";" + gene.getId() + (dist > 0 ? ";" + m.distance(gene) : ""));
+				Gpr.debug(m);
+			}
 		}
 	}
 
@@ -137,9 +140,24 @@ public class DiffChipSeq implements CommandLine {
 		return peaks.sort();
 	}
 
+	/**
+	 * Load data
+	 */
+	void load() {
+		if (verbose) Timer.showStdErr("Loading config: " + Config.DEFAULT_CONFIG_FILE);
+		config = new Config(genomeVer, Config.DEFAULT_CONFIG_FILE);
+		genome = config.getGenome();
+
+		if (verbose) Timer.showStdErr("Loading database: " + config.getFileSnpEffectPredictor());
+		snpEffectPredictor = config.loadSnpEffectPredictor();
+
+		if (verbose) Timer.showStdErr("Building forest");
+		snpEffectPredictor.buildForest();
+	}
+
 	@Override
 	public void parseArgs(String[] args) {
-		if (args.length != 6) usage(null);
+		if (args.length != 7) usage(null);
 
 		int i = 0;
 		genomeVer = args[i++];
@@ -153,8 +171,7 @@ public class DiffChipSeq implements CommandLine {
 
 	@Override
 	public boolean run() {
-		config = new Config(genomeVer, Config.DEFAULT_CONFIG_FILE);
-		genome = config.getGenome();
+		load();
 
 		// Read BED files and collapse intervals into one set
 		if (verbose) Timer.showStdErr("Reading peaks from file '" + peaksFile1 + "'");
