@@ -170,6 +170,8 @@ public class SnpEffectPredictor implements Serializable {
 
 		String chrName = inputInterval.getChromosomeName();
 		Chromosome chr = genome.getChromosome(chrName);
+		if (chr == null) return null;
+
 		if (chr.size() > 0) {
 			// Extend interval to capture 'close' exons
 			for (int extend = initialExtension; extend < chr.size(); extend *= 2) {

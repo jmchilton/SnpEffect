@@ -198,6 +198,8 @@ public class DiffChipSeq implements CommandLine {
 		if (verbose) Timer.showStdErr("done. Size: " + snpEffectPredictor.size());
 
 		// Count reads on each interval
+		config.setErrorChromoHit(false);
+		config.setErrorOnMissingChromo(false);
 		if (verbose) Timer.showStdErr("Counting reads");
 		countReadsOnMarkers = new CountReadsOnMarkers(snpEffectPredictor);
 		countReadsOnMarkers.setVerbose(verbose);
