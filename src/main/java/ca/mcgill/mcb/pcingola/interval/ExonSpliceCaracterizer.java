@@ -175,7 +175,10 @@ public class ExonSpliceCaracterizer {
 	 * Mark exons types
 	 */
 	void type() {
-		if (verbose) Timer.showStdErr("Caracterizing exons by splicing (stage 1) : ");
+		if (verbose) {
+			Timer.showStdErr("Caracterizing exons by splicing (stage 1) : ");
+			System.out.print("\t");
+		}
 
 		// Find retained exons
 		int numExon = 1;
@@ -191,7 +194,7 @@ public class ExonSpliceCaracterizer {
 			int countTr = g.numChilds();
 			for (Transcript tr : g) {
 				for (Exon e : tr) {
-					if (verbose) Gpr.showMark(numExon++, SHOW_EVERY);
+					if (verbose) Gpr.showMark(numExon++, SHOW_EVERY, "\t");
 
 					String eKey = key(e);
 					int countEx = (int) count.get(eKey);
@@ -214,6 +217,7 @@ public class ExonSpliceCaracterizer {
 		if (verbose) {
 			System.err.println("");
 			Timer.showStdErr("Caracterizing exons by splicing (stage 2) : ");
+			System.out.print("\t");
 		}
 
 		// Now analyze if there are mutually exclusive exons
@@ -222,7 +226,7 @@ public class ExonSpliceCaracterizer {
 			for (Transcript tr : g) {
 				if (tr.numChilds() < MAX_EXONS) {
 					for (Exon e : tr) {
-						if (verbose) Gpr.showMark(numExon++, SHOW_EVERY);
+						if (verbose) Gpr.showMark(numExon++, SHOW_EVERY, "\t");
 						ExonSpliceType type = typeByExon.get(e);
 						if (type == ExonSpliceType.SKIPPED) { // Try to re-annotate only these
 							if (isMutEx(e, g)) type(e, Exon.ExonSpliceType.MUTUALLY_EXCLUSIVE);

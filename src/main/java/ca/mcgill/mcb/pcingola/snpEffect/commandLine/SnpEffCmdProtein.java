@@ -186,6 +186,8 @@ public class SnpEffCmdProtein extends SnpEff {
 	 */
 	double proteinCompare() {
 		int i = 1;
+		if (verbose) System.out.print('\t');
+
 		for (Gene gene : config.getGenome().getGenes()) {
 
 			for (Transcript tr : gene) {
@@ -237,7 +239,7 @@ public class SnpEffCmdProtein extends SnpEff {
 		}
 
 		double perc = ((double) totalErrors) / ((double) (totalErrors + totalOk));
-		System.out.println("\nProtein check:\t" + config.getGenome().getVersion() + "\tOK: " + totalOk + "\tWarnings: " + totalWarnings + "\tNot found: " + totalNotFound + "\tErrors: " + totalErrors + "\tError percentage: " + (100 * perc) + "%");
+		System.out.println("\n\tProtein check:\t" + config.getGenome().getVersion() + "\tOK: " + totalOk + "\tWarnings: " + totalWarnings + "\tNot found: " + totalNotFound + "\tErrors: " + totalErrors + "\tError percentage: " + (100 * perc) + "%");
 		return perc;
 	}
 
@@ -357,7 +359,7 @@ public class SnpEffCmdProtein extends SnpEff {
 		}
 
 		// Compare proteins
-		if (verbose) Timer.showStdErr("Comparing Protein...");
+		if (verbose) Timer.showStdErr("Comparing Proteins...");
 		proteinCompare();
 		if (verbose) Timer.showStdErr("done");
 

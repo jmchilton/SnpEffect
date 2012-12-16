@@ -50,7 +50,7 @@ public class SnpEffCmdBuild extends SnpEff {
 		//---
 		// Check using CDS file
 		//---
-		if (verbose) System.out.print("CDS check:\n\t");
+		if (verbose) System.out.print("CDS check:\n");
 		String cdsFile = config.getFileNameCds();
 		if (Gpr.canRead(cdsFile)) {
 			// Use FASTA format
@@ -62,7 +62,7 @@ public class SnpEffCmdBuild extends SnpEff {
 		//---
 		// Check using proteins file
 		//---
-		if (verbose) System.out.print("Protein check:\n\t");
+		if (verbose) System.out.print("Protein check:\n");
 		String protFile = config.getFileNameProteins();
 		if (Gpr.canRead(protFile)) {
 			SnpEffCmdProtein snpEffCmdProtein = new SnpEffCmdProtein(config);

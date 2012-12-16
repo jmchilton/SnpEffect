@@ -140,14 +140,15 @@ public class SnpEffCmdCds extends SnpEff {
 
 						System.err.println(String.format("\tReference   (%6d) : '%s'", cdsReference.length(), cdsReference.toLowerCase()));
 						System.err.println("Transcript details:\n" + tint);
+
+						if (onlyOneError) {
+							System.err.println("Transcript details:\n" + tint);
+							throw new RuntimeException("DIE");
+						}
+
 					} else if (verbose) System.out.print('*');
 
 					totalErrors++;
-
-					if (onlyOneError) {
-						System.err.println("Transcript details:\n" + tint);
-						throw new RuntimeException("DIE");
-					}
 				}
 
 				// Show a mark
@@ -156,7 +157,7 @@ public class SnpEffCmdCds extends SnpEff {
 			}
 
 		double perc = ((double) totalErrors) / ((double) (totalErrors + totalOk));
-		System.out.println("\nCDS check:\t" + config.getGenome().getVersion() + "\tOK: " + totalOk + "\tWarnings: " + totalWarnings + "\tNot found: " + totalNotFound + "\tErrors: " + totalErrors + "\tError percentage: " + (100 * perc) + "%");
+		System.out.println("\n\tCDS check:\t" + config.getGenome().getVersion() + "\tOK: " + totalOk + "\tWarnings: " + totalWarnings + "\tNot found: " + totalNotFound + "\tErrors: " + totalErrors + "\tError percentage: " + (100 * perc) + "%");
 		return perc;
 	}
 
@@ -248,37 +249,37 @@ public class SnpEffCmdCds extends SnpEff {
 	 */
 	@Override
 	public boolean run() {
-		if (debug) Timer.showStdErr("Checking database using CDS sequences");
+		if (verbose) Timer.showStdErr("Checking database using CDS sequences");
 
 		// Load config
 		if (config == null) {
-			if (debug) Timer.showStdErr("Reading configuration...");
+			if (verbose) Timer.showStdErr("Reading configuration...");
 			config = new Config(genomeVer, configFile); // Read configuration
-			if (debug) Timer.showStdErr("done");
+			if (verbose) Timer.showStdErr("done");
 		}
 
 		// Read CDS form file
-		if (debug) Timer.showStdErr("Reading CDSs from file '" + cdsFile + "'...");
+		if (verbose) Timer.showStdErr("Reading CDSs from file '" + cdsFile + "'...");
 		readCdsFile(); // Load CDS
-		if (debug) Timer.showStdErr("done (" + cdsByTrId.size() + " CDSs).");
+		if (verbose) Timer.showStdErr("done (" + cdsByTrId.size() + " CDSs).");
 
 		// Load predictor
 		if (config.getSnpEffectPredictor() == null) {
-			if (debug) Timer.showStdErr("Reading database...");
+			if (verbose) Timer.showStdErr("Reading database...");
 			config.loadSnpEffectPredictor(); // Read snpEffect predictor
-			if (debug) Timer.showStdErr("done");
+			if (verbose) Timer.showStdErr("done");
 		}
 
 		// Compare CDS
-		if (debug) Timer.showStdErr("Comparing CDS...");
+		if (verbose) Timer.showStdErr("Comparing CDS...");
 		cdsCompare();
-		if (debug) Timer.showStdErr("done");
+		if (verbose) Timer.showStdErr("done");
 
 		return true;
 	}
 
-	public void setVerbose(boolean debug) {
-		this.debug = debug;
+	public void setVerbose(boolean verbose) {
+		this.verbose = verbose;
 	}
 
 	/**
