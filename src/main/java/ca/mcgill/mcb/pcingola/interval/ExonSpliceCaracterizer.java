@@ -191,7 +191,7 @@ public class ExonSpliceCaracterizer {
 			int countTr = g.numChilds();
 			for (Transcript tr : g) {
 				for (Exon e : tr) {
-					Gpr.showMark(numExon++, SHOW_EVERY);
+					if (verbose) Gpr.showMark(numExon++, SHOW_EVERY);
 
 					String eKey = key(e);
 					int countEx = (int) count.get(eKey);
@@ -222,7 +222,7 @@ public class ExonSpliceCaracterizer {
 			for (Transcript tr : g) {
 				if (tr.numChilds() < MAX_EXONS) {
 					for (Exon e : tr) {
-						Gpr.showMark(numExon++, SHOW_EVERY);
+						if (verbose) Gpr.showMark(numExon++, SHOW_EVERY);
 						ExonSpliceType type = typeByExon.get(e);
 						if (type == ExonSpliceType.SKIPPED) { // Try to re-annotate only these
 							if (isMutEx(e, g)) type(e, Exon.ExonSpliceType.MUTUALLY_EXCLUSIVE);

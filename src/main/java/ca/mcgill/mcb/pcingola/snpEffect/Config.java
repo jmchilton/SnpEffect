@@ -94,11 +94,9 @@ public class Config implements Serializable, Iterable<String> {
 		errorChromoHit = true;
 
 		read(genomeVersion, configFileName); // Read config file and get a genome
-		if (!genomeVersion.isEmpty()) {
-			genome = genomeByVersion.get(genomeVersion); // Set a genome
-			if (genome == null) throw new RuntimeException("No such genome '" + genomeVersion + "'");
-			configInstance = this;
-		}
+		genome = genomeByVersion.get(genomeVersion); // Set a genome
+		if (genome == null) throw new RuntimeException("No such genome '" + genomeVersion + "'");
+		configInstance = this;
 	}
 
 	/**

@@ -24,11 +24,9 @@ import ca.mcgill.mcb.pcingola.util.Timer;
  */
 public class SnpEffCmdProtein extends SnpEff {
 
-	public static boolean debug = false;
 	public static boolean onlyOneError = false; // This is used in some test-cases
 	public static double maxErrorPercentage = 0.01; // Maximum allowed error is 1% (otherwise test fails)
 
-	boolean verbose = false;
 	int totalErrors = 0;
 	int totalOk = 0;
 	int totalWarnings = 0;
@@ -197,14 +195,14 @@ public class SnpEffCmdProtein extends SnpEff {
 				if (proteinReference == null) {
 					if (tr.isProteinCoding()) {
 						totalNotFound++;
-						if (verbose) System.err.println("\nWARNING:Cannot find Protein for transcript " + tr.getId());
-						else System.out.print('-');
+						if (debug) System.err.println("\nWARNING:Cannot find Protein for transcript " + tr.getId());
+						else if (verbose) System.out.print('-');
 					}
 				} else if (equals(protein, proteinReference)) {
 					totalOk++;
-					if (!verbose) System.out.print('+');
+					if (verbose) System.out.print('+');
 				} else {
-					if (verbose || onlyOneError) {
+					if (debug || onlyOneError) {
 						protein = proteinFormat(protein);
 						proteinReference = proteinFormat(proteinReference);
 
@@ -222,7 +220,7 @@ public class SnpEffCmdProtein extends SnpEff {
 								+ "\n\tdiff      (" + countDiff + "):\t" + diffStr //
 								+ "\n\tTranscript details:\t" + tr //
 						);
-					} else if (!verbose) System.out.print('*');
+					} else if (verbose) System.out.print('*');
 
 					totalErrors++;
 
@@ -233,7 +231,7 @@ public class SnpEffCmdProtein extends SnpEff {
 				}
 
 				// Show a mark
-				if (!verbose && (i % 100 == 0)) System.out.print("\n\t");
+				if (verbose && (i % 100 == 0)) System.out.print("\n\t");
 				i++;
 			}
 		}

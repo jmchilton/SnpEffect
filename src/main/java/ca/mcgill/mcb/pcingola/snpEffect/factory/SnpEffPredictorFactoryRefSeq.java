@@ -70,7 +70,6 @@ public class SnpEffPredictorFactoryRefSeq extends SnpEffPredictorFactory {
 
 	public static final String CDS_STAT_COMPLETE = "cmpl";
 
-	int ignoredTr = 0;
 	MultivalueHashMap<String, Gene> genesByName;
 
 	public SnpEffPredictorFactoryRefSeq(Config config) {
@@ -117,7 +116,7 @@ public class SnpEffPredictorFactoryRefSeq extends SnpEffPredictorFactory {
 		// Read gene intervals from a file
 		if (fileName == null) fileName = config.getBaseFileNameGenes() + ".txt";
 
-		System.out.println("Reading gene intervals file : '" + fileName + "'");
+		if (verbose) System.out.print("Reading gene intervals file : '" + fileName + "'\n\t\t");
 		readRefSeqFile(); // Read gene info
 
 		beforeExonSequences(); // Some clean-up before readng exon sequences
@@ -125,12 +124,11 @@ public class SnpEffPredictorFactoryRefSeq extends SnpEffPredictorFactory {
 		if (readSequences) readExonSequences(); // Read chromosome sequences and set exon sequences
 		else adjustChromosomes();
 
-		finishUp(false); // Perform adjustments
+		finishUp(); // Perform adjustments
 
 		// Check that exons have sequences
 		System.out.println(config.getGenome());
 		boolean error = config.getGenome().isMostExonsHaveSequence();
-		System.out.println("# Ignored transcripts        : " + ignoredTr);
 		if (error && readSequences) throw new RuntimeException("Most Exons do not have sequences!");
 
 		return snpEffectPredictor;
@@ -264,8 +262,7 @@ public class SnpEffPredictorFactoryRefSeq extends SnpEffPredictorFactory {
 						}
 
 						count++;
-						if (count % MARK == 0) System.out.print('.');
-						if (count % (100 * MARK) == 0) System.out.print("\n\t");
+						if (verbose) Gpr.showMark(count, MARK, "\t\t");
 					}
 				}
 			}

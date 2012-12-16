@@ -29,7 +29,7 @@ import ca.mcgill.mcb.pcingola.util.GprSeq;
 public abstract class SnpEffPredictorFactory {
 
 	// Show a mark every
-	public static final int MARK = 1000;
+	public static final int MARK = 100;
 
 	// Debug mode?
 	public static boolean debug = false;
@@ -130,7 +130,7 @@ public abstract class SnpEffPredictorFactory {
 	 */
 	protected void addExonSequences(String chr, String chrSeq) {
 		int seqsAdded = 0, seqsIgnored = 0;
-		System.out.print("\t\tAdding genomic sequences to exons: ");
+		if (verbose) System.out.print("\t\tAdding genomic sequences to exons: ");
 
 		// Find and add sequences for all exons in this chromosome
 		for (Gene gene : genome.getGenes()) {
@@ -141,7 +141,7 @@ public abstract class SnpEffPredictorFactory {
 						int ssEnd = exon.getEnd() + 1; // String.substring does not include the last character in the interval (so we have to add 1)
 
 						if ((ssStart < 0) || (ssEnd > chrSeq.length())) {
-							System.err.println("Ignoring exon outside chromosome range (chromo length: " + chrSeq.length() + "). Exon: " + exon);
+							warning("Ignoring exon outside chromosome range (chromo length: " + chrSeq.length() + "). Exon: " + exon);
 							seqsIgnored++;
 						} else {
 							try {
@@ -160,7 +160,7 @@ public abstract class SnpEffPredictorFactory {
 			}
 		}
 
-		System.out.println("\tDone (" + seqsAdded + " sequences added, " + seqsIgnored + " ignored).");
+		if (verbose) System.out.println("\tDone (" + seqsAdded + " sequences added, " + seqsIgnored + " ignored).");
 		totalSeqsAdded += seqsAdded;
 		totalSeqsIgnored += seqsIgnored;
 	}
@@ -180,6 +180,8 @@ public abstract class SnpEffPredictorFactory {
 	 * This is used when the sequence is not available (which makes sense on test-cases and debugging only)
 	 */
 	protected void adjustChromosomes() {
+		if (verbose) System.out.print("\n\tAdjusting chromosomes lengths: ");
+
 		HashMap<String, Integer> lenByChr = new HashMap<String, Integer>();
 		for (Gene gene : config.getGenome().getGenes()) {
 			String chrName = gene.getChromosomeName();
@@ -189,9 +191,37 @@ public abstract class SnpEffPredictorFactory {
 		}
 
 		// Set length
+		int adjusted = 0;
 		for (String chrName : lenByChr.keySet()) {
-			config.getGenome().getChromosome(chrName).setEnd(lenByChr.get(chrName));
+			Chromosome chr = config.getGenome().getChromosome(chrName);
+			int newEnd = lenByChr.get(chrName);
+			if (chr.getEnd() < newEnd) {
+				chr.setEnd(lenByChr.get(chrName));
+				mark(adjusted++);
+			}
 		}
+	}
+
+	/**
+	 * Adjust genes: recalculate start, end, strand, etc.
+	 */
+	void adjustGenes() {
+		int i = 1;
+		if (verbose) System.out.print("\n\tAdjusting genes: ");
+		for (Gene gene : genome.getGenes())
+			if (gene.adjust()) mark(i++);
+
+	}
+
+	/** 
+	 * Adjust transcripts: recalculate start, end, strand, etc.
+	 */
+	void adjustTranscripts() {
+		int i = 1;
+		if (verbose) System.out.print("\n\tAdjusting transcripts: ");
+		for (Gene gene : genome.getGenes())
+			for (Transcript tr : gene)
+				if (tr.adjust()) mark(i++);
 	}
 
 	/**
@@ -205,7 +235,7 @@ public abstract class SnpEffPredictorFactory {
 		deleteRedundant();
 
 		// Some annotations introduce zero size introns
-		collapseZeroGap();
+		collapseZeroLenIntrons();
 	}
 
 	/**
@@ -221,18 +251,15 @@ public abstract class SnpEffPredictorFactory {
 	/**
 	 * Collapse exons having zero size introns between them
 	 */
-	protected void collapseZeroGap() {
-		System.out.print("\n\tCollapsing zero length introns (if needed): ");
+	protected void collapseZeroLenIntrons() {
+		if (verbose) System.out.print("\n\tCollapsing zero length introns (if needed): ");
 
 		int count = 0;
 		for (Gene gene : genome.getGenes())
 			for (Transcript tr : gene)
-				if (tr.collapseZeroGap()) {
-					count++;
-					System.out.print('.');
-				}
+				if (tr.collapseZeroGap()) mark(count++);
 
-		System.out.println("\n\tTotal collapsed transcripts: " + count);
+		if (verbose) System.out.println("\n\t\tTotal collapsed transcripts: " + count);
 	}
 
 	/**
@@ -270,16 +297,13 @@ public abstract class SnpEffPredictorFactory {
 	 * This happens mostly in GTF files, where the stop-codon is specified separated from the exon info.
 	 */
 	protected void deleteRedundant() {
-		System.out.print("\n\tDeleting redundant exons (if needed): ");
+		if (verbose) System.out.print("\n\tDeleting redundant exons (if needed): ");
 		int count = 0;
 		for (Gene gene : genome.getGenes())
 			for (Transcript tr : gene)
-				if (tr.deleteRedundant()) {
-					count++;
-					System.out.print('.');
-				}
+				if (tr.deleteRedundant()) mark(count++);
 
-		System.out.println("\n\tTotal transcripts with deleted exons: " + count);
+		if (verbose) System.out.println("\n\t\tTotal transcripts with deleted exons: " + count);
 	}
 
 	/**
@@ -294,7 +318,7 @@ public abstract class SnpEffPredictorFactory {
 	 * Create exons from CDS info
 	 */
 	protected void exonsFromCds() {
-		System.out.print("\n\tCreate exons from CDS (if needed): ");
+		if (verbose) System.out.print("\n\tCreate exons from CDS (if needed): ");
 
 		int count = 0;
 		for (Gene gene : genome.getGenes()) {
@@ -316,7 +340,7 @@ public abstract class SnpEffPredictorFactory {
 				}
 			}
 		}
-		System.out.println("\n\tExons created for " + count + " transcripts.");
+		if (verbose) System.out.println("\n\tExons created for " + count + " transcripts.");
 	}
 
 	/**
@@ -335,7 +359,7 @@ public abstract class SnpEffPredictorFactory {
 			cdsStrand += cds.getStrand();
 		cdsStrand = cdsStrand >= 0 ? 1 : -1;
 		if (cdsStrand != trStrand) {
-			System.out.print(cdsStrand >= 0 ? '+' : '-');
+			if (verbose) System.out.print(cdsStrand >= 0 ? '+' : '-');
 			tr.setStrand(cdsStrand);
 		}
 
@@ -355,7 +379,7 @@ public abstract class SnpEffPredictorFactory {
 			}
 
 			rank++;
-			System.out.print('.');
+			if (verbose) System.out.print('.');
 		}
 	}
 
@@ -390,52 +414,27 @@ public abstract class SnpEffPredictorFactory {
 	/**
 	 * Finish up procedure to ensure consistency
 	 */
-	void finishUp(boolean verbose) {
-		int showEvery = 100;
-
-		// Adjust genes: recalculate start, end, strand, etc.
-		int i = 1;
-		System.out.print("\n\tAdjusting genes: ");
-		for (Gene gene : genome.getGenes())
-			if (gene.adjust()) Gpr.showMark(i++, showEvery);
-
-		// Adjust chromosome sizes
-		System.out.print("\n\tAdjusting chromosome sizes: ");
-		for (Gene gene : genome.getGenes()) {
-			Chromosome chr = gene.getChromosome();
-
-			if (gene.getEnd() > chr.getEnd()) {
-				chr.setLength(gene.getEnd() + 1);
-				Gpr.showMark(i++, showEvery);
-			}
-		}
-
+	void finishUp() {
 		// Remove suspicious transcripts
-		removerSuspiciousTranscripts(showEvery);
+		removerSuspiciousTranscripts(MARK);
 
-		// Adjust transcripts: recalculate start, end, strand, etc.
-		i = 1;
-		System.out.print("\n\tAdjusting transcripts: ");
-		for (Gene gene : genome.getGenes())
-			for (Transcript tr : gene)
-				if (tr.adjust()) Gpr.showMark(i++, showEvery);
+		// Adjust
+		adjustTranscripts(); // Adjust transcripts: recalculate start, end, strand, etc.
+		adjustGenes(); // Adjust genes: recalculate start, end, strand, etc.
+		adjustChromosomes(); // Adjust chromosome sizes
 
 		// Adjust exons: Most file formats don't have exon rank information.
-		i = 1;
-		System.out.print("\n\tRanking exons: ");
-		for (Gene gene : genome.getGenes())
-			for (Transcript tr : gene)
-				if (tr.rankExons()) Gpr.showMark(i++, showEvery);
+		rankExons();
 
 		// If some UTRs are missing: calculate UTR information from CDS whenever possible
-		System.out.print("\n\tCreate UTRs from CDS (if needed): ");
-		utrFromCds(verbose, showEvery);
+		if (verbose) System.out.print("\n\tCreate UTRs from CDS (if needed): ");
+		utrFromCds();
 
 		// Remove empty chromosomes
 		removeEmptyChromos();
 
 		// Done
-		System.out.println("");
+		if (verbose) System.out.println("");
 	}
 
 	/**
@@ -466,6 +465,14 @@ public abstract class SnpEffPredictorFactory {
 	}
 
 	/**
+	 * Show a mark onthe screen (to show progress)
+	 * @param count
+	 */
+	void mark(int count) {
+		if (verbose) Gpr.showMark(count, MARK, "\t\t");
+	}
+
+	/**
 	 * Parse a string as a 'position'.
 	 * Note: It subtracts 'inOffset' so that all coordinates are zero-based
 	 * 
@@ -474,6 +481,17 @@ public abstract class SnpEffPredictorFactory {
 	 */
 	protected int parsePosition(String posStr) {
 		return Gpr.parseIntSafe(posStr) - inOffset;
+	}
+
+	/**
+	 * Rank exons
+	 */
+	void rankExons() {
+		int i = 1;
+		if (verbose) System.out.print("\n\tRanking exons: ");
+		for (Gene gene : genome.getGenes())
+			for (Transcript tr : gene)
+				if (tr.rankExons()) mark(i++);
 	}
 
 	/**
@@ -491,20 +509,20 @@ public abstract class SnpEffPredictorFactory {
 
 		// Try all files in the list until one is available
 		for (String file : files) {
-			System.out.println("\t\tTrying FASTA file: '" + file + "'");
 
 			if (Gpr.canRead(file)) {
+				if (verbose) System.out.println("\tReading FASTA file: '" + file + "'");
 				// Read fasta sequence
 				FastaFileIterator ffi = new FastaFileIterator(file);
 				for (String seq : ffi) {
 					String chromo = ffi.getName();
-					System.out.println("\t\tReading sequence '" + chromo + "', length: " + seq.length());
+					if (verbose) System.out.println("\t\tReading sequence '" + chromo + "', length: " + seq.length());
 					Chromosome chromoInt = getOrCreateChromosome(chromo);
 					chromoInt.setLength(seq.length()); // Set chromosome length
 					addExonSequences(chromo, seq); // Add all sequences
 				}
 				return;
-			}
+			} else if (verbose) System.out.println("\tFASTA file: '" + file + "' not found.");
 		}
 
 		throw new RuntimeException("Cannot find reference sequence.");
@@ -514,21 +532,24 @@ public abstract class SnpEffPredictorFactory {
 	 * Remove empty chromosomes
 	 */
 	void removeEmptyChromos() {
-		System.out.println("\n\tRemove empty chromosomes: ");
+		if (verbose) System.out.println("\n\tRemove empty chromosomes: ");
 		ArrayList<Chromosome> chrToDelete = new ArrayList<Chromosome>();
 		for (Chromosome chr : config.getGenome())
 			if (chr.size() <= 1) chrToDelete.add(chr);
 
 		for (Chromosome chr : chrToDelete) {
-			System.out.println("\t\tRemoving empty chromosome: '" + chr.getId() + "'");
+			if (verbose) System.out.println("\t\tRemoving empty chromosome: '" + chr.getId() + "'");
 			config.getGenome().remove(chr);
 		}
 
-		if (chrToDelete.size() > 0) {
-			System.out.print("\t\tChromosome left: ");
-			for (Chromosome chr : config.getGenome())
-				System.out.print(chr.getId() + " ");
-			System.out.println("");
+		// Show remaining chromosomes
+		if (verbose) {
+			if (chrToDelete.size() > 0) {
+				System.out.print("\t\tChromosome left: ");
+				for (Chromosome chr : config.getGenome())
+					System.out.print(chr.getId() + " ");
+				System.out.println("");
+			}
 		}
 	}
 
@@ -541,7 +562,7 @@ public abstract class SnpEffPredictorFactory {
 	 */
 	void removerSuspiciousTranscripts(int showEvery) {
 		// Update Exon.frame data (if not available)
-		System.out.print("\n\tUpdating frame info from CDSs to Exons.");
+		if (verbose) System.out.print("\n\tUpdating frame info from CDSs to Exons.");
 		int i = 0;
 		for (Gene gene : genome.getGenes())
 			for (Transcript tr : gene) {
@@ -558,7 +579,7 @@ public abstract class SnpEffPredictorFactory {
 
 		// Mark Transcripts for removal
 		i = 1;
-		System.out.print("\n\tFiltering out suspicious transcripts (first exon has non-zero frame): ");
+		if (verbose) System.out.print("\n\tFiltering out suspicious transcripts (first exon has non-zero frame): ");
 		LinkedList<Transcript> trToDelete = new LinkedList<Transcript>();
 		for (Gene gene : genome.getGenes())
 			for (Transcript tr : gene) {
@@ -567,7 +588,7 @@ public abstract class SnpEffPredictorFactory {
 					Exon exon = exons.get(0); // Get first exon
 					if (exon.getFrame() > 0) {
 						trToDelete.add(tr); // First exon is not zero? => Mark for deletion
-						Gpr.showMark(i++, showEvery);
+						mark(i++);
 					}
 				}
 			}
@@ -578,7 +599,7 @@ public abstract class SnpEffPredictorFactory {
 			gene.remove(tr);
 		}
 
-		System.out.print((trToDelete.size() > 0 ? "\n" : "") + "\tTotal: " + trToDelete.size() + " removed.");
+		if (verbose) System.out.print((trToDelete.size() > 0 ? "\n\t" : "") + "\tTotal: " + trToDelete.size() + " removed.");
 	}
 
 	public void setFastaFile(String fastaFile) {
@@ -608,13 +629,11 @@ public abstract class SnpEffPredictorFactory {
 	/**
 	 * Create missing UTRs from CDS information
 	 */
-	void utrFromCds(boolean verbose, int showEvery) {
+	void utrFromCds() {
 		int i = 1;
 		for (Gene gint : genome.getGenes())
-			for (Transcript tint : gint) {
-				boolean show = tint.utrFromCds(verbose);
-				if (show && !verbose) Gpr.showMarkStderr(i++, showEvery);
-			}
+			for (Transcript tint : gint)
+				if (tint.utrFromCds(debug)) mark(i++);
 	}
 
 	/**

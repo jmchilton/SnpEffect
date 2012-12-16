@@ -54,6 +54,7 @@ public class SnpEff implements CommandLine {
 	protected String[] args; // Arguments used to invoke this command
 	protected String[] shiftArgs;
 	protected boolean verbose = false; // Be verbose
+	protected boolean debug = false; // Debug mode
 	protected boolean quiet = false; // Be quiet
 	protected boolean log = true; // Log to server (statistics)
 	protected boolean multiThreaded = false; // Use multiple threads
@@ -158,8 +159,9 @@ public class SnpEff implements CommandLine {
 				if (args[i].equalsIgnoreCase("-noLog")) log = false; // This option is always available (to allow privacy in all commands)
 				else argsList.add(args[i]);
 
-				if (args[i].equals("-v")) verbose = true; // Make this option available here as well
-				if (args[i].equals("-q")) quiet = true; // Make this option available here as well
+				if (args[i].equals("-v")) verbose = true;
+				if (args[i].equals("-q")) quiet = true;
+				if (args[i].equals("-d")) debug = true;
 			}
 			shiftArgs = argsList.toArray(new String[0]);
 		} else {

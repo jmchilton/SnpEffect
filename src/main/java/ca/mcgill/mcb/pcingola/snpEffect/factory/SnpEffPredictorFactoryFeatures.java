@@ -167,8 +167,9 @@ public abstract class SnpEffPredictorFactoryFeatures extends SnpEffPredictorFact
 				String sequence = sequence(features);
 				addExonSequences(chromosome.getId(), sequence);
 			}
+
 			// Finish up (fix problems, add missing info, etc.)
-			finishUp(false);
+			finishUp();
 
 			// Check that exons have sequences
 			System.out.println(config.getGenome());

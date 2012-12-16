@@ -92,23 +92,23 @@ public abstract class SnpEffPredictorFactoryGff extends SnpEffPredictorFactory {
 		System.out.println("Reading " + version + " data file  : '" + fileName + "'");
 		try {
 			// We have to read the file a few times because we want to have all genes, then all transcripts, then all exons, etc.
-			System.out.print("\tReading genes       : ");
+			if (verbose) System.out.print("\tReading genes       : ");
 			readGff(GENE);
 
-			System.out.print("\tReading transcripts : ");
+			if (verbose) System.out.print("\tReading transcripts : ");
 			readGff(TRANSCRIPT);
 
-			System.out.print("\tReading exons       : ");
+			if (verbose) System.out.print("\tReading exons       : ");
 			readGff(EXON);
 
 			// This features are not present in GFF2 and are optional in GTF 2.2
 			if (!version.equals("GFF2")) {
 				exonsFromCds(); // We need to create exons from CDSs before UTRs are added, since UTR require exons as parents
 
-				System.out.print("\tReading UTRs (5)    : ");
+				if (verbose) System.out.print("\tReading UTRs (5)    : ");
 				readGff(UTR5);
 
-				System.out.print("\tReading UTRs (3)    : ");
+				if (verbose) System.out.print("\tReading UTRs (3)    : ");
 				readGff(UTR3);
 			}
 
@@ -117,15 +117,15 @@ public abstract class SnpEffPredictorFactoryGff extends SnpEffPredictorFactory {
 
 			if (readSequences) {
 				// Read chromosome sequences and set exon sequences
-				System.out.print("\tReading sequences   :\n");
+				if (verbose) System.out.print("\tReading sequences   :\n");
 				if (mainFileHasFasta) readExonSequencesGff(fileName); // Read from GFF file (it has a '##FASTA' delimiter)
 				else readExonSequences(); // Read them from FASTA file
 			}
 
-			System.out.println("\tTotal: " + totalSeqsAdded + " sequences added, " + totalSeqsIgnored + " sequences ignored.");
+			if (verbose) System.out.println("\tTotal: " + totalSeqsAdded + " sequences added, " + totalSeqsIgnored + " sequences ignored.");
 
 			// Finish up (fix problems, add missing info, etc.)
-			finishUp(false);
+			finishUp();
 
 			// Check that exons have sequences
 			System.out.println(config.getGenome());
@@ -196,7 +196,7 @@ public abstract class SnpEffPredictorFactoryGff extends SnpEffPredictorFactory {
 
 					chromoName = Chromosome.simpleName(line.substring(1).trim()); // New chromosome name
 					chromoSb = new StringBuffer();
-					System.out.println("\t\tReading sequence '" + chromoName + "'");
+					if (verbose) System.out.println("\t\tReading sequence '" + chromoName + "'");
 				} else chromoSb.append(line.trim());
 			}
 
@@ -205,7 +205,7 @@ public abstract class SnpEffPredictorFactoryGff extends SnpEffPredictorFactory {
 			if (chromoName != null) {
 				chromoLen(chromoName, chromoSb.length());
 				addExonSequences(chromoName, chromoSb.toString()); // Add all sequences
-			} else System.err.println("WARNING: Ignoring sequences for '" + chromoName + "'. Cannot find chromosome"); // Chromosome not found
+			} else warning("Ignoring sequences for '" + chromoName + "'. Cannot find chromosome"); // Chromosome not found
 
 			reader.close();
 		} catch (Exception e) {

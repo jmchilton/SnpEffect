@@ -559,6 +559,19 @@ public class Gpr {
 	}
 
 	/**
+	 * Show a mark
+	 * @param i
+	 * @param showEvery
+	 */
+	public static void showMark(int i, int showEvery, String newLineStr) {
+		if (showEvery <= 0) return;
+		if (i % showEvery == 0) {
+			if (i % (100 * showEvery) == 0) System.err.print(".\n" + newLineStr + i + "\t");
+			else System.err.print('.');
+		}
+	}
+
+	/**
 	 * Show a mark (on STDERR)
 	 * @param i
 	 * @param showEvery

@@ -21,11 +21,9 @@ import ca.mcgill.mcb.pcingola.util.Timer;
  */
 public class SnpEffCmdCds extends SnpEff {
 
-	public static boolean debug = false;
 	public static boolean onlyOneError = false; // This is used in some test-cases
 	public static double maxErrorPercentage = 0.01; // Maximum allowed error is 1% (otherwise test fails)
 
-	//	boolean verbose = false;
 	int totalErrors = 0;
 	int totalOk = 0;
 	int totalWarnings = 0;
@@ -56,7 +54,7 @@ public class SnpEffCmdCds extends SnpEff {
 	double cdsCompare() {
 		int i = 1;
 
-		if (!verbose) {
+		if (verbose) {
 			// Show labels
 			System.err.println("\tLabels:");
 			System.err.println("\t\t'+' : OK");
@@ -75,16 +73,16 @@ public class SnpEffCmdCds extends SnpEff {
 				if (cdsReference != null) cdsReference = cdsReference.toUpperCase();
 
 				if (cdsReference == null) {
-					if (verbose) System.err.println("\nWARNING:Cannot find reference CDS for transcript '" + tint.getId() + "'");
-					else System.out.print('.');
+					if (debug) System.err.println("\nWARNING:Cannot find reference CDS for transcript '" + tint.getId() + "'");
+					else if (verbose) System.out.print('.');
 					totalNotFound++;
 				} else if (cds.isEmpty()) {
-					if (verbose) System.err.println("\nWARNING:Empty CDS for transcript '" + tint.getId() + "'");
-					else System.out.print('.');
+					if (debug) System.err.println("\nWARNING:Empty CDS for transcript '" + tint.getId() + "'");
+					else if (verbose) System.out.print('.');
 					totalNotFound++;
 				} else if (cds.equals(cdsReference)) {
 					totalOk++;
-					if (!verbose) System.out.print('+');
+					if (verbose) System.out.print('+');
 
 					// Sanity check: Start and stop codons
 					if ((cds != null) && (cds.length() >= 3)) {
@@ -93,36 +91,36 @@ public class SnpEffCmdCds extends SnpEff {
 						// Check start codon
 						String startCodon = cds.substring(0, 3);
 						if (!ctable.isStart(startCodon)) {
-							if (verbose) System.err.println("\nWARNING: CDS for transcript '" + tint.getId() + "' does not start with a start codon:\t" + startCodon + "\t" + cds);
+							if (debug) System.err.println("\nWARNING: CDS for transcript '" + tint.getId() + "' does not start with a start codon:\t" + startCodon + "\t" + cds);
 							totalWarnings++;
 						}
 
 						// Check stop codon
 						String stopCodon = cds.substring(cds.length() - 3, cds.length());
 						if (!ctable.isStop(stopCodon)) {
-							if (verbose) System.err.println("\nWARNING: CDS for transcript '" + tint.getId() + "' does not end with a stop codon:\t" + stopCodon + "\t" + cds);
+							if (debug) System.err.println("\nWARNING: CDS for transcript '" + tint.getId() + "' does not end with a stop codon:\t" + stopCodon + "\t" + cds);
 							totalWarnings++;
 						}
 					}
 				} else if (mRna.equals(cdsReference)) { // May be the file has mRNA instead of CDS?
 					totalOk++;
-					if (!verbose) System.out.print('+');
+					if (verbose) System.out.print('+');
 				} else if ((mRna.length() < cdsReference.length()) // CDS longer than mRNA? May be it is actually an mRNA + poly-A tail (instead of a CDS)
 						&& cdsReference.substring(mRna.length()).replace('A', ' ').trim().isEmpty() // May be it is an mRNA and it has a ploy-A tail added
 						&& cdsReference.substring(0, mRna.length()).equals(mRna) // Compare cutting poly-A tail
 				) {
 					// OK, it was a mRNA +  polyA
 					totalOk++;
-					if (!verbose) System.out.print('+');
+					if (verbose) System.out.print('+');
 				} else if ((mRna.length() > cdsReference.length()) // PolyA in the reference? 
 						&& mRna.substring(cdsReference.length()).replace('A', ' ').trim().isEmpty() // 
 						&& mRna.substring(0, cdsReference.length()).equals(mRna) // 
 				) {
 					// OK, it was a mRNA +  polyA
 					totalOk++;
-					if (!verbose) System.out.print('+');
+					if (verbose) System.out.print('+');
 				} else {
-					if (verbose || onlyOneError) {
+					if (debug || onlyOneError) {
 						// Create a string indicating differences
 						String diffMrna = SnpEffCmdProtein.diffStr(mRna, cdsReference);
 						int diffMrnaCount = SnpEffCmdProtein.diffCount(mRna, cdsReference);
@@ -142,7 +140,7 @@ public class SnpEffCmdCds extends SnpEff {
 
 						System.err.println(String.format("\tReference   (%6d) : '%s'", cdsReference.length(), cdsReference.toLowerCase()));
 						System.err.println("Transcript details:\n" + tint);
-					} else System.out.print('*');
+					} else if (verbose) System.out.print('*');
 
 					totalErrors++;
 
@@ -153,7 +151,7 @@ public class SnpEffCmdCds extends SnpEff {
 				}
 
 				// Show a mark
-				if (!verbose && (i % 100 == 0)) System.out.print("\n\t");
+				if (verbose && (i % 100 == 0)) System.out.print("\n\t");
 				i++;
 			}
 
@@ -174,8 +172,8 @@ public class SnpEffCmdCds extends SnpEff {
 				if ((args[i].equals("-c") || args[i].equalsIgnoreCase("-config"))) {
 					if ((i + 1) < args.length) configFile = args[++i];
 					else usage("Option '-c' without config file argument");
-				} else if (args[i].equals("-v") || args[i].equalsIgnoreCase("-verbose")) {
-					verbose = true;
+				} else if (args[i].equals("-v") || args[i].equalsIgnoreCase("-debug")) {
+					debug = true;
 				} else usage("Unknow option '" + args[i] + "'");
 			} else if (genomeVer.isEmpty()) genomeVer = args[i];
 			else if (cdsFile.isEmpty()) cdsFile = args[i];
@@ -211,7 +209,6 @@ public class SnpEffCmdCds extends SnpEff {
 			if ((cdsByTrId.get(trId) != null) && (!cdsByTrId.get(trId).equals(seq))) System.err.println("ERROR: Different CDS for the same transcript ID. This should never happen!!!\n\tLine number: " + ffi.getLineNum() + "\n\tTranscript ID:\t" + trId + "\n\tCDS:\t\t" + cdsByTrId.get(trId) + "\n\tCDS (new):\t" + seq);
 
 			cdsByTrId.put(trId, seq); // Add it to the hash
-			if (debug) Gpr.debug("Adding cdsByTrId{'" + trId + "'} :\t" + seq);
 		}
 	}
 
@@ -251,37 +248,37 @@ public class SnpEffCmdCds extends SnpEff {
 	 */
 	@Override
 	public boolean run() {
-		if (verbose) Timer.showStdErr("Checking database using CDS sequences");
+		if (debug) Timer.showStdErr("Checking database using CDS sequences");
 
 		// Load config
 		if (config == null) {
-			if (verbose) Timer.showStdErr("Reading configuration...");
+			if (debug) Timer.showStdErr("Reading configuration...");
 			config = new Config(genomeVer, configFile); // Read configuration
-			if (verbose) Timer.showStdErr("done");
+			if (debug) Timer.showStdErr("done");
 		}
 
 		// Read CDS form file
-		if (verbose) Timer.showStdErr("Reading CDSs from file '" + cdsFile + "'...");
+		if (debug) Timer.showStdErr("Reading CDSs from file '" + cdsFile + "'...");
 		readCdsFile(); // Load CDS
-		if (verbose) Timer.showStdErr("done (" + cdsByTrId.size() + " CDSs).");
+		if (debug) Timer.showStdErr("done (" + cdsByTrId.size() + " CDSs).");
 
 		// Load predictor
 		if (config.getSnpEffectPredictor() == null) {
-			if (verbose) Timer.showStdErr("Reading database...");
+			if (debug) Timer.showStdErr("Reading database...");
 			config.loadSnpEffectPredictor(); // Read snpEffect predictor
-			if (verbose) Timer.showStdErr("done");
+			if (debug) Timer.showStdErr("done");
 		}
 
 		// Compare CDS
-		if (verbose) Timer.showStdErr("Comparing CDS...");
+		if (debug) Timer.showStdErr("Comparing CDS...");
 		cdsCompare();
-		if (verbose) Timer.showStdErr("done");
+		if (debug) Timer.showStdErr("done");
 
 		return true;
 	}
 
-	public void setVerbose(boolean verbose) {
-		this.verbose = verbose;
+	public void setVerbose(boolean debug) {
+		this.debug = debug;
 	}
 
 	/**
@@ -293,9 +290,10 @@ public class SnpEffCmdCds extends SnpEff {
 		System.err.println("snpEff version " + SnpEff.VERSION);
 		System.err.println("Usage: snpEff cds [options] genome_version cds_file");
 		System.err.println("\nOptions:");
-		System.err.println("\t-c , -config            : Specify config file");
-		System.err.println("\t-noLog                  : Do not report usage statistics to server");
-		System.err.println("\t-v , -verbose           : Verbose mode");
+		System.err.println("\t-c , -config <file> : Specify config file");
+		System.err.println("\t-noLog              : Do not report usage statistics to server");
+		System.err.println("\t-v                  : Verbose mode");
+		System.err.println("\t-d                  : Debug mode");
 		System.exit(-1);
 	}
 }

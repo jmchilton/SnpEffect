@@ -59,9 +59,9 @@ public class SnpEffPredictorFactoryKnownGene extends SnpEffPredictorFactory {
 		beforeExonSequences(); // Some clean-up before readng exon sequences
 
 		if (readSequences) readExonSequences(); // Read chromosome sequences and set exon sequences
-		else adjustChromosomes();
+		// else adjustChromosomes();
 
-		finishUp(false); // Perform adjustments
+		finishUp(); // Perform adjustments
 
 		// Check that exons have sequences
 		System.out.println(config.getGenome());

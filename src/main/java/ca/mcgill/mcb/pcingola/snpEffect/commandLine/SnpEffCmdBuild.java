@@ -50,19 +50,19 @@ public class SnpEffCmdBuild extends SnpEff {
 		//---
 		// Check using CDS file
 		//---
-		System.out.print("CDS check:\n\t");
+		if (verbose) System.out.print("CDS check:\n\t");
 		String cdsFile = config.getFileNameCds();
 		if (Gpr.canRead(cdsFile)) {
 			// Use FASTA format
 			SnpEffCmdCds snpEffCmdCds = new SnpEffCmdCds(config);
 			snpEffCmdCds.setVerbose(verbose);
 			snpEffCmdCds.run();
-		} else System.out.println("\tOptional file '" + cdsFile + "' not found, nothing done.");
+		} else if (verbose) System.out.println("\tOptional file '" + cdsFile + "' not found, nothing done.");
 
 		//---
 		// Check using proteins file
 		//---
-		System.out.print("Protein check:\n\t");
+		if (verbose) System.out.print("Protein check:\n\t");
 		String protFile = config.getFileNameProteins();
 		if (Gpr.canRead(protFile)) {
 			SnpEffCmdProtein snpEffCmdProtein = new SnpEffCmdProtein(config);
@@ -73,7 +73,7 @@ public class SnpEffCmdBuild extends SnpEff {
 			SnpEffCmdProtein snpEffCmdProtein = new SnpEffCmdProtein(config, config.getBaseFileNameGenes() + ".gb");
 			snpEffCmdProtein.setVerbose(verbose);
 			snpEffCmdProtein.run();
-		} else System.out.println("\tOptional file '" + protFile + "' not found, nothing done.");
+		} else if (verbose) System.out.println("\tOptional file '" + protFile + "' not found, nothing done.");
 	}
 
 	/**
