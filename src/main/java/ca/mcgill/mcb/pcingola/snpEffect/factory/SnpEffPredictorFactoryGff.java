@@ -235,7 +235,7 @@ public abstract class SnpEffPredictorFactoryGff extends SnpEffPredictorFactory {
 					// Ignore this line
 				} else if (parse(line, typeToRead)) {
 					count++;
-					Gpr.showMark(count, MARK);
+					if (verbose) Gpr.showMark(count, MARK, "\t\t");
 				}
 			}
 		} catch (Exception e) {

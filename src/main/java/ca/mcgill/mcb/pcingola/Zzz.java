@@ -6,7 +6,6 @@ import ca.mcgill.mcb.pcingola.interval.Genome;
 import ca.mcgill.mcb.pcingola.interval.Transcript;
 import ca.mcgill.mcb.pcingola.snpEffect.Config;
 import ca.mcgill.mcb.pcingola.stats.IntStats;
-import ca.mcgill.mcb.pcingola.util.Gpr;
 import ca.mcgill.mcb.pcingola.util.Timer;
 
 /**
@@ -16,7 +15,11 @@ import ca.mcgill.mcb.pcingola.util.Timer;
 public class Zzz {
 
 	public static void main(String[] args) {
-		String genomeVer = "testHg3766Chr1";
+		if (args.length != 1) {
+			System.err.println("Usage: " + Zzz.class.getSimpleName() + " genomeVer");
+			System.exit(-1);
+		}
+		String genomeVer = args[0];
 
 		Timer.showStdErr("Loading database");
 
@@ -31,7 +34,6 @@ public class Zzz {
 		IntStats exonSize = new IntStats();
 
 		for (Gene g : genome.getGenes()) {
-			Gpr.debug(g.getId());
 			numTr.sample(g.numChilds());
 
 			for (Transcript tr : g) {
@@ -43,10 +45,10 @@ public class Zzz {
 		}
 
 		System.err.println("Number of genes: \n" + genome.getGenes().size());
-		System.err.println("Number of transcripts: \n" + numTr);
-		System.err.println("Number of exons: \n" + numExon);
-		System.err.println("Transcript size: \n" + trSize);
-		System.err.println("Exon sizes: \n" + exonSize);
+		System.err.println("Number of transcripts: \n" + numTr + "\n" + numTr.toStringHisto());
+		System.err.println("Number of exons: \n" + numExon + "\n" + numExon.toStringHisto());
+		System.err.println("Transcript size: \n" + trSize + "\n" + trSize.toStringHisto());
+		System.err.println("Exon sizes: \n" + exonSize + "\n" + exonSize.toStringHisto());
 		Timer.showStdErr("Done");
 	}
 }
