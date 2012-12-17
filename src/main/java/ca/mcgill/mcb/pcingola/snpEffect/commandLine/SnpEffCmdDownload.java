@@ -19,6 +19,7 @@ import java.util.zip.ZipOutputStream;
 
 import ca.mcgill.mcb.pcingola.logStatsServer.LogStats;
 import ca.mcgill.mcb.pcingola.snpEffect.Config;
+import ca.mcgill.mcb.pcingola.util.Gpr;
 import ca.mcgill.mcb.pcingola.util.Timer;
 
 /**
@@ -316,13 +317,22 @@ public class SnpEffCmdDownload extends SnpEff {
 			//---
 			ZipEntry entry;
 			while ((entry = zipIn.getNextEntry()) != null) {
-
 				if (!entry.isDirectory()) {
 					String localEntryName = parseEntryPath(entry.getName());
 					if (verbose) Timer.showStdErr("Extracting file '" + entry.getName() + "' to '" + localEntryName + "'");
 
 					// Backup entry
 					if (zipBackup != null) backupFile(zipBackup, localEntryName);
+
+					//---
+					// Does directory exists?
+					//---
+					String dirName = Gpr.dirName(localEntryName);
+					File dir = new File(dirName);
+					if (!dir.exists()) {
+						if (verbose) Timer.show("Creating local directory: '" + dir + "'");
+						dir.mkdirs(); // Create local dir
+					}
 
 					//---
 					// Extract entry
@@ -339,7 +349,7 @@ public class SnpEffCmdDownload extends SnpEff {
 					dest.close();
 				} else if (entry.isDirectory()) {
 					String dir = parseEntryPath(entry.getName());
-					if (verbose) Timer.show("Extracting directory: '" + entry.getName() + "' to local directory '" + dir + "'");
+					if (verbose) Timer.show("Creating local directory: '" + dir + "'");
 					new File(dir).mkdirs(); // Create local dir
 				}
 			}

@@ -29,7 +29,7 @@ zip -r $ZIP snpEff_$VERSION_REV
 cd -
 
 # Create ZIP file for each database
-for d in `ls data/*/snpEffectPredictor.bin`
+for d in `ls data/zzz*/snpEffectPredictor.bin`
 do
 	DIR=`dirname $d`
 	GEN=`basename $DIR`
