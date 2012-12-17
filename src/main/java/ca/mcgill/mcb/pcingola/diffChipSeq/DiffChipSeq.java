@@ -215,7 +215,7 @@ public class DiffChipSeq implements CommandLine {
 	public void usage(String message) {
 		if (message != null) System.err.println("Error: " + message + "\n");
 		System.err.println("DiffChipSeq version " + VERSION);
-		System.err.println("Usage: DiffChipSeq genome reads_1.bam reads_1_input.bam peaks_1.bed reads_2.bam reads_2_input.bam peaks_2.bed");
+		System.err.println("Usage: DiffChipSeq genome reads_control.bam reads_control_input.bam peaks_control.bed reads_case.bam reads_case_input.bam peaks_case.bed");
 		System.exit(-1);
 	}
 
