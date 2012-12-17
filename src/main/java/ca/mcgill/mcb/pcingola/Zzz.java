@@ -5,7 +5,6 @@ import ca.mcgill.mcb.pcingola.interval.Gene;
 import ca.mcgill.mcb.pcingola.interval.Genome;
 import ca.mcgill.mcb.pcingola.interval.Transcript;
 import ca.mcgill.mcb.pcingola.snpEffect.Config;
-import ca.mcgill.mcb.pcingola.stats.IntStats;
 import ca.mcgill.mcb.pcingola.util.Timer;
 
 /**
@@ -21,34 +20,26 @@ public class Zzz {
 		}
 		String genomeVer = args[0];
 
-		Timer.showStdErr("Loading database");
+		Timer.showStdErr("Loading database " + genomeVer);
 
 		Config config = new Config(genomeVer);
 		config.loadSnpEffectPredictor();
 		Genome genome = config.getGenome();
 
 		Timer.showStdErr("Calculate");
-		IntStats numTr = new IntStats();
-		IntStats numExon = new IntStats();
-		IntStats trSize = new IntStats();
-		IntStats exonSize = new IntStats();
-
+		System.out.println("gene.id\ttr.id\te.rank\tg.numChilds\ttr.numChilds\tg.size\ttr.size\te.size");
 		for (Gene g : genome.getGenes()) {
-			numTr.sample(g.numChilds());
-
-			for (Transcript tr : g) {
-				trSize.sample(tr.size());
-				numExon.sample(tr.numChilds());
-				for (Exon e : tr)
-					exonSize.sample(e.size());
+			if (g.isProteinCoding()) {
+				for (Transcript tr : g) {
+					if (tr.isProteinCoding()) {
+						for (Exon e : tr) {
+							System.out.println(g.getId() + "\t" + tr.getId() + "\t" + e.getRank() + "\t" + g.numChilds() + "\t" + tr.numChilds() + "\t" + g.size() + "\t" + tr.size() + "\t" + e.size());
+						}
+					}
+				}
 			}
 		}
 
-		System.err.println("Number of genes: \n" + genome.getGenes().size());
-		System.err.println("Number of transcripts: \n" + numTr + "\n" + numTr.toStringHisto());
-		System.err.println("Number of exons: \n" + numExon + "\n" + numExon.toStringHisto());
-		System.err.println("Transcript size: \n" + trSize + "\n" + trSize.toStringHisto());
-		System.err.println("Exon sizes: \n" + exonSize + "\n" + exonSize.toStringHisto());
 		Timer.showStdErr("Done");
 	}
 }
