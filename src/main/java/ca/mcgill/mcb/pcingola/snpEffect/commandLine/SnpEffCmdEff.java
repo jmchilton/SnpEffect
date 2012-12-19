@@ -300,18 +300,10 @@ public class SnpEffCmdEff extends SnpEff {
 			if (args[i].startsWith("-")) {
 
 				//---
-				// Generic options
+				// Generic options.
+				// Note: OPtions config, verbose, debug, quiet, etc. at parse by SnpEff (parent class) 
 				//---
-				if ((args[i].equals("-c") || args[i].equalsIgnoreCase("-config"))) {
-					if ((i + 1) < args.length) configFile = args[++i];
-					else usage("Option '-c' without config file argument");
-				} else if (args[i].equals("-v") || args[i].equalsIgnoreCase("-verbose")) {
-					verbose = true;
-					quiet = false;
-				} else if (args[i].equals("-q") || args[i].equalsIgnoreCase("-quiet")) {
-					quiet = true;
-					verbose = false;
-				} else if (args[i].equals("-1")) inOffset = outOffset = 1;
+				if (args[i].equals("-1")) inOffset = outOffset = 1;
 				else if (args[i].equals("-0")) inOffset = outOffset = 0;
 				else if (args[i].equals("-h") || args[i].equalsIgnoreCase("-help")) {
 					usage(null);

@@ -3,7 +3,6 @@ package ca.mcgill.mcb.pcingola.snpEffect.commandLine;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import ca.mcgill.mcb.pcingola.Config2DownloadTable;
 import ca.mcgill.mcb.pcingola.Pcingola;
 import ca.mcgill.mcb.pcingola.logStatsServer.LogStats;
 import ca.mcgill.mcb.pcingola.snpEffect.Config;
@@ -150,18 +149,22 @@ public class SnpEff implements CommandLine {
 				|| args[0].equalsIgnoreCase("cfg2table") //
 				|| args[0].equalsIgnoreCase("spliceAnalysis") //
 				|| args[0].equalsIgnoreCase("countReads") //
+				|| args[0].equalsIgnoreCase("genes2bed") //
 		) {
 			command = args[0].toLowerCase();
 
 			// Copy all args except initial 'command'
 			ArrayList<String> argsList = new ArrayList<String>();
 			for (int i = 1; i < args.length; i++) {
-				if (args[i].equalsIgnoreCase("-noLog")) log = false; // This option is always available (to allow privacy in all commands)
-				else argsList.add(args[i]);
-
-				if (args[i].equals("-v")) verbose = true;
-				if (args[i].equals("-q")) quiet = true;
-				if (args[i].equals("-d")) debug = true;
+				// These options are available for allow all commands
+				if (args[i].equalsIgnoreCase("-noLog")) log = false;
+				else if (args[i].equals("-v") || args[i].equalsIgnoreCase("-verbose")) verbose = true;
+				else if (args[i].equals("-q") || args[i].equalsIgnoreCase("-quiet")) quiet = true;
+				else if (args[i].equals("-d") || args[i].equalsIgnoreCase("-debug")) debug = true;
+				else if ((args[i].equals("-c") || args[i].equalsIgnoreCase("-config"))) {
+					if ((i + 1) < args.length) configFile = args[++i];
+					else usage("Option '-c' without config file argument");
+				} else argsList.add(args[i]);
 			}
 			shiftArgs = argsList.toArray(new String[0]);
 		} else {
@@ -187,69 +190,77 @@ public class SnpEff implements CommandLine {
 		boolean ok = false;
 		SnpEff snpEff = null;
 
-		if (command.equals("build")) {
+		if (command.equalsIgnoreCase("build")) {
 			//---
 			// Build database
 			//---
 			snpEff = new SnpEffCmdBuild();
 			snpEff.parseArgs(shiftArgs);
-		} else if (command.equals("dump")) {
+		} else if (command.equalsIgnoreCase("dump")) {
 			//---
 			// Dump database
 			//---
 			snpEff = new SnpEffCmdDump();
 			snpEff.parseArgs(shiftArgs);
-		} else if (command.equals("download")) {
+		} else if (command.equalsIgnoreCase("download")) {
 			//---
 			// Download database
 			//---
 			snpEff = new SnpEffCmdDownload();
 			snpEff.parseArgs(shiftArgs);
-		} else if (command.equals("cds")) {
+		} else if (command.equalsIgnoreCase("cds")) {
 			//---
 			// CDS test
 			//---
 			snpEff = new SnpEffCmdCds();
 			snpEff.parseArgs(shiftArgs);
-		} else if (command.equals("eff")) {
+		} else if (command.equalsIgnoreCase("eff")) {
 			//---
 			// Align to reference genome
 			//---
 			snpEff = new SnpEffCmdEff();
 			snpEff.parseArgs(shiftArgs);
-		} else if (command.equals("protein")) {
+		} else if (command.equalsIgnoreCase("protein")) {
 			//---
 			// Protein test
 			//---
 			snpEff = new SnpEffCmdProtein();
 			snpEff.parseArgs(shiftArgs);
-		} else if (command.equals("closestexon")) {
+		} else if (command.equalsIgnoreCase("closestexon")) {
 			//---
 			// Find closest exon
 			//---
 			snpEff = new SnpEffCmdClosestExon();
 			snpEff.parseArgs(shiftArgs);
-		} else if (command.equals("cfg2table")) {
+		} else if (command.equalsIgnoreCase("cfg2table")) {
+			//---
 			// Create download table and galaxy list from config file
-			snpEff = new Config2DownloadTable();
-			snpEff.parseArgs(shiftArgs);
-		} else if (command.equals("test")) {
 			//---
-			// Test command (only for testing weird stuff)
-			//---
-			snpEff = new SnpEffCmdTest();
+			snpEff = new SnpEffCmdConfig2DownloadTable();
 			snpEff.parseArgs(shiftArgs);
-		} else if (command.equals("spliceanalysis")) {
+		} else if (command.equalsIgnoreCase("genes2bed")) {
+			//---
+			// Create a bed file from a gene list
+			//---
+			snpEff = new SnpEffCmdGenes2Bed();
+			snpEff.parseArgs(shiftArgs);
+		} else if (command.equalsIgnoreCase("spliceanalysis")) {
 			//---
 			// Splice site analysis
 			//---
 			snpEff = new SpliceAnalysis();
 			snpEff.parseArgs(shiftArgs);
-		} else if (command.equals("countreads")) {
+		} else if (command.equalsIgnoreCase("countreads")) {
 			//---
 			// Count reads site analysis
 			//---
 			snpEff = new SnpEffCmdCountReads();
+			snpEff.parseArgs(shiftArgs);
+		} else if (command.equalsIgnoreCase("test")) {
+			//---
+			// Test command (only for testing weird stuff)
+			//---
+			snpEff = new SnpEffCmdTest();
 			snpEff.parseArgs(shiftArgs);
 		} else throw new RuntimeException("Unknown command '" + command + "'");
 
@@ -299,6 +310,7 @@ public class SnpEff implements CommandLine {
 		System.err.println("   closestExon     : Calculate closes exon/s given a set of genomic positions or intervals.");
 		System.err.println("   spliceAnalysis  : Perform an analysis of splice sites. Experimental feature.");
 		System.err.println("   countReads      : Count how many reads (from a BAM file) overlap with each genomic interval. Experimental feature.");
+		System.err.println("   genes2bed       : Create a bed file from a genes list.");
 		System.err.println("\nRun 'java -jar snpEff.jar command' for help on each specifig command");
 		System.exit(-1);
 	}

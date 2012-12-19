@@ -1,11 +1,10 @@
-package ca.mcgill.mcb.pcingola;
+package ca.mcgill.mcb.pcingola.snpEffect.commandLine;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 
 import ca.mcgill.mcb.pcingola.snpEffect.Config;
-import ca.mcgill.mcb.pcingola.snpEffect.commandLine.SnpEff;
 
 /**
  * Create an HTML 'download' table based on the config file
@@ -13,7 +12,7 @@ import ca.mcgill.mcb.pcingola.snpEffect.commandLine.SnpEff;
  * 
  * @author pablocingolani
  */
-public class Config2DownloadTable extends SnpEff {
+public class SnpEffCmdConfig2DownloadTable extends SnpEff {
 
 	public static final String DARK_ROW = "bgcolor=#CCCCCC";
 	public static final String LIGHT_ROW = "bgcolor=#EEEEEE";
@@ -28,12 +27,12 @@ public class Config2DownloadTable extends SnpEff {
 	ArrayList<String> genVerSorted;
 
 	public static void main(String[] args) {
-		Config2DownloadTable conf2down = new Config2DownloadTable();
+		SnpEffCmdConfig2DownloadTable conf2down = new SnpEffCmdConfig2DownloadTable();
 		conf2down.parseArgs(args);
 		conf2down.run();
 	}
 
-	public Config2DownloadTable() {
+	public SnpEffCmdConfig2DownloadTable() {
 		// Read config (it doesn't matter which genome)
 		config = new Config("hg19");
 
