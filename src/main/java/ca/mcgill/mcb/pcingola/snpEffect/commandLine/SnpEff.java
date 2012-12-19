@@ -52,11 +52,11 @@ public class SnpEff implements CommandLine {
 	protected String command = "";
 	protected String[] args; // Arguments used to invoke this command
 	protected String[] shiftArgs;
-	protected boolean verbose = false; // Be verbose
-	protected boolean debug = false; // Debug mode
-	protected boolean quiet = false; // Be quiet
-	protected boolean log = true; // Log to server (statistics)
-	protected boolean multiThreaded = false; // Use multiple threads
+	protected boolean verbose; // Be verbose
+	protected boolean debug; // Debug mode
+	protected boolean quiet; // Be quiet
+	protected boolean log; // Log to server (statistics)
+	protected boolean multiThreaded; // Use multiple threads
 	protected int numWorkers = Gpr.NUM_CORES; // Max number of threads (if multi-threaded version is available)
 	protected int inOffset = 1; // By default positions are 1-based
 	protected int outOffset = 1;
@@ -83,6 +83,11 @@ public class SnpEff implements CommandLine {
 	public SnpEff() {
 		genomeVer = ""; // Genome version
 		configFile = Config.DEFAULT_CONFIG_FILE; // Config file
+		verbose = false; // Be verbose
+		debug = false; // Debug mode
+		quiet = false; // Be quiet
+		log = true; // Log to server (statistics)
+		multiThreaded = false; // Use multiple threads
 	}
 
 	/**
@@ -195,73 +200,61 @@ public class SnpEff implements CommandLine {
 			// Build database
 			//---
 			snpEff = new SnpEffCmdBuild();
-			snpEff.parseArgs(shiftArgs);
 		} else if (command.equalsIgnoreCase("dump")) {
 			//---
 			// Dump database
 			//---
 			snpEff = new SnpEffCmdDump();
-			snpEff.parseArgs(shiftArgs);
 		} else if (command.equalsIgnoreCase("download")) {
 			//---
 			// Download database
 			//---
 			snpEff = new SnpEffCmdDownload();
-			snpEff.parseArgs(shiftArgs);
 		} else if (command.equalsIgnoreCase("cds")) {
 			//---
 			// CDS test
 			//---
 			snpEff = new SnpEffCmdCds();
-			snpEff.parseArgs(shiftArgs);
 		} else if (command.equalsIgnoreCase("eff")) {
 			//---
 			// Align to reference genome
 			//---
 			snpEff = new SnpEffCmdEff();
-			snpEff.parseArgs(shiftArgs);
 		} else if (command.equalsIgnoreCase("protein")) {
 			//---
 			// Protein test
 			//---
 			snpEff = new SnpEffCmdProtein();
-			snpEff.parseArgs(shiftArgs);
 		} else if (command.equalsIgnoreCase("closestexon")) {
 			//---
 			// Find closest exon
 			//---
 			snpEff = new SnpEffCmdClosestExon();
-			snpEff.parseArgs(shiftArgs);
 		} else if (command.equalsIgnoreCase("cfg2table")) {
 			//---
 			// Create download table and galaxy list from config file
 			//---
 			snpEff = new SnpEffCmdConfig2DownloadTable();
-			snpEff.parseArgs(shiftArgs);
 		} else if (command.equalsIgnoreCase("genes2bed")) {
 			//---
 			// Create a bed file from a gene list
 			//---
 			snpEff = new SnpEffCmdGenes2Bed();
-			snpEff.parseArgs(shiftArgs);
 		} else if (command.equalsIgnoreCase("spliceanalysis")) {
 			//---
 			// Splice site analysis
 			//---
 			snpEff = new SpliceAnalysis();
-			snpEff.parseArgs(shiftArgs);
 		} else if (command.equalsIgnoreCase("countreads")) {
 			//---
 			// Count reads site analysis
 			//---
 			snpEff = new SnpEffCmdCountReads();
-			snpEff.parseArgs(shiftArgs);
 		} else if (command.equalsIgnoreCase("test")) {
 			//---
 			// Test command (only for testing weird stuff)
 			//---
 			snpEff = new SnpEffCmdTest();
-			snpEff.parseArgs(shiftArgs);
 		} else throw new RuntimeException("Unknown command '" + command + "'");
 
 		//---
@@ -269,6 +262,11 @@ public class SnpEff implements CommandLine {
 		//---
 		String err = "";
 		try {
+			snpEff.verbose = verbose;
+			snpEff.debug = debug;
+			snpEff.quiet = quiet;
+			snpEff.configFile = configFile;
+			snpEff.parseArgs(shiftArgs);
 			ok = snpEff.run();
 		} catch (Throwable t) {
 			err = t.getMessage();
