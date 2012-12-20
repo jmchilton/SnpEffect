@@ -426,6 +426,58 @@ Ts/Tv         :	2.123	2.139	2.154	2.163	2.159	2.106	2.114	2.158	2.145	2.153	2.15
 			
 				<a class="body" name="extractFields"><p><hr><p style="font-size: 16pt"> <b> SnpSift Extract Fields</b></p></a>
 				Extract fields from a VCF file to a TXT (tab separated) format.
+				You can also use sub-fields and genotype fields / sub-fields such as:
+				<p>
+				<ul>
+					<li> Standard VCF fields: 
+						<ul>
+							<li> CHROM
+							<li> POS
+							<li> ID
+							<li> REF
+							<li> ALT
+							<li> FILTER
+						</ul>
+					<li> INFO fields: 
+						<ul>
+							<li> AF
+							<li> AC
+							<li> DP
+							<li> MQ
+							<li> etc. (any info field available)
+						</ul>
+					<li> SnpEff 'EFF' fields: 
+						<ul>
+							<li> EFF[*].EFFECT
+							<li> EFF[*].IMPACT
+							<li> EFF[*].FUNCLASS
+							<li> EFF[*].CODON
+							<li> EFF[*].AA
+							<li> EFF[*].AA_LEN
+							<li> EFF[*].GENE
+							<li> EFF[*].BIOTYPE
+							<li> EFF[*].CODING
+							<li> EFF[*].TRID
+							<li> EFF[*].EXID
+						</ul>
+					<li> SnpEff 'LOF' fields: 
+						<ul>
+							<li> LOF[*].GENE
+							<li> LOF[*].GENEID
+							<li> LOF[*].NUMTR
+							<li> LOF[*].PERC
+						</ul>
+					<li> SnpEff' NMD' fields: 
+						<ul>
+							<li> NMD[*].GENE
+							<li> NMD[*].GENEID
+							<li> NMD[*].NUMTR
+							<li> NMD[*].PERC
+						</ul>
+				</ul>
+
+				<p>
+				<b>Exmample 1:</b> Extracting chromosome, position, ID and allele frequency from a VCF file:
 				<pre>
 $ java -jar SnpSift.jar extractFields s.vcf CHROM POS ID AF | head
 #CHROM        POS        ID            AF
@@ -440,7 +492,8 @@ $ java -jar SnpSift.jar extractFields s.vcf CHROM POS ID AF | head
 1             865625     rs146327803   0.001
 </pre>
 
-				You can also use sub-fields and genotype fields / sub-fields. For instance:
+				<p>
+				<b>Exmample 2:</b> Extracting genotype fields
 <pre>
 $ java -jar SnpSift.jar extractFields file.vcf CHROM POS ID THETA GEN[0].GL[1] GEN[1].GL GEN[3].GL[*] GEN[*].GT
 </pre>
