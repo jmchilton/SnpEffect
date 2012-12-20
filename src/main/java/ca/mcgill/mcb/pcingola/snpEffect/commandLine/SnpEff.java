@@ -45,7 +45,6 @@ public class SnpEff implements CommandLine {
 	public static final String REVISION = "k";
 	public static final String VERSION_SHORT = VERSION_MAJOR + REVISION;
 	public static final String VERSION = SOFTWARE_NAME + " " + VERSION_SHORT + " (build " + BUILD + "), by " + Pcingola.BY;
-
 	public static final String DEFAULT_SUMMARY_FILE = "snpEff_summary.html";
 	public static final String DEFAULT_SUMMARY_GENES_FILE = "snpEff_genes.txt";
 
@@ -287,6 +286,10 @@ public class SnpEff implements CommandLine {
 		}
 
 		return ok;
+	}
+
+	public void setVerbose(boolean verbose) {
+		this.verbose = verbose;
 	}
 
 	/**

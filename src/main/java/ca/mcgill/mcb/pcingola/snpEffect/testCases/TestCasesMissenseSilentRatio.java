@@ -11,8 +11,6 @@ import ca.mcgill.mcb.pcingola.snpEffect.commandLine.SnpEffCmdEff;
  */
 public class TestCasesMissenseSilentRatio extends TestCase {
 
-	boolean verbose = false;
-
 	public TestCasesMissenseSilentRatio() {
 		super();
 	}
@@ -20,16 +18,16 @@ public class TestCasesMissenseSilentRatio extends TestCase {
 	/**
 	 */
 	public void test_01() {
-		String args[] = { "-v" //
-		, "-i", "vcf" //
-		, "-noOut" //
-		, "-useLocalTemplate" //
-		, "testHg3765Chr22" //
-		, "./tests/missenseSilent.chr22.vcf.gz" //
+		String args[] = { "-i", "vcf" //
+				, "-noOut" //
+				, "-useLocalTemplate" //
+				, "testHg3765Chr22" //
+				, "./tests/missenseSilent.chr22.vcf.gz" //
 		};
 
 		SnpEffCmdEff snpEffCmdEff = new SnpEffCmdEff();
 		snpEffCmdEff.parseArgs(args);
+		snpEffCmdEff.setVerbose(true);
 		snpEffCmdEff.run();
 
 		double silentRatio = snpEffCmdEff.getChangeEffectResutStats().getSilentRatio();

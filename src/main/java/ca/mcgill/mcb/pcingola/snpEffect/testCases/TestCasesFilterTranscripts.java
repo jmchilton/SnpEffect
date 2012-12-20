@@ -27,7 +27,7 @@ public class TestCasesFilterTranscripts extends TestCase {
 	 * Filter transcripts from a file
 	 */
 	public void test_01() {
-		String args[] = { "-v", "-noStats" // 
+		String args[] = { "-noStats" // 
 				, "-i", "vcf", "-o", "vcf" //
 				, "-onlyTr", "tests/filterTranscripts_01.txt"//
 				, "testHg3765Chr22" //
@@ -36,6 +36,7 @@ public class TestCasesFilterTranscripts extends TestCase {
 
 		SnpEffCmdEff cmd = new SnpEffCmdEff();
 		cmd.parseArgs(args);
+		cmd.setVerbose(true);
 
 		List<VcfEntry> vcfEntries = cmd.run(true);
 		for (VcfEntry ve : vcfEntries) {
@@ -56,7 +57,7 @@ public class TestCasesFilterTranscripts extends TestCase {
 	 * Filter transcripts from a file
 	 */
 	public void test_02() {
-		String args[] = { "-v", "-noStats" // 
+		String args[] = { "-noStats" // 
 				, "-i", "vcf", "-o", "vcf" //
 				, "-onlyTr", "tests/filterTranscripts_02.txt"//
 				, "testHg3765Chr22" //
@@ -65,6 +66,7 @@ public class TestCasesFilterTranscripts extends TestCase {
 
 		SnpEffCmdEff cmd = new SnpEffCmdEff();
 		cmd.parseArgs(args);
+		cmd.setVerbose(true);
 
 		List<VcfEntry> vcfEntries = cmd.run(true);
 		for (VcfEntry ve : vcfEntries) {
