@@ -53,6 +53,7 @@
 <p>
 <b> Run </b> <br>
 - <a class="body" href="#How_do_I_run_snpEff?"> How do I run snpEff?  </a> <br>
+- <a class="body" href="#VM?"> I'm running it on a Virtual Machine (VM) and I get some error, could that be the problem?  </a> <br>
 - <a class="body" href="#Command_line_o"> Command line options  </a> <br>
 - <a class="body" href="#Why_does_it_take_a_some_seconds_to_start?"> Why does it take a some seconds to start?  </a> <br>
 - <a class="body" href="#Why_do_I_get_an_OutOfMemory_error?"> Why do I get an "OutOfMemory" error?  </a> <br>
@@ -197,6 +198,37 @@ svn co https://snpeff.svn.sourceforge.net/svnroot/snpeff/SnpEffect/trunk
 <pre>
 	java snpEff.jar -c path/to/snpEff.config hg37 path/to/your/files/snps.txt
 </pre>
+
+				<p style="font-size: 14pt"> <b> <a class="body" name="VM?"> I'm running it on a Virtual Machine (VM) and I get some error, could that be the problem? </a> </b></p>
+				No, running it on a virtual machine should be exactly the same as running it on "real hardware". 
+				You should not have any problems at all.<p>
+				Here is an example of installing it and running it on an Amazon EC2 instance (virtual machine):<p>
+<pre>
+$ ssh -i ./aws_amazon/pcingola_aws.pem ec2-user@ec2-54-234-14-244.compute-1.amazonaws.com
+
+       __|  __|_  )
+       _|  (     /   Amazon Linux AMI
+      ___|\___|___|
+
+
+[ec2-user@ip-10-2-202-163 ~]$ wget http://sourceforge.net/projects/snpeff/files/snpEff_latest_core.zip/download
+[ec2-user@ip-10-2-202-163 ~]$ unzip snpEff_latest_core.zip
+[ec2-user@ip-10-2-202-163 ~]$ cd snpEff_3_1/
+[ec2-user@ip-10-2-202-163 snpEff_3_1]$ java -jar snpEff.jar download -v hg19
+00:00:00.000    Downloading database for 'hg19'
+...
+00:00:36.340    Done
+[ec2-user@ip-10-2-202-163 snpEff_3_1]$ java -Xmx4G -jar snpEff.jar dump -v hg19 > /dev/null
+00:00:00.000    Reading database for genome 'hg19' (this might take a while)
+00:00:20.688    done
+00:00:20.688    Building interval forest
+00:00:33.110    Done.
+</pre>
+
+				<p>
+				As you can see, no problems. 
+
+
 				<p style="font-size: 14pt"> <b> <a class="body" name="Command_line_o"> Command line options  </a> </b></p>
 				In order to see all available options, you can run <pre>java -jar snpEff.jar -help</pre>
 				Also, take a look at the <a class="body"class="body" href="manual.html">manual page</a>.
