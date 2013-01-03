@@ -5,7 +5,7 @@ import java.io.File;
 import ca.mcgill.mcb.pcingola.util.Gpr;
 
 /**
- * Run an OS command 
+ * Run an OS command as a thread
  * 
  * @author pcingola
  */

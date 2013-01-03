@@ -19,25 +19,26 @@ public class ExecuteOsCommand extends Thread implements Progress {
 
 	public static boolean debug = false;
 
-	String commandArgs[];
-	String error = "";
-	String pwd = null;
+	String commandArgs[]; // Command and arguments
+	String error = ""; // Errors
+	String pwd = null; // Path to command
+
 	boolean quietStdout = false; // Be quite (i.e. do not copy to stdout )
 	boolean quietStderr = false; // Be quite (i.e. do not copy to stderr )
 	boolean saveStd = false; // Save lines to buffer
-	boolean executing = false, started = false;
-	int exitValue = 0;
-	Object objetcToNotify = null;
-	OutputStream stdin = null;
-	StreamGobbler stdErrGobbler = null, stdOutGobbler = null;
-	Process pr;
-	int progress = 0;
-	String redirectStdout = null;
-	String redirectStderr = null;
-	boolean binaryStdout = false;
-	boolean binaryStderr = false;
-	LineFilter stdOutFilter = null;
+	boolean executing = false, started = false; // Command states
+	boolean binaryStdout = false; // Is STDOUT binnary?
+	boolean binaryStderr = false; // Is STDERR binnary? (this would be really odd)
 	boolean showExceptions = true; // Show exceptions when running the program
+	int progress = 0; // Any way to measure progress?
+	int exitValue = 0; // Command exit value
+	String redirectStdout = null; // Where to redirect STDOUT
+	String redirectStderr = null; // Where to redirect STDERR
+	Object objetcToNotify = null; // Notify this object when we are done
+	OutputStream stdin = null; // We write to command's STDIN (so for us is an output stream)
+	StreamGobbler stdErrGobbler = null, stdOutGobbler = null; // Gobblers for command's STDOUT and STDERR
+	LineFilter stdOutFilter = null; // Line filter: Keep (and show) everything from STDOUT that matches this filter
+	Process pr; // Java process (the one that actually executes our command) 
 
 	public ExecuteOsCommand(String args[]) {
 		commandArgs = args;

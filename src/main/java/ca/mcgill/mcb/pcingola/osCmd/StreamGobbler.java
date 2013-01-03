@@ -21,20 +21,19 @@ public class StreamGobbler extends Thread {
 	public static int BUFFER_SIZE = 100 * 1024;
 
 	InputStream is;
-	boolean binary = false;
+	boolean binary = false; // Is this a binary stream?
 	boolean alertDone = false;
 	boolean sendToStderr = false;
 	boolean sendToStdout = false;
 	boolean saveLinesInMemory = false;
+	boolean running = false;
 	StringBuffer allLines = new StringBuffer();
 	String alert = null;
 	Object alertNotify = null;
 	StringBuffer head = null;
 	Progress progress = null;
 	String redirectTo = null;
-	// FileOutputStream redirectWriter = null;
 	BufferedReader lineInputReader = null;
-	boolean running = false;
 	LineFilter lineFilter;
 
 	StreamGobbler(InputStream is, boolean stderr) {
