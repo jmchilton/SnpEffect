@@ -40,6 +40,8 @@ public class Zzz {
 			}
 		}
 
+		int i, j;
+
 		Timer.showStdErr("Done");
 	}
 }
