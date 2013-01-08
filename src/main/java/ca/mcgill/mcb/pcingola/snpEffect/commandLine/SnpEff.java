@@ -301,7 +301,7 @@ public class SnpEff implements CommandLine {
 		if (message != null) System.err.println("Error: " + message + "\n");
 		System.err.println("snpEff version " + VERSION);
 		System.err.println("Usage: snpEff [command] [options] [files]");
-		System.err.println("\nAvailable vommands: ");
+		System.err.println("\nAvailable commands: ");
 		System.err.println("   [eff]           : Calculate effect of variants. Default (no command or 'eff').");
 		System.err.println("   download        : Download a SnpEff database.");
 		System.err.println("   build           : Build a SnpEff database.");
