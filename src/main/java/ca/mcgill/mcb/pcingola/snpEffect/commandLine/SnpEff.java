@@ -281,15 +281,22 @@ public class SnpEff implements CommandLine {
 			// Get config from command
 			config = snpEff.config;
 
-			// Check if a new version is available
-			VersionCheck versionCheck = VersionCheck.version(SnpEff.SOFTWARE_NAME, SnpEff.VERSION_SHORT, config.getVersionsUrl(), verbose);
-			if (!quiet && versionCheck.isNewVersion()) {
-				System.err.println("New version available: " //
-						+ "\n\tNew version  : " + versionCheck.getLatestVersion() // 
-						+ "\n\tRelease date : " + versionCheck.getLatestReleaseDate() //
-						+ "\n\tDownload URL : " + versionCheck.getLatestUrl() //
-						+ "\n\nTo update run:\n\tjava snpEff.jar download -v snpeff\n" //
-				);
+			if (config != null) {
+				// Download command check for versions, no need to do it twice
+				if (!command.equalsIgnoreCase("download")) {
+
+					// Check if a new version is available
+					VersionCheck versionCheck = VersionCheck.version(SnpEff.SOFTWARE_NAME, SnpEff.VERSION_SHORT, config.getVersionsUrl(), verbose);
+					if (!quiet && versionCheck.isNewVersion()) {
+						System.err.println("New version available: " //
+								+ "\n\tNew version  : " + versionCheck.getLatestVersion() // 
+								+ "\n\tRelease date : " + versionCheck.getLatestReleaseDate() //
+								+ "\n\tDownload URL : " + versionCheck.getLatestUrl() //
+								+ "\n\nTo update run:\n\tjava -jar snpEff.jar download -v snpeff\n" //
+						);
+					}
+
+				}
 			}
 		}
 

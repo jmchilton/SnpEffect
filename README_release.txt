@@ -62,9 +62,12 @@ Check that databases have been built correctly:
 		# Create galaxy menu (add output to galaxy/snpEff.xml)
 		java -jar snpEff.jar cfg2table galaxy 
 		
+		# Create versions file (html/versions.txt)
+		./scripts/versions.sh
+		
 		cd $HOME/workspace/SnpEff/html/
 		
-		# Copy html files 
+		# Copy html and txt files 
 		scp style.css *.html *.txt pcingola,snpeff@frs.sourceforge.net:htdocs/
 		
 		# Copy images

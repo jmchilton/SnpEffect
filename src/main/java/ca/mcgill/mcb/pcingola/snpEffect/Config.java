@@ -97,7 +97,7 @@ public class Config implements Serializable, Iterable<String> {
 
 		read(genomeVersion, configFileName); // Read config file and get a genome
 		genome = genomeByVersion.get(genomeVersion); // Set a genome
-		if (genome == null) throw new RuntimeException("No such genome '" + genomeVersion + "'");
+		if (!genomeVersion.isEmpty() && (genome == null)) throw new RuntimeException("No such genome '" + genomeVersion + "'");
 		configInstance = this;
 	}
 
@@ -414,10 +414,10 @@ public class Config implements Serializable, Iterable<String> {
 
 			// Codon tables
 			createCodonTables(genomeVersion, properties);
-
-			// Set properties
-			setFromProperties();
 		}
+
+		// Set properties
+		setFromProperties();
 	}
 
 	/**
