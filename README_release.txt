@@ -65,7 +65,7 @@ Check that databases have been built correctly:
 		cd $HOME/workspace/SnpEff/html/
 		
 		# Copy html files 
-		scp style.css *.html pcingola,snpeff@frs.sourceforge.net:htdocs/
+		scp style.css *.html *.txt pcingola,snpeff@frs.sourceforge.net:htdocs/
 		
 		# Copy images
 		scp -r  images/ pcingola,snpeff@frs.sourceforge.net:htdocs/images/

@@ -44,14 +44,14 @@ public class LogStats extends Thread {
 
 	// Class variables
 	public StringBuilder msg = new StringBuilder(); // info for the user
-	private final String versionFull, versionShort, software;
+	private final String versionFull;
 	private RequestResult res = RequestResult.NOINFO;
 	private long duration; // time to complete the request, in msecs - succuessfull or not
 	protected boolean log = true; // Log to server (statistics)
 	protected boolean verbose = false; // Be verbose
 	HashMap<String, String> values; // Values to report
-	String latestVersion, latestUrl, latestReleaseDate;
-	boolean newVersion = false;
+
+	//	boolean newVersion = false;
 
 	/**
 	 * Report stats to server
@@ -131,10 +131,13 @@ public class LogStats extends Thread {
 		return logStats;
 	}
 
-	// Constructor
+	/**
+	 * Constructor
+	 * @param software
+	 * @param versionShort
+	 * @param versionFull
+	 */
 	public LogStats(String software, String versionShort, String versionFull) {
-		this.software = software;
-		this.versionShort = versionShort;
 		this.versionFull = versionFull;
 		values = new HashMap<String, String>();
 	}
@@ -186,6 +189,9 @@ public class LogStats extends Thread {
 		return new URL(urlsb.toString());
 	}
 
+	/**
+	 * Connect to server
+	 */
 	public void connect() {
 		// Step 0 : Build URL
 		int step = 0;
@@ -210,9 +216,9 @@ public class LogStats extends Thread {
 			if (debug) Gpr.debug("Connect Step = " + step);
 
 			// Step 4: Parse results (nothing done here)
-			step = 4;
-			String responseStr = Gpr.read(httpConnection.getInputStream());
-			parseResponse(responseStr);
+			//			step = 4;
+			//			String responseStr = Gpr.read(httpConnection.getInputStream());
+			//			parseResponse(responseStr);
 
 			res = RequestResult.OK;
 		} catch (Exception e) {
@@ -239,56 +245,8 @@ public class LogStats extends Thread {
 		}
 	}
 
-	public String getLatestReleaseDate() {
-		return latestReleaseDate;
-	}
-
-	public String getLatestUrl() {
-		return latestUrl;
-	}
-
-	public String getLatestVersion() {
-		return latestVersion;
-	}
-
 	public RequestResult getRes() {
 		return res;
-	}
-
-	public boolean isNewVersion() {
-		return newVersion;
-	}
-
-	void parseResponse(String responseStr) {
-		if (responseStr == null) return; // Nothing to do?
-		if (debug) Gpr.debug("Parsing response:\n---------------- Begin: Response --------\n" + responseStr + "\n---------------- End: Response --------\n");
-
-		latestVersion = versionShort;
-		newVersion = false;
-
-		String lines[] = responseStr.split("\n");
-		for (String line : lines) {
-			if (line.startsWith("#")) {
-				// Ignore comments
-			} else if (line.length() < 1) {
-				// Ignore empty lines
-			} else {
-				String recs[] = line.split("\t");
-				String softwareName = recs[0];
-				String version = recs[1];
-				String date = recs[2];
-				String url = recs[3];
-
-				// Update latest
-				if (softwareName.toUpperCase().equals(software.toUpperCase()) && version.compareTo(latestVersion) > 0) {
-					latestVersion = version;
-					latestReleaseDate = date;
-					latestUrl = url;
-					newVersion = true;
-					if (debug) Gpr.debug("Found new release:\t" + latestVersion + "\t" + latestReleaseDate + "\t" + latestUrl);
-				}
-			}
-		}
 	}
 
 	/**

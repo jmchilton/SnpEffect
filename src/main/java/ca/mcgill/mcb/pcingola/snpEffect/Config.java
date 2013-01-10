@@ -29,6 +29,7 @@ public class Config implements Serializable, Iterable<String> {
 	public static final String KEY_REFERENCE = ".reference";
 	public static final String KEY_CODON = "codon.";
 	public static final String KEY_CODONTABLE = ".codonTable";
+	public static final String KEY_VERSIONS_URL = "versions_url";
 	public static final String KEY_LOF_IGNORE_PROTEIN_CODING_AFTER = "lof.ignoreProteinCodingAfter";
 	public static final String KEY_LOF_IGNORE_PROTEIN_CODING_BEFORE = "lof.ignoreProteinCodingBefore";
 	public static final String KEY_LOF_DELETE_PROTEIN_CODING_BASES = "lof.deleteProteinCodingBases";
@@ -52,6 +53,7 @@ public class Config implements Serializable, Iterable<String> {
 	HashMap<String, String> nameByVersion;
 	SnpEffectPredictor snpEffectPredictor;
 	String databaseRepository = "";
+	String versionsUrl = "";
 
 	public static Config get() {
 		return configInstance;
@@ -311,6 +313,10 @@ public class Config implements Serializable, Iterable<String> {
 		return properties.getProperty(propertyName);
 	}
 
+	public String getVersionsUrl() {
+		return versionsUrl;
+	}
+
 	public boolean isErrorChromoHit() {
 		return errorChromoHit;
 	}
@@ -457,6 +463,7 @@ public class Config implements Serializable, Iterable<String> {
 	 * Set from parameter properties
 	 */
 	void setFromProperties() {
+		versionsUrl = getString(KEY_VERSIONS_URL);
 		lofIgnoreProteinCodingAfter = getDouble(KEY_LOF_IGNORE_PROTEIN_CODING_AFTER, LossOfFunction.DEFAULT_IGNORE_PROTEIN_CODING_AFTER);
 		lofIgnoreProteinCodingBefore = getDouble(KEY_LOF_IGNORE_PROTEIN_CODING_BEFORE, LossOfFunction.DEFAULT_IGNORE_PROTEIN_CODING_BEFORE);
 		lofDeleteProteinCodingBases = getDouble(KEY_LOF_DELETE_PROTEIN_CODING_BASES, LossOfFunction.DEFAULT_DELETE_PROTEIN_CODING_BASES);

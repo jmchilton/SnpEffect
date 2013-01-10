@@ -12,12 +12,11 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.Date;
 import java.util.GregorianCalendar;
-import java.util.HashMap;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
-import ca.mcgill.mcb.pcingola.logStatsServer.LogStats;
+import ca.mcgill.mcb.pcingola.logStatsServer.VersionCheck;
 import ca.mcgill.mcb.pcingola.snpEffect.Config;
 import ca.mcgill.mcb.pcingola.util.Gpr;
 import ca.mcgill.mcb.pcingola.util.Timer;
@@ -260,17 +259,16 @@ public class SnpEffCmdDownload extends SnpEff {
 		//---
 		// Get latest version data from server
 		//---
-		HashMap<String, String> reportValues = new HashMap<String, String>();
-		LogStats logStats = LogStats.report(SnpEff.SOFTWARE_NAME, SnpEff.VERSION_SHORT, SnpEff.VERSION, true, true, args, "", reportValues);
-		if (logStats.isNewVersion()) {
+		VersionCheck versionCheck = VersionCheck.version(SnpEff.SOFTWARE_NAME, SnpEff.VERSION_SHORT, config.getVersionsUrl(), verbose);
+		if (versionCheck.isNewVersion()) {
 			Timer.showStdErr("New version: " //
-					+ "\n\tNew version  : " + logStats.getLatestVersion() // 
-					+ "\n\tRelease date : " + logStats.getLatestReleaseDate() //
-					+ "\n\tDownload URL : " + logStats.getLatestUrl() //
+					+ "\n\tNew version  : " + versionCheck.getLatestVersion() // 
+					+ "\n\tRelease date : " + versionCheck.getLatestReleaseDate() //
+					+ "\n\tDownload URL : " + versionCheck.getLatestUrl() //
 			);
 		} else {
 			// Already updated?
-			Timer.showStdErr("No new version found. This seems to be the latest version (" + logStats.getLatestVersion() + ") or server could not be contacted. Nothing done.");
+			Timer.showStdErr("No new version found. This seems to be the latest version (" + versionCheck.getLatestVersion() + ") or server could not be contacted. Nothing done.");
 			return false;
 		}
 
@@ -279,7 +277,7 @@ public class SnpEffCmdDownload extends SnpEff {
 
 		URL url;
 		try {
-			url = new URL(logStats.getLatestUrl());
+			url = new URL(versionCheck.getLatestUrl());
 		} catch (MalformedURLException e) {
 			throw new RuntimeException(e);
 		}

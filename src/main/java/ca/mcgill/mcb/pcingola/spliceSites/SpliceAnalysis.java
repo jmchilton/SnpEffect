@@ -41,14 +41,16 @@ public class SpliceAnalysis extends SnpEff {
 	 *
 	 */
 	class PwmSet implements Comparable<PwmSet> {
+		int motifMatchedBases = 0;
+		int motifMatchedStr = 0;
+		int updates = 0;
+		int countU12 = 0;
 		String name;
 		Pwm pwmAcc, pwmDonor;
 		CountByType countMotif;
 		CountByType countExonTypes;
 		IntStats lenStats;
-		int motifMatchedBases = 0, motifMatchedStr = 0;
-		int updates = 0;
-		int countU12 = 0;
+		HashSet<Gene> genes;
 
 		public PwmSet(String name) {
 			this.name = name;
@@ -57,6 +59,15 @@ public class SpliceAnalysis extends SnpEff {
 			lenStats = new IntStats();
 			countMotif = new CountByType();
 			countExonTypes = new CountByType();
+			genes = new HashSet<Gene>();
+		}
+
+		/**
+		 * Add gene to set
+		 * @param gene
+		 */
+		public void addGene(Gene gene) {
+			genes.add(gene);
 		}
 
 		@Override
@@ -74,6 +85,30 @@ public class SpliceAnalysis extends SnpEff {
 			double expected = updates * (1.0 - THRESHOLD_BRANCH_U12_PERCENTILE);
 			double oe = countU12 / expected;
 			return oe;
+		}
+
+		/**
+		 * Get a sorted, space separated, list of gene names
+		 * @return
+		 */
+		String geneNames() {
+			StringBuilder sb = new StringBuilder();
+			ArrayList<String> names = new ArrayList<String>();
+
+			// Add all gene names, just to sort them
+			for (Gene g : genes)
+				names.add(g.getGeneName());
+			Collections.sort(names);
+
+			// Append all gene names
+			int count = 1;
+			for (String gn : names) {
+				sb.append(gn + " ");
+				if (count % 30 == 0) sb.append("\n");
+				count++;
+			}
+
+			return sb.toString();
 		}
 
 		void incExonTypes(String exonTypes) {
@@ -167,7 +202,10 @@ public class SpliceAnalysis extends SnpEff {
 			out.append(pExonTypes());
 			out.append("\t</pre></td>\n");
 
-			// out.append("</tr>\n");
+			// Genes
+			out.append("\t<td> <pre> \n");
+			out.append(geneNames());
+			out.append("\t</pre> </td>\n");
 
 			return out.toString();
 		}
@@ -543,6 +581,7 @@ public class SpliceAnalysis extends SnpEff {
 		pwmSet.update(accStr, donorStr);
 		pwmSet.len(len);
 		pwmSet.incExonTypes(exonTypes);
+		pwmSet.addGene((Gene) tr.getParent());
 		if (bestU12score >= thresholdU12Score) pwmSet.incU12();
 
 		// Update total counts
@@ -557,6 +596,7 @@ public class SpliceAnalysis extends SnpEff {
 		pwmSet = getPwmSetExonType(exonTypes);
 		pwmSet.update(accStr, donorStr);
 		pwmSet.len(len);
+		pwmSet.addGene((Gene) tr.getParent());
 		if (bestU12score >= thresholdU12Score) pwmSet.incU12();
 	}
 

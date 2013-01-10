@@ -5,6 +5,7 @@ import java.util.HashMap;
 
 import ca.mcgill.mcb.pcingola.Pcingola;
 import ca.mcgill.mcb.pcingola.logStatsServer.LogStats;
+import ca.mcgill.mcb.pcingola.logStatsServer.VersionCheck;
 import ca.mcgill.mcb.pcingola.snpEffect.Config;
 import ca.mcgill.mcb.pcingola.spliceSites.SpliceAnalysis;
 import ca.mcgill.mcb.pcingola.util.Gpr;
@@ -40,9 +41,9 @@ public class SnpEff implements CommandLine {
 	public static final int COMMAND_LINE_WIDTH = 40;
 
 	public static final String SOFTWARE_NAME = "SnpEff";
-	public static final String BUILD = "2012-12-17";
+	public static final String BUILD = "2013-01-10";
 	public static final String VERSION_MAJOR = "3.1";
-	public static final String REVISION = "k";
+	public static final String REVISION = "l";
 	public static final String VERSION_SHORT = VERSION_MAJOR + REVISION;
 	public static final String VERSION = SOFTWARE_NAME + " " + VERSION_SHORT + " (build " + BUILD + "), by " + Pcingola.BY;
 	public static final String DEFAULT_SUMMARY_FILE = "snpEff_summary.html";
@@ -274,12 +275,19 @@ public class SnpEff implements CommandLine {
 
 		// Report to server (usage statistics) 
 		if (log) {
-			LogStats logStats = LogStats.report(SOFTWARE_NAME, VERSION_SHORT, VERSION, ok, verbose, args, err, snpEff.reportValues());
-			if (!quiet && logStats.isNewVersion()) {
+			// Log to server
+			LogStats.report(SOFTWARE_NAME, VERSION_SHORT, VERSION, ok, verbose, args, err, snpEff.reportValues());
+
+			// Get config from command
+			config = snpEff.config;
+
+			// Check if a new version is available
+			VersionCheck versionCheck = VersionCheck.version(SnpEff.SOFTWARE_NAME, SnpEff.VERSION_SHORT, config.getVersionsUrl(), verbose);
+			if (!quiet && versionCheck.isNewVersion()) {
 				System.err.println("New version available: " //
-						+ "\n\tNew version  : " + logStats.getLatestVersion() // 
-						+ "\n\tRelease date : " + logStats.getLatestReleaseDate() //
-						+ "\n\tDownload URL : " + logStats.getLatestUrl() //
+						+ "\n\tNew version  : " + versionCheck.getLatestVersion() // 
+						+ "\n\tRelease date : " + versionCheck.getLatestReleaseDate() //
+						+ "\n\tDownload URL : " + versionCheck.getLatestUrl() //
 						+ "\n\nTo update run:\n\tjava snpEff.jar download -v snpeff\n" //
 				);
 			}
