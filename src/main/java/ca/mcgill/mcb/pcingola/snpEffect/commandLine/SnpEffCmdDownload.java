@@ -199,11 +199,12 @@ public class SnpEffCmdDownload extends SnpEff {
 	 */
 	String parseEntryPath(String entryName) {
 		if (update) {
-			// Entry name should be something like 'snpEff_vXX/dir/file';
+			// Software update: Entry name should be something like 'snpEff_vXX/dir/file';
 			int idx = entryName.indexOf('/');
 			if (idx > 0) entryName = config.getDirMain() + entryName.substring(idx);
 			else throw new RuntimeException("Expecting at least one directory in path '" + entryName + "'");
 		} else {
+			// Database download
 			String entryPath[] = entryName.split("/"); // Entry name should be something like 'data/genomeVer/file';
 			String dataName = entryPath[entryPath.length - 2] + "/" + entryPath[entryPath.length - 1]; // remove the 'data/' part
 			entryName = config.getDirData() + "/" + dataName; // Ad local 'data' dir
