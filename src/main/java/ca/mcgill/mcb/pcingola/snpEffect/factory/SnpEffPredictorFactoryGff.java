@@ -239,7 +239,7 @@ public abstract class SnpEffPredictorFactoryGff extends SnpEffPredictorFactory {
 				}
 			}
 		} catch (Exception e) {
-			error("Offending line (lineNum: " + lineNum + "): '" + line + "'");
+			error("Offending line (lineNum: " + lineNum + "): '" + line + "'", e);
 		}
 
 		reader.close();

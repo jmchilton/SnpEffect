@@ -315,6 +315,14 @@ public abstract class SnpEffPredictorFactory {
 	}
 
 	/**
+	 * Error: Throw a runtime exception (show some details)
+	 * @param msg
+	 */
+	void error(String msg, Throwable t) {
+		throw new RuntimeException("FATAL ERROR: " + msg + ". File '" + fileName + "' line " + lineNum + "\n\t'" + line + "'\n", t);
+	}
+
+	/**
 	 * Create exons from CDS info
 	 */
 	protected void exonsFromCds() {

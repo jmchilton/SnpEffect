@@ -126,7 +126,10 @@ public class SnpEffPredictorFactoryGff3 extends SnpEffPredictorFactoryGff {
 				}
 
 				// Check that they are in the same chromosome
-				if (!tr.getChromosomeName().equals(chromosome.getId())) error("Trying to assign Exon or CDS to a transcript in a different chromosome!" + "\n\tPosition    : " + chromo + ":" + start + "-" + end + "\n\t" + tr);
+				if (!tr.getChromosomeName().equals(chromosome.getId())) {
+					warning("Trying to assign Exon or CDS to a transcript in a different chromosome!" + "\n\tPosition    : " + chromo + ":" + start + "-" + end + "\n\t" + tr);
+					return;
+				}
 
 				// This can be added in different ways
 				if (type.equalsIgnoreCase("exon")) {

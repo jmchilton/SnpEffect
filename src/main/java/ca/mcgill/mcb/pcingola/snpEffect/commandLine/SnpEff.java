@@ -5,7 +5,6 @@ import java.util.HashMap;
 
 import ca.mcgill.mcb.pcingola.Pcingola;
 import ca.mcgill.mcb.pcingola.logStatsServer.LogStats;
-import ca.mcgill.mcb.pcingola.logStatsServer.VersionCheck;
 import ca.mcgill.mcb.pcingola.snpEffect.Config;
 import ca.mcgill.mcb.pcingola.spliceSites.SpliceAnalysis;
 import ca.mcgill.mcb.pcingola.util.Gpr;
@@ -42,8 +41,8 @@ public class SnpEff implements CommandLine {
 
 	public static final String SOFTWARE_NAME = "SnpEff";
 	public static final String BUILD = "2013-01-10";
-	public static final String VERSION_MAJOR = "3.1";
 	public static final String REVISION = "l";
+	public static final String VERSION_MAJOR = "3.1";
 	public static final String VERSION_SHORT = VERSION_MAJOR + REVISION;
 	public static final String VERSION = SOFTWARE_NAME + " " + VERSION_SHORT + " (build " + BUILD + "), by " + Pcingola.BY;
 	public static final String DEFAULT_SUMMARY_FILE = "snpEff_summary.html";
@@ -278,26 +277,26 @@ public class SnpEff implements CommandLine {
 			// Log to server
 			LogStats.report(SOFTWARE_NAME, VERSION_SHORT, VERSION, ok, verbose, args, err, snpEff.reportValues());
 
-			// Get config from command
-			config = snpEff.config;
-
-			if (config != null) {
-				// Download command check for versions, no need to do it twice
-				if (!command.equalsIgnoreCase("download")) {
-
-					// Check if a new version is available
-					VersionCheck versionCheck = VersionCheck.version(SnpEff.SOFTWARE_NAME, SnpEff.VERSION_SHORT, config.getVersionsUrl(), verbose);
-					if (!quiet && versionCheck.isNewVersion()) {
-						System.err.println("New version available: " //
-								+ "\n\tNew version  : " + versionCheck.getLatestVersion() // 
-								+ "\n\tRelease date : " + versionCheck.getLatestReleaseDate() //
-								+ "\n\tDownload URL : " + versionCheck.getLatestUrl() //
-								+ "\n\nTo update run:\n\tjava -jar snpEff.jar download -v snpeff\n" //
-						);
-					}
-
-				}
-			}
+			//			// Get config from command
+			//			config = snpEff.config;
+			//
+			//			if (config != null) {
+			//				// Download command check for versions, no need to do it twice
+			//				if (!command.equalsIgnoreCase("download")) {
+			//
+			//					// Check if a new version is available
+			//					VersionCheck versionCheck = VersionCheck.version(SnpEff.SOFTWARE_NAME, SnpEff.VERSION_SHORT, config.getVersionsUrl(), verbose);
+			//					if (!quiet && versionCheck.isNewVersion()) {
+			//						System.err.println("New version available: " //
+			//								+ "\n\tNew version  : " + versionCheck.getLatestVersion() // 
+			//								+ "\n\tRelease date : " + versionCheck.getLatestReleaseDate() //
+			//								+ "\n\tDownload URL : " + versionCheck.getLatestUrl() //
+			//								+ "\n\nTo update run:\n\tjava -jar snpEff.jar download -v snpeff\n" //
+			//						);
+			//					}
+			//
+			//				}
+			//			}
 		}
 
 		return ok;

@@ -88,6 +88,7 @@ public class GenBank extends Features {
 		int fieldLineNum = 0;
 		String name = null;
 		String value = "";
+		Gpr.debug("NAME: " + name + "\tvalue: " + value);
 
 		// Read file
 		for (String line : lineFileIterator) {
@@ -102,13 +103,16 @@ public class GenBank extends Features {
 				if (kv.length > 1) {
 					name = kv[0];
 					value = kv[1];
+					Gpr.debug("NAME: " + name + "\tvalue: " + value);
 					fieldLineNum = 0;
 				}
 			}
 
 			// Parse field
-			parseFieldLine(name, value, fieldLineNum);
-			fieldLineNum++;
+			if (name != null) {
+				parseFieldLine(name, value, fieldLineNum);
+				fieldLineNum++;
+			}
 		}
 
 		// All features are loaded. We can parse them now
