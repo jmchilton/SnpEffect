@@ -39,7 +39,7 @@
 				What can you do:
 				<ul>
 					<li> <a class="body" href="#filter"><b>Filter:</b></a> You can filter using arbitrary expressions, for instance "(QUAL &gt; 30) | (exists INDEL) | ( countHet() &gt; 2 )". The actual expressions can be quite complex, so it allows for a lot of flexibility.
-					<li> <a class="body" href="#annotate"><b>Annotate:</b></a> You can add 'ID'  from another database (e.g.  variants from dbSnp)
+					<li> <a class="body" href="#annotate"><b>Annotate & AnnMem:</b></a> You can add 'ID' and INFO fields from another "VCF database" (e.g.  typically dbSnp database in VCF format).
 					<li> <a class="body" href="#casecontrol"><b>CaseControl:</b></a> You can compare how many variants are in 'case' and in 'control' groups. Also calculates p-values (Fisher exact test).
 					<li> <a class="body" href="#intervals"><b>Intervals:</b></a> Filter variants that intersect with intervals.
 					<li> <a class="body" href="#intidx"><b>Intervals (intidx):</b></a> Filter variants that intersect with intervals. Index the VCF file using memory mapped I/O to speed up the search. This is intended for huge VCF files and a small number of intervals to retrieve.
@@ -311,11 +311,23 @@ rs71262673</pre>
 				</table>
 				</center>
 
-				<a class="body" name="annotate"><p><hr><p style="font-size: 16pt"> <b> SnpSift Annotate</b></p></a>
-				This is typically used to annotate IDs and all INFO fields from dbSnp. Here is an example
+				<a class="body" name="annotate"><p><hr><p style="font-size: 16pt"> <b> SnpSift Annotate & AnnMEM</b></p></a>
+				This is typically used to annotate IDs and INFO fields from a 'database' VCF file (e.g. dbSnp). Here is an example:
 				<pre> java -jar SnpSift.jar annotate dbSnp132.vcf variants.vcf > variants_annotated.vcf </pre>
-				<b>Note:</b> By default now the 'annotate' command adds ALL database INFO fields. You can use the '-id' command line option if you only want to add ID fields.<p>
-				<b>dbSnp in VCF:</b> iYou can download dbSnp in VCF format <a href="ftp://ftp.ncbi.nih.gov/snp/organisms/human_9606/VCF/v4.0/00-All.vcf.gz"> here </a><p>
+				<p>
+				<b>WARNING:</b> 
+					<ul>
+						<li> <b>'annotate'</b> command assumes that both the database and the input VCF files are sorted by position.  Chromosome sort order can differ between files.
+						<li> <b>'annotateMem'</b> command allows unsorted VCF files, but it loads the entire 'database' VCF file into memory (which may not be practical for large 'database' VCF files). 
+					</ul>
+				<p>
+				<b>Notes:</b> 
+					<ul>
+						<li> By default it adds ALL database INFO fields. 
+						<li> You can use the '-info' command line option if you only want select only a subset of fields from db.vcf file.
+						<li> You can use the '-id' command line option if you only want to add ID fields (no INFO fields will be added).
+					</ul>
+				<b>dbSnp in VCF:</b> You can download dbSnp in VCF format <a class="body" href="ftp://ftp.ncbi.nih.gov/snp/organisms/human_9606/VCF/v4.0/00-All.vcf.gz"> here </a><p>
 
 				<a class="body" name="casecontrol"><p><hr><p style="font-size: 16pt"> <b> SnpSift CaseControl</b></p></a>
 				Allows you to count how many samples are in 'case' group and a 'control' group. You can count 'homozygous', 'heterozygous' or 'any' variants. Case and control are defined by a string containing plus and minus symbols {'+', '-', '0'} where '+' is case, '-' is control and '0' is neutral.
