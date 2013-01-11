@@ -374,8 +374,8 @@ public class SeqChange extends Marker {
 
 		// Need reverse-WC?
 		boolean needRwc = false;
-		if ((strand >= 0) && (referenceStrand < 0)) needRwc = true;
-		else if ((strand < 0) && (referenceStrand >= 0)) needRwc = true;
+		if ((isStrandPlus()) && (referenceStrand < 0)) needRwc = true;
+		else if ((isStrandMinus()) && (referenceStrand >= 0)) needRwc = true;
 
 		return needRwc ? GprSeq.reverseWc(netChange) : netChange;
 	}
@@ -400,7 +400,7 @@ public class SeqChange extends Marker {
 		} else removeAfter = 0;
 
 		// Use reverse-WC?
-		if (strand <= 0) netChange = GprSeq.reverseWc(netChange);
+		if (isStrandMinus()) netChange = GprSeq.reverseWc(netChange);
 
 		// Remove leading and trailing parts
 		netChange = netChange.substring(removeBefore, netChange.length() - removeAfter);
@@ -413,7 +413,7 @@ public class SeqChange extends Marker {
 	 * @return
 	 */
 	public String reference() {
-		return strand >= 0 ? reference : GprSeq.reverseWc(reference);
+		return isStrandPlus() ? reference : GprSeq.reverseWc(reference);
 	}
 
 	public void setChangeType(ChangeType changeType) {

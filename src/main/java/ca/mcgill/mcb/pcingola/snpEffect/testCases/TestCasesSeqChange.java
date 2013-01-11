@@ -129,7 +129,7 @@ public class TestCasesSeqChange extends TestCase {
 	 * Calculate snp effect for a list of snps
 	 * @param snpEffFile
 	 */
-	public void snpEffect(List<SeqChange> seqChangeList, String transcriptId, boolean useShort) {
+	public void snpEffect(List<SeqChange> seqChangeList, String transcriptId, boolean useShort, boolean negate) {
 		int num = 1;
 		// Predict each seqChange
 		for (SeqChange seqChange : seqChangeList) {
@@ -138,7 +138,7 @@ public class TestCasesSeqChange extends TestCase {
 
 			String msg = "";
 			msg += "Number : " + num + "\n";
-			msg += "\tExpecting   : '" + seqChange.getId() + "'\n";
+			msg += "\tExpecting   : " + (negate ? "NOT " : "") + "'" + seqChange.getId() + "'\n";
 			msg += "\tSeqChange   : " + seqChange + "\n";
 			msg += "\tResultsList :\n";
 			for (ChangeEffect res : resultsList)
@@ -148,7 +148,9 @@ public class TestCasesSeqChange extends TestCase {
 
 			// Compare each result. If one matches, we consider it OK
 			// StringBuilder resultsSoFar = new StringBuilder();
-			boolean ok = anyResultMatches(transcriptId, seqChange, resultsList, useShort);//, resultsSoFar);
+			boolean ok = anyResultMatches(transcriptId, seqChange, resultsList, useShort);
+			ok = negate ^ ok; // Negate? (i.e. when we are looking for effects that should NOT be matched)
+
 			if (!ok) {
 				if (createOutputFile) {
 					for (ChangeEffect res : resultsList) {
@@ -159,8 +161,7 @@ public class TestCasesSeqChange extends TestCase {
 								+ "\t" + sc.getChange() //
 								+ "\t+\t0\t0" //
 								+ "\t" + res.effect(true, true, true, false) //
-						// + "\t" + res.getCodonsOld() + "/" + res.getCodonsNew() //
-								);
+						);
 					}
 				} else {
 					Gpr.debug(msg);
@@ -172,12 +173,21 @@ public class TestCasesSeqChange extends TestCase {
 	}
 
 	/**
-	 * Read snps from a file and compare them to 'out' SnpEffect predictor
-	 * Return a string with all differences in predictions
+	 * Read snps from a file and compare them to 'out' SnpEffect predictor.
+	 * Make sure at least one effect matched the 'id' in the input TXT file
 	 */
 	public void snpEffect(String snpEffFile, String transcriptId, boolean useShort) {
 		List<SeqChange> snplist = parseSnpEffectFile(snpEffFile); // Read SNPs from file
-		snpEffect(snplist, transcriptId, useShort); // Predict each snp
+		snpEffect(snplist, transcriptId, useShort, false); // Predict each snp
+	}
+
+	/**
+	 * Read snps from a file and compare them to 'out' SnpEffect predictor.
+	 * Make sure NOT A SINGLE effect matched the 'id' in the input TXT file, i.e. the opposite of snpEffect...) method.
+	 */
+	public void snpEffectNegate(String snpEffFile, String transcriptId, boolean useShort) {
+		List<SeqChange> snplist = parseSnpEffectFile(snpEffFile); // Read SNPs from file
+		snpEffect(snplist, transcriptId, useShort, true); // Predict each snp
 	}
 
 	/**
@@ -438,6 +448,24 @@ public class TestCasesSeqChange extends TestCase {
 	public void test_31_CodonTable() {
 		initSnpEffPredictor("testHg3767Chr21Mt");
 		snpEffect("tests/mt.txt", null, true);
+	}
+
+	/**
+	 * Test effect when hits a gene, but not any transcript within a gene. 
+	 * This is an extremely weird case, might be an annotation problem.
+	 */
+	public void test_32_StartGained() {
+		initSnpEffPredictor("testHg3769Chr12");
+		snpEffect("tests/start_gained_test.txt", null, true);
+	}
+
+	/**
+	 * Test effect when hits a gene, but not any transcript within a gene. 
+	 * This is an extremely weird case, might be an annotation problem.
+	 */
+	public void test_33_StartGained_NOT() {
+		initSnpEffPredictor("testHg3769Chr12");
+		snpEffectNegate("tests/start_gained_NOT_test.txt", null, true);
 	}
 
 }

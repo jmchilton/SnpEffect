@@ -8,6 +8,7 @@ import ca.mcgill.mcb.pcingola.codons.CodonTables;
 import ca.mcgill.mcb.pcingola.interval.SeqChange.ChangeType;
 import ca.mcgill.mcb.pcingola.snpEffect.ChangeEffect;
 import ca.mcgill.mcb.pcingola.snpEffect.ChangeEffect.EffectType;
+import ca.mcgill.mcb.pcingola.util.GprSeq;
 
 /**
  * Interval for a UTR (5 prime UTR and 3 prime UTR
@@ -41,22 +42,23 @@ public class Utr5prime extends Utr {
 
 	@Override
 	public List<ChangeEffect> seqChangeEffect(SeqChange seqChange, ChangeEffect changeEffect) {
+		// Has the whole UTR been deleted?
 		if (seqChange.includes(this) && (seqChange.getChangeType() == ChangeType.DEL)) {
 			changeEffect.set(this, EffectType.UTR_5_DELETED, ""); // A UTR was removed entirely
 			return changeEffect.newList();
 		}
 
+		// Is it START_GAINED?
 		Transcript tint = (Transcript) findParent(Transcript.class);
-
 		String utrDistStr = utrDistance(seqChange, tint);
 		String gained = startGained(seqChange, tint);
 
 		if (gained.length() > 0) changeEffect.set(this, EffectType.START_GAINED, gained + ", " + EffectType.UTR_5_PRIME + ": " + utrDistStr);
 		else changeEffect.set(this, type, utrDistStr);
 
+		// Check that base matches the expected one
 		Exon exon = (Exon) findParent(Exon.class);
-		//changeEffect.setExon(exon);
-		if (exon != null) exon.check(seqChange, changeEffect); // Check that base matches the expected one
+		if (exon != null) exon.check(seqChange, changeEffect);
 
 		return changeEffect.newList();
 	}
@@ -89,7 +91,7 @@ public class Utr5prime extends Utr {
 
 		// Get UTRs and sort them
 		List<Utr5prime> utrs = tint.get5primeUtrs();
-		if (strand >= 0) Collections.sort(utrs, new IntervalComparatorByStart()); // Sort by start position 
+		if (isStrandPlus()) Collections.sort(utrs, new IntervalComparatorByStart()); // Sort by start position 
 		else Collections.sort(utrs, new IntervalComparatorByEnd(true)); // Sort by end position (reversed) 
 
 		// Create UTR sequence
@@ -101,11 +103,12 @@ public class Utr5prime extends Utr {
 		}
 
 		// Calculate SNP position relative to UTRs
-		int pos = seqChange.distanceFrom(utrs, strand < 0);
+		int pos = seqChange.distanceFrom(utrs, isStrandMinus());
 
 		// Change base at SNP position
 		char[] chars = sb.toString().toCharArray();
 		char snpBase = seqChange.netChange(this).charAt(0);
+		if (isStrandMinus()) snpBase = GprSeq.wc(snpBase);
 		chars[pos] = snpBase;
 
 		// Do we gain a new start codon?

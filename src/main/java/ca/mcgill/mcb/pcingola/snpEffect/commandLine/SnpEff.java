@@ -73,10 +73,7 @@ public class SnpEff implements CommandLine {
 
 		// Run
 		boolean ok = snpEff.run();
-		int retCode = ok ? 0 : -1;
-
-		// Exit
-		System.exit(retCode);
+		System.exit(ok ? 0 : -1);
 	}
 
 	public SnpEff() {
