@@ -142,6 +142,11 @@ public class SnpEff implements CommandLine {
 		this.args = args;
 		if (args.length <= 0) usage("Missing command");
 
+		int argNum = 0;
+
+		//---
+		// Parse command
+		//---
 		if (args[0].equalsIgnoreCase("build") //
 				|| args[0].equalsIgnoreCase("dump") //
 				|| args[0].equalsIgnoreCase("cds") //
@@ -155,26 +160,28 @@ public class SnpEff implements CommandLine {
 				|| args[0].equalsIgnoreCase("countReads") //
 				|| args[0].equalsIgnoreCase("genes2bed") //
 		) {
-			command = args[0].toLowerCase();
-
-			// Copy all args except initial 'command'
-			ArrayList<String> argsList = new ArrayList<String>();
-			for (int i = 1; i < args.length; i++) {
-				// These options are available for allow all commands
-				if (args[i].equalsIgnoreCase("-noLog")) log = false;
-				else if (args[i].equals("-v") || args[i].equalsIgnoreCase("-verbose")) verbose = true;
-				else if (args[i].equals("-q") || args[i].equalsIgnoreCase("-quiet")) quiet = true;
-				else if (args[i].equals("-d") || args[i].equalsIgnoreCase("-debug")) debug = true;
-				else if ((args[i].equals("-c") || args[i].equalsIgnoreCase("-config"))) {
-					if ((i + 1) < args.length) configFile = args[++i];
-					else usage("Option '-c' without config file argument");
-				} else argsList.add(args[i]);
-			}
-			shiftArgs = argsList.toArray(new String[0]);
+			command = args[argNum++].toLowerCase();
 		} else {
 			command = "eff"; // Default command is 'eff'
-			shiftArgs = args;
 		}
+
+		//---
+		// Copy all args except initial 'command'
+		//---
+		ArrayList<String> argsList = new ArrayList<String>();
+		for (int i = argNum; i < args.length; i++) {
+			// These options are available for allow all commands
+			if (args[i].equalsIgnoreCase("-noLog")) log = false;
+			else if (args[i].equals("-v") || args[i].equalsIgnoreCase("-verbose")) verbose = true;
+			else if (args[i].equals("-q") || args[i].equalsIgnoreCase("-quiet")) quiet = true;
+			else if (args[i].equals("-d") || args[i].equalsIgnoreCase("-debug")) debug = true;
+			else if ((args[i].equals("-c") || args[i].equalsIgnoreCase("-config"))) {
+				if ((i + 1) < args.length) configFile = args[++i];
+				else usage("Option '-c' without config file argument");
+			} else argsList.add(args[i]);
+		}
+
+		shiftArgs = argsList.toArray(new String[0]);
 	}
 
 	/**

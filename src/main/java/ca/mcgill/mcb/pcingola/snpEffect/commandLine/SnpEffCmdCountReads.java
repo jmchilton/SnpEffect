@@ -21,7 +21,6 @@ public class SnpEffCmdCountReads extends SnpEff {
 
 	public static boolean debug = true;
 
-	boolean verbose = false;
 	CountReadsOnMarkers countReadsOnMarkers;
 	SnpEffectPredictor snpEffectPredictor;
 	List<String> samFileNames;
@@ -65,8 +64,7 @@ public class SnpEffCmdCountReads extends SnpEff {
 	public void parseArgs(String[] args) {
 		// Parse command line arguments
 		for (int i = 0; i < args.length; i++) {
-			if (args[i].equals("-v")) verbose = true;
-			else if ((genomeVer == null) || genomeVer.isEmpty()) genomeVer = args[i];
+			if ((genomeVer == null) || genomeVer.isEmpty()) genomeVer = args[i];
 			else samFileNames.add(args[i]);
 		}
 
@@ -110,7 +108,7 @@ public class SnpEffCmdCountReads extends SnpEff {
 	public void usage(String message) {
 		if (message != null) System.err.println("Error: " + message + "\n");
 		System.err.println("snpEff version " + VERSION);
-		System.err.println("Usage: snpEff countReads [-v] genome readsFile_1 readsFile_2 ...  readsFile_N");
+		System.err.println("Usage: snpEff countReads genome readsFile_1 readsFile_2 ...  readsFile_N");
 		System.err.println("\treadsFile : A file contianing the reads. Either BAM or SAM format.");
 		System.exit(-1);
 	}
