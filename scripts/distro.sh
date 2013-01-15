@@ -9,7 +9,7 @@
 
 VERSION="3_1"
 VERSION_REV=$VERSION""
-DIR=$HOME/snpEff_$VERSION_REV
+DIR=snpEff_$VERSION_REV
 rm -rvf $DIR
 mkdir $DIR
 
@@ -21,12 +21,13 @@ cd $DIR
 rm -rvf `find . -name "CVS" -type d`
 cd -
 
+# Change name to 'snpEff' (so that config file can be used out of the box)
+mv $DIR snpEff
+
 # Create 'core' zip file
-cd $HOME
 ZIP="snpEff_v"$VERSION_REV"_core.zip"
 rm -f $ZIP 2> /dev/null
-zip -r $ZIP snpEff_$VERSION_REV
-cd -
+zip -r $ZIP snpEff
 
 # Create ZIP file for each database
 for d in `ls data/egran*/snpEffectPredictor.bin`
