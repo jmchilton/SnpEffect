@@ -337,7 +337,7 @@ public class SnpEffCmdProtein extends SnpEff {
 	 */
 	@Override
 	public boolean run() {
-		if (verbose) Timer.showStdErr("Checking database using CDS sequences");
+		if (verbose) Timer.showStdErr("Checking database using protein sequences");
 
 		// Load config
 		if (config == null) {
@@ -366,6 +366,7 @@ public class SnpEffCmdProtein extends SnpEff {
 		return true;
 	}
 
+	@Override
 	public void setVerbose(boolean verbose) {
 		this.verbose = verbose;
 	}
