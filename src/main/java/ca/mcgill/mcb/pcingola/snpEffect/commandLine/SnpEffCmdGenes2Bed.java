@@ -16,6 +16,8 @@ public class SnpEffCmdGenes2Bed extends SnpEff {
 
 	HashSet<String> geneIds;
 	String fileName = null;
+	boolean onlyProteinCoding;
+	int expandUpstreamDownstream = 0;
 
 	public static void main(String[] args) {
 		SnpEffCmdGenes2Bed conf2down = new SnpEffCmdGenes2Bed();
@@ -49,18 +51,32 @@ public class SnpEffCmdGenes2Bed extends SnpEff {
 
 		// Parse command line arguments
 		for (int i = 0; i < args.length; i++) {
-			if (args[i].equals("-f")) { // List in a file?
+			if (args[i].equals("-f")) {
+				// List in a file?
 				if ((i + 1) < args.length) fileName = args[++i];
 				else usage("Option '-f' without file argument");
-			} else if ((genomeVer == null) || genomeVer.isEmpty()) genomeVer = args[i];
-			else geneIds.add(args[i]);
+			} else if (args[i].equals("-pc")) {
+				// Use only protein coding genes
+				onlyProteinCoding = true;
+			} else if (args[i].equals("-ud")) {
+				// Expand upstream & downstream 
+				if ((i + 1) < args.length) expandUpstreamDownstream = Gpr.parseIntSafe(args[++i]);
+				else usage("Option '-ud' without file argument");
+			} else if ((genomeVer == null) || genomeVer.isEmpty()) {
+				// Genome version
+				genomeVer = args[i];
+			} else geneIds.add(args[i]);
 		}
 	}
 
 	@Override
 	public boolean run() {
+		boolean isEmpty = (geneIds.size() <= 0);
 		load();
-		if (verbose) Timer.showStdErr("Number of gene IDs to look up: " + geneIds.size());
+		if (verbose) {
+			Timer.showStdErr("Number of gene IDs to look up: " + geneIds.size());
+			if (isEmpty) Timer.showStdErr("Empty list of IDs. Using all genes.");
+		}
 
 		// Load config & database
 		if (verbose) Timer.showStdErr("Loading config file '" + configFile + "'");
@@ -71,17 +87,31 @@ public class SnpEffCmdGenes2Bed extends SnpEff {
 
 		// Find genes
 		if (verbose) Timer.showStdErr("Finding genes.");
-		int found = 0;
+		int found = 0, filtered = 0;
 		System.out.println("#chr\tstart\tend\tgeneName;geneId");
-		for (Gene g : genome.getGenes()) {
+		for (Gene g : genome.getGenesSortedPos()) {
 			// Is gene.id or gene.name in geneSet? => Show it
-			if (geneIds.contains(g.getId()) || geneIds.contains(g.getGeneName())) {
+			if (isEmpty || geneIds.contains(g.getId()) || geneIds.contains(g.getGeneName())) {
 				found++;
-				System.out.println(g.getChromosomeName() + "\t" + g.getStart() + "\t" + g.getEnd() + "\t" + g.getGeneName() + ";" + g.getId());
+
+				// Show or filter?
+				if (!onlyProteinCoding || g.isProteinCoding()) {
+					// Expand interval
+					int start = g.getStart() - expandUpstreamDownstream;
+					int end = g.getEnd() + expandUpstreamDownstream;
+
+					// Show
+					System.out.println(g.getChromosomeName() + "\t" + start + "\t" + end + "\t" + g.getGeneName() + ";" + g.getId());
+				} else filtered++;
+
 			}
 		}
 
-		if (verbose) Timer.showStdErr("Done. Found " + found + " / " + geneIds.size());
+		if (verbose) {
+			Timer.showStdErr("Done\n\tFound      : " + found + " / " + geneIds.size() //
+					+ (filtered > 0 ? "\n\tFiltered out : " + filtered + " / " + found : "") //
+			);
+		}
 
 		return true;
 	}
@@ -92,6 +122,8 @@ public class SnpEffCmdGenes2Bed extends SnpEff {
 		System.err.println("Usage: " + SnpEffCmdGenes2Bed.class.getSimpleName() + " genomeVer [-f genes.txt | geneList]}");
 		System.err.println("Options: ");
 		System.err.println("\t-f <file.txt>  : A TXT file having one gene ID (or name) per line.");
+		System.err.println("\t-pc            : Use only protein coding genes.");
+		System.err.println("\t-ud <num>      : Expand gene interval upstream and downstream by 'num' bases.");
 		System.err.println("\tgeneList       : A list of gene IDs or names. One per command line argument: geneId_1 geneId_2 geneId_3 ... geneId_N");
 		System.exit(-1);
 	}
