@@ -191,6 +191,10 @@ public class OsCmdQueue implements Iterable<OsCmdRunner> {
 		this.verbose = verbose;
 	}
 
+	public int size() {
+		return commands.size();
+	}
+
 	/**
 	 * Sleep some time
 	 */
