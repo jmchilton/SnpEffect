@@ -62,7 +62,6 @@ public abstract class SnpEffPredictorFactory {
 	}
 
 	protected void add(Cds cds) {
-		if (debug) Gpr.debug("Adding CDS:\t" + cds);
 		Transcript tr = (Transcript) cds.getParent();
 		tr.add(cds);
 
@@ -74,7 +73,6 @@ public abstract class SnpEffPredictorFactory {
 	}
 
 	protected void add(Exon exon) {
-		if (debug) Gpr.debug("Adding Exon:\t" + exon);
 		Transcript tr = (Transcript) exon.getParent();
 
 		// Make sure the same exon was not added before
@@ -96,7 +94,6 @@ public abstract class SnpEffPredictorFactory {
 	 * @param gene
 	 */
 	protected void add(Gene gene) {
-		if (debug) Gpr.debug("Adding Gene:\t" + gene.getId());
 		snpEffectPredictor.add(gene);
 
 		if (genesById.containsKey(gene.getId())) throw new RuntimeException("Gene  '" + gene.getId() + "' already exists");
@@ -116,7 +113,6 @@ public abstract class SnpEffPredictorFactory {
 	 * @param tr
 	 */
 	protected void add(Transcript tr) {
-		if (debug) Gpr.debug("Adding Transcript:\t" + tr.getId());
 		Gene gene = (Gene) tr.getParent();
 		gene.add(tr);
 

@@ -26,7 +26,6 @@ import ca.mcgill.mcb.pcingola.util.GprSeq;
  */
 public abstract class SnpEffPredictorFactoryFeatures extends SnpEffPredictorFactory {
 
-	public static boolean debug = false;
 	public static final int OFFSET = 1;
 	Chromosome chromosome; // It is assumed that there is only one 'Chromosome' (i.e. only one 'SOURCE' feature)
 	FeaturesFile featuresFile;

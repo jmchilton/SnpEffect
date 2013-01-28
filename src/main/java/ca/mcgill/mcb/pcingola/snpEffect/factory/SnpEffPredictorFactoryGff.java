@@ -25,8 +25,6 @@ import ca.mcgill.mcb.pcingola.util.Gpr;
  */
 public abstract class SnpEffPredictorFactoryGff extends SnpEffPredictorFactory {
 
-	public static boolean debug = false;
-
 	public static final HashMap<String, String> typeMap;
 	public static final String GENE = Gene.class.getSimpleName();
 	public static final String TRANSCRIPT = Transcript.class.getSimpleName();
