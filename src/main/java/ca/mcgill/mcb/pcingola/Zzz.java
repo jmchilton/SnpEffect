@@ -1,10 +1,11 @@
 package ca.mcgill.mcb.pcingola;
 
-import ca.mcgill.mcb.pcingola.interval.Exon;
-import ca.mcgill.mcb.pcingola.interval.Gene;
-import ca.mcgill.mcb.pcingola.interval.Genome;
-import ca.mcgill.mcb.pcingola.interval.Transcript;
-import ca.mcgill.mcb.pcingola.snpEffect.Config;
+import java.util.List;
+
+import ca.mcgill.mcb.pcingola.fileIterator.SeqChangeBedFileIterator;
+import ca.mcgill.mcb.pcingola.interval.Marker;
+import ca.mcgill.mcb.pcingola.interval.SeqChange;
+import ca.mcgill.mcb.pcingola.util.Gpr;
 import ca.mcgill.mcb.pcingola.util.Timer;
 
 /**
@@ -14,34 +15,16 @@ import ca.mcgill.mcb.pcingola.util.Timer;
 public class Zzz {
 
 	public static void main(String[] args) {
-		if (args.length != 1) {
-			System.err.println("Usage: " + Zzz.class.getSimpleName() + " genomeVer");
-			System.exit(-1);
+		String bedFile = "/Users/pablocingolani/askat/bed/GRCh37.69.genes.bed.gz";
+
+		Timer.showStdErr("Loading: " + bedFile);
+		SeqChangeBedFileIterator bed = new SeqChangeBedFileIterator(bedFile);
+		List<SeqChange> intervals = bed.load();
+
+		Timer.showStdErr("Done: " + intervals.size());
+		for (Marker m : intervals) {
+			String mid = m.getId().replaceAll("[^a-zA-Z0-9\\-\\.]+", "_");
+			Gpr.debug(m + "\t" + m.getId() + "\t" + mid);
 		}
-		String genomeVer = args[0];
-
-		Timer.showStdErr("Loading database " + genomeVer);
-
-		Config config = new Config(genomeVer);
-		config.loadSnpEffectPredictor();
-		Genome genome = config.getGenome();
-
-		Timer.showStdErr("Calculate");
-		System.out.println("gene.id\ttr.id\te.rank\tg.numChilds\ttr.numChilds\tg.size\ttr.size\te.size");
-		for (Gene g : genome.getGenes()) {
-			if (g.isProteinCoding()) {
-				for (Transcript tr : g) {
-					if (tr.isProteinCoding()) {
-						for (Exon e : tr) {
-							System.out.println(g.getId() + "\t" + tr.getId() + "\t" + e.getRank() + "\t" + g.numChilds() + "\t" + tr.numChilds() + "\t" + g.size() + "\t" + tr.size() + "\t" + e.size());
-						}
-					}
-				}
-			}
-		}
-
-		int i, j;
-
-		Timer.showStdErr("Done");
 	}
 }

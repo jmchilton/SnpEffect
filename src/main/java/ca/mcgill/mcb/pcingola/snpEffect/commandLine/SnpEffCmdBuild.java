@@ -31,8 +31,6 @@ import ca.mcgill.mcb.pcingola.util.Timer;
  */
 public class SnpEffCmdBuild extends SnpEff {
 
-	public static boolean debug = false; // Debug mode?
-
 	GeneDatabaseFormat geneDatabaseFormat; // Database format (only used if 'buildDb' is active)
 	boolean onlyRegulation = false; // Only build regulation tracks
 	String cellType = null;
@@ -95,6 +93,7 @@ public class SnpEffCmdBuild extends SnpEff {
 
 		// Create SnpEffPredictor
 		factory.setVerbose(verbose);
+		factory.setDebug(debug);
 		return factory.create();
 	}
 

@@ -32,8 +32,7 @@ public abstract class SnpEffPredictorFactory {
 	public static final int MARK = 100;
 
 	// Debug mode?
-	public static boolean debug = false;
-
+	boolean debug = false;
 	boolean verbose = false;
 	boolean readSequences = true; // Do not read sequences from GFF file (this is only used for debugging)
 	String fileName;
@@ -596,7 +595,8 @@ public abstract class SnpEffPredictorFactory {
 					Exon exon = exons.get(0); // Get first exon
 					if (exon.getFrame() > 0) {
 						trToDelete.add(tr); // First exon is not zero? => Mark for deletion
-						mark(i++);
+						if (debug) System.out.print(tr.getId() + " ");
+						else mark(i++);
 					}
 				}
 			}
@@ -608,6 +608,10 @@ public abstract class SnpEffPredictorFactory {
 		}
 
 		if (verbose) System.out.print((trToDelete.size() > 0 ? "\n\t" : "") + "\tTotal: " + trToDelete.size() + " removed.");
+	}
+
+	public void setDebug(boolean debug) {
+		this.debug = debug;
 	}
 
 	public void setFastaFile(String fastaFile) {
