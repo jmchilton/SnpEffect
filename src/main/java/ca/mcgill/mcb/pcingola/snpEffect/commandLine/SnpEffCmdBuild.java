@@ -117,19 +117,19 @@ public class SnpEffCmdBuild extends SnpEff {
 				} else if (args[i].equalsIgnoreCase("-gff2")) {
 					geneDatabaseFormat = GeneDatabaseFormat.GFF2;
 					inOffset = outOffset = 1; // This command implies '-1' since GFF coordinates are one-based
-				} else if (args[i].equals("-gtf22")) {
+				} else if (args[i].equalsIgnoreCase("-gtf22")) {
 					geneDatabaseFormat = GeneDatabaseFormat.GTF22;
 					inOffset = outOffset = 1; // This command implies '-1' since GFF coordinates are one-based
-				} else if (args[i].equals("-refseq")) {
+				} else if (args[i].equalsIgnoreCase("-refseq")) {
 					geneDatabaseFormat = GeneDatabaseFormat.REFSEQ;
 					inOffset = outOffset = 0; // This command implies '-0' since UCSC files are zero-based
-				} else if (args[i].equals("-genbank")) {
+				} else if (args[i].equalsIgnoreCase("-genbank")) {
 					geneDatabaseFormat = GeneDatabaseFormat.GENBANK;
 					inOffset = outOffset = 1; // This command implies '-1' since GenBank files are one-based
-				} else if (args[i].equals("-knowngenes")) {
+				} else if (args[i].equalsIgnoreCase("-knowngenes")) {
 					geneDatabaseFormat = GeneDatabaseFormat.KNOWN_GENES;
 					inOffset = outOffset = 1; // This command implies '-1' since GenBank files are one-based
-				} else if (args[i].equals("-embl")) {
+				} else if (args[i].equalsIgnoreCase("-embl")) {
 					geneDatabaseFormat = GeneDatabaseFormat.EMBL;
 					inOffset = outOffset = 1; // This command implies '-1' since GenBank files are one-based
 				} else if (args[i].equalsIgnoreCase("-txt")) {
@@ -137,9 +137,9 @@ public class SnpEffCmdBuild extends SnpEff {
 				} else if (args[i].equals("-v") || args[i].equalsIgnoreCase("-verbose")) {
 					verbose = true;
 					quiet = false;
-				} else if (args[i].equals("-onlyReg")) {
+				} else if (args[i].equalsIgnoreCase("-onlyReg")) {
 					onlyRegulation = true;
-				} else if (args[i].equals("-cellType")) {
+				} else if (args[i].equalsIgnoreCase("-cellType")) {
 					if ((i + 1) < args.length) cellType = args[++i];
 				} else if (args[i].equals("-q") || args[i].equalsIgnoreCase("-quiet")) {
 					quiet = true;

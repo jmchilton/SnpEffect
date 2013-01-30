@@ -1,12 +1,6 @@
 package ca.mcgill.mcb.pcingola;
 
-import java.util.List;
-
-import ca.mcgill.mcb.pcingola.fileIterator.SeqChangeBedFileIterator;
-import ca.mcgill.mcb.pcingola.interval.Marker;
-import ca.mcgill.mcb.pcingola.interval.SeqChange;
-import ca.mcgill.mcb.pcingola.util.Gpr;
-import ca.mcgill.mcb.pcingola.util.Timer;
+import ca.mcgill.mcb.pcingola.fileIterator.FastaFileIterator;
 
 /**
  * Simple test program
@@ -15,16 +9,11 @@ import ca.mcgill.mcb.pcingola.util.Timer;
 public class Zzz {
 
 	public static void main(String[] args) {
-		String bedFile = "/Users/pablocingolani/askat/bed/GRCh37.69.genes.bed.gz";
-
-		Timer.showStdErr("Loading: " + bedFile);
-		SeqChangeBedFileIterator bed = new SeqChangeBedFileIterator(bedFile);
-		List<SeqChange> intervals = bed.load();
-
-		Timer.showStdErr("Done: " + intervals.size());
-		for (Marker m : intervals) {
-			String mid = m.getId().replaceAll("[^a-zA-Z0-9\\-\\.]+", "_");
-			Gpr.debug(m + "\t" + m.getId() + "\t" + mid);
+		String fastaFileName = "/Users/pablocingolani/snpEff/z.fa";
+		FastaFileIterator ffi = new FastaFileIterator(fastaFileName);
+		for (String seq : ffi) {
+			System.out.println("SeqName: " + ffi.getName() + "\tSize: " + seq.length());
 		}
+
 	}
 }

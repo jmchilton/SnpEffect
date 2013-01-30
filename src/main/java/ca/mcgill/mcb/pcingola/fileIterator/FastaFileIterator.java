@@ -94,8 +94,10 @@ public class FastaFileIterator extends FileIterator<String> {
 
 				switch (state) {
 				case DESCRIPTION:
-					if (line.startsWith(">")) state = State.SEQUENCE;
-					header(line);
+					if (line.startsWith(">")) {
+						state = State.SEQUENCE;
+						header(line);
+					}
 					break;
 
 				case SEQUENCE:

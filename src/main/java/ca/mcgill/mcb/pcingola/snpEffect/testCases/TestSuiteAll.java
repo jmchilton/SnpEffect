@@ -57,6 +57,7 @@ public class TestSuiteAll {
 		suite.addTestSuite(TestCasesFilterTranscripts.class);
 
 		// File format
+		suite.addTestSuite(TestCasesFasta.class);
 		suite.addTestSuite(TestCasesGff3.class);
 		suite.addTestSuite(TestCasesGtf22.class);
 		suite.addTestSuite(TestCasesVcf.class);
