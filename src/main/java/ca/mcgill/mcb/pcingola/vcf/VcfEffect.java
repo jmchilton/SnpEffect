@@ -18,6 +18,7 @@ public class VcfEffect {
 	};
 
 	String effectString;
+	String effectStrings[];
 	FormatVersion formatVersion;
 	ChangeEffect.EffectType effect;
 	ChangeEffect.EffectImpact impact;
@@ -84,10 +85,10 @@ public class VcfEffect {
 	 * @return
 	 */
 	public static String[] split(String eff) {
-		eff = eff.replace('(', ' '); // Replace all chars by spaces
-		eff = eff.replace('|', ' ');
-		eff = eff.replace(')', ' ');
-		String effs[] = eff.split("\\s");
+		eff = eff.replace('(', '\t'); // Replace all chars by spaces
+		eff = eff.replace('|', '\t');
+		eff = eff.replace(')', '\t');
+		String effs[] = eff.split("\t", -1); // Negative number means "use trailing empty as well"
 		return effs;
 	}
 
@@ -118,10 +119,24 @@ public class VcfEffect {
 	 * @return
 	 */
 	public FormatVersion formatVersion() {
-		String effs[] = split(effectString);
-		Gpr.debug("NUMBER OF EFFS: " + effs.length);
-		if (effs.length < 12) return FormatVersion.FORMAT_SNPEFF_2;
+		// Already set?
+		if (formatVersion != null) return formatVersion;
+
+		// OK, guess format version
+		if (effectStrings == null) effectStrings = split(effectString);
+
+		if (effectStrings.length <= 11) return FormatVersion.FORMAT_SNPEFF_2;
 		return FormatVersion.FORMAT_SNPEFF_3;
+	}
+
+	/**
+	 * Get a subfield as an index
+	 * @param index
+	 * @return
+	 */
+	public String get(int index) {
+		if (index >= effectStrings.length) return null;
+		return effectStrings[index];
 	}
 
 	public String getAa() {
@@ -169,7 +184,7 @@ public class VcfEffect {
 	}
 
 	void parse() {
-		String effs[] = split(effectString);
+		effectStrings = split(effectString);
 
 		// Guess format, if not given
 		if (formatVersion == null) formatVersion = formatVersion();
@@ -177,46 +192,46 @@ public class VcfEffect {
 		try {
 			// Parse each sub field
 			int index = 0;
-			if (effs[index].startsWith("REGULATION")) effect = ChangeEffect.EffectType.REGULATION;
-			else effect = ChangeEffect.EffectType.valueOf(effs[index]);
+			if (effectStrings[index].startsWith("REGULATION")) effect = ChangeEffect.EffectType.REGULATION;
+			else effect = ChangeEffect.EffectType.valueOf(effectStrings[index]);
 			index++;
 
-			if ((effs.length > index) && !effs[index].isEmpty()) impact = ChangeEffect.EffectImpact.valueOf(effs[index]);
+			if ((effectStrings.length > index) && !effectStrings[index].isEmpty()) impact = ChangeEffect.EffectImpact.valueOf(effectStrings[index]);
 			index++;
 
-			if ((effs.length > index) && !effs[index].isEmpty()) funClass = ChangeEffect.FunctionalClass.valueOf(effs[index]);
+			if ((effectStrings.length > index) && !effectStrings[index].isEmpty()) funClass = ChangeEffect.FunctionalClass.valueOf(effectStrings[index]);
 			index++;
 
-			if ((effs.length > index) && !effs[index].isEmpty()) codon = effs[index];
+			if ((effectStrings.length > index) && !effectStrings[index].isEmpty()) codon = effectStrings[index];
 			index++;
 
-			if ((effs.length > index) && !effs[index].isEmpty()) aa = effs[index];
+			if ((effectStrings.length > index) && !effectStrings[index].isEmpty()) aa = effectStrings[index];
 			index++;
 
 			if (formatVersion != FormatVersion.FORMAT_SNPEFF_2) {
-				if ((effs.length > index) && !effs[index].isEmpty()) aaLen = Gpr.parseIntSafe(effs[index]);
+				if ((effectStrings.length > index) && !effectStrings[index].isEmpty()) aaLen = Gpr.parseIntSafe(effectStrings[index]);
 				else aaLen = 0;
 				index++;
 			}
 
-			if ((effs.length > index) && !effs[index].isEmpty()) gene = effs[index];
+			if ((effectStrings.length > index) && !effectStrings[index].isEmpty()) gene = effectStrings[index];
 			index++;
 
-			if ((effs.length > index) && !effs[index].isEmpty()) bioType = effs[index];
+			if ((effectStrings.length > index) && !effectStrings[index].isEmpty()) bioType = effectStrings[index];
 			index++;
 
-			if ((effs.length > index) && !effs[index].isEmpty()) coding = ChangeEffect.Coding.valueOf(effs[index]);
+			if ((effectStrings.length > index) && !effectStrings[index].isEmpty()) coding = ChangeEffect.Coding.valueOf(effectStrings[index]);
 			index++;
 
-			if ((effs.length > index) && !effs[index].isEmpty()) transcriptId = effs[index];
+			if ((effectStrings.length > index) && !effectStrings[index].isEmpty()) transcriptId = effectStrings[index];
 			index++;
 
-			if ((effs.length > index) && !effs[index].isEmpty()) exonId = effs[index];
+			if ((effectStrings.length > index) && !effectStrings[index].isEmpty()) exonId = effectStrings[index];
 			index++;
 		} catch (Exception e) {
 			String fields = "";
-			for (int i = 0; i < effs.length; i++)
-				fields += "\t" + i + " : '" + effs[i] + "'\n";
+			for (int i = 0; i < effectStrings.length; i++)
+				fields += "\t" + i + " : '" + effectStrings[i] + "'\n";
 			throw new RuntimeException("Error parsing: '" + effectString + "'\n" + fields, e);
 		}
 	}
