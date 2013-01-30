@@ -12,6 +12,8 @@ import ca.mcgill.mcb.pcingola.outputFormatter.VcfOutputFormatter;
 import ca.mcgill.mcb.pcingola.snpEffect.Config;
 import ca.mcgill.mcb.pcingola.util.Gpr;
 import ca.mcgill.mcb.pcingola.util.Timer;
+import ca.mcgill.mcb.pcingola.vcf.VcfEffect;
+import ca.mcgill.mcb.pcingola.vcf.VcfEffect.FormatVersion;
 import ca.mcgill.mcb.pcingola.vcf.VcfEntry;
 import ca.mcgill.mcb.pcingola.vcf.VcfGenotype;
 
@@ -32,6 +34,19 @@ public class TestCasesVcf extends TestCase {
 		super();
 		initRand();
 		config = new Config("testCase", Config.DEFAULT_CONFIG_FILE);
+	}
+
+	/**
+	 * Get file's format version
+	 * @param vcfFileName
+	 * @return
+	 */
+	FormatVersion formatVersion(String vcfFileName) {
+		VcfFileIterator vcf = new VcfFileIterator(vcfFileName);
+		VcfEntry ve = vcf.next();
+		List<VcfEffect> effs = ve.parseEffects();
+		VcfEffect eff = effs.get(0);
+		return eff.formatVersion();
 	}
 
 	void initRand() {
@@ -330,6 +345,17 @@ public class TestCasesVcf extends TestCase {
 			System.out.println("'" + testIn[i] + "'\t'" + safe + "'\t'" + testOut[i] + "'");
 			Assert.assertEquals(testOut[i], safe);
 		}
+	}
+
+	public void test_15_Eff_format_version_guess() {
+		String vcfFileName = "./tests/test.EFF_V2.vcf";
+		FormatVersion formatVersion = formatVersion(vcfFileName);
+		Assert.assertEquals(FormatVersion.FORMAT_SNPEFF_2, formatVersion);
+
+		vcfFileName = "./tests/test.EFF_V3.vcf";
+		formatVersion = formatVersion(vcfFileName);
+		Assert.assertEquals(FormatVersion.FORMAT_SNPEFF_3, formatVersion);
+
 	}
 
 }
