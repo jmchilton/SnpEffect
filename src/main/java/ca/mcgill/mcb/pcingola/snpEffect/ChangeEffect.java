@@ -693,14 +693,9 @@ public class ChangeEffect implements Cloneable, Comparable<ChangeEffect> {
 
 	public void set(Marker marker, EffectType effectType, String message) {
 		this.marker = marker;
-		//if (marker instanceof Exon) exon = (Exon) marker;
 		this.effectType = effectType;
 		this.message += message;
 	}
-
-	//	public void setExon(Exon exon) {
-	//		this.exon = exon;
-	//	}
 
 	/**
 	 * Set codon change. Calculate effect type based on codon changes (for SNPs ans MNPs)

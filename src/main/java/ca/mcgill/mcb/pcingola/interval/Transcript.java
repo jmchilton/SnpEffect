@@ -241,6 +241,31 @@ public class Transcript extends IntervalAndSubIntervals<Exon> {
 	}
 
 	/**
+	 * Calculate distance from transcript to a position
+	 * @param pos
+	 * @return
+	 */
+	public synchronized int cDnaBaseNumber(int pos) {
+		int count = 0;
+		for (Exon eint : sortedStrand()) {
+			if (eint.intersects(pos)) {
+				// Intersect this exon? Calculate the number of bases from the beginning
+				int dist = 0;
+				if (isStrandPlus()) dist = pos - eint.getStart();
+				else dist = eint.getEnd() - pos;
+
+				// Sanity check
+				if (dist < 0) throw new RuntimeException("Negative distance for position " + pos + ". This should never happen!\n" + this);
+
+				return count + dist + 1; // Base number is one-based
+			}
+
+			count += eint.size();
+		}
+		return -1;
+	}
+
+	/**
 	 * Retrieve coding sequence
 	 */
 	public synchronized String cds() {

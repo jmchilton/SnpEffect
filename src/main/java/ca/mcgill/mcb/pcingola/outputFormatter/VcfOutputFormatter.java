@@ -1,6 +1,7 @@
 package ca.mcgill.mcb.pcingola.outputFormatter;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -12,6 +13,7 @@ import ca.mcgill.mcb.pcingola.interval.Genome;
 import ca.mcgill.mcb.pcingola.interval.Intron;
 import ca.mcgill.mcb.pcingola.interval.Marker;
 import ca.mcgill.mcb.pcingola.interval.Regulation;
+import ca.mcgill.mcb.pcingola.interval.SeqChange;
 import ca.mcgill.mcb.pcingola.interval.Transcript;
 import ca.mcgill.mcb.pcingola.snpEffect.ChangeEffect;
 import ca.mcgill.mcb.pcingola.snpEffect.ChangeEffect.FunctionalClass;
@@ -31,6 +33,7 @@ public class VcfOutputFormatter extends OutputFormatter {
 	public static final boolean debug = false;
 
 	public static final String VCF_INFO_EFF_NAME = "EFF";
+	public static final String VCF_INFO_OICR_NAME = "OICR";
 	public static final String VCF_INFO_LOF_NAME = "LOF";
 	public static final String VCF_INFO_NMD_NAME = "NMD";
 
@@ -91,6 +94,7 @@ public class VcfOutputFormatter extends OutputFormatter {
 		// Calculate all effects and genes
 		//---
 		HashSet<String> effs = new HashSet<String>();
+		HashSet<String> oicr = new HashSet<String>();
 		for (ChangeEffect changeEffect : changeEffects) {
 			// If it is not filtered out by changeEffectResutFilter  => Show it
 			if ((changeEffectResutFilter == null) || (!changeEffectResutFilter.filter(changeEffect))) {
@@ -193,26 +197,37 @@ public class VcfOutputFormatter extends OutputFormatter {
 						Gpr.debug("WARNING: Repeated effect!\n" + sb);
 					}
 				}
+
+				//---
+				// Add OICR data
+				// 
+				//---
+				if (useSequenceOntolgy && (tr != null)) {
+					StringBuilder sb = new StringBuilder();
+					SeqChange seqChange = changeEffect.getSeqChange();
+
+					// Get cDNA position
+					int pos = tr.isStrandMinus() ? seqChange.getStart() : seqChange.getEnd(); // First base in cDNA
+					int cdnaIdx = tr.cDnaBaseNumber(pos); // Which cDNA base number?
+					if (cdnaIdx > 0) sb.append("(" + tr.getId() + "|" + cdnaIdx + ")");
+
+					oicr.add(sb.toString());
+				}
 			}
 		}
 
 		//---
-		// Add effects (sorted)
+		// Add data to INFO fields
 		//---
-		ArrayList<String> listEffs = new ArrayList<String>(effs);
-		Collections.sort(listEffs);
-		StringBuffer sbEffs = new StringBuffer();
-		for (String eff : listEffs)
-			sbEffs.append(eff + ",");
-
-		if (sbEffs.length() > 0) sbEffs.deleteCharAt(sbEffs.length() - 1); // Remove last comma
 
 		// Add 'EFF' info field
-		vcfEntry.addInfo(VCF_INFO_EFF_NAME, sbEffs.toString());
+		vcfEntry.addInfo(VCF_INFO_EFF_NAME, toStringVcfInfo(effs));
 
-		//---
+		// Add 'OICR' info field
+		String oicrInfo = toStringVcfInfo(oicr);
+		if (!oicrInfo.isEmpty()) vcfEntry.addInfo(VCF_INFO_OICR_NAME, oicrInfo);
+
 		// Add LOF info?
-		//---
 		if (lossOfFunction) {
 			// Perform LOF analysis and add annotations
 			LossOfFunction lof = new LossOfFunction(changeEffects);
@@ -296,6 +311,21 @@ public class VcfOutputFormatter extends OutputFormatter {
 		VcfEntry vcfEntry = (VcfEntry) section;
 		VcfFileIterator vcfFile = vcfEntry.getVcfFileIterator();
 		return vcfFile.getVcfHeader().toString();
+	}
+
+	/**
+	 * Convert a collection to a string usable in a VCF INFO field
+	 * @param strs
+	 * @return
+	 */
+	String toStringVcfInfo(Collection<String> strs) {
+		ArrayList<String> list = new ArrayList<String>(strs);
+		Collections.sort(list);
+		StringBuffer sb = new StringBuffer();
+		for (String str : list)
+			if (!str.isEmpty()) sb.append(str + ",");
+		if (sb.length() > 0) sb.deleteCharAt(sb.length() - 1); // Remove last comma
+		return sb.toString();
 	}
 
 	/**
