@@ -124,9 +124,8 @@ public class VcfEffect {
 
 		// OK, guess format version
 		if (effectStrings == null) effectStrings = split(effectString);
-		Gpr.debug("effectStrings.len: " + effectStrings.length);
 
-		if (effectStrings.length <= 12) return FormatVersion.FORMAT_SNPEFF_2;
+		if (effectStrings.length <= 11) return FormatVersion.FORMAT_SNPEFF_2;
 		return FormatVersion.FORMAT_SNPEFF_3;
 	}
 
@@ -233,7 +232,7 @@ public class VcfEffect {
 			String fields = "";
 			for (int i = 0; i < effectStrings.length; i++)
 				fields += "\t" + i + " : '" + effectStrings[i] + "'\n";
-			throw new RuntimeException("Error parsing: '" + effectString + "' (formatVersion='" + formatVersion + "')\n" + fields, e);
+			throw new RuntimeException("Error parsing:\n\t'" + effectString + "'\n\t EFF formatVersion : " + formatVersion + "\n" + fields, e);
 		}
 	}
 
