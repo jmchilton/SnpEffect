@@ -24,10 +24,12 @@ import ca.mcgill.mcb.pcingola.filter.ChangeEffectFilter;
 import ca.mcgill.mcb.pcingola.filter.SeqChangeFilter;
 import ca.mcgill.mcb.pcingola.interval.Chromosome;
 import ca.mcgill.mcb.pcingola.interval.Custom;
+import ca.mcgill.mcb.pcingola.interval.Gene;
 import ca.mcgill.mcb.pcingola.interval.Genome;
 import ca.mcgill.mcb.pcingola.interval.Regulation;
 import ca.mcgill.mcb.pcingola.interval.SeqChange;
 import ca.mcgill.mcb.pcingola.interval.SpliceSite;
+import ca.mcgill.mcb.pcingola.interval.Transcript;
 import ca.mcgill.mcb.pcingola.interval.codonChange.CodonChange;
 import ca.mcgill.mcb.pcingola.interval.tree.IntervalForest;
 import ca.mcgill.mcb.pcingola.outputFormatter.BedAnnotationOutputFormatter;
@@ -72,7 +74,7 @@ public class SnpEffCmdEff extends SnpEff {
 	boolean onlyRegulation = false; // Only build regulation tracks
 	boolean lossOfFunction = false; // Create loss of function LOF tag?
 	int upDownStreamLength = SnpEffectPredictor.DEFAULT_UP_DOWN_LENGTH; // Upstream & downstream interval length
-	int spliceSiteSize = SpliceSite.CORE_SPLICE_SITE_SIZE; // Splice site size default: 2 bases (cannonical splice site)
+	int spliceSiteSize = SpliceSite.CORE_SPLICE_SITE_SIZE; // Splice site size default: 2 bases (canonical splice site)
 	int totalErrs = 0;
 	long countInputLines = 0, countVariants = 0, countEffects = 0, countVariantsFilteredOut = 0;
 	String chrStr = "";
@@ -643,6 +645,17 @@ public class SnpEffCmdEff extends SnpEff {
 		if (canonical) {
 			if (verbose) Timer.showStdErr("Filtering out non-canonical transcripts.");
 			config.getSnpEffectPredictor().removeNonCanonical();
+
+			if (debug) {
+				// Show genes and transcript (which ones are considered 'cannonica')
+				Timer.showStdErr("Canonical transcripts:\n\t\tGene\tTranscript");
+				for (Gene g : config.getSnpEffectPredictor().getGenome().getGenes()) {
+					System.err.print("\t\t" + g.getGeneName() + "\t");
+					for (Transcript t : g)
+						System.err.print(t.getId() + "\t");
+					System.err.println("");
+				}
+			}
 			if (verbose) Timer.showStdErr("done.");
 		}
 
