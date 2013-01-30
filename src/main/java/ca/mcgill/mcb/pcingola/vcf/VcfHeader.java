@@ -105,6 +105,10 @@ public class VcfHeader {
 		return vcfInfoById.get(id);
 	}
 
+	public HashMap<String, VcfInfo> getVcfInfoById() {
+		return vcfInfoById;
+	}
+
 	/**
 	 * Parse INFO fields from header
 	 */

@@ -583,6 +583,10 @@ public class VcfEntry extends Marker implements Iterable<VcfGenotype> {
 		else changeType = ChangeType.MIXED;
 	}
 
+	public List<VcfEffect> parseEffects() {
+		return parseEffects(null);
+	}
+
 	/**
 	 * Parse 'EFF' info field and get a list of effects
 	 * @return
@@ -592,7 +596,7 @@ public class VcfEntry extends Marker implements Iterable<VcfGenotype> {
 
 		// Create a list of effect
 		ArrayList<VcfEffect> effList = new ArrayList<VcfEffect>();
-		if (effStr == null) return effList;
+		if ((effStr == null) || effStr.isEmpty()) return effList;
 
 		// Add each effect
 		String effs[] = effStr.split(",");

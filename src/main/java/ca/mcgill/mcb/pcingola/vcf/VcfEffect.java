@@ -17,6 +17,7 @@ public class VcfEffect {
 		FORMAT_SNPEFF_2, FORMAT_SNPEFF_3
 	};
 
+	String effectString;
 	FormatVersion formatVersion;
 	ChangeEffect.EffectType effect;
 	ChangeEffect.EffectImpact impact;
@@ -77,14 +78,50 @@ public class VcfEffect {
 		return -1;
 	}
 
-	public VcfEffect(String effStr) {
-		formatVersion = FormatVersion.FORMAT_SNPEFF_3;
-		parse(effStr);
+	/**
+	 * Split a 'effect' string to an array of strings
+	 * @param eff
+	 * @return
+	 */
+	public static String[] split(String eff) {
+		eff = eff.replace('(', ' '); // Replace all chars by spaces
+		eff = eff.replace('|', ' ');
+		eff = eff.replace(')', ' ');
+		String effs[] = eff.split("\\s");
+		return effs;
 	}
 
-	public VcfEffect(String effStr, FormatVersion formatVersion) {
+	/**
+	 * Constructor: Guess format version
+	 * @param effStr
+	 * @param formatVersion
+	 */
+	public VcfEffect(String effectString) {
+		formatVersion = null; // Force guess
+		this.effectString = effectString;
+		parse();
+	}
+
+	/**
+	 * Constructor: Force format version
+	 * @param effStr
+	 * @param formatVersion : If null, will try to guess it
+	 */
+	public VcfEffect(String effectString, FormatVersion formatVersion) {
 		this.formatVersion = formatVersion;
-		parse(effStr);
+		this.effectString = effectString;
+		parse();
+	}
+
+	/**
+	 * Guess effect format version
+	 * @return
+	 */
+	public FormatVersion formatVersion() {
+		String effs[] = split(effectString);
+		Gpr.debug("NUMBER OF EFFS: " + effs.length);
+		if (effs.length < 12) return FormatVersion.FORMAT_SNPEFF_2;
+		return FormatVersion.FORMAT_SNPEFF_3;
 	}
 
 	public String getAa() {
@@ -131,11 +168,11 @@ public class VcfEffect {
 		return transcriptId;
 	}
 
-	void parse(String eff) {
-		eff = eff.replace('(', ' '); // Replace all chars by spaces
-		eff = eff.replace('|', ' ');
-		eff = eff.replace(')', ' ');
-		String effs[] = eff.split("\\s");
+	void parse() {
+		String effs[] = split(effectString);
+
+		// Guess format, if not given
+		if (formatVersion == null) formatVersion = formatVersion();
 
 		try {
 			// Parse each sub field
@@ -180,7 +217,7 @@ public class VcfEffect {
 			String fields = "";
 			for (int i = 0; i < effs.length; i++)
 				fields += "\t" + i + " : '" + effs[i] + "'\n";
-			throw new RuntimeException("Error parsing: '" + eff + "'\n" + fields, e);
+			throw new RuntimeException("Error parsing: '" + effectString + "'\n" + fields, e);
 		}
 	}
 
