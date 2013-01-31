@@ -13,7 +13,8 @@ use strict;
 #------------------------------------------------------------------------------
 sub writeSeq($$) {
 	my($name, $seq) = @_;
-	$name = "chr" . $name . ".fa";
+	if( $name !~ /^chr/ ) { $name = "chr$name"; }
+	$name = "$name.fa";
 	print "Writing to $name\n";
 	open OUT, "> $name";
 	print OUT $seq;

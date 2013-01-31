@@ -1,13 +1,13 @@
 #!/bin/sh
 
 # VCF="1kg/ALL.wgs.phase1.projectConsensus.snps.sites.vcf"
+VCF="1kg/ALL.wgs.phase1_release_v3.20101123.snps_indels_sv.sites.vcf"
 VCF="1kg/1kgchr1.vcf"
 
 REF=GRCh37.66
 REF=hg19
 
 EFF=`dirname $VCF`/`basename $VCF .vcf`.eff.vcf
-HTML=`dirname $VCF`/`basename $VCF .vcf`.html
 
 #---
 # Get & unzip file
@@ -35,7 +35,7 @@ HTML=`dirname $VCF`/`basename $VCF .vcf`.html
 
 time java -Xmx4G -jar snpEff.jar eff \
 	-v \
-	-stats $HTML \
+	-stats $VCF.html \
 	$REF \
 	$VCF \
 	> $EFF
@@ -60,8 +60,3 @@ time java -Xmx4G -jar snpEff.jar eff \
 #	$VCF \
 #	> $EFF
 
-echo Count by impact
-cat $EFF | cut -f 8 | tr ";" "\n" | grep ^EFF= | cut -f 2 -d = | tr "," "\n" | cut -f 1 -d "|" | cut -f 2 -d "(" | ~/snpEff/scripts/uniqCount.pl
-echo
-echo Count by effect
-cat $EFF | cut -f 8 | tr ";" "\n" | grep ^EFF= | cut -f 2 -d = | tr "," "\n" | cut -f 1 -d "(" | cut -f 2 -d = | ~/snpEff/scripts/uniqCount.pl

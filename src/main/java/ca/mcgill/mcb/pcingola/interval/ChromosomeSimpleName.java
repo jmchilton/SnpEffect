@@ -8,8 +8,10 @@ import java.util.HashMap;
  */
 public class ChromosomeSimpleName {
 
-	public static final String CHROMO_PREFIX[] = { "chromosome", "chromo", "chr", "group", "scaffold", "contig", "supercontig", "supercont" }; // Must be lower case (see method)
+	public static final String CHROMO_PREFIX[] = { "chromosome", "chromo", "chr", "group", "scaffold", "contig", "supercontig", "supercont", "0" }; // Must be lower case (see method)
 	private static ChromosomeSimpleName instance = new ChromosomeSimpleName();
+
+	private final HashMap<String, String> map;
 
 	/**
 	 * Get a simple name for the chromosome
@@ -19,8 +21,6 @@ public class ChromosomeSimpleName {
 	public static String get(String chrName) {
 		return instance.simpleNameCache(chrName);
 	}
-
-	private final HashMap<String, String> map;
 
 	private ChromosomeSimpleName() {
 		map = new HashMap<String, String>();
@@ -34,14 +34,20 @@ public class ChromosomeSimpleName {
 	protected String simpleName(String chr) {
 		if (chr == null) return "";
 		chr = chr.trim();
-		String chName = chr.toLowerCase();
 
-		// Remove any prefix string
-		for (String prefix : CHROMO_PREFIX) {
-			if (chName.startsWith(prefix + ":")) return chr.substring(prefix.length() + 1);
-			if (chName.startsWith(prefix + "_")) return chr.substring(prefix.length() + 1);
-			if (chName.startsWith(prefix + "-")) return chr.substring(prefix.length() + 1);
-			if (chName.startsWith(prefix)) return chr.substring(prefix.length());
+		// Remove any prefix string until no change is made
+		String chrPrev = "";
+		while (!chr.equals(chrPrev)) {
+			chrPrev = chr;
+			String chName = chr.toLowerCase();
+
+			// Remove all common prefixes
+			for (String prefix : CHROMO_PREFIX) {
+				if (chName.startsWith(prefix + ":")) chr = chr.substring(prefix.length() + 1);
+				else if (chName.startsWith(prefix + "_")) chr = chr.substring(prefix.length() + 1);
+				else if (chName.startsWith(prefix + "-")) chr = chr.substring(prefix.length() + 1);
+				else if (chName.startsWith(prefix)) chr = chr.substring(prefix.length());
+			}
 		}
 
 		return chr;
