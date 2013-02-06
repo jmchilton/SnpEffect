@@ -28,7 +28,6 @@ import ca.mcgill.mcb.pcingola.util.Gpr;
  * 		character can be escaped with backslash (\") and backslash as \\.
  * 
  * @author pablocingolani
- *
  */
 public class VcfInfo {
 
