@@ -50,6 +50,7 @@
 					<li> <a class="body" href="#varType"><b>Variant type:</b></a> Adds SNP/MNP/INS/DEL to info field. It also adds "HOM/HET" if there is only one sample.
 					<li> <a class="body" href="#gwasCat"><b>GWAS Catalog:</b></a> Annotate using GWAS Catalog.
 					<li> <a class="body" href="#dbnsfp"><b>dbNSFP:</b></a> Annotate using dbNSFP: The dbNSFP is an integrated database of functional predictions from multiple algorithms (SIFT, Polyphen2, LRT and MutationTaster, PhyloP and GERP++, etc.)
+					<li> <a class="body" href="#splitChr"><b>splitChr:</b></a> Split a VCF file by chromosome
 				</ul>
 
 				<p> <hr> <p>
@@ -592,8 +593,21 @@ gunzip dbNSFP2.0b3.txt.gz
 java -jar SnpSift.jar dbnsfp -v dbNSFP2.0b3.txt myFile.vcf > myFile.annotated.vcf
 </pre>
 
-			<b>Note:</b> You can now specify which fields you want to use for annotation using the '-f' command line option followed by a comma separated list of field names.<br>
-			The default is "Ensembl_transcriptid,Uniprot_acc,Interpro_domain,SIFT_score,Polyphen2_HVAR_pred,GERP++_NR,GERP++_RS,29way_logOdds,1000Gp1_AF,1000Gp1_AFR_AF,1000Gp1_EUR_AF,1000Gp1_AMR_AF,1000Gp1_ASN_AF,ESP5400_AA_AF,ESP5400_EA_AF".
+				<b>Note:</b> You can now specify which fields you want to use for annotation using the '-f' command line option followed by a comma separated list of field names.<br>
+				Defaults fileds are "Ensembl_transcriptid,Uniprot_acc,Interpro_domain,SIFT_score,Polyphen2_HVAR_pred,GERP++_NR,GERP++_RS,29way_logOdds,1000Gp1_AF,1000Gp1_AFR_AF,1000Gp1_EUR_AF,1000Gp1_AMR_AF,1000Gp1_ASN_AF,ESP5400_AA_AF,ESP5400_EA_AF".
+
+				<a class="body" name="splitChr"><p><hr><p style="font-size: 16pt"> <b> Split a VCF file by chromosome</b></p></a>
+				Simply split a VCF file, creating one file per chromosome. <br>
+				E.g.: Splitting a VCF having human variants <p>
+<pre>
+java -jar SnpSift.jar splitChr myHugeVcf.vcf.gz
+</pre>
+
+				<p>
+				
+				Will create files myHugeVcf.1.vcf, myHugeVcf.2.vcf, ... , myHugeVcf.22.vcf, myHugeVcf.X.vcf, myHugeVcf.Y.vcf
+				<p>
+
 		</div> 
 
 
