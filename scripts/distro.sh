@@ -15,7 +15,8 @@ mkdir $DIR
 
 # Copy core files
 cp snpEff.config snpEff.jar SnpSift.jar $DIR
-cp -rvfH galaxy scripts $DIR
+# cp -rvfH galaxy scripts $DIR
+cp -rvf galaxy scripts $DIR
 
 cd $DIR
 rm -rvf `find . -name "CVS" -type d`
@@ -30,7 +31,7 @@ rm -f $ZIP 2> /dev/null
 zip -r $ZIP snpEff
 
 # Create ZIP file for each database
-for d in `ls data/grai*/snpEffectPredictor.bin`
+for d in `ls data/ZZZgrai*/snpEffectPredictor.bin`
 do
 	DIR=`dirname $d`
 	GEN=`basename $DIR`
