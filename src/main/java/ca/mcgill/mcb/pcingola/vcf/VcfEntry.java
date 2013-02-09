@@ -702,8 +702,8 @@ public class VcfEntry extends Marker implements Iterable<VcfGenotype> {
 
 		// Quality, filter, info, format...
 		sb.append("\t" + (quality != null ? quality + "" : "."));
-		sb.append("\t" + (filterPass.isEmpty() ? "." : filterPass));
-		sb.append("\t" + (infoStr.isEmpty() ? "." : infoStr));
+		sb.append("\t" + ((filterPass == null) || filterPass.isEmpty() ? "." : filterPass));
+		sb.append("\t" + ((infoStr == null) || infoStr.isEmpty() ? "." : infoStr));
 		sb.append("\t");
 
 		// Is there any 'format' field? It is optional, so it could be 'null'
