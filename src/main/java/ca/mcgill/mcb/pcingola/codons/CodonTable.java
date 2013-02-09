@@ -13,6 +13,36 @@ import ca.mcgill.mcb.pcingola.binseq.coder.DnaCoder;
  */
 public class CodonTable {
 
+	private static HashMap<String, String> aa3letter;
+
+	static {
+		aa3letter = new HashMap<String, String>();
+		aa3letter.put("A", "Ala");
+		aa3letter.put("B", "Asx");
+		aa3letter.put("C", "Cys");
+		aa3letter.put("D", "Asp");
+		aa3letter.put("E", "Glu");
+		aa3letter.put("F", "Phe");
+		aa3letter.put("G", "Gly");
+		aa3letter.put("H", "His");
+		aa3letter.put("I", "Ile");
+		aa3letter.put("K", "Lys");
+		aa3letter.put("L", "Leu");
+		aa3letter.put("M", "Met");
+		aa3letter.put("N", "Asn");
+		aa3letter.put("P", "Pro");
+		aa3letter.put("Q", "Gln");
+		aa3letter.put("R", "Arg");
+		aa3letter.put("S", "Ser");
+		aa3letter.put("T", "Thr");
+		aa3letter.put("V", "Val");
+		aa3letter.put("W", "Trp");
+		aa3letter.put("X", "X");
+		aa3letter.put("Y", "Tyr");
+		aa3letter.put("Z", "Glx");
+		aa3letter.put("*", "*");
+	}
+
 	String name;
 	HashMap<String, String> codon2aa;
 	HashMap<String, String> aa2codon;
@@ -52,6 +82,20 @@ public class CodonTable {
 		}
 
 		return aas.toString();
+	}
+
+	/**
+	 * Convert 1-letter code to 3-letter code (amino acids)
+	 * 
+	 * Reference: http://www.hgvs.org/mutnomen/standards.html#aalist
+	 * 
+	 * @param aa in three letter code
+	 */
+	public String aaThreeLetterCode(String aa) {
+		if (isStop(aa)) return "*";
+		String aa3 = aa3letter.get(aa.toUpperCase());
+		if (aa3 == null) return "X";
+		return aa3;
 	}
 
 	/**

@@ -14,7 +14,7 @@ public class VcfEffect {
 	 * VcfFields in SnpEff version 2.X have a different format than 3.X 
 	 */
 	public enum FormatVersion {
-		FORMAT_SNPEFF_2, FORMAT_SNPEFF_3
+		FORMAT_SNPEFF_2, FORMAT_SNPEFF_3, FORMAT_SNPEFF_4
 	};
 
 	String effectString;
@@ -31,6 +31,7 @@ public class VcfEffect {
 	ChangeEffect.Coding coding;
 	String transcriptId;
 	String exonId;
+	String genotype;
 
 	/**
 	 * Convert from field name to field number
@@ -53,7 +54,8 @@ public class VcfEffect {
 		if (name.equals("EFF.CODON")) return fieldNum;
 		fieldNum++;
 
-		if (name.equals("EFF.AA")) return fieldNum;
+		// This field can be called either AA or HGVS
+		if (name.equals("EFF.AA") || name.equals("EFF.HGVS")) return fieldNum;
 		fieldNum++;
 
 		if (formatVersion != FormatVersion.FORMAT_SNPEFF_2) {
@@ -75,6 +77,11 @@ public class VcfEffect {
 
 		if (name.equals("EFF.EXID")) return fieldNum;
 		fieldNum++;
+
+		if (formatVersion == FormatVersion.FORMAT_SNPEFF_4) {
+			if (name.equals("EFF.GT")) return fieldNum;
+			fieldNum++;
+		}
 
 		return -1;
 	}
@@ -228,6 +235,13 @@ public class VcfEffect {
 
 			if ((effectStrings.length > index) && !effectStrings[index].isEmpty()) exonId = effectStrings[index];
 			index++;
+
+			if (formatVersion == FormatVersion.FORMAT_SNPEFF_4) {
+				if ((effectStrings.length > index) && !effectStrings[index].isEmpty()) genotype = effectStrings[index];
+				else genotype = "";
+				index++;
+			}
+
 		} catch (Exception e) {
 			String fields = "";
 			for (int i = 0; i < effectStrings.length; i++)

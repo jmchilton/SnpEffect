@@ -1,6 +1,7 @@
 package ca.mcgill.mcb.pcingola;
 
-import ca.mcgill.mcb.pcingola.interval.ChromosomeSimpleName;
+import ca.mcgill.mcb.pcingola.codons.CodonTable;
+import ca.mcgill.mcb.pcingola.codons.CodonTables;
 
 /**
  * Simple test program
@@ -9,8 +10,9 @@ import ca.mcgill.mcb.pcingola.interval.ChromosomeSimpleName;
 public class Zzz {
 
 	public static void main(String[] args) {
-		String chr = ChromosomeSimpleName.get("scaffold_102");
-		System.out.println("chr:" + chr);
+		CodonTable codonTable = CodonTables.getInstance().getTable(CodonTables.STANDARD_TABLE_NAME);
 
+		System.out.println(codonTable);
+		System.out.println(codonTable.aaThreeLetterCode("*"));
 	}
 }

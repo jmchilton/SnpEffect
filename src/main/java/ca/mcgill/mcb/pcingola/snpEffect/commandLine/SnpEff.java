@@ -40,7 +40,7 @@ public class SnpEff implements CommandLine {
 	public static final int COMMAND_LINE_WIDTH = 40;
 
 	public static final String SOFTWARE_NAME = "SnpEff";
-	public static final String BUILD = "2013-02-07";
+	public static final String BUILD = "2013-02-08";
 	public static final String REVISION = "m";
 	public static final String VERSION_MAJOR = "3.1";
 	public static final String VERSION_SHORT = VERSION_MAJOR + REVISION;

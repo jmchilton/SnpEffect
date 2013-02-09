@@ -39,7 +39,7 @@ public class VcfOutputFormatter extends OutputFormatter {
 
 	boolean needAddInfo = false;
 	boolean needAddHeader = true;
-	FormatVersion formatVersion = VcfEffect.FormatVersion.FORMAT_SNPEFF_3;
+	FormatVersion formatVersion = VcfEffect.FormatVersion.FORMAT_SNPEFF_4;
 	List<VcfEntry> vcfEntries;
 	boolean lossOfFunction;
 	Genome genome;
@@ -117,8 +117,8 @@ public class VcfOutputFormatter extends OutputFormatter {
 				effBuff.append(changeEffect.getCodonChange());
 				effBuff.append("|");
 
-				// Add amino acid change
-				effBuff.append(changeEffect.getAaChangeHgvs());
+				// Add HGVS (amino acid change) 
+				effBuff.append(changeEffect.getAaChangeHgsv());
 				effBuff.append("|");
 
 				// Add amino acid length
@@ -169,6 +169,12 @@ public class VcfOutputFormatter extends OutputFormatter {
 				}
 
 				effBuff.append(rank >= 0 ? rank : "");
+
+				// Add genotype (or genotype difference) for this effect
+				if (formatVersion == FormatVersion.FORMAT_SNPEFF_4) {
+					// Add genotype corresponding to this change
+
+				}
 
 				// Errors or warnings (this is the last thing in the list)
 				if (!changeEffect.getWarning().isEmpty()) effBuff.append("|" + changeEffect.getWarning());

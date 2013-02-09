@@ -299,15 +299,14 @@ public class ChangeEffect implements Cloneable, Comparable<ChangeEffect> {
 
 	/**
 	 * Amino acid change string (HGVS style)
-	 * References: http://www.hgvs.org/mutnomen/recs.html
-	 * 
 	 * @return
 	 */
-	public String getAaChangeHgvs() {
+	public String getAaChangeHgsv() {
 		if (aaOld.isEmpty() && aaNew.isEmpty()) {
 			if (codonNum >= 0) return "" + (codonNum + 1);
 			return "";
 		}
+
 		if (aaOld.equals(aaNew)) return aaNew + (codonNum + 1);
 		return aaOld + (codonNum + 1) + aaNew;
 	}
@@ -564,6 +563,55 @@ public class ChangeEffect implements Cloneable, Comparable<ChangeEffect> {
 		default:
 			throw new RuntimeException("Unknown gene region for effect type: '" + effectType + "'");
 		}
+	}
+
+	/**
+	 * Change in HGVS notation
+	 * References: http://www.hgvs.org/mutnomen/recs.html
+	 * 
+	 * @return
+	 */
+	public String getHgvs() {
+		if (aaOld.isEmpty() && aaNew.isEmpty()) {
+			if (codonNum >= 0) return "" + (codonNum + 1);
+			return "";
+		}
+
+		// Codon numbering
+		// HGVS: the translation initiator Methionine is numbered as +1
+		int pos = codonNum + 1;
+
+		// Synonymous changes
+		if (aaOld.equals(aaNew)) {
+			// HGVS: Description of so called "silent" changes in the format p.Leu54Leu (or p.L54L) is not allowed; descriptions 
+			// 		 should be given at DNA level, it is non-informative and not unequivocal (there are five possibilities 
+			// 		 at DNA level which may underlie p.Leu54Leu);  correct description has the format c.162C>G.
+			pos = codonNum * 3 + codonIndex;
+			return "c." + pos + seqChange.getReference() + ">" + seqChange.getChange();
+		}
+
+		// Convert to 3 letter code
+		// HGVS: the three-letter amino acid code is prefered (see Discussion), with "*" designating a translation 
+		// 		 termination codon; for clarity we this page describes changes using the three-letter amino acid
+		String aaNew3 = aaNew;
+		String aaOld3 = aaOld;
+		if (marker != null) {
+			CodonTable codonTable = marker.codonTable();
+			aaNew3 = codonTable.aaThreeLetterCode(aaNew);
+			aaOld3 = codonTable.aaThreeLetterCode(aaOld);
+
+			// Start codon?
+			if ((pos == 1) && codonTable.isStartFirst(aaOld)) {
+				// HGVS: Currently, variants in the translation initiating Methionine (M1) are usually described as a substitution, 
+				// 		 e.g. p.Met1Val. 
+				//		 This is not correct. Either no protein is produced (p.0) or a new translation initiation site up- or downstream 
+				//		 is used (e.g. p.Met1ValextMet-12 or p.Met1_Lys45del resp.). Unless experimental proof is available, it is probably 
+				//		 best to report the effect on protein level as "p.Met1?" (unknown).
+				return "p.Met1?";
+			}
+		}
+
+		return "p." + aaOld3 + pos + aaNew3;
 	}
 
 	/**

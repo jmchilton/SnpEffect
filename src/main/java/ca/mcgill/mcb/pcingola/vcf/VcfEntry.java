@@ -692,11 +692,13 @@ public class VcfEntry extends Marker implements Iterable<VcfGenotype> {
 				+ "\t");
 
 		// ALTs
-		for (int i = 0; i < alts.length; i++) {
-			String altStr = (alts[i].isEmpty() ? "." : alts[i]);
-			sb.append(altStr + ",");
+		if (alts != null) {
+			for (int i = 0; i < alts.length; i++) {
+				String altStr = (alts[i].isEmpty() ? "." : alts[i]);
+				sb.append(altStr + ",");
+			}
+			sb.deleteCharAt(sb.length() - 1); // Delete last colon
 		}
-		sb.deleteCharAt(sb.length() - 1); // Delete last colon
 
 		// Quality, filter, info, format...
 		sb.append("\t" + (quality != null ? quality + "" : "."));
