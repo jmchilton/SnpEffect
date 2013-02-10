@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Set;
 
 import net.sf.samtools.SAMFileReader;
+import net.sf.samtools.SAMFileReader.ValidationStringency;
 import net.sf.samtools.SAMRecord;
 import ca.mcgill.mcb.pcingola.interval.Chromosome;
 import ca.mcgill.mcb.pcingola.interval.Exon;
@@ -69,6 +70,8 @@ public class CountReadsOnMarkers {
 				// Open file
 				int readNum = 1;
 				SAMFileReader sam = new SAMFileReader(new File(samFileName));
+				sam.setValidationStringency(ValidationStringency.SILENT);
+
 				for (SAMRecord samRecord : sam) {
 					try {
 						if (!samRecord.getReadUnmappedFlag()) { // Mapped?
