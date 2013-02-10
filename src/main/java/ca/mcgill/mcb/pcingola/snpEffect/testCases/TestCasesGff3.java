@@ -131,7 +131,7 @@ public class TestCasesGff3 extends TestCase {
 	}
 
 	public void testCaseRice5() {
-		String genome = "rice5";
+		String genome = "testRice5";
 		String gff3File = "tests/Os03t0150600.gff";
 		String resultFile = "tests/Os03t0150600.txt";
 		buildAndCompare(genome, gff3File, resultFile, false);

@@ -1,42 +1,89 @@
-<header>
-	<title> snpEff: SNP effect predictor </title>
-	<link rel="stylesheet" href="style.css" type="text/css" media="screen" />
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>SnpEff</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
 
-	<style type="text/css" media="all">
-		body { background: url(./images/bg_gradient.jpg) repeat-x; }
-	</style>    
+    <!-- Styles -->
+    <link href="css/bootstrap.css" rel="stylesheet">
+    <link href="css/bootstrap-responsive.css" rel="stylesheet">
+    <link href="css/docs.css" rel="stylesheet">
+    <link href="js/google-code-prettify/prettify.css" rel="stylesheet">
+
+    <!--[if lt IE 9]>
+      <script src="js/html5shiv.js"></script>
+    <![endif]-->
+
+    <!-- Fav and touch icons -->
+    <link rel="apple-touch-icon-precomposed" sizes="144x144" href="ico/apple-touch-icon-144-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="ico/apple-touch-icon-114-precomposed.png">
+      <link rel="apple-touch-icon-precomposed" sizes="72x72" href="ico/apple-touch-icon-72-precomposed.png">
+                    <link rel="apple-touch-icon-precomposed" href="ico/apple-touch-icon-57-precomposed.png">
+                                   <link rel="shortcut icon" href="ico/favicon.png">
+
+  </head>
+
+  <body data-spy="scroll" data-target=".bs-docs-sidebar">
+
+    <!-- Navbar
+    ================================================== -->
+    <div class="navbar navbar-inverse navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container-fluid">
+          <button type="button" class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="brand" href="#">SnpEff</a>
+          <div class="nav-collapse collapse">
+            <p class="navbar-text pull-right">
+              <!--  Logged in as <a href="#" class="navbar-link">Username</a> -->
+            </p>
+            <ul class="nav">
+              <li class="active"><a href="index.html">Home</a></li>
+              <li><a href="download.html">Download</a></li>
+              <li><a href="about.html">About</a></li>
+            </ul>
+          </div><!--/.nav-collapse -->
+        </div>
+      </div>
+    </div>
+
+<!-- Subhead
+================================================== -->
+<header class="jumbotron subhead" id="overview">
+  <div class="container">
+    <h1>SnpEff</h1>
+    <p class="lead">Features, versions and roadmap</p>
+  </div>
 </header>
 
-<div align="center">
-	<div id="wrap">
-		<div id="header">
-			<div class="logo">
-					<a href="http://snpEff.sourceforge.net/">snpEff</a>
-					<p style="font-size: 12pt" align=right><b>SNP effect predictor</b></p>
-			</div>
-		</div>
-		<div id="menu">
-			<ul>
-			<li><a href="http://snpeff.sourceforge.net/">Home</a></li>
-			<li class="page_item"><a href="faq.html" title="FAQ">FAQ</a></li>
-			<li class="page_item"><a href="features.html" title="Features">Features</a></li>
-			<li class="page_item"><a href="manual.html" title="Manual">Manual</a></li>
-			<li class="page_item"><a href="examples.html" title="Examples">Examples</a></li>
-			<li class="page_item"><a href="morebs.html" title="MoreBs">MoreBs</a></li>
-			<li class="page_item"><a href="SnpSift.html" title="SnpSift">SnpSift</a></li>
-			<li class="page_item"><a href="download.html" title="Download">Downloads</a></li>
-			<li class="page_item"><a href="about.html" title="About">About</a></li>
-			</ul>
-		</div>
+
+  <div class="container">
+
+    <!-- Docs nav
+    ================================================== -->
+    <div class="row">
+      <div class="span3 bs-docs-sidebar">
+        <ul class="nav nav-list bs-docs-sidenav">
+          <li><a href="#roadmap"><i class="icon-chevron-right"></i> Roadmap </a></li>
+          <li><a href="#features"><i class="icon-chevron-right"></i> Features </a></li>
+        </ul>
+      </div>
+      <div class="span9">
 
 
-
-			<div class="entry">
-
-	<div id="content"> 
-				<p><hr><p style="font-size: 16pt"> <b> Roadmap</b></p>
-
-				Major features planned:
+        <!-- Roadmap
+        ================================================== -->
+        <section id="roadmap">
+          <div class="page-header">
+            <h1>1. Roadmap</h1>
+          </div>
+				<p class="lead"> Major features planned:
 				<ul>
 					<li> <b>Cancer projects:</b> Somatic vs Germline mutations "on the fly" differences. This will speed up considerable analysis of Cancer tissues.
 					<li> <b>Microbiome:</b> Support for all bacterial and fungi genomes available at NCBI (over 2,100 bacterial genomes)
@@ -48,7 +95,6 @@ USF1, PU1, HEY1, Rad21, H2BK5ac, Cfos, H4K8ac, Cjun, H4K20me1, SP1,
 H3K4ac, H2BK20ac, H4K5ac, H3K36me3, Max, H2BK120ac, H3K18ac, H4K91ac, H3K27me3, Cmyc, 
 H3K4me1, H3K9ac, H3K27ac, PolII, H3K4me2, H3K4me3, CTCF, .... etc. </pre>
 						 This feature is available for human (GRCh37) and mouse (GRCm37).
-					<p>
 					<li> <b>Splicing:</b> 
 					<ul>
 						<li> Extended splice sites using conservation and entropy based metrics.
@@ -56,8 +102,8 @@ H3K4me1, H3K9ac, H3K27ac, PolII, H3K4me2, H3K4me3, CTCF, .... etc. </pre>
 						<li> Add predicted U12 branch sites.
 					</ul>
 					<li> <b>Mixed variants:</b> Full support for MIXED variants: E.g. Some variants maybe a combination of Insertions, Deletions, SNPs or MNPs.
-					<p>
 				</ul>
+				</p>
 
 				Other features planned:
 				<ul>
@@ -67,8 +113,17 @@ H3K4me1, H3K9ac, H3K27ac, PolII, H3K4me2, H3K4me3, CTCF, .... etc. </pre>
 					<li> O(m) algorithm: Current algorithm is O[ log(n) + m ], where <b>n</b> is the number of intervals (genes + exons + etc.) and <b>m</b> is the number of results. Under certain conditions the algorithm can be improved to be just O[m].
 					<li> [Done] Backwards compatible database format: Current database is a binary format incompatible across versions. Using a cross-version compatible database will avoid re-building all the databases for each new release.
 				</ul>
+        </section>
 
-				<p style="font-size: 16pt"> <b> Version: 3.1 (2012-11-02).</b></p>
+        <!-- Features
+        ================================================== -->
+        <section id="features">
+          <div class="page-header">
+            <h1>2. Features</h1>
+          </div>
+				<p class="lead"> Features by version</p>
+
+				<p class="lead"> <b> Version: 3.1 (2012-11-02).</b></p>
 				<ul>
 					<li> All NCBI bacterial genomes added: Over 2,500 genomes added!
 					<li> Loss of function effect and tag added (experimental command line option '-lof')
@@ -78,7 +133,7 @@ H3K4me1, H3K9ac, H3K27ac, PolII, H3K4me2, H3K4me3, CTCF, .... etc. </pre>
 					<li> SnpEff Intron and Intergenic annotations improved.
 				</ul>
 
-				<p style="font-size: 16pt"> <b> Version: 3.0, revision 'f' (2012-08-23).</b></p>
+				<p class="lead"> <b> Version: 3.0, revision 'f' (2012-08-23).</b></p>
 				<ul>
 					<li> GATK output format compatibility option: '-o gatk'
 					<li> Fixed problem when parsing comment after GFF headers.
@@ -102,7 +157,7 @@ H3K4me1, H3K9ac, H3K27ac, PolII, H3K4me2, H3K4me3, CTCF, .... etc. </pre>
 					<li> SnpSift 'Annotate' and 'AnnMem': Now support to add all fields in a VCF file for annotations.
 				</ul>
 
-				<p style="font-size: 16pt"> <b> Version: 2.1b (2012-04-26).</b></p>
+				<p class="lead"> <b> Version: 2.1b (2012-04-26).</b></p>
 				<ul>
 					<li> Revision "2.1c" : Maven project (by Louis Letourneau)
 					<li> Revision "2.1c" : Improved Galaxy wrappers (by Peter briggs)
@@ -121,13 +176,13 @@ H3K4me1, H3K9ac, H3K27ac, PolII, H3K4me2, H3K4me3, CTCF, .... etc. </pre>
 					<li> Faster VCF processing.
 				</ul>
 
-				<p style="font-size: 16pt"> <b> Version: 2.0.5 (2011-11-25).</b></p>
+				<p class="lead"> <b> Version: 2.0.5 (2011-11-25).</b></p>
 				<ul>
 					<li> Support for RARE amino acids (see details <a class="body" href="faq.html#What_is_a_rare_amino_acid?">here</a>)
 					<li> Database for Soybean (Glycine max) added
 				</ul>
 	
-				<p style="font-size: 16pt"> <b> Version: 2.0.5 (2011-11-25).</b></p>
+				<p class="lead"> <b> Version: 2.0.5 (2011-11-25).</b></p>
 				<ul>
 					<li> Database download command, e.g. "java -jar snpEff.jar download GRCH37.64"
 					<li> Added all ENSEMBL version 65 genomes
@@ -149,12 +204,9 @@ H3K4me1, H3K9ac, H3K27ac, PolII, H3K4me2, H3K4me3, CTCF, .... etc. </pre>
 						Designed to extract a small number of intervals from huge VCF files. 
 						Added indexing using  memory mapped I/O files for retrieving intervals from huge VCF files. 
 						Works really fast! 
-						<ul>
 				</ul>
 
-				<p> <hr> <p style="font-size: 16pt"> <b> Features form older versions </b></p>
-				<p>
-				<p> <b> New version: 2.0.3 (2011-10-08)</b></p>
+				<p class="lead"> <b> Version: 2.0.3 (2011-10-08)</b></p>
 				<ul>
 					<li> Functional classes added in VCF output (i.e. NONE, SILENT, MISSENSE, NONSENSE)
 					<li> Added MODIFIER effect 'impact'.
@@ -163,8 +215,8 @@ H3K4me1, H3K9ac, H3K27ac, PolII, H3K4me2, H3K4me3, CTCF, .... etc. </pre>
 					<li> Several minor issues solved.
 					<li> Report usage statistics to server (can be disabled using '-noLog' options).
 				</ul>
-				<p>
-				<p> <b> Version: 2.0.2 (2011-09-09)</b></p>
+
+				<p class="lead"> <b> Version: 2.0.2 (2011-09-09)</b></p>
 				<ul>
 					<li> VCF output format
 					<li> <b><a class="body" href="http://www.broadinstitute.org/gsa/wiki/index.php/The_Genome_Analysis_Toolkit">GATK</a></b> integration. Now you can use SnpEff from GATK's <a class="body" href="http://www.broadinstitute.org/gsa/wiki/index.php/Adding_Genomic_Annotations_Using_SnpEff_and_VariantAnnotator">VariantAnnotator</a>.
@@ -173,8 +225,8 @@ H3K4me1, H3K9ac, H3K27ac, PolII, H3K4me2, H3K4me3, CTCF, .... etc. </pre>
 					<li> Command line format changed for various options
 					<li> Option '-sort' deprecated.
 				</ul>
-				<p>
-				<p> <b> Version: 1.9.6 (2011-08-08)</b></p>
+
+				<p class="lead"> <b> Version: 1.9.6 (2011-08-08)</b></p>
 				<ul>
 					<li> Ensembl genomes v63 added.
 					<li> <b>Warning!</b> Genome names changed to agree with Ensembl naming convention, here are the names:
@@ -242,14 +294,16 @@ H3K4me1, H3K9ac, H3K27ac, PolII, H3K4me2, H3K4me3, CTCF, .... etc. </pre>
 					<li> Problems reporting some CDS relative positions: Fixed
 					<li> Some issues related to distance calculation on Downstream genes on negative strands: Fixed
 				</ul>
-				<p> <b> Version: 1.9.5 (2011-03-10)</b></p>
+
+				<p class="lead"> <b> Version: 1.9.5 (2011-03-10)</b></p>
 				<ul>
 					<li> Variants per gene table.
 					<li> Improvements in summary report.
 					<li> Improved GFF3 parsing.
 					<li> Several genomes added.
 				</ul>
-				<p> <b> Version: 1.9 (2011-03-10)</b></p>
+
+				<p class="lead"> <b> Version: 1.9 (2011-03-10)</b></p>
 				Features recently added:
 				<ul>
 					<li> Improved command line
@@ -277,7 +331,8 @@ H3K4me1, H3K9ac, H3K27ac, PolII, H3K4me2, H3K4me3, CTCF, .... etc. </pre>
 					<li> Database dump support: <pre>java -jar snpEff.jar dump genome_version</pre>
 					<li> CDS testing support: <pre>java -jar snpEff.jar cds genome_version cds.fasta</pre>
 				</ul>
-				<p> <b> Older features </b></p>
+
+				<p class="lead"> <b> Older features </b></p>
 				<ul>
 					<li> Show DNA and amino acid sequence before and after change: option "-a, --around", e.g. "-a 5" shows 5 codons around sequence change)
 					<li> <b>WARNING</b>: Since version 1.7 snpEff assumes one-based coordinates (i.e. option "-1" is the default instead of "-0")
@@ -310,31 +365,45 @@ H3K4me1, H3K9ac, H3K27ac, PolII, H3K4me2, H3K4me3, CTCF, .... etc. </pre>
 					<li> Can filter SNPs, InDels and MNPs based on quality, coverage and zygosity (Hom/Het).
 				</ul>
 
-		</div> 
+
+        </section>
+      </div>
+    </div>
+
+  </div>
 
 
-				<p style="font-size: 8pt" align=center><font color=#777777> - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - </font></p>
-					<center><b>Author: <a class="body" href="http://www.mcb.mcgill.ca/~pcingola/">Pablo Cingolani</a> (pcingola@users.sourceforge.net</a>)</b></center>
-			</div>
-		</div>
-	</div>
-</div>
 
-<center>
-<font color=ffffff>
-Key words (for search engines): <br>
-	SNP : single nucleotide polymorphisms <br>
-	SNP effect predictor <br>
-	SNP effect predictor Galaxy<br>
-	SNP functional annotation <br>
-	NG sequencing analysis <br>
-	Next genenration sequencing analysis <br>
-	Next genenration sequencing analysis tool <br>
-	Functionally annotate single nucleotide polymorphisms (SNP) <br>
-	Variation analysis <br>
-	Open source <br>
-	java <br>
-	Windows Linux OSX <br>
-	<a href="http://en.wikipedia.org/wiki/Single-nucleotide_polymorphism">SNP Wikipedia</a> <br>
-</font>
-</center>
+    <!-- Footer
+    ================================================== -->
+      <footer>
+        <p class="text-center">&copy; Pablo Cingolani 2013</p>
+      </footer>
+
+
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script type="text/javascript" src="http://platform.twitter.com/widgets.js"></script>
+    <script src="js/jquery.js"></script>
+    <script src="js/bootstrap-transition.js"></script>
+    <script src="js/bootstrap-alert.js"></script>
+    <script src="js/bootstrap-modal.js"></script>
+    <script src="js/bootstrap-dropdown.js"></script>
+    <script src="js/bootstrap-scrollspy.js"></script>
+    <script src="js/bootstrap-tab.js"></script>
+    <script src="js/bootstrap-tooltip.js"></script>
+    <script src="js/bootstrap-popover.js"></script>
+    <script src="js/bootstrap-button.js"></script>
+    <script src="js/bootstrap-collapse.js"></script>
+    <script src="js/bootstrap-carousel.js"></script>
+    <script src="js/bootstrap-typeahead.js"></script>
+    <script src="js/bootstrap-affix.js"></script>
+
+    <script src="js/holder/holder.js"></script>
+    <script src="js/google-code-prettify/prettify.js"></script>
+
+    <script src="js/application.js"></script>
+
+
+
+  </body>
+</html>
