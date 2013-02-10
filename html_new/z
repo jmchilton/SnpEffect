@@ -1,0 +1,17 @@
+        <li><a href="#intro"> <i class="icon-chevron-right"></i> Introduction</a></li>
+        <li><a href="#utils"> <i class="icon-chevron-right"></i> SnpSift utilities</a></li>
+        <li><a href="#cite"> <i class="icon-chevron-right"></i> Citing SnpSift</a></li>
+        <li><a href="#source"> <i class="icon-chevron-right"></i> Source code</a></li>
+        <li><a href="#source"> <i class="icon-chevron-right"></i> SnpSift filter </a></li>
+        <li><a href="#annotate"> <i class="icon-chevron-right"></i> SnpSift Annotate & AnnMEM </a></li>
+        <li><a href="#casecontrol"> <i class="icon-chevron-right"></i> SnpSift CaseControl </a></li>
+        <li><a href="#Intervals"> <i class="icon-chevron-right"></i> SnpSift Intervals </a></li>
+        <li><a href="#intidx"> <i class="icon-chevron-right"></i> SnpSift Intervals Index </a></li>
+        <li><a href="#Join"> <i class="icon-chevron-right"></i>  SnpSift Join </a></li>
+        <li><a href="#RmRefGen"> <i class="icon-chevron-right"></i>  SnpSift RmRefGen </a></li>
+        <li><a href="#TsTv"> <i class="icon-chevron-right"></i>  SnpSift TsTv </a></li>
+        <li><a href="#Extract"> <i class="icon-chevron-right"></i>  SnpSift Extract Fields </a></li>
+        <li><a href="#VariantType"> <i class="icon-chevron-right"></i>  SnpSift Variant type </a></li>
+        <li><a href="#gwasCatalog"> <i class="icon-chevron-right"></i>  SnpSift GWAS Catalog </a></li>
+        <li><a href="#dbNSFP"> <i class="icon-chevron-right"></i>  SnpSift dbNSFP </a></li>
+        <li><a href="#Split"> <i class="icon-chevron-right"></i>  SnpSift Split by chromosome </a></li>
