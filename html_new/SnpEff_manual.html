@@ -12,6 +12,7 @@
     <link href="css/bootstrap-responsive.css" rel="stylesheet">
     <link href="css/docs.css" rel="stylesheet">
     <link href="js/google-code-prettify/prettify.css" rel="stylesheet">
+    <link href="css/my.css" rel="stylesheet">
 
     <!-- hTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
@@ -59,7 +60,7 @@
 <header class="jumbotron subhead" id="overview">
   <div class="container">
     <h1>SnpEff</h1>
-    <p class="lead">Description and basic information.</p>
+    <p class="lead">Documentation</p>
   </div>
 </header>
 
@@ -72,10 +73,16 @@
       <div class="span3 bs-docs-sidebar">
         <ul class="nav nav-list bs-docs-sidenav">
           <li><a href="#intro"><i class="icon-chevron-right"></i> Introduction</a></li>
-          <li><a href="#citing"><i class="icon-chevron-right"></i> Paper & Citations</a></li>
-          <li><a href="#1kg"><i class="icon-chevron-right"></i> Usage example</a></li>
-          <li><a href="#who"><i class="icon-chevron-right"></i> Who uses SnpEff?</a></li>
-          <li><a href="#integrate"><i class="icon-chevron-right"></i> Integration</a></li>
+          <li><a href="#install"><i class="icon-chevron-right"></i> Download & Install</a></li>
+          <li><a href="#run"><i class="icon-chevron-right"></i> Running SnpEff </a></li>
+          <li><a href="#seqData"><i class="icon-chevron-right"></i> Sequence data analysis </a></li>
+          <li><a href="#input"><i class="icon-chevron-right"></i> Input files </a></li>
+          <li><a href="#output"><i class="icon-chevron-right"></i> Output files </a></li>
+          <li><a href="#eff"><i class="icon-chevron-right"></i> Effect prediction details </a></li>
+          <li><a href="#"><i class="icon-chevron-right"></i> </a></li>
+          <li><a href="#"><i class="icon-chevron-right"></i> </a></li>
+          <li><a href="#"><i class="icon-chevron-right"></i> </a></li>
+          <li><a href="#"><i class="icon-chevron-right"></i> </a></li>
         </ul>
       </div>
       <div class="span9">
@@ -89,121 +96,181 @@
           </div>
 				<p class="lead">
 				SnpEff is a variant annotation and effect prediction tool.
-				It annotates and predicts the effects of variants on genes (such as amino acid changes).
+				It annotates and predicts the effects of genetic variants (such as amino acid changes).
 				</p>
 
-				<p class="lead">
-				<b> Typical usage :</b>
+				<p> <b> Variants </b><br>
+				By genetic variant we mean difference between a genome and a "reference" genome.
+				As an example, imagine we are sequencing a "sample".
+				Here "sample" can mean anything that you are interested in studing, from a cell culture, to a mouse or a cancer patient.
+				<br>
+				It is a standard procedure to compare your sample sequences against the corresponding "reference genome".
+				For instance you may compare the cancer patient genome against the current "reference genome" (at the time of this writing, it is 'hg19').
+				<p>
+				In a typical sequencing experiment, you will find many places in the genome where your sample differs from the reference genome.
+				These are called "genomic variants" or just "variants".
+				<br>
+				Typically, variants are catogorized as follows:
+				<table class="table table-striped">
+					<tr> <th> Name  </th> <th> What is means                    </th> <th> Example </th> </tr>
+					<tr> <td> SNP   </td> <td> Single-Nucleotide Polymorphism   </td> <td> Reference = 'A', Sample = 'C' </td> </tr>
+					<tr> <td> Ins   </td> <td> Insertion                        </td> <td> Reference = 'A', Sample = 'AGT' </td> </tr>
+					<tr> <td> Del   </td> <td> Deletion                         </td> <td> Reference = 'AC', Sample = 'C' </td> </tr>
+					<tr> <td> MNP   </td> <td> Multiple-nucleotide polymorphism </td> <td> Reference = 'ATA', Sample = 'GTC' </td> </tr>
+				</table>
+				This is not a comprehensive list, it is just to give you an idea.
+				</p>
+
+				<p> <b>Annotations</b><br>
+				So, you have a huge file describing all the differences between your sample and the reference genome.
+				But you want to know more about these variants than just their genetic coordinates. 
+				E.g.: Are they in a gene? In an exon? Do they change protein coding? Do they cause premature stop codons?
+				<br>
+				SnpEff can help you answer all these questions.
+				The process of adding this information about the variants is called "Annotation".
+				<br>
+				SnpEff provides several degrees of annotations, from simple (e.g. which gene is each variant affecting) to exremelly complex annotations (e.g. will this non-coding variant affect the expreesion of a gene?).
+				It should be noted that the more complex the annotations, the more it relies in computational predictions.
+				Such somputational predictions are sometimes incorrect. 
+				<br>
+				<i class="icon-warning-sign"></i> Results cannot be trusted blindly. SnpEff results may have to analyzed and independently validated.
+				</p>
+
+				<p> <b>Databases</b><br>
+				In order to produce the annotations, SnpEff requires a database.
+				We build these databases using informations from trusted resources.
+				<br>
+				Currently, there are pre-built database for over 2,500 reference genomes.
+				This means that 99% of the cases are covered.
+				<br>
+				In some very rare ocasions, people need to build a database for an organism not currently supported (e.g. the genome is not publicly available).
+				In most cases, this can be done and there is a section of this manual teaching how to build your own SnpEff database.
+				<br>
+				If you have problems adding you own organism, send me an email and I'll do my best to help you out.<p>
+
+				<p> <b>Summary</b><br>
+				A typical SnpEff use case would be:
 				<ul>
-					<li> <b>Input:</b> 
+					<li> Input:
 					The inputs are predicted variants (SNPs, insertions, deletions and MNPs). 
 					The input file is usually obtained as a result of a sequencing experiment, and it is usually in variant call format (VCF).
 					<p>
 
-					<li> <b>Output:</b> 
+					<li> Output:
 					SnpEff analyzes the input variants. 
 					It annotates the variants and calculates the effects they produce on known genes (e.g. amino acid changes).
 					A list of effects and annotations that SnpEff can calculate can be found <a class="body" href="faq.html#What_effects_are_predicted?">here</a>.
 				</ul>
+				</p>
+
+				<p> <b>Citing</b><br>
+				If you are using SnpEff or SnpSift, please cite our work as shown <a href="SnpEff.html#citing">here</a>. Thank you!
 				</p>
         </section>
 
-				<hr> <center> <p style="font-size: 16pt"> <b> Background </b></center></p>
+        <!-- Download
+        ================================================== -->
+        <section id="install">
+          <div class="page-header">
+            <h1>2. Download &amp; Install</h1>
+          </div>
+				<p class="lead"> Download and installing SnpEff it pretty easy. 
+				</p>
+				
+				<p> <b>System requirements </b><br>
+				SnpEff requires that you have Java v1.6 or later installed (any modern operating system has it). <br>
+				You'll probably need at least 2Gb of memory. 
+				The amount of memory used can vary significantly depending on genome size and data analysis type you are doing.
 
-				<p style="font-size: 14pt"> <b> <a class="body" name="What_is_snpEff?"> What is snpEff? </a> </b></p>
-				It's a variant annotation and effect prediction tool.
-				It annotates and predicts the effects of variants on genes (such as amino acid changes).
-				It started predicting the effects of SNPs, hence the name. A SNP is a Single-nucleotide polymorphism in a DNA sequence (genome), but if you don't know that, this tool is probably not for you :-) <p>
+				<p> <b>Downloading and Installing</b><br>
+				In order to download and install the program, you can follow the directions <a href="download.html">here</a>.
 
-				<b> Typical usage :</b><p>
-				<ul>
-					<li> <b>Input:</b> 
-					The inputs are predicted variants (SNPs, insertions, deletions and MNPs). 
-					The input file is usually obtained as a result of a sequencing experiment, and it is usually in variant call format (VCF).
-					<p>
+				<p> <b> How is it licensed? </b><br>
+				SnpEff is open source. It is released mainly as "LGPLv3". If you prefer another open source license, just contact me and I'll try to add your preferred license as well. <br>
 
-					<li> <b>Output:</b> 
-					SnpEff analyzes the input variants. 
-					It annotates the variants and calculates the effects they produce on known genes (e.g. amino acid changes).
-					A list of effects and annotations that SnpEff can calculate can be found <a class="body" href="faq.html#What_effects_are_predicted?">here</a>.
-				</ul>
-
-				<p>
-				&nbsp;<p>
-
-				<p style="font-size: 14pt"> <b> <a class="body" name="What_is_a_variant?_Does_snpEff_support_variants?"> What is a variant? Does snpEff support variants?  </a> </b></p>
-				A variant can be either a SNP (single-nucleotide polymorphism), an InDel (insertion or deletion) or a MNP (multiple-nucleotide polymorphism).<br>
-				Yes, snpEff suports all these variants. <br>
-
-				<p style="font-size: 14pt"> <b> <a class="body" name="What_organisms_does_it_support?"> What organisms does it support?  </a> </b></p>
-				So far we support over 260 genome versions and the number is growing. If you have problems adding you own organism, send me an email and I'll be happy to support the organism of your choice.<p>
-
-				<p style="font-size: 14pt"> <b> <a class="body" name="How_do_I_cite_your_work?"> How do I cite your work?  </a> </b></p>
-				<a class="body" href="SnpEff_paper.pdf">"A program for annotating and predicting the effects of single nucleotide polymorphisms, SnpEff: SNPs in the genome of Drosophila melanogaster strain w1118; iso-2; iso-3", Cingolani, P. and Platts, A. and Coon, M. and Nguyen, T. and Wang, L. and Land, S.J. and Lu, X. and Ruden, D.M., Fly, 6, 2, 2012.</a>
-				<p>
-				BibTex:<pre>
-@article{cingolani2012program,
-  title={A program for annotating and predicting the effects of single nucleotide polymorphisms, SnpEff: SNPs in the genome of Drosophila melanogaster strain w1118; iso-2; iso-3},
-  author={Cingolani, P. and Platts, A. and Coon, M. and Nguyen, T. and Wang, L. and Land, S.J. and Lu, X. and Ruden, D.M.},
-  journal={Fly},
-  volume={6},
-  number={2},
-  pages={0--1},
-  year={2012}
-}
-</pre>
-				Thank you!<p>
-
-				<hr> <center> <p style="font-size: 16pt"> <b> Install </b></center></p>
-
-				<p style="font-size: 14pt"> <b> <a class="body" name="System_r"> System requirements  </a> </b></p>
-				This tool requires that you have Java v1.6 or later installed. You'll probably need 2Gb to 6Gb of ram (depending on the genome size) in order to run some options.<br>
-
-				<p style="font-size: 14pt"> <b> <a class="body" name="How_do_I_Install_it?"> How do I Install it?  </a> </b></p>
-				Just download and uncompress the file. You might need to change the 'data_dir' parameter in the configuration file (snpEff.config).
-
-				<p style="font-size: 14pt"> <b> <a class="body" name="How_is_it_licensed?"> How is it licensed?  </a> </b></p>
-				SnpEff is open source. It is released mainly as "LGPLv3".<br>
-				If you prefer another open source license, just contact me and I'll try to add your preferred license as well. <br>
-
-				<p style="font-size: 14pt"> <b> <a class="body" name="Where_is_the_source_code?"> Where is the source code?  </a> </b></p>
-				The project is hosted at SourceForge. 
+				<p> <b>Source code </b><br>
+				The project is hosted at SourceForge. <br>
 				Here is the SVN command to check out the development version of the code:
 <pre>
 svn co https://snpeff.svn.sourceforge.net/svnroot/snpeff/SnpEffect/trunk
 </pre>
 
-				<p style="font-size: 14pt"> <b> <a class="body" name="Can_you_explain_the_configuration_file?"> Can you explain the configuration file?  </a> </b></p>
-				The file snpEff.config has some configuration parameters, which are explained in the comments in the config file, so I won't repeat the explanation here :-)<p>
-				Most of the time you do not need to change anything except for "data_dir" parameter, which points to the "data" directory where you installed the tool (i.e. path/to/your/intall/snpEff/data).<p>
+				<p> <b>Configuration</b><br>
+				The only configuration file is "snpEff.config".
+				Most configuration parameters, are explained in the comments in the same config file, so I won't repeat the explanation here :-)
+				<br>
+				Usually you will only need to change the "data_dir" parameter.
+				This parameter points to the "data" directory where you installed the tool (i.e. in unix systems, this is $HOME/snpEff/data).<p>
+        </section>
 
-				<p style="font-size: 14pt"> <b> <a class="body" name="How_do_I_get_the_same_web_interface_you_show_in_the_main_page?"> How do I get the same web interface you show in the main page?  </a> </b></p>
-				That is the <a class="body"class="body" href="http://usegalaxy.org">Galaxy</a> project. You can either install your own server and add the snpEff tool or use it in an open Galaxy server.
+        <!-- Running SnpEff
+        ================================================== -->
+        <section id="run">
+          <div class="page-header">
+            <h1>3. Running SnpEff</h1>
+          </div>
+				<p class="lead"> We show some basic examples how to use SnpEff.</p>
 
-				<hr> <center> <p style="font-size: 16pt"> <b> Run </b></center></p>
+				<p><b>Command line vs Web interface</b><br>
+				In order to run SnpEff you need to be comfortable running command from a command line terminal.
+				If you are not, then it is probably a good idea to ask you systems adminitrator to install a <a class="body"class="body" href="http://usegalaxy.org">Galaxy</a> server and use the web interface.
+				You can also use the open Galaxy server, but functionality may be limited and SnpEff versions may not be updated frequently.
+				</p>
 
-				<p style="font-size: 14pt"> <b> <a class="body" name="How_do_I_run_snpEff?"> How do I run snpEff?  </a> </b></p>
-				<b>Quick example:</b> Running a demo SNP file (fly genome). In my computer takes less than 5 seconds.<br>
+				<p><b>Usage example</b><br>
+				In this example, we will annotate a variants file using the human reference genome.<br>
+
+				As an input, we will use a <a href="http://www.1000genomes.org/wiki/Analysis/Variant%20Call%20Format/vcf-variant-call-format-version-41"> Variant Call Format (VCF) </a> file.
+				VCF is the de-facto standard for genetic variants.
+				<br>
+				In this example we will use a file 'demo.1kg.vcf.gz', which is provided in the distribution.
 <pre>
-	cd snpEff 
-	java -jar ./snpEff.jar dm3 snps_dm3_demo.txt 
-</pre>
-				
-				<b>More detailed example:</b> Let's say you have a list of human SNPs in a file "snps.txt" and you want to analyze the effects that those mutations produce.
-				 In order to run the command line version of this tool, you can do:<br>
-<pre>
-	# Run this from snpEff directory
-	java snpEff.jar hg37 path/to/your/files/snps.txt
+# Go to SnpEff install sirectory
+cd ~/snpEff 
+
+# Download human database 'hg19'
+java -jar snpEff.jar download -v hg19
+
+# Annotate 
+java -Xmx2g -jar snpEff.jar hg19 -v demo.1kg.vcf > demo.1kg.snpeff.vcf
 </pre>
 
-				You can specify a configuration file by doing:
+				Here is an example of some entries in the annotated output file. 
+				You can see the 'EFF' field was added, predicting STOP_GAINED protein changes:
+
 <pre>
-	java snpEff.jar -c path/to/snpEff.config hg37 path/to/your/files/snps.txt
+$ cat demo.1kg.snpeff.vcf | grep STOP_
+1    889455    .    G    A    100.0    PASS    ...;EFF=STOP_GAINED(HIGH|NONSENSE|Cag/Tag|Q236*...
+1    897062    .    C    T    100.0    PASS    ...;EFF=STOP_GAINED(HIGH|NONSENSE|Cag/Tag|Q141*...
+1    900375    .    G    A    100.0    PASS    ...;EFF=STOP_GAINED(HIGH|NONSENSE|tGg/tAg|W578*...
+</pre>
+				Note: The real output was edited for readibility reasons.
+				</p>
+
+				<p><b>Runnig from another directory</b> <br>
+				When you run SnpEff from a different directory than your install directory, you have to specify where the config file is located using the '-c' command line option.
+<pre>
+java -Xmx2g path/to/snpEff/snpEff.jar -c path/to/snpEff/snpEff.config GRCh37.70 path/to/snps.vcf
 </pre>
 
-				<p style="font-size: 14pt"> <b> <a class="body" name="VM?"> I'm running it on a Virtual Machine (VM) and I get some error, could that be the problem? </a> </b></p>
-				No, running it on a virtual machine should be exactly the same as running it on "real hardware". 
-				You should not have any problems at all.<p>
+				<p><b>Java memory options</b> <br>
+				By default the amount of memory set by a java process is set too low.
+				If you don't assigm more memory to the process, you will most likely have an "OutOfMemory" error.<br>
+
+				You should set the amount of memory in your java virtual machine to, at least, 2 Gb. 
+				This can be easily done using the Java command line option "-XmX".
+				E.g. In this example I use 4Gb:
+<pre>
+# Run using 4 Gb of memory 
+java -Xmx4G snpEff.jar hg19 path/to/your/files/snps.vcf
+</pre>
+				Note: There is no space between "-Xmx" and "4G".
+				</p>
+
+				<p><b>Running SnpEff in the Cloud </b> <br>
+				You can run SnpEff in a "the Cloud" exactly the same way as running it on your local computer.
+				You should not have any problems at all.
+				<br>
 				Here is an example of installing it and running it on an Amazon EC2 instance (virtual machine):<p>
 <pre>
 $ ssh -i ./aws_amazon/pcingola_aws.pem ec2-user@ec2-54-234-14-244.compute-1.amazonaws.com
@@ -213,7 +280,7 @@ $ ssh -i ./aws_amazon/pcingola_aws.pem ec2-user@ec2-54-234-14-244.compute-1.amaz
       ___|\___|___|
 
 
-[ec2-user@ip-10-2-202-163 ~]$ wget http://sourceforge.net/projects/snpeff/files/snpEff_latest_core.zip/download
+[ec2-user@ip-10-2-202-163 ~]$ wget http://sourceforge.net/projects/snpeff/files/snpEff_latest_core.zip
 [ec2-user@ip-10-2-202-163 ~]$ unzip snpEff_latest_core.zip
 [ec2-user@ip-10-2-202-163 ~]$ cd snpEff_3_1/
 [ec2-user@ip-10-2-202-163 snpEff_3_1]$ java -jar snpEff.jar download -v hg19
@@ -228,73 +295,113 @@ $ ssh -i ./aws_amazon/pcingola_aws.pem ec2-user@ec2-54-234-14-244.compute-1.amaz
 </pre>
 
 				<p>
-				As you can see, no problems. 
+				As you can see, it's very simple.
 
+				<p><b>Command line options</b> <br>
+				In order to see all available options, you can run 
+				<pre>java -jar snpEff.jar -help</pre>
+				We'll explain many of those options in detail in the following chapters.
+				</p>
 
-				<p style="font-size: 14pt"> <b> <a class="body" name="Command_line_o"> Command line options  </a> </b></p>
-				In order to see all available options, you can run <pre>java -jar snpEff.jar -help</pre>
-				Also, take a look at the <a class="body"class="body" href="manual.html">manual page</a>.
+				<p><b>Loading the database</b> <br>
+				One of the first thins SnpEff has to do is to load the database.
+				Usually it takes frmo a few seconds to a couple of minutes, depending on database size.
+				Complex databases, like human, require more time to load.
+				After the database is loaded, SnpEff can analyze thousands of variants per second.
+				</p>
 
-				<p style="font-size: 14pt"> <b> <a class="body" name="Why_does_it_take_a_some_seconds_to_start?"> Why does it take a some seconds to start?  </a> </b></p>
-				snpEff has to load the database before starting to analyze your SNPs. Usually it takes 15 to 30 seconds (depending on which database, how powerful your computer is, etc.). 
-				After that, it can analyze thousands of SNPs per second.
+        <!-- Sequence data analysis
+        ================================================== -->
+        <section id="seqData">
+          <div class="page-header">
+            <h1>4. Sequence data analysis</h1>
+          </div>
+				<p class="lead"> Here we show an example on how to get from Sequenceing data to an annotated variants file </p>
 
-				<p style="font-size: 14pt"> <b> <a class="body" name="Why_do_I_get_an_OutOfMemory_error?"> Why do I get an "OutOfMemory" error?  </a> </b></p>
-				You should probably use more memory in you java virtual machine. 
-				You can do this by using the "-XmX" option. E.g. in this case I use 4Gb:
+				<p><b>Sequencing data example</b> <br>
+				<i class="icon-warning-sign"></i> This is an extremelly simplified version on how to analyze the data from scratch
+				This is not meant to be a tutorial on sequencing analysis as it would be way beyond the scope of this handbook.
+				<br>
+				Let's assume you have sequence data in FASTQ format (file "s.fastq") and your reference genome is dm5.34 (fly genome)
 <pre>
-	# Run this from snpEff directory
-	java -Xmx4G snpEff.jar hg37 path/to/your/files/snps.txt
+# Download the genome, uncompress and rename file
+wget ftp://ftp.flybase.net/genomes/Drosophila_melanogaster/dmel_r5.34_FB2011_02/fasta/dmel-all-chromosome-r5.34.fasta.gz
+gunzip dmel-all-chromosome-r5.34.fasta.gz
+mv dmel-all-chromosome-r5.34.fasta dm5.34.fasta
+
+# Create a genome index (we assume you installed BWA http://bio-bwa.sourceforge.net/)
+bwa index -bwtsw dm5.34.fasta
+
+# Map sequences to the genome: Create SAI file
+bwa aln -bwtsw dm5.34.fasta s.fastq > s.sai
+
+# Map sequences to the genome: Create SAM file
+bwa samse dm5.34.fasta s.sai s.fastq > s.sam
+
+# Create BAM file (we assume you installed SamTools http://samtools.sourceforge.net/)
+samtools view -S -b s.sam > s.bam
+
+# Sort BAM file (will create s_sort.bam)
+samtools sort s.bam s_sort
+
+# Create VCF file (BcfTools is part of samtools distribution)
+samtools mpileup -uf dm5.34.fasta s_sort.bam | bcftools view -vcg - > s.vcf
+
+# Analyze variants using snpEff
+java -Xmx4g -jar snpEff.jar -vcf4 dm5.34 s.vcf > s_snpeff.txt
 </pre>
-				<b>Note:</b> There is no space between "-Xmx" and "4G".
 
-				<p style="font-size: 14pt"> <b> <a class="body" name="I_sequenced_a_genome,_how_do_I_analyze_the_variants?"> I sequenced a genome, how do I analyze the variants?  </a> </b></p>
-				This is an extremelly simplified version on how to analyze the data from scratch (this is not meant to be a tutorial on sequencing analysis).<p>
-				Let's assume you have sequence data in FASTQ format (file "s.fastq") and your reference genome is dm5.34
-				<pre>
-	# Download the genome
-	wget ftp://ftp.flybase.net/genomes/Drosophila_melanogaster/dmel_r5.34_FB2011_02/fasta/dmel-all-chromosome-r5.34.fasta.gz
-	gunzip dmel-all-chromosome-r5.34.fasta.gz
-	mv dmel-all-chromosome-r5.34.fasta dm5.34.fasta
-	
-	# Create a genome index (we assume you installed BWA http://bio-bwa.sourceforge.net/)
-	bwa index -bwtsw dm5.34.fasta
-	
-	# Map sequences to the genome: Create SAI file
-	bwa aln -bwtsw dm5.34.fasta s.fastq > s.sai
-	
-	# Map sequences to the genome: Create SAM file
-	bwa samse dm5.34.fasta s.sai s.fastq > s.sam
-	
-	# Create BAM file (we assume you installed SamTools http://samtools.sourceforge.net/)
-	samtools view -S -b s.sam > s.bam
-	
-	# Sort BAM file (will create s_sort.bam)
-	samtools sort s.bam s_sort
-	
-	# Create VCF file (BcfTools is part of samtools distribution)
-	samtools mpileup -uf dm5.34.fasta s_sort.bam | bcftools view -vcg - > s.vcf
-	
-	# Analyze variants using snpEff
-	java -Xmx4g -jar snpEff.jar -vcf4 dm5.34 s.vcf > s_snpeff.txt
-				</pre>
+				This highly simplified sequencing data analysis pipeline, has the common basic steps
+				<ul>
+					<li> Index the reference genome (bwa)
+					<li> Map reads to reference genome (bwa)
+					<li> Call varaints (bcftools)
+					<li> Annotate variants (SnpEff)
+				</ul>
+				</p>
 				
-				<hr> <center> <p style="font-size: 16pt"> <b> Input file formats </b></center></p>
+        <!-- Input
+        ================================================== -->
+        <section id="input">
+          <div class="page-header">
+            <h1>5. Input files </h1>
+          </div>
+				<p class="lead"> 
+				Files used as input to SnpEff must comply with standard formats.
+				Here we describe supported input data formats.
+				</p>
+				
+				<p><b>VCF</b> <br>
+				As we mentioned before, <a class="body"class="body" href="http://www.1000genomes.org/wiki/Analysis/Variant%20Call%20Format/vcf-variant-call-format-version-41">Variant Call Format (VCF)</a> is the recomended format for input files.
+				This is the format used by the "1000 Genomes Project", and is currently considered the de-facto standard for genomic variants.
+				Furthermore, most variant calling programs output VCF files, so it is also the simplest format to use.
+				<br>
+				In a nutshell, VCF format is tab-separated text file having the following columns:
 
-				There are three input file formats: VCF (default), TXT (deprecated), Pileup (deprecated).<p>
+				<ol>
+					<li> Chromosome name
+					<li> Position
+					<li> Variant's ID
+					<li> Reference genome
+					<li> Alteranative (i.e. variant)
+					<li> Quality score
+					<li> Filter (whether or not the variant passed quality filters)
+					<li> INFO : Generic information about this variant. SnpEff adds annotation information in this column.
+				</ol>
 
-				<p style="font-size: 14pt"> <b> <a class="body" name="What_is_the_input_format_like?"> What is the input format like?  </a> </b></p>
-				Since version 2.0 the default input format is <a class="body"class="body" href="http://www.1000genomes.org/wiki/Analysis/Variant%20Call%20Format/vcf-variant-call-format-version-40">variant call format (VCF)</a>. This is the format used by the "1000 Genomes Project".<p>
+				Here is an exampls of a few lines in a VCF file:
+<pre>
+#CHROM POS     ID        REF    ALT     QUAL FILTER INFO                    
+20     14370   rs6054257 G      A       29   PASS   NS=3;DP=14;AF=0.5;DB;H2
+20     17330   .         T      A       3    q10    NS=3;DP=11;AF=0.017   
+</pre>
+				Note that the first line is header information. Header lines start with '#'
+				<p>
 
-				<b>Obsolete input formats:</b> Pileup and TXT. The use of Pileup and TXT input formats is discouraged and support may be discontinued in the future.<p>
-
-				<b>Pileup:</b> Since version 1.4 you can also use <a class="body"class="body" href="https://sourceforge.net/apps/mediawiki/samtools/index.php?title=SAM_FAQ#I_do_not_understand_the_columns_in_the_pileup_output.">pileup</a> format from SamTools by setting the "-pileup" option in the command line. Please note that we use a pileup version with calls (not the basic one).<br>
-				<b>WARNING:</b> This format is deprecated, not only in SnpEff but also in SAMTools.</b><p>
-
-				<b>TXT:</b> The format was changed since version 1.4 in order to allow heterozygous insertions and deletions.<br>
-				<b>WARNING:</b> This format is deprecated.</b><p>
-
-				The file format must be tab-separated, containing columns that correspond to:
+				<p><b>TXT:</b><br>
+				<i class="icon-warning-sign"></i> TXT format is currently deprecated and discurraged.
+				<br>
+				TXT file format must be tab-separated, containing columns that correspond to:
 				<ul>
 					<li>chromosome_name
 					<li>chromosome_position
@@ -315,78 +422,148 @@ $ ssh -i ./aws_amazon/pcingola_aws.pem ec2-user@ec2-54-234-14-244.compute-1.amaz
 19  66520     G    -G/-G   +
 8   150029    A    */+T    +
 </pre>
-				<p style="font-size: 14pt"> <b> <a class="body" name="How_do_I_represent_a_heterozygous_SNP?_(TXT_format)"> How do I represent a heterozygous SNP? (TXT format)  </a> </b></p>
-				<b>WARNING:</b> TXT format is deprecated, you should use VCF insted.</b><p>
-				When representing a heterozygous SNP you should use IUB codes: M=A/C, R=A/G, W=A/T, S=C/G, Y=C/T and K=G/T. Indels are indicated by, for example, */+A, -A/* or +CC/-C. There is no difference between */+A or +A/*.
 
-				<hr> <center> <p style="font-size: 16pt"> <b> Output file formats </b></center></p>
+				<p><b>TXT: Representing an heterozygous variant</b><br> 
+				<i class="icon-warning-sign"></i> TXT format is currently deprecated and discurraged.
+				<br>
+				When representing a heterozygous SNP you can use IUB codes: M=A/C, R=A/G, W=A/T, S=C/G, Y=C/T and K=G/T. 
+				Indels are indicated by, for example, */+A, -A/* or +CC/-C. There is no difference between */+A or +A/*.
 
-				There are two output formats: TXT (default) and VCF (can only be used if the input is also in VCF format).<br>
-				SnpEff also creates two additional output files: Stats (and HTML file with statistics) and Genes files (a TXT file with SNPs per gene and region)<p>
+        <!-- Output
+        ================================================== -->
+        <section id="output">
+          <div class="page-header">
+            <h1>6. Output files </h1>
+          </div>
+				<p class="lead"> 
+				Here we describe the format of SnpEff's output files and the information added.
+				</p>
 
-				<p style="font-size: 14pt"> <b> <a class="body" name="What_is_the_VCF_output_format_like?"> What is the VCF output format like?  </a> </b></p>
-				<a class="body"class="body" href="http://www.1000genomes.org/wiki/Analysis/Variant%20Call%20Format/vcf-variant-call-format-version-41">VCF</a> is the default output format. 
+				<p><b>VCF output format</b><br> 
+				As we mentioned in the previous chapter, VCF is the default input format.
 				It is highly recomended to use VCF as input and output format, since it is a standard format that can be also used by other tools and software packages.
-				Thus VCF makes it much easier to integrate genomic data processing pipelines. <br>
+				Thus VCF makes it much easier to integrate genomic data processing pipelines.
+				<br>
+				SnpEff adds annotation information to the INFO field of a VCF file.
+				The INFO field is the eigth column of a VCF file, see previous section for a quick example or take a look at the <a href="http://www.1000genomes.org/wiki/Analysis/Variant%20Call%20Format/vcf-variant-call-format-version-41">VCF specification</a> for details.
+				<br>
+				<br>
+				Here is an example of a file before and after being annotated using SnpEff:
+				<br>
+				VCF file before annotations
+<pre>
+#CHROM POS     ID        REF    ALT     QUAL FILTER INFO                    
+1	889455	.	G	A	100.0	PASS	AF=0.0005
+1	897062	.	C	T	100.0	PASS	AF=0.0005
+</pre>
+
+				VCF file after being annotated using SnpEff
+<pre>
+#CHROM POS     ID        REF    ALT     QUAL FILTER INFO                    
+1	889455	.	G	A	100.0	PASS	AF=0.0005;EFF=STOP_GAINED(HIGH|NONSENSE|Cag/Tag|Q236*|749|NOC2L||CODING|NM_015658|)
+1	897062	.	C	T	100.0	PASS	AF=0.0005;EFF=STOP_GAINED(HIGH|NONSENSE|Cag/Tag|Q141*|642|KLHL17||CODING|NM_198317|)
+</pre>
+				A you can see, SnpEff added an 'EFF' tag to the INFO field (eigth column).
+
 				<p>
-				Effects information is added to the INFO field. 
+
+				<p><b>VCF EFF field</b><br>
+				<p>
+				Effects information is added to the INFO field using an 'EFF' tag. 
+
 				There can be multiple effects separated by comma. The format for each effect is:<p>
 				Effect ( Effefct_Impact | Codon_Change | Amino_Acid_change | Gene_Name | Gene_BioType | Coding | Transcript | Exon [ | ERRORS | WARNINGS ] )<br>
 				
 				<center>
-				<table>
-					<tr bgcolor=aaaaaa> <th>  Sub-field </th> <th>  Notes </th> </tr>
-					<tr bgcolor=ffffff> <td>  Effect </td> <td>  Effect of this variant. See details <a class="body" href="#What_effects_are_predicted?">here</a>. </td> </tr>
-					<tr bgcolor=eeeeee> <td>  Effect impact </td> <td>  Effect impact {High, Moderate, Low, Modifier}. See details <a class="body" href="#How_is_impact_categorized?_(VCF_output)">here</a>. </td> </tr>
-					<tr bgcolor=ffffff> <td>  Functional class </td> <td>  Functional class {NONE, SILENT, MISSENSE, NONSENSE}. </td> </tr>
-					<tr bgcolor=eeeeee> <td>  Codon_Change </td> <td>  Codon change: old_codon/new_codon  </td> </tr>
-					<tr bgcolor=ffffff> <td>  Amino_Acid_change </td> <td>  Amino acid change: old_AA AA_position/new_AA (e.g. 'E30K') </td> </tr>
-					<tr bgcolor=eeeeee> <td>  Amino_Acid_length</td> <td>  Length of protein in amino acids (actually, transcription length divided by 3). </td> </tr>
-					<tr bgcolor=ffffff> <td>  Gene_name </td> <td>  Gene name </td> </tr>
-					<tr bgcolor=eeeeee> <td>  Transcript_bioType </td> <td>  Transcript bioType, if available. </td> </tr>
-					<tr bgcolor=ffffff> <td>  Gene_Coding </td> <td>  [CODING | NON_CODING]. This field is 'CODING' if any transcript of the gene is marked as protein codin. </td> </tr>
-					<tr bgcolor=eeeeee> <td>  Trancript </td> <td>  Transcript ID (usually ENSEMBL IDs) </td> </tr>
-					<tr bgcolor=ffffff> <td>  Exon </td> <td>  Exon ID (usually ENSEMBL IDs) </td> </tr>
-					<tr bgcolor=eeeeee> <td>  Warnings </td> <td>  Any warnings or errors (not shown if empty). </td> </tr>
+				<table class="table table-striped">
+					<tr> <th>  EFF Sub-field </th> <th>  Meaning </th> </tr>
+					<tr> <td>  Effect </td> <td>  Effect of this variant. See details <a class="body" href="#What_effects_are_predicted?">here</a>. </td> </tr>
+					<tr> <td>  Effect impact </td> <td>  Effect impact {High, Moderate, Low, Modifier}. See details <a class="body" href="#How_is_impact_categorized?_(VCF_output)">here</a>. </td> </tr>
+					<tr> <td>  Functional class </td> <td>  Functional class {NONE, SILENT, MISSENSE, NONSENSE}. </td> </tr>
+					<tr> <td>  Codon_Change </td> <td>  Codon change: old_codon/new_codon  </td> </tr>
+					<tr> <td>  Amino_Acid_change </td> <td>  Amino acid change: old_AA AA_position/new_AA (e.g. 'E30K') </td> </tr>
+					<tr> <td>  Amino_Acid_length</td> <td>  Length of protein in amino acids (actually, transcription length divided by 3). </td> </tr>
+					<tr> <td>  Gene_name </td> <td>  Gene name </td> </tr>
+					<tr> <td>  Transcript_bioType </td> <td>  Transcript bioType, if available. </td> </tr>
+					<tr> <td>  Gene_Coding </td> <td>  [CODING | NON_CODING]. This field is 'CODING' if any transcript of the gene is marked as protein codin. </td> </tr>
+					<tr> <td>  Trancript </td> <td>  Transcript ID (usually ENSEMBL IDs) </td> </tr>
+					<tr> <td>  Exon </td> <td>  Exon ID (usually ENSEMBL IDs) </td> </tr>
+					<tr> <td>  Warnings </td> <td>  Any warnings or errors (not shown if empty). </td> </tr>
 				</table>
 				</center>
 				<p>
-				The following meta-information lines are added to the header:
+
+				<p><b>VCF Header lines </b><br>
+				SnpEff updates the header of the VCF file to reflect aditional fields.
+				This is required by the VCF specification.
+				SnpEff also adds the command line options used to annotate the file as well as SnpEff's version, so you can keep track of what exactly was done.
+
+				<br>
+				<br>
+				Here is an example of some header lines added to an anotated file:
 				<pre>
-##SnpEffVersion="SnpEff program version"
-##SnpEffCmd="Command line arguments used to run the program"
+##SnpEffVersion="SnpEff 3.1m (build 2013-02-08)"
+##SnpEffCmd="SnpEff  hg19 demo.1kg.vcf "
 ##INFO=&lt;ID=EFF,Number=.,Type=String,Description="Predicted effects for this variant.Format: 'Effect ( Effect_Impact | Functional_Class | Codon_Change | Amino_Acid_change| Amino_Acid_length | Gene_Name | Gene_BioType | Coding | Transcript | Exon [ | ERRORS | WARNINGS ] )' \"&gt;
 </pre>
 
-				<p style="font-size: 14pt"> <b> <a class="body" name="What_is_the_TXT_output_format_like?"> What is the TXT output format like?  </a> </b></p>
-				<b>WARNING: </b> TXT output is now deprecated. Since version 2.0 VCF format is supported and recommended as output format (see previous question).<p>
-				The TXT output format consist of one line per effect. This means that you usually get more than one line per SNP since the same SNP may affect several different transcripts in the same gene.<br>
+				<p><b>Mutiple effects per VCF line</b><br> 
+				Usually there is more than one effect reported in each EFF field.
+				<br>
+				There are several reasons for this:
+				<ul>
+					<li> A variant can affect multple genes. E.g a variant can be DOWNSTREAM from one gene and UPSTREAM from another gene.
+					<li> In complex organisms, genes usually have mutiple transcripts. So SnpEff reports the effect of a variant on each transcript.
+					<li> A VCF line can have more then one variant. 
+						 For instance if reference genome is 'G', but the sample has either 'A' or 'T', then this will be reported as one line, having multiple alternative variants. 
+						 E.g.: 
+<pre>
+#CHROM  POS       ID   REF  ALT      QUAL  FILTER  INFO                    
+1       889455    .    G    A,T      .     .       AF=0.0005
+</pre>
+						In this case SnpEff will report the effect of each variant on each gene and each transcript.
+				</ul>
+				</p>
+
+				<p><b>Summary output file</b><br>
+				SnpEff creates an additional output file showing overall statistics.
+				This "stats" file is an HTML file which can be opned using a web browser.
+				You can find an example of a 'stats' file <a href="1kg.html"> here</a>.
+				</p>
+
+
+				<p><b>TXT output format</b><br> 
+				<i class="icon-warning-sign"></i> TXT format is currently deprecated and discurraged.
+				<br>
+				The TXT output format consist of one line per effect. 
+				This means that you usually get more than one line per SNP since the same SNP may affect several different transcripts in the same gene.
+				<br>
 				<p>
-				The format is tab separated columns:
+				The format consist of tab separated columns:
 				<center>
-				<table>
-					<tr bgcolor=aaaaaa> <th>  Column </th> <th>  Notes </th> </tr>
-					<tr bgcolor=eeeeee> <td>  Chromosome </td> <td>  Chromosome name (usually without any leading 'chr' string) </td> </tr>
+				<table class="table table-striped">
+					<tr> <th>  Column </th> <th>  Meaning </th> </tr>
+					<tr> <td>  Chromosome </td> <td>  Chromosome name (usually without any leading 'chr' string) </td> </tr>
 					<tr> <td>  Position </td> <td>  One based position </td> </tr>
-					<tr bgcolor=eeeeee> <td>  Reference </td> <td>  Reference </td> </tr>
+					<tr> <td>  Reference </td> <td>  Reference </td> </tr>
 					<tr> <td>  Change </td> <td>  Sequence change </td> </tr>
-					<tr bgcolor=eeeeee> <td>  Change type </td> <td>  Type of change {SNP, MNP, INS, DEL} </td> </tr>
+					<tr> <td>  Change type </td> <td>  Type of change {SNP, MNP, INS, DEL} </td> </tr>
 					<tr> <td>  Homozygous </td> <td>  Is this homozygous or heterozygous {Hom, Het} </td> </tr>
-					<tr bgcolor=eeeeee> <td>  Quality </td> <td>  Quality score (from input file) </td> </tr>
+					<tr> <td>  Quality </td> <td>  Quality score (from input file) </td> </tr>
 					<tr> <td>  Coverage </td> <td>  Coverage (from input file) </td> </tr>
-					<tr bgcolor=eeeeee> <td>  Warnings </td> <td>  Any warnings or errors. </td> </tr>
+					<tr> <td>  Warnings </td> <td>  Any warnings or errors. </td> </tr>
 					<tr> <td>  Gene_ID </td> <td>  Gene ID (usually ENSEMBL) </td> </tr>
-					<tr bgcolor=eeeeee> <td>  Gene_name </td> <td>  Gene name </td> </tr>
+					<tr> <td>  Gene_name </td> <td>  Gene name </td> </tr>
 					<tr> <td>  Bio_type </td> <td>  BioType, as reported by ENSEMBL. </td> </tr>
-					<tr bgcolor=eeeeee> <td>  Trancript_ID </td> <td>  Transcript ID (usually ENSEMBL) </td> </tr>
+					<tr> <td>  Trancript_ID </td> <td>  Transcript ID (usually ENSEMBL) </td> </tr>
 					<tr> <td>  Exon_ID </td> <td>  Exon ID (usually ENSEMBL) </td> </tr>
-					<tr bgcolor=eeeeee> <td>  Exon_Rank </td> <td>  Exon number on a transcript </td> </tr>
+					<tr> <td>  Exon_Rank </td> <td>  Exon number on a transcript </td> </tr>
 					<tr> <td>  Effect </td> <td>  Effect of this variant. See details below. </td> </tr>
-					<tr bgcolor=eeeeee> <td>  old_AA/new_AA </td> <td>  Amino acid change </td> </tr>
+					<tr> <td>  old_AA/new_AA </td> <td>  Amino acid change </td> </tr>
 					<tr> <td>  old_codon/new_codon </td> <td>  Codon change </td> </tr>
-					<tr bgcolor=eeeeee> <td>  Codon_Num(CDS) </td> <td>  Codon number in CDS </td> </tr>
+					<tr> <td>  Codon_Num(CDS) </td> <td>  Codon number in CDS </td> </tr>
 					<tr> <td>  Codon_degenaracy </td> <td>  Codon degenaracy (see below). </td> </tr>
-					<tr bgcolor=eeeeee> <td>  CDS_size </td> <td>  CDS size in bases </td> </tr>
+					<tr> <td>  CDS_size </td> <td>  CDS size in bases </td> </tr>
 					<tr> <td>  Custom_interval_ID </td> <td>  If any custom interval was used, add the IDs here (may be more than one). </td> </tr>
 				</table>
 				</center>
@@ -408,105 +585,120 @@ chr2L   878267  T       W       SNP     Het     228             WARNING: Base is
 				</pre>
 				</small>
 
-				<p style="font-size: 14pt"> <b> <a class="body" name="What_effects_are_predicted?"> What effects are predicted? </a> </b></p>
+        <!-- Effects
+        ================================================== -->
+        <section id="eff">
+          <div class="page-header">
+            <h1>7. Effect prediction details</h1>
+          </div>
+				<p class="lead">
+				We describe the effects predicted by SnpEff
+				</p>
+
 				Here is a list of effects and some brief explanations:
 				<center>
-<table>
-	<tr bgcolor=aaaaaa> <th> Effect </th><th> Note </th> <th> Example </th> </tr> 
-	<tr bgcolor=eeeeee> <td> INTERGENIC </td><td> The variant is in an intergenic region </td> </tr> 
-	<tr> <td> UPSTREAM  </td><td> Upstream of a gene (default length: 5K bases) </td> </tr> 
-	<tr bgcolor=eeeeee> <td> UTR_5_PRIME  </td><td> Variant hits 5'UTR region </td> </tr> 
-	<tr> <td> UTR_5_DELETED  </td><td> The variant deletes and exon which is in the 5'UTR of the transcript </td> </tr> 
-	<tr bgcolor=eeeeee> <td> START_GAINED  </td><td> A variant in 5'UTR region produces a three base sequence that can be a START codon. </td> </tr> 
-	<tr> <td> SPLICE_SITE_ACCEPTOR  </td><td> The variant hits a splice acceptor site (defined as two bases before exon start, except for the first exon). </td> </tr> 
-	<tr bgcolor=eeeeee> <td> SPLICE_SITE_DONOR  </td><td> The variant hits a Splice donor site (defined as two bases after coding exon end, except for the last exon). </td> </tr> 
-	<tr> <td> START_LOST   </td><td> Variant causes start codon to be mutated into a non-start codon. </td><td> aTg/aGg, M/R </td> </tr> 
-	<tr bgcolor=eeeeee> <td> SYNONYMOUS_START  </td><td> Variant causes start codon to be mutated into another start codon. </td><td> Ttg/Ctg, L/L (TTG and CTG can be START codons) </td> </tr> 
-	<tr> <td> CDS  </td><td> The variant hits a CDS. </td> </tr> 
-	<tr bgcolor=eeeeee> <td> GENE  </td><td> The variant hits a gene. </td> </tr> 
-	<tr> <td> TRANSCRIPT  </td><td> The variant hits a transcript. </td> </tr> 
-	<tr bgcolor=eeeeee> <td> EXON  </td><td> The vairant hist an exon. </td> </tr> 
-	<tr> <td> EXON_DELETED  </td><td> A deletion removes the whole exon. </td> </tr> 
-	<tr bgcolor=eeeeee> <td> NON_SYNONYMOUS_CODING  </td><td> Variant causes a codon that produces a different amino acid </td><td> Tgg/Cgg, W/R </td> </tr> 
-	<tr> <td> SYNONYMOUS_CODING  </td><td> Variant causes a codon that produces the same amino acid </td><td> Ttg/Ctg, L/L </td> </tr> 
-	<tr bgcolor=eeeeee> <td> FRAME_SHIFT  </td><td> Insertion or deletion causes a frame shift </td><td> An indel size is not multple of 3 </td> </tr> 
-	<tr> <td> CODON_CHANGE  </td><td> One or many codons are changed </td><td> An MNP of size multiple of 3 </td> </tr> 
-	<tr bgcolor=eeeeee> <td> CODON_INSERTION  </td><td> One or many codons are inserted </td><td> An insert multiple of three in a codon boundary </td> </tr> 
-	<tr> <td> CODON_CHANGE_PLUS_CODON_INSERTION  </td><td> One codon is changed and one or many codons are inserted </td><td> An insert of size multiple of three, not at codon boundary </td> </tr> 
-	<tr bgcolor=eeeeee> <td> CODON_DELETION  </td><td> One or many codons are deleted </td><td> A deletion multiple of three at codon boundary </td> </tr> 
-	<tr> <td> CODON_CHANGE_PLUS_CODON_DELETION  </td><td> One codon is changed and one or more codons are deleted </td><td> A deletion of size multiple of three, not at codon boundary </td> </tr> 
-	<tr bgcolor=eeeeee> <td> STOP_GAINED  </td><td> Variant causes a STOP codon </td><td> Cag/Tag, Q/* </td> </tr> 
-	<tr> <td> SYNONYMOUS_STOP  </td><td> Variant causes stop codon to be mutated into another stop codon. </td><td> taA/taG, */* </td> </tr> 
-	<tr bgcolor=eeeeee> <td> STOP_LOST  </td><td> Variant causes stop codon to be mutated into a non-stop codon </td><td> Tga/Cga, */R </td> </tr> 
-	<tr> <td> INTRON  </td><td> Variant hist and intron. Technically, hits no exon in the transcript. </td> </tr> 
-	<tr bgcolor=eeeeee> <td> UTR_3_PRIME  </td><td> Variant hits 3'UTR region </td> </tr> 
-	<tr> <td> UTR_3_DELETED  </td><td> The variant deletes and exon which is in the 3'UTR of the transcript </td> </tr> 
-	<tr bgcolor=eeeeee> <td> DOWNSTREAM  </td><td> Downstream of a gene (default length: 5K bases) </td> </tr> 
-	<tr> <td> INTRON_CONSERVED  </td><td> The variant is in a highly conserved intronic region </td> </tr> 
-	<tr bgcolor=eeeeee> <td> INTERGENIC_CONSERVED </td><td> The variant is in a highly conserved intergenic region </td> </tr> 
-	<tr> <td> INTRAGENIC </td><td> The variant hits a gene, but no transcripts within the gene</td> </tr> 
-	<tr bgcolor=eeeeee> <td> RARE_AMINO_ACID </td><td> The variant hits a rare amino acid thus is likely to produce protein loss of function </td> </tr> 
-	<tr > <td> NON_SYNONYMOUS_START  </td><td> Variant causes start codon to be mutated into another start codon (the new codon produces a different AA). </td><td> Atg/Ctg, M/L (ATG and CTG can be START codons) </td> </tr> 
-</table> 
+				<table class="table table-striped">
+					<tr> <th> Effect </th><th> Note </th> <th> Example </th> </tr> 
+					<tr> <td> INTERGENIC </td><td> The variant is in an intergenic region </td> </tr> 
+					<tr> <td> UPSTREAM  </td><td> Upstream of a gene (default length: 5K bases) </td> </tr> 
+					<tr> <td> UTR_5_PRIME  </td><td> Variant hits 5'UTR region </td> </tr> 
+					<tr> <td> UTR_5_DELETED  </td><td> The variant deletes and exon which is in the 5'UTR of the transcript </td> </tr> 
+					<tr> <td> START_GAINED  </td><td> A variant in 5'UTR region produces a three base sequence that can be a START codon. </td> </tr> 
+					<tr> <td> SPLICE_SITE_ACCEPTOR  </td><td> The variant hits a splice acceptor site (defined as two bases before exon start, except for the first exon). </td> </tr> 
+					<tr> <td> SPLICE_SITE_DONOR  </td><td> The variant hits a Splice donor site (defined as two bases after coding exon end, except for the last exon). </td> </tr> 
+					<tr> <td> START_LOST   </td><td> Variant causes start codon to be mutated into a non-start codon. </td><td> aTg/aGg, M/R </td> </tr> 
+					<tr> <td> SYNONYMOUS_START  </td><td> Variant causes start codon to be mutated into another start codon. </td><td> Ttg/Ctg, L/L (TTG and CTG can be START codons) </td> </tr> 
+					<tr> <td> CDS  </td><td> The variant hits a CDS. </td> </tr> 
+					<tr> <td> GENE  </td><td> The variant hits a gene. </td> </tr> 
+					<tr> <td> TRANSCRIPT  </td><td> The variant hits a transcript. </td> </tr> 
+					<tr> <td> EXON  </td><td> The vairant hist an exon. </td> </tr> 
+					<tr> <td> EXON_DELETED  </td><td> A deletion removes the whole exon. </td> </tr> 
+					<tr> <td> NON_SYNONYMOUS_CODING  </td><td> Variant causes a codon that produces a different amino acid </td><td> Tgg/Cgg, W/R </td> </tr> 
+					<tr> <td> SYNONYMOUS_CODING  </td><td> Variant causes a codon that produces the same amino acid </td><td> Ttg/Ctg, L/L </td> </tr> 
+					<tr> <td> FRAME_SHIFT  </td><td> Insertion or deletion causes a frame shift </td><td> An indel size is not multple of 3 </td> </tr> 
+					<tr> <td> CODON_CHANGE  </td><td> One or many codons are changed </td><td> An MNP of size multiple of 3 </td> </tr> 
+					<tr> <td> CODON_INSERTION  </td><td> One or many codons are inserted </td><td> An insert multiple of three in a codon boundary </td> </tr> 
+					<tr> <td> CODON_CHANGE_PLUS_CODON_INSERTION  </td><td> One codon is changed and one or many codons are inserted </td><td> An insert of size multiple of three, not at codon boundary </td> </tr> 
+					<tr> <td> CODON_DELETION  </td><td> One or many codons are deleted </td><td> A deletion multiple of three at codon boundary </td> </tr> 
+					<tr> <td> CODON_CHANGE_PLUS_CODON_DELETION  </td><td> One codon is changed and one or more codons are deleted </td><td> A deletion of size multiple of three, not at codon boundary </td> </tr> 
+					<tr> <td> STOP_GAINED  </td><td> Variant causes a STOP codon </td><td> Cag/Tag, Q/* </td> </tr> 
+					<tr> <td> SYNONYMOUS_STOP  </td><td> Variant causes stop codon to be mutated into another stop codon. </td><td> taA/taG, */* </td> </tr> 
+					<tr> <td> STOP_LOST  </td><td> Variant causes stop codon to be mutated into a non-stop codon </td><td> Tga/Cga, */R </td> </tr> 
+					<tr> <td> INTRON  </td><td> Variant hist and intron. Technically, hits no exon in the transcript. </td> </tr> 
+					<tr> <td> UTR_3_PRIME  </td><td> Variant hits 3'UTR region </td> </tr> 
+					<tr> <td> UTR_3_DELETED  </td><td> The variant deletes and exon which is in the 3'UTR of the transcript </td> </tr> 
+					<tr> <td> DOWNSTREAM  </td><td> Downstream of a gene (default length: 5K bases) </td> </tr> 
+					<tr> <td> INTRON_CONSERVED  </td><td> The variant is in a highly conserved intronic region </td> </tr> 
+					<tr> <td> INTERGENIC_CONSERVED </td><td> The variant is in a highly conserved intergenic region </td> </tr> 
+					<tr> <td> INTRAGENIC </td><td> The variant hits a gene, but no transcripts within the gene</td> </tr> 
+					<tr> <td> RARE_AMINO_ACID </td><td> The variant hits a rare amino acid thus is likely to produce protein loss of function </td> </tr> 
+					<tr > <td> NON_SYNONYMOUS_START  </td><td> Variant causes start codon to be mutated into another start codon (the new codon produces a different AA). </td><td> Atg/Ctg, M/L (ATG and CTG can be START codons) </td> </tr> 
+				</table> 
 				</center>
 
-				<p style="font-size: 14pt"> <b> <a class="body" name="How_is_impact_categorized?_(VCF_output)"> How is impact categorized? (VCF output) </a> </b></p>
-				Efefcts are categorized by 'impact': {High, Moderate, Low, Modifier}. The categories are as follows:<p>
-<center>
-	<table>
-		<tr bgcolor=aaaaaa> <th> Impact </th><th> Effects </th> </tr> 
-		<tr bgcolor=eeeeee> <td> High </td>		
-			<td> 
-			SPLICE_SITE_ACCEPTOR<br>
-			SPLICE_SITE_DONOR<br>
-			START_LOST<br>
-			EXON_DELETED<br>
-			FRAME_SHIFT<br>
-			STOP_GAINED<br>
-			STOP_LOST<br>
-			RARE_AMINO_ACID<br>
-			</td> </tr> 
-		<tr bgcolor=dddddd> <td> Moderate </td>	
-			<td> 
-			NON_SYNONYMOUS_CODING<br>
-			CODON_CHANGE<br>
-			CODON_INSERTION<br>
-			CODON_CHANGE_PLUS_CODON_INSERTION<br>
-			CODON_DELETION<br>
-			CODON_CHANGE_PLUS_CODON_DELETION<br>
-			UTR_5_DELETED<br>
-			UTR_3_DELETED<br>
-			</td> </tr> 
-		<tr bgcolor=eeeeee> <td> Low </td>		
-			<td> 
-			SYNONYMOUS_START<br>
-			NON_SYNONYMOUS_START<br>
-			START_GAINED<br>
-			SYNONYMOUS_CODING<br>
-			SYNONYMOUS_STOP<br>
-			</td> </tr> 
-		<tr bgcolor=dddddd> <td> Modifier </td>		
-			<td> 
-			UTR_5_PRIME<br>
-			UTR_3_PRIME<br>
-			REGULATION<br>
-			UPSTREAM<br>
-			DOWNSTREAM<br>
-			GENE<br>
-			TRANSCRIPT<br>
-			EXON<br>
-			INTRON_CONSERVED<br>
-			INTRON<br>
-			INTRAGENIC<br>
-			INTERGENIC<br>
-			INTERGENIC_CONSERVED<br>
-			NONE<br>
-			CHROMOSOME<br>
-			CUSTOM<br>
-			CDS<br>
-			</td> </tr> 
-	</table>
-</center>
+				<p><b>Effect impact</b><br> 
+				Efefcts are categorized by 'impact': {High, Moderate, Low, Modifier}. 
+				This are pre-defined categories to help users find more significant variants.
+				<br>
+				<i class="icon-warning-sign"></i> Categories must be used with care, they were created only to help and simplify the filtering process. 
+				Obviously, there is no way to predict wether a "high impact" or a "low impact" variant is the one producing you phenotype of interest.
+				<br>
+				<br>
+				Impact categories:
+				<table class="table table-striped">
+						<tr> <th> Impact </th><th> Effects </th> </tr> 
+						<tr> <td> High </td>		
+							<td> 
+							SPLICE_SITE_ACCEPTOR<br>
+							SPLICE_SITE_DONOR<br>
+							START_LOST<br>
+							EXON_DELETED<br>
+							FRAME_SHIFT<br>
+							STOP_GAINED<br>
+							STOP_LOST<br>
+							RARE_AMINO_ACID<br>
+							</td> </tr> 
+						<tr> <td> Moderate </td>	
+							<td> 
+							NON_SYNONYMOUS_CODING<br>
+							CODON_CHANGE<br>
+							CODON_INSERTION<br>
+							CODON_CHANGE_PLUS_CODON_INSERTION<br>
+							CODON_DELETION<br>
+							CODON_CHANGE_PLUS_CODON_DELETION<br>
+							UTR_5_DELETED<br>
+							UTR_3_DELETED<br>
+							</td> </tr> 
+						<tr> <td> Low </td>		
+							<td> 
+							SYNONYMOUS_START<br>
+							NON_SYNONYMOUS_START<br>
+							START_GAINED<br>
+							SYNONYMOUS_CODING<br>
+							SYNONYMOUS_STOP<br>
+							</td> </tr> 
+						<tr> <td> Modifier </td>		
+							<td> 
+							UTR_5_PRIME<br>
+							UTR_3_PRIME<br>
+							REGULATION<br>
+							UPSTREAM<br>
+							DOWNSTREAM<br>
+							GENE<br>
+							TRANSCRIPT<br>
+							EXON<br>
+							INTRON_CONSERVED<br>
+							INTRON<br>
+							INTRAGENIC<br>
+							INTERGENIC<br>
+							INTERGENIC_CONSERVED<br>
+							NONE<br>
+							CHROMOSOME<br>
+							CUSTOM<br>
+							CDS<br>
+							</td> </tr> 
+				</table>
+				</p>
 
 				<p style="font-size: 14pt"> <b> <a class="body" name="Why_do_I_see_the_same_SNP_in_different_output_lines?_(TXT_output_format)"> Why do I see the same SNP in different output lines? (TXT output format) </a> </b></p>
 				When using TXT output format, there is one effect per line. You usually get more than one line per variant since the same variant may affect several different transcripts in the same gene.<br>
