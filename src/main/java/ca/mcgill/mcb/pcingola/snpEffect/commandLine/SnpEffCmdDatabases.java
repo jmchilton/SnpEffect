@@ -2,17 +2,19 @@ package ca.mcgill.mcb.pcingola.snpEffect.commandLine;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
+import java.util.HashMap;
 
 import ca.mcgill.mcb.pcingola.snpEffect.Config;
 
 /**
+ * Show all databases configures in snpEff.config
+ * 
  * Create an HTML 'download' table based on the config file
  * Also creates a list of genome for Galaxy menu
  * 
  * @author pablocingolani
  */
-public class SnpEffCmdConfig2DownloadTable extends SnpEff {
+public class SnpEffCmdDatabases extends SnpEff {
 
 	public static final String DARK_ROW = "bgcolor=#CCCCCC";
 	public static final String LIGHT_ROW = "bgcolor=#EEEEEE";
@@ -21,41 +23,56 @@ public class SnpEffCmdConfig2DownloadTable extends SnpEff {
 	public static final String FTP_PROTOCOL = "ftp://";
 
 	boolean galaxy = false;
+	boolean html = false;
 	Config config;
-	HashSet<String> names;
+	HashMap<String, String> nameByGenomeVer;
 	ArrayList<String> namesSorted;
 	ArrayList<String> genVerSorted;
 
-	public static void main(String[] args) {
-		SnpEffCmdConfig2DownloadTable conf2down = new SnpEffCmdConfig2DownloadTable();
-		conf2down.parseArgs(args);
-		conf2down.run();
-	}
-
-	public SnpEffCmdConfig2DownloadTable() {
+	public SnpEffCmdDatabases() {
 		// Read config (it doesn't matter which genome)
 		config = new Config("hg19");
 
 		// Get all genome names and sort them
-		names = new HashSet<String>();
+		nameByGenomeVer = new HashMap<String, String>();
 		for (String genVer : config)
-			names.add(config.getName(genVer));
+			nameByGenomeVer.put(genVer, config.getName(genVer));
 
 		namesSorted = new ArrayList<String>();
-		namesSorted.addAll(names);
+		namesSorted.addAll(nameByGenomeVer.values());
 		Collections.sort(namesSorted);
 
 		// Sort genome versions
 		genVerSorted = new ArrayList<String>();
 		for (String genVer : config)
 			genVerSorted.add(genVer);
-		Collections.sort(genVerSorted, Collections.reverseOrder());
+		Collections.sort(genVerSorted);
 	}
 
 	/**
-	 * Create download table
+	 * Galaxy config genome list
 	 */
-	void downloadTable() {
+	void galaxyConfig() {
+		System.out.println("\t<param name=\"genomeVersion\" type=\"select\" label=\"Genome\">");
+
+		for (String name : namesSorted) {
+			for (String genVer : genVerSorted) {
+				String n = config.getName(genVer);
+
+				// In this group?
+				if (name.equals(n)) {
+					System.out.println("\t\t<option value=\"" + genVer + "\">" + name.replace('_', ' ') + " : " + genVer + "</option>");
+				}
+			}
+		}
+
+		System.out.println("\t</param>");
+	}
+
+	/**
+	 * Create html table
+	 */
+	void htmlTable() {
 		// Create an HTML table
 		boolean dark = false;
 		String bg = "";
@@ -109,44 +126,49 @@ public class SnpEffCmdConfig2DownloadTable extends SnpEff {
 		System.out.println("\t</table>");
 	}
 
-	/**
-	 * Galaxy config genome list
-	 */
-	void galaxyConfig() {
-		System.out.println("\t<param name=\"genomeVersion\" type=\"select\" label=\"Genome\">");
-
-		for (String name : namesSorted) {
-			for (String genVer : genVerSorted) {
-				String n = config.getName(genVer);
-
-				// In this group?
-				if (name.equals(n)) {
-					System.out.println("\t\t<option value=\"" + genVer + "\">" + name.replace('_', ' ') + " : " + genVer + "</option>");
-				}
-			}
-		}
-
-		System.out.println("\t</param>");
-	}
-
 	@Override
 	public void parseArgs(String[] args) {
-		if (args.length != 1) usage(null);
-		galaxy = args[0].equals("galaxy");
+		if (args.length > 1) usage(null);
+
+		if (args.length == 1) {
+			galaxy = args[0].equals("galaxy");
+			html = args[0].equals("html");
+		}
 	}
 
 	@Override
 	public boolean run() {
 		if (galaxy) galaxyConfig();
-		else downloadTable();
+		else if (html) htmlTable();
+		else txtTable();
 
 		return true;
+	}
+
+	/**
+	 * Create TXT table
+	 */
+	void txtTable() {
+		System.out.println(String.format("%-60s\t%-60s\t%s", "Genome", "Organism", "Database download link"));
+		System.out.println(String.format("%-60s\t%-60s\t%s", "------", "--------", "----------------------"));
+
+		for (String genomeVer : genVerSorted) {
+			String name = nameByGenomeVer.get(genomeVer);
+
+			// Download link
+			String url = "http://sourceforge.net/projects/snpeff/files/databases/v" + SnpEff.VERSION_MAJOR + "/snpEff_v" + SnpEff.VERSION_MAJOR + "_" + name + ".zip";
+
+			// Show
+			System.out.println(String.format("%-60s\t%-60s\t%s", genomeVer, name, url));
+		}
 	}
 
 	@Override
 	public void usage(String message) {
 		if (message != null) System.err.println("Error: " + message + "\n");
-		System.err.println("Usage: snpEff cfg2table [download | galaxy]");
+		System.err.println("Usage: snpEff databases [galaxy]");
+		System.err.println("\nOptions");
+		System.err.println("\n\tgalaxy\t: Show databases in a galaxy menu format.");
 		System.exit(-1);
 	}
 }

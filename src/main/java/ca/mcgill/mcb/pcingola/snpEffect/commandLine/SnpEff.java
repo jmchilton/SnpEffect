@@ -51,6 +51,7 @@ public class SnpEff implements CommandLine {
 	protected String command = "";
 	protected String[] args; // Arguments used to invoke this command
 	protected String[] shiftArgs;
+	protected boolean help; // Show command help and exit
 	protected boolean verbose; // Be verbose
 	protected boolean debug; // Debug mode
 	protected boolean quiet; // Be quiet
@@ -152,7 +153,7 @@ public class SnpEff implements CommandLine {
 				|| args[0].equalsIgnoreCase("protein") //
 				|| args[0].equalsIgnoreCase("closestExon") //
 				|| args[0].equalsIgnoreCase("test") //
-				|| args[0].equalsIgnoreCase("cfg2table") //
+				|| args[0].equalsIgnoreCase("databases") //
 				|| args[0].equalsIgnoreCase("spliceAnalysis") //
 				|| args[0].equalsIgnoreCase("countReads") //
 				|| args[0].equalsIgnoreCase("genes2bed") //
@@ -169,6 +170,7 @@ public class SnpEff implements CommandLine {
 		for (int i = argNum; i < args.length; i++) {
 			// These options are available for allow all commands
 			if (args[i].equalsIgnoreCase("-noLog")) log = false;
+			else if (args[i].equals("-h") || args[i].equalsIgnoreCase("-help")) help = true;
 			else if (args[i].equals("-v") || args[i].equalsIgnoreCase("-verbose")) verbose = true;
 			else if (args[i].equals("-q") || args[i].equalsIgnoreCase("-quiet")) quiet = true;
 			else if (args[i].equals("-d") || args[i].equalsIgnoreCase("-debug")) debug = true;
@@ -236,11 +238,11 @@ public class SnpEff implements CommandLine {
 			// Find closest exon
 			//---
 			snpEff = new SnpEffCmdClosestExon();
-		} else if (command.equalsIgnoreCase("cfg2table")) {
+		} else if (command.equalsIgnoreCase("databases")) {
 			//---
 			// Create download table and galaxy list from config file
 			//---
-			snpEff = new SnpEffCmdConfig2DownloadTable();
+			snpEff = new SnpEffCmdDatabases();
 		} else if (command.equalsIgnoreCase("genes2bed")) {
 			//---
 			// Create a bed file from a gene list
@@ -269,10 +271,13 @@ public class SnpEff implements CommandLine {
 		String err = "";
 		try {
 			snpEff.verbose = verbose;
+			snpEff.help = help;
 			snpEff.debug = debug;
 			snpEff.quiet = quiet;
 			snpEff.configFile = configFile;
-			snpEff.parseArgs(shiftArgs);
+
+			if (help) snpEff.usage(null); // Show help message and exit
+			else snpEff.parseArgs(shiftArgs);
 			ok = snpEff.run();
 		} catch (Throwable t) {
 			err = t.getMessage();
