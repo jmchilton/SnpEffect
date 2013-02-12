@@ -10,13 +10,13 @@ import ca.mcgill.mcb.pcingola.util.Gpr;
 import ca.mcgill.mcb.pcingola.util.Timer;
 
 /**
- * Caracterize exons based on alternative splicing
+ * Characterize exons based on alternative splicing
  * 
  * References: "Alternative splicing and evolution - diversification, exon definition and function"  (see Box 1)
  * 
  * @author pablocingolani
  */
-public class ExonSpliceCaracterizer {
+public class ExonSpliceCharacterizer {
 
 	public static final int MAX_EXONS = 1000; // Do not characterize transcripts having more than this number of exons
 	public static final int SHOW_EVERY = 1000;
@@ -26,12 +26,12 @@ public class ExonSpliceCaracterizer {
 	HashMap<Exon, Exon.ExonSpliceType> typeByExon;
 	CountByType countByType = new CountByType();
 
-	public ExonSpliceCaracterizer(Genome genome) {
+	public ExonSpliceCharacterizer(Genome genome) {
 		this.genome = genome;
 		typeByExon = new HashMap<Exon, Exon.ExonSpliceType>();
 	}
 
-	public ExonSpliceCaracterizer(String genomeVer) {
+	public ExonSpliceCharacterizer(String genomeVer) {
 		Config config = new Config(genomeVer);
 		SnpEffectPredictor snpEffectPredictor = config.loadSnpEffectPredictor();
 		genome = snpEffectPredictor.getGenome();
@@ -39,9 +39,9 @@ public class ExonSpliceCaracterizer {
 	}
 
 	/**
-	 * Caracterize all exons
+	 * Characterize all exons
 	 */
-	public CountByType caracterize() {
+	public CountByType characterize() {
 		type();
 		return countByType;
 	}
