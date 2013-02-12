@@ -151,6 +151,29 @@ public class Gpr {
 	}
 
 	/**
+	 * Count number of column in a file
+	 * @param file
+	 * @return
+	 */
+	public static int countColumns(String file) {
+		try {
+			// Open a file and read one line
+			BufferedReader reader = new BufferedReader(new FileReader(file));
+			String line = reader.readLine();
+			reader.close();
+
+			// Nothing to read?
+			if (line == null) return 0;
+
+			// Count fields
+			String fields[] = line.split("\\s+");
+			return fields.length;
+		} catch (Exception e) {
+			return -1;
+		}
+	}
+
+	/**
 	 * Count lines in a file (same as 'wc -l file' in unix)
 	 * @param file
 	 * @return
