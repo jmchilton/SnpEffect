@@ -185,4 +185,61 @@ This example shows how to add a new genome to the config files. For this example
 			<p>
 </ol>
 
+<pre>
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! BUILD GRCh37.70 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!FULL VERSION
+!!!!!!!!!!! INCLUDES THE GZIP PROBLEM
+
+
+cd ~/snpeff
+
+# Create dir
+mkdir data/GRCh37.70
+cd data/GRCh37.70
+
+# Download annotated genes
+wget ftp://ftp.ensembl.org/pub/release-70/gtf/homo_sapiens/Homo_sapiens.GRCh37.70.gtf.gz
+mv Homo_sapiens.GRCh37.70.gtf.gz genes.gtf.gz
+
+# Download proteins 
+# This is used for:
+#	- "Rare Amino Acid" annotations
+#	- Sanity check (checking protein predicted from DNA sequences match 'real' proteins)
+wget ftp://ftp.ensembl.org/pub/release-70/fasta/homo_sapiens/pep/Homo_sapiens.GRCh37.70.pep.all.fa.gz
+mv Homo_sapiens.GRCh37.70.pep.all.fa.gz protein.fa.gz
+
+# Download CDSs
+# Note: This is used as "sanity check" (checking that CDSs prediscted from gene sequences match 'real' CDSs)
+wget ftp://ftp.ensembl.org/pub/release-70/fasta/homo_sapiens/cdna/Homo_sapiens.GRCh37.70.cdna.all.fa.gz
+mv Homo_sapiens.GRCh37.70.cdna.all.fa.gz cds.fa.gz
+
+# Download regulatory annotations
+wget ftp://ftp.ensembl.org/pub/release-70/regulation/homo_sapiens/AnnotatedFeatures.gff.gz
+mv AnnotatedFeatures.gff.gz regulation.gff.gz
+
+# Uncompress
+gunzip *.gz
+
+# Download genome
+cd ../genomes/
+wget ftp://ftp.ensembl.org/pub/release-70/fasta/homo_sapiens/dna/Homo_sapiens.GRCh37.70.dna.toplevel.fa.gz
+mv Homo_sapiens.GRCh37.70.dna.toplevel.fa.gz GRCh37.70.fa.gz
+
+# Uncompress: 
+# Why do we need to uncompress? 
+# Because ENSEMBL compresses files using a block compress gzip which is not compatibles whith Java's library Gunzip 
+gunzip GRCh37.70.fa.gz
+
+# Edit snpEff.config file
+# Add lines:
+#		GRCh37.70.genome : Homo_sapiens
+#		GRCh37.70.reference : ftp://ftp.ensembl.org/pub/release-70/gtf/
+
+# Create database
+
+cd ~/snpeff
+java -Xmx4g -jar snpEff.jar build -v GRCh37.70 2>&1 | tee GRCh37.70.build
+</pre>
+
+
 </div> 
