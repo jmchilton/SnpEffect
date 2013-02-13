@@ -648,12 +648,13 @@ public class SnpEffCmdEff extends SnpEff {
 
 			if (debug) {
 				// Show genes and transcript (which ones are considered 'cannonica')
-				Timer.showStdErr("Canonical transcripts:\n\t\tGene\tTranscript");
+				Timer.showStdErr("Canonical transcripts:\n\t\tgeneName\tgeneId\ttranscriptId\tcdsLength");
 				for (Gene g : config.getSnpEffectPredictor().getGenome().getGenes()) {
-					System.err.print("\t\t" + g.getGeneName() + "\t");
-					for (Transcript t : g)
-						System.err.print(t.getId() + "\t");
-					System.err.println("");
+					for (Transcript t : g) {
+						String cds = t.cds();
+						int cdsLen = (cds != null ? cds.length() : 0);
+						System.err.println("\t\t" + g.getGeneName() + "\t" + g.getId() + "\t" + t.getId() + "\t" + cdsLen);
+					}
 				}
 			}
 			if (verbose) Timer.showStdErr("done.");
