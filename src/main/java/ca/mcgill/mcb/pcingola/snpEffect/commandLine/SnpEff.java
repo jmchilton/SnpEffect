@@ -171,9 +171,13 @@ public class SnpEff implements CommandLine {
 			// These options are available for allow all commands
 			if (args[i].equalsIgnoreCase("-noLog")) log = false;
 			else if (args[i].equals("-h") || args[i].equalsIgnoreCase("-help")) help = true;
-			else if (args[i].equals("-v") || args[i].equalsIgnoreCase("-verbose")) verbose = true;
-			else if (args[i].equals("-q") || args[i].equalsIgnoreCase("-quiet")) quiet = true;
-			else if (args[i].equals("-d") || args[i].equalsIgnoreCase("-debug")) debug = true;
+			else if (args[i].equals("-v") || args[i].equalsIgnoreCase("-verbose")) {
+				verbose = true;
+				quiet = false;
+			} else if (args[i].equals("-q") || args[i].equalsIgnoreCase("-quiet")) {
+				quiet = true;
+				verbose = false;
+			} else if (args[i].equals("-d") || args[i].equalsIgnoreCase("-debug")) debug = verbose = true;
 			else if ((args[i].equals("-c") || args[i].equalsIgnoreCase("-config"))) {
 				if ((i + 1) < args.length) configFile = args[++i];
 				else usage("Option '-c' without config file argument");

@@ -173,18 +173,8 @@ public class SnpEffCmdDownload extends SnpEff {
 		for (int i = 0; i < args.length; i++) {
 
 			// Argument starts with '-'?
-			if (args[i].startsWith("-")) {
-				if ((args[i].equals("-c") || args[i].equalsIgnoreCase("-config"))) {
-					if ((i + 1) < args.length) configFile = args[++i];
-					else usage("Option '-c' without config file argument");
-				} else if (args[i].equals("-v") || args[i].equalsIgnoreCase("-verbose")) {
-					verbose = true;
-					quiet = false;
-				} else if (args[i].equals("-h") || args[i].equalsIgnoreCase("-help")) {
-					usage(null);
-					System.exit(0);
-				} else usage("Unknow option '" + args[i] + "'");
-			} else if (genomeVer.length() <= 0) genomeVer = args[i];
+			if (args[i].startsWith("-")) usage("Unknow option '" + args[i] + "'"); // Options (config, verbose, etc.) are parsed at SnpEff level 
+			else if (genomeVer.length() <= 0) genomeVer = args[i];
 			else usage("Unknow parameter '" + args[i] + "'");
 		}
 
@@ -376,12 +366,7 @@ public class SnpEffCmdDownload extends SnpEff {
 		if (message != null) System.err.println("Error: " + message + "\n");
 		System.err.println("snpEff version " + VERSION);
 		System.err.println("Usage: snpEff download [options] {snpeff | genome_version}");
-		System.err.println("\nGeneric options:");
-		System.err.println("\t-c , -config            : Specify config file");
-		System.err.println("\t-h , -help              : Show this help and exit");
-		System.err.println("\t-v , -verbose           : Verbose mode");
-		System.err.println("\t-noLog                  : Do not report usage statistics to server");
-		System.err.println("If 'snpeff' is used instead of a genome, SnpEff latest version will be downloaded");
+		// System.err.println("If 'snpeff' is used instead of a genome, SnpEff latest version will be downloaded");
 		System.exit(-1);
 	}
 }

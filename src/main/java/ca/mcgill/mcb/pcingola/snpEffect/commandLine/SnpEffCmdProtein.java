@@ -164,14 +164,8 @@ public class SnpEffCmdProtein extends SnpEff {
 		for (int i = 0; i < args.length; i++) {
 
 			// Argument starts with '-'?
-			if (args[i].startsWith("-")) {
-				if ((args[i].equals("-c") || args[i].equalsIgnoreCase("-config"))) {
-					if ((i + 1) < args.length) configFile = args[++i];
-					else usage("Option '-c' without config file argument");
-				} else if (args[i].equals("-v") || args[i].equalsIgnoreCase("-verbose")) {
-					verbose = true;
-				} else usage("Unknow option '" + args[i] + "'");
-			} else if (genomeVer.isEmpty()) genomeVer = args[i];
+			if (args[i].startsWith("-")) usage("Unknow option '" + args[i] + "'"); // Options 
+			else if (genomeVer.isEmpty()) genomeVer = args[i];
 			else if (proteinFile.isEmpty()) proteinFile = args[i];
 			else usage("Unknow parameter '" + args[i] + "'");
 		}
@@ -364,11 +358,6 @@ public class SnpEffCmdProtein extends SnpEff {
 		if (verbose) Timer.showStdErr("done");
 
 		return true;
-	}
-
-	@Override
-	public void setVerbose(boolean verbose) {
-		this.verbose = verbose;
 	}
 
 	/**

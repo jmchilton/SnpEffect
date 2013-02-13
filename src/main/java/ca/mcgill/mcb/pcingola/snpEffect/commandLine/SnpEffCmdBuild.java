@@ -134,26 +134,17 @@ public class SnpEffCmdBuild extends SnpEff {
 					inOffset = outOffset = 1; // This command implies '-1' since GenBank files are one-based
 				} else if (args[i].equalsIgnoreCase("-txt")) {
 					geneDatabaseFormat = GeneDatabaseFormat.BIOMART;
-				} else if (args[i].equals("-v") || args[i].equalsIgnoreCase("-verbose")) {
-					verbose = true;
-					quiet = false;
 				} else if (args[i].equalsIgnoreCase("-onlyReg")) {
 					onlyRegulation = true;
 				} else if (args[i].equalsIgnoreCase("-cellType")) {
 					if ((i + 1) < args.length) cellType = args[++i];
-				} else if (args[i].equals("-q") || args[i].equalsIgnoreCase("-quiet")) {
-					quiet = true;
-					verbose = false;
 				} else if ((args[i].equals("-if") || args[i].equalsIgnoreCase("-inOffset"))) {
 					if ((i + 1) < args.length) inOffset = Gpr.parseIntSafe(args[++i]);
 				} else if ((args[i].equals("-of") || args[i].equalsIgnoreCase("-outOffset"))) {
 					if ((i + 1) < args.length) outOffset = Gpr.parseIntSafe(args[++i]);
 				} else if (args[i].equals("-1")) inOffset = outOffset = 1;
 				else if (args[i].equals("-0")) inOffset = outOffset = 0;
-				else if (args[i].equals("-h") || args[i].equalsIgnoreCase("-help")) {
-					usage(null);
-					System.exit(0);
-				} else usage("Unknow option '" + args[i] + "'");
+				else usage("Unknow option '" + args[i] + "'");
 			} else if (genomeVer.length() <= 0) genomeVer = args[i];
 			else usage("Unknow parameter '" + args[i] + "'");
 		}

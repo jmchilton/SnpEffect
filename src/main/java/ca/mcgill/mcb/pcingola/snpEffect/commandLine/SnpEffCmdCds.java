@@ -278,10 +278,6 @@ public class SnpEffCmdCds extends SnpEff {
 		return true;
 	}
 
-	public void setVerbose(boolean verbose) {
-		this.verbose = verbose;
-	}
-
 	/**
 	 * Show usage and exit
 	 */

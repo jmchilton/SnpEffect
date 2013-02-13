@@ -40,16 +40,7 @@ public class SnpEffCmdDump extends SnpEff {
 
 			// Argument starts with '-'?
 			if (args[i].startsWith("-")) {
-				if ((args[i].equals("-c") || args[i].equalsIgnoreCase("-config"))) {
-					if ((i + 1) < args.length) configFile = args[++i];
-					else usage("Option '-c' without config file argument");
-				} else if (args[i].equals("-v") || args[i].equalsIgnoreCase("-verbose")) {
-					verbose = true;
-					quiet = false;
-				} else if (args[i].equals("-q") || args[i].equalsIgnoreCase("-quiet")) {
-					quiet = true;
-					verbose = false;
-				} else if (args[i].equalsIgnoreCase("-chr")) chrStr = args[++i];
+				if (args[i].equalsIgnoreCase("-chr")) chrStr = args[++i];
 				else if ((args[i].equals("-if") || args[i].equalsIgnoreCase("-inOffset"))) {
 					if ((i + 1) < args.length) inOffset = Gpr.parseIntSafe(args[++i]);
 				} else if (args[i].equals("-1")) inOffset = outOffset = 1;
@@ -57,9 +48,6 @@ public class SnpEffCmdDump extends SnpEff {
 				else if (args[i].equals("-bed")) {
 					dumpFormat = DumpFormat.Bed;
 					inOffset = outOffset = 0;
-				} else if (args[i].equals("-h") || args[i].equalsIgnoreCase("-help")) {
-					usage(null);
-					System.exit(0);
 				} else usage("Unknow option '" + args[i] + "'");
 			} else if (genomeVer.length() <= 0) genomeVer = args[i];
 			else usage("Unknow parameter '" + args[i] + "'");
@@ -154,11 +142,6 @@ public class SnpEffCmdDump extends SnpEff {
 		System.err.println("\nGeneric options:");
 		System.err.println("\t-0                      : File positions are zero-based");
 		System.err.println("\t-1                      : File positions are one-based");
-		System.err.println("\t-c , -config            : Specify config file");
-		System.err.println("\t-h , -help              : Show this help and exit");
-		System.err.println("\t-noLog                  : Do not report usage statistics to server");
-		System.err.println("\t-q , -quiet             : Quiet mode (do not show any messages or errors)");
-		System.err.println("\t-v , -verbose           : Verbose mode");
 		System.exit(-1);
 	}
 }
