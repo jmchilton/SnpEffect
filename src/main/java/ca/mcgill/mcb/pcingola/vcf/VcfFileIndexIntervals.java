@@ -18,6 +18,8 @@ import ca.mcgill.mcb.pcingola.util.Gpr;
  * 
  * WARNING: It is assumed that the file is ordered by position (chromosome order does not matter)
  * 
+ * TODO: Rewrite this method using java.io.RandomAccessFile
+ * 
  * @author pcingola
  */
 public class VcfFileIndexIntervals {
@@ -28,7 +30,6 @@ public class VcfFileIndexIntervals {
 	 *
 	 */
 	class FileRegion {
-
 		long start, end;
 		String lineStart, lineEnd;
 	}
