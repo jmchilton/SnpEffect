@@ -485,7 +485,7 @@ java -Xmx4g -jar snpEff.jar -vcf4 dm5.34 s.vcf > s_snpeff.txt
 					<tr> <td>  Amino_Acid_length</td> <td>  Length of protein in amino acids (actually, transcription length divided by 3). </td> </tr>
 					<tr> <td>  Gene_name </td> <td>  Gene name </td> </tr>
 					<tr> <td>  Transcript_bioType </td> <td>  Transcript bioType, if available. </td> </tr>
-					<tr> <td>  Gene_Coding </td> <td>  [CODING | NON_CODING]. This field is 'CODING' if any transcript of the gene is marked as protein codin. </td> </tr>
+					<tr> <td>  Gene_Coding </td> <td>  [CODING | NON_CODING]. This field is 'CODING' if any transcript of the gene is marked as protein coding. </td> </tr>
 					<tr> <td>  Trancript </td> <td>  Transcript ID (usually ENSEMBL IDs) </td> </tr>
 					<tr> <td>  Exon </td> <td>  Exon ID (usually ENSEMBL IDs) </td> </tr>
 					<tr> <td>  Warnings </td> <td>  Any warnings or errors (not shown if empty). </td> </tr>
@@ -602,7 +602,7 @@ chr2L   878267  T       W       SNP     Het     228             WARNING: Base is
 					<tr> <td> INTERGENIC </td><td> The variant is in an intergenic region </td> </tr> 
 					<tr> <td> UPSTREAM  </td><td> Upstream of a gene (default length: 5K bases) </td> </tr> 
 					<tr> <td> UTR_5_PRIME  </td><td> Variant hits 5'UTR region </td> </tr> 
-					<tr> <td> UTR_5_DELETED  </td><td> The variant deletes and exon which is in the 5'UTR of the transcript </td> </tr> 
+					<tr> <td> UTR_5_DELETED  </td><td> The variant deletes an exon which is in the 5'UTR of the transcript </td> </tr> 
 					<tr> <td> START_GAINED  </td><td> A variant in 5'UTR region produces a three base sequence that can be a START codon. </td> </tr> 
 					<tr> <td> SPLICE_SITE_ACCEPTOR  </td><td> The variant hits a splice acceptor site (defined as two bases before exon start, except for the first exon). </td> </tr> 
 					<tr> <td> SPLICE_SITE_DONOR  </td><td> The variant hits a Splice donor site (defined as two bases after coding exon end, except for the last exon). </td> </tr> 
@@ -611,7 +611,7 @@ chr2L   878267  T       W       SNP     Het     228             WARNING: Base is
 					<tr> <td> CDS  </td><td> The variant hits a CDS. </td> </tr> 
 					<tr> <td> GENE  </td><td> The variant hits a gene. </td> </tr> 
 					<tr> <td> TRANSCRIPT  </td><td> The variant hits a transcript. </td> </tr> 
-					<tr> <td> EXON  </td><td> The vairant hist an exon. </td> </tr> 
+					<tr> <td> EXON  </td><td> The vairant hits an exon. </td> </tr> 
 					<tr> <td> EXON_DELETED  </td><td> A deletion removes the whole exon. </td> </tr> 
 					<tr> <td> NON_SYNONYMOUS_CODING  </td><td> Variant causes a codon that produces a different amino acid </td><td> Tgg/Cgg, W/R </td> </tr> 
 					<tr> <td> SYNONYMOUS_CODING  </td><td> Variant causes a codon that produces the same amino acid </td><td> Ttg/Ctg, L/L </td> </tr> 
@@ -624,9 +624,9 @@ chr2L   878267  T       W       SNP     Het     228             WARNING: Base is
 					<tr> <td> STOP_GAINED  </td><td> Variant causes a STOP codon </td><td> Cag/Tag, Q/* </td> </tr> 
 					<tr> <td> SYNONYMOUS_STOP  </td><td> Variant causes stop codon to be mutated into another stop codon. </td><td> taA/taG, */* </td> </tr> 
 					<tr> <td> STOP_LOST  </td><td> Variant causes stop codon to be mutated into a non-stop codon </td><td> Tga/Cga, */R </td> </tr> 
-					<tr> <td> INTRON  </td><td> Variant hist and intron. Technically, hits no exon in the transcript. </td> </tr> 
+					<tr> <td> INTRON  </td><td> Variant hits and intron. Technically, hits no exon in the transcript. </td> </tr> 
 					<tr> <td> UTR_3_PRIME  </td><td> Variant hits 3'UTR region </td> </tr> 
-					<tr> <td> UTR_3_DELETED  </td><td> The variant deletes and exon which is in the 3'UTR of the transcript </td> </tr> 
+					<tr> <td> UTR_3_DELETED  </td><td> The variant deletes an exon which is in the 3'UTR of the transcript </td> </tr> 
 					<tr> <td> DOWNSTREAM  </td><td> Downstream of a gene (default length: 5K bases) </td> </tr> 
 					<tr> <td> INTRON_CONSERVED  </td><td> The variant is in a highly conserved intronic region </td> </tr> 
 					<tr> <td> INTERGENIC_CONSERVED </td><td> The variant is in a highly conserved intergenic region </td> </tr> 
@@ -704,13 +704,13 @@ chr2L   878267  T       W       SNP     Het     228             WARNING: Base is
 				When using TXT output format, there is one effect per line. You usually get more than one line per variant since the same variant may affect several different transcripts in the same gene.<br>
 
 				<p style="font-size: 14pt"> <b> <a class="body" name="I_only_want_result_that_intersect_some_intervals,_how_do_I_do_that?"> I only want result that intersect some intervals, how do I do that?  </a> </b></p>
-				You can use the '-fi' option (a.k.a. '-filterInterval). For instance, let's assume you have and interval file 'intervals.bed':
+				You can use the '-fi' option (a.k.a. '-filterInterval). For instance, let's assume you have an interval file 'intervals.bed':
 <pre>2L	10000	10999
 2L	12000	12999
 2L	14000	14999
 2L	16000	16999
 2L	18000	18999 </pre>
-				In order to get only changes that match you intervals, you can use the command:
+				In order to get only changes that match your intervals, you can use the command:
 <pre> java -Xmx4G -jar snpEff.jar -fi intervals.bed dm5.30 file.vcf</pre>
 <b>Note:</b> You may specify multiple files by using '-fi' many times.
 
@@ -751,8 +751,8 @@ chr2L   878267  T       W       SNP     Het     228             WARNING: Base is
 				there is also one rare AA. Selenocysteine, single letter
 				code 'U', appears roughly 100 times in the whole genome.
 				The amino acid is so rare that usually it does not appear 
-				in codon translation tables. It is encoded as UGA, which 
-				, under normal conditions, is a STOP codon. Secondary RNA 
+				in codon translation tables. It is encoded as UGA, which usually 
+				means a STOP codon. Secondary RNA 
 				structures are assumed to enable this special translation.<p> 
 
 				A variant in one of these sites is likely to cause a loss of 
@@ -803,7 +803,7 @@ tgctgcggctgcggctgcggctgcggctacggctgcggct    ALT (from VCF file)
 
 				<p style="font-size: 14pt"> <b> <a class="body" name="counting_effects"> The total number of XXX effects in the summary does not match with the output file </a> </b></p>
 				Some people try to count the number of effects in a file by doing (assuming we want to count how many MODIFIER efefcts we have): <tt> grep -o MODIFIER output.eff.vcf | wc -l </tt>.<br>
-				This is incorrect because a VCF line can have multiple effect (e.g.when there are multiple transcripts in a gene).
+				This is incorrect because a VCF line can have multiple effects (e.g. when there are multiple transcripts in a gene).
 				A proper way to count effects would be:
 
 <pre>
@@ -822,12 +822,12 @@ cat output.eff.vcf | cut -f 8 | tr ";" "\n" | grep ^EFF= | cut -f 2 -d = | tr ",
 				</table>
 
 
-				<p style="font-size: 14pt"> <b> <a class="body" name="gatk"> What is the adecuate output for GATK? </a> </b></p>
+				<p style="font-size: 14pt"> <b> <a class="body" name="gatk"> What is the adequate output for GATK? </a> </b></p>
 				You should use the <b>'-o gatk'</b> command line option to avoid problems.
 				The reason is that, even though GATK uses VCF, but sometimes new formats of the 'EFF' info field might cause trouble.
 				This happens when switching from SnpEff v2.X to SnpEff v3.0, since the latest GATK version still uses an older format.<br>
 
-				<p style="font-size: 14pt"> <b> <a class="body" name="lof"> How it 'loss of function' / 'nonsense-mediated decay' used? </a> </b></p>
+				<p style="font-size: 14pt"> <b> <a class="body" name="lof"> How is 'loss of function' / 'nonsense-mediated decay' used? </a> </b></p>
 				Take a look at <a class="body" href="snpEff_lof_nmd.pdf">these slides </p>
 
 				<hr> <center> <p style="font-size: 16pt"> <b> Output summary page </b></center></p>
@@ -1029,7 +1029,7 @@ java -jar snpEff.jar dump myGenome | less
 				If you look at the sequences, the first 6 bases are the same (i.e. the VCF file says that the INDEL is "CAACTA / CAACTAACTA" at position 7797903).
 				So the actual insertion is "ACTA" a position 7797903 + 6 = 7797909.
 
-				<p style="font-size: 14pt"> <b> <a class="body" name="When_I_look_at_the_UCSC_borwser_for_hg19,_it_doesn't_match_the_information_from_snpEff?"> When I look at the UCSC borwser for hg19, it doesn't match the information from snpEff?  </a> </b></p>
+				<p style="font-size: 14pt"> <b> <a class="body" name="When_I_look_at_the_UCSC_borwser_for_hg19,_it_doesn't_match_the_information_from_snpEff?"> When I look at the UCSC browser for hg19, it doesn't match the information from snpEff?  </a> </b></p>
 
 				<b>WARNING:</b> Usage of hg19 genome is deprecated and discouraged, you should use GRChXX.YY instead<p>
 
@@ -1060,7 +1060,7 @@ java -jar snpEff.jar dump myGenome | less
 				This means that you'll get different results for this transcript using sub-version 63 or 64. I assume that latest versions are improved, so I always encourage to upgrade.<p>
 				As I mentioned before it might even be the case that latest released dataabse and the one shown on the web interface may be out of sync.<br>
 
-				<p style="font-size: 14pt"> <b> <a class="body" name="Why_is_snpEff_reporting_a_SYNONYMOUS_and_a_NON_SYNONYMOUS_effect_on_te_same_gene?"> Why is snpEff reporting a SYNONYMOUS and a NON_SYNONYMOUS effect on te same gene? </a> </b></p>
+				<p style="font-size: 14pt"> <b> <a class="body" name="Why_is_snpEff_reporting_a_SYNONYMOUS_and_a_NON_SYNONYMOUS_effect_on_te_same_gene?"> Why is snpEff reporting a SYNONYMOUS and a NON_SYNONYMOUS effect on the same gene? </a> </b></p>
 
 				It is not uncommon for a gene to have more than one transcript (e.g. in human most genes have multiple transcripts). A variant (e.g. a SNP) might affect different transcripts in different ways, as a result of different reading frames. <p>
 				For instance: 
@@ -1082,7 +1082,7 @@ chr5 137622242 . C T . . EFF=NON_SYNONYMOUS_CODING(MODERATE|MISSENSE|Gaa/Aaa|E/K
 				<hr> <center> <p style="font-size: 16pt"> <b> Other utilities </b></center></p>
 				<p style="font-size: 14pt"> <b> <a class="body" name="countReads"> SnpEff countReads: Counting how many reads / bases from a BAM file hit a gene, transcript, exon, intron, etc. </a> </b></p>
 				If you need to count how many reads (and bases) from a BAM file hit each genomic region, you can use 'countReads' utility.<br>
-				The command line is quite simple. E.g. in order to count how many reads reads (from N BAM files) hit regions of the human genome, you simply run: <br>
+				The command line is quite simple. E.g. in order to count how many reads (from N BAM files) hit regions of the human genome, you simply run: <br>
 <pre>
 java -Xmx4g -jar snpEff.jar countReads GRCh37.68 readsFile_1.bam readsFile_2.bam ...  readsFile_N.bam > countReads.txt 
 </pre>
