@@ -34,7 +34,8 @@ public class SeqChange extends Marker {
 	double quality; // Quality prediction (negative means 'not available')
 	double score = Double.NaN; // Score (e.g. BED files)
 	int coverage; // Number of reads covering the position (negative means 'not available')
-	boolean imprecise = false; // Imprecise variant (coordinates are not exact (E.g. see section "Encoding Structural Variants in VCF" from VCF spec. 4.1)
+	boolean imprecise = false; // Imprecise variant: coordinates are not exact (E.g. see section "Encoding Structural Variants in VCF" from VCF spec. 4.1)
+	String genotype; // Genotype order number (in case there are multiple changes per entry (e.g. A VCF entry may encode multiple ALTs). Note: Genotype differences are coded as "2-1" meaning genotype 1 is used as reference and genotype 2 is used as ALT (e.g. somatic vs germline samples)
 
 	public SeqChange(Marker parent, int start, int end, int strand, String id) {
 		super(parent, start, end, strand, id);
@@ -131,6 +132,10 @@ public class SeqChange extends Marker {
 
 	public int getCoverage() {
 		return coverage;
+	}
+
+	public String getGenotype() {
+		return genotype;
 	}
 
 	public double getQuality() {
@@ -418,6 +423,10 @@ public class SeqChange extends Marker {
 
 	public void setChangeType(ChangeType changeType) {
 		this.changeType = changeType;
+	}
+
+	public void setGenotype(String genotype) {
+		this.genotype = genotype;
 	}
 
 	public void setHeterozygous(Boolean heterozygous) {

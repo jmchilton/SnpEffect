@@ -652,12 +652,15 @@ public class VcfEntry extends Marker implements Iterable<VcfGenotype> {
 		// Is it heterozygous, homozygous or undefined?
 		Boolean isHetero = calcHetero();
 
-		// Create one SeqChange for each alt
+		// Create one SeqChange for each ALT
+		int genotypeNumber = 1;
 		for (String alt : alts) {
 			Chromosome chr = (Chromosome) parent;
 			SeqChange seqChange = createSeqChange(chr, start, ref, alt, strand, id, getQuality(), coverage);
 			seqChange.setHeterozygous(isHetero);
+			seqChange.setGenotype(Integer.toString(genotypeNumber));
 			list.add(seqChange);
+			genotypeNumber++;
 		}
 
 		return list;

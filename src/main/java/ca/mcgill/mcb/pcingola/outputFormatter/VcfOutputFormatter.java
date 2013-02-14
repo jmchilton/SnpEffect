@@ -173,7 +173,9 @@ public class VcfOutputFormatter extends OutputFormatter {
 				// Add genotype (or genotype difference) for this effect
 				if (formatVersion == FormatVersion.FORMAT_SNPEFF_4) {
 					// Add genotype corresponding to this change
-
+					SeqChange seqChange = changeEffect.getSeqChange();
+					if (seqChange != null) effBuff.append(seqChange.getGenotype());
+					effBuff.append("|");
 				}
 
 				// Errors or warnings (this is the last thing in the list)

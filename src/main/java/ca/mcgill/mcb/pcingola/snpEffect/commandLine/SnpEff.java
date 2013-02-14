@@ -5,6 +5,7 @@ import java.util.HashMap;
 
 import ca.mcgill.mcb.pcingola.Pcingola;
 import ca.mcgill.mcb.pcingola.logStatsServer.LogStats;
+import ca.mcgill.mcb.pcingola.logStatsServer.VersionCheck;
 import ca.mcgill.mcb.pcingola.snpEffect.Config;
 import ca.mcgill.mcb.pcingola.spliceSites.SpliceAnalysis;
 import ca.mcgill.mcb.pcingola.util.Gpr;
@@ -40,9 +41,9 @@ public class SnpEff implements CommandLine {
 	public static final int COMMAND_LINE_WIDTH = 40;
 
 	public static final String SOFTWARE_NAME = "SnpEff";
-	public static final String BUILD = "2013-02-08";
-	public static final String REVISION = "m";
-	public static final String VERSION_MAJOR = "3.1";
+	public static final String BUILD = "2013-02-14";
+	public static final String REVISION = "";
+	public static final String VERSION_MAJOR = "3.2";
 	public static final String VERSION_SHORT = VERSION_MAJOR + REVISION;
 	public static final String VERSION = SOFTWARE_NAME + " " + VERSION_SHORT + " (build " + BUILD + "), by " + Pcingola.BY;
 	public static final String DEFAULT_SUMMARY_FILE = "snpEff_summary.html";
@@ -85,6 +86,25 @@ public class SnpEff implements CommandLine {
 		quiet = false; // Be quiet
 		log = true; // Log to server (statistics)
 		multiThreaded = false; // Use multiple threads
+	}
+
+	/**
+	 * Check if there is a new version of the program
+	 */
+	void checkNewVersion(Config config) {
+		// Download command checks for versions, no need to do it twice
+		if ((config != null) && !command.equalsIgnoreCase("download")) {
+			// Check if a new version is available
+			VersionCheck versionCheck = VersionCheck.version(SnpEff.SOFTWARE_NAME, SnpEff.VERSION_SHORT, config.getVersionsUrl(), verbose);
+			if (!quiet && versionCheck.isNewVersion()) {
+				System.err.println("\n\nNEW VERSION!\n\tThere is a new " + this.getClass().getSimpleName() + " version available: " //
+						+ "\n\t\tVersion      : " + versionCheck.getLatestVersion() // 
+						+ "\n\t\tRelease date : " + versionCheck.getLatestReleaseDate() //
+						+ "\n\t\tDownload URL : " + versionCheck.getLatestUrl() //
+						+ "\n" //
+				);
+			}
+		}
 	}
 
 	/**
@@ -293,26 +313,8 @@ public class SnpEff implements CommandLine {
 			// Log to server
 			LogStats.report(SOFTWARE_NAME, VERSION_SHORT, VERSION, ok, verbose, args, err, snpEff.reportValues());
 
-			//			// Get config from command
-			//			config = snpEff.config;
-			//
-			//			if (config != null) {
-			//				// Download command check for versions, no need to do it twice
-			//				if (!command.equalsIgnoreCase("download")) {
-			//
-			//					// Check if a new version is available
-			//					VersionCheck versionCheck = VersionCheck.version(SnpEff.SOFTWARE_NAME, SnpEff.VERSION_SHORT, config.getVersionsUrl(), verbose);
-			//					if (!quiet && versionCheck.isNewVersion()) {
-			//						System.err.println("New version available: " //
-			//								+ "\n\tNew version  : " + versionCheck.getLatestVersion() // 
-			//								+ "\n\tRelease date : " + versionCheck.getLatestReleaseDate() //
-			//								+ "\n\tDownload URL : " + versionCheck.getLatestUrl() //
-			//								+ "\n\nTo update run:\n\tjava -jar snpEff.jar download -v snpeff\n" //
-			//						);
-			//					}
-			//
-			//				}
-			//			}
+			// Check for new version (use config file from command, since this one doesn't load a config file)
+			checkNewVersion(snpEff.config);
 		}
 
 		return ok;
