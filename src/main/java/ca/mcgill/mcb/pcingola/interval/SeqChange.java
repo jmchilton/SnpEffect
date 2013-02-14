@@ -318,6 +318,10 @@ public class SeqChange extends Marker {
 		}
 	}
 
+	public boolean isChangeMultiple() {
+		return changeOptions.length > 1;
+	}
+
 	/**
 	 * Is this a change or are the changes actually the same as the reference
 	 * @return

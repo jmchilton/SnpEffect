@@ -186,6 +186,45 @@ public class Transcript extends IntervalAndSubIntervals<Exon> {
 	}
 
 	/**
+	 * Create a new transcript after applying changes in seqChange
+	 * 
+	 * Note: If this transcript is unaffected, no new transcript is created (same transcript is returned)
+	 * 
+	 * @param seqChange
+	 * @return
+	 */
+	public Transcript apply(SeqChange seqChange) {
+		// Doesn't hit the transcript? => Nothing to do
+		if (!seqChange.intersects(this)) return this;
+
+		// How much does length change?
+		int lengthChange = 0;
+		//		if (!seqChange.isSnp() && !seqChange.isMnp()) {
+		//			lengthChange = seqChange.getChange();
+		//		}
+		//
+		//		// Change is fully included in an intron? => Nothing to do
+		//		for (Intron intron : introns())
+		//			if (intron.includes(seqChange)) return this;
+		//
+		//		// At this point we know it hits an exon
+		//		//---
+		//		// Hits a SpliceSiteBranch region?
+		//		//---
+		//		included = false;
+		//		for (SpliceSiteBranch ssbranch : spliceBranchSites)
+		//			if (ssbranch.intersects(seqChange)) {
+		//				// Calculate the effect
+		//				List<ChangeEffect> chEffList = ssbranch.seqChangeEffect(seqChange, changeEffect.clone());
+		//				if (!chEffList.isEmpty()) changeEffectList.addAll(chEffList);
+		//				included |= ssbranch.includes(seqChange); // Is this seqChange fully included branch site?
+		//			}
+		//		if (included) return changeEffectList; // SeqChange fully included in the Branch site? => We are done.
+
+		return this;
+	}
+
+	/**
 	 * Calculate CDS start and CDS end
 	 */
 	synchronized void calcCdsStartEnd() {

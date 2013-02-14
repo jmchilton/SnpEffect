@@ -39,17 +39,25 @@ public class VcfFileIndexIntervals {
 	 *
 	 */
 	class LineAndPos {
-
 		String line;
 		long position;
+
+		public String toString() {
+			String str = "";
+			if (line != null) {
+				if (line.length() > 50) str = line.substring(0, 49) + "...";
+				else str = line;
+			}
+			return position + "\t" + str;
+		}
 	}
 
-	public static boolean debug = false;
 	public static final int POS_OFFSET = 1; // VCF files are one-based
 	private static final long PAGE_SIZE = Integer.MAX_VALUE;
 	private static final int BUFF_SIZE = 1024 * 1024;
 
 	boolean verbose = false;
+	boolean debug = false;
 	String fileName;
 	long size = 0;
 	FileChannel fileChannel;
@@ -186,7 +194,9 @@ public class VcfFileIndexIntervals {
 	public byte get(long bytePosition) {
 		int page = (int) (bytePosition / PAGE_SIZE);
 		int index = (int) (bytePosition % PAGE_SIZE);
-		return buffers.get(page).get(index);
+		byte b = buffers.get(page).get(index);
+		if (debug) Gpr.debug("page: " + page + "\t" + index + "\t" + b + "\t'" + ((char) b) + "'");
+		return b;
 	}
 
 	/**
@@ -226,8 +236,11 @@ public class VcfFileIndexIntervals {
 
 	/**
 	 * Get the line where 'pos' hits
+	 * 
+	 * TODO: This is really slow for huge files and huge lines. I should optimize this.
+	 * 
 	 * @param pos
-	 * @return A string with the lone that 'pos' hits, null if it's out of boundaries
+	 * @return A string with the line that 'pos' hits, null if it's out of boundaries
 	 */
 	public LineAndPos getLine(long pos) {
 		long size = size();
@@ -238,21 +251,22 @@ public class VcfFileIndexIntervals {
 
 		// Get bytes before 'pos'
 		long position;
-		for (long p = position = pos - 1; p >= 0; p--, position--) {
-			byte b = get(p);
+		for (position = pos - 1; position >= 0; position--) {
+			byte b = get(position);
 			if (b == '\n') break;
 			sb.insert(0, (char) b);
 		}
 		linePos.position = position + 1;
 
 		// Get bytes after 'pos'
-		for (long p = pos; p < size; p++) {
-			byte b = get(p);
+		for (position = pos; position < size; position++) {
+			byte b = get(position);
 			if (b == '\n') break;
 			sb.append((char) b);
 		}
 		linePos.line = sb.toString();
 
+		if (debug) Gpr.debug("Line & Position: " + linePos);
 		return linePos;
 	}
 
@@ -313,18 +327,21 @@ public class VcfFileIndexIntervals {
 	void indexChromos(long start, String lineStart, long end, String lineEnd) {
 		if (debug) Gpr.debug("Index:"//
 				+ "\n\t" + start + "(" + (((double) start) / size()) + ") :\t" + s(lineStart) //
-				+ "\n\t" + end + "(" + (((double) start) / size()) + ") :\t" + s(lineEnd));
+				+ "\n\t" + end + "(" + (((double) end) / size()) + ") :\t" + s(lineEnd));
 
 		if (start > end) throw new RuntimeException("This should never happen! Start: " + start + "\tEnd: " + end);
 
 		String chrStart = chromo(lineStart);
 		String chrEnd = chromo(lineEnd);
 
-		//if ((chrStart != null) && (chrEnd != null)) return;
-		if (chrStart.equals(chrEnd)) return;
+		if (chrStart.equals(chrEnd)) {
+			if (debug) Gpr.debug("Chromo:\tlineStart: " + chrStart + "\tlineEnd: " + chrEnd + "\t==> Back!");
+			return;
+		}
+		if (debug) Gpr.debug("Chromo:\tlineStart: " + chrStart + "\tlineEnd: " + chrEnd);
 
 		if ((start + lineStart.length() + 1) >= end) {
-			if (verbose) System.err.println("\tindex:\t" + chrStart + " / " + chrEnd + "\t" + start + " / " + end);
+			if (verbose) System.err.println("\tStart + 1 line = End\t==>Done!\t" + chrStart + " / " + chrEnd + "\t" + start + " / " + end);
 
 			// Add index where chromosome starts
 			getFileRegion(chrEnd).start = getLine(end).position;
@@ -338,7 +355,12 @@ public class VcfFileIndexIntervals {
 
 		long mid = (start + end) / 2;
 		String lineMid = getLine(mid).line;
+		if (debug) Gpr.debug("Mid: " + mid + "\t" + s(lineMid));
+
+		if (debug) Gpr.debug("First half recustion:");
 		indexChromos(start, lineStart, mid, lineMid);
+
+		if (debug) Gpr.debug("Second half recustion:");
 		indexChromos(mid, lineMid, end, lineEnd);
 	}
 
@@ -389,7 +411,11 @@ public class VcfFileIndexIntervals {
 
 	String s(String s) {
 		if (s == null) return "null";
-		return s.length() <= 50 ? s : s.substring(0, 50);
+		return s.length() <= 50 ? s : s.substring(0, 50) + "...";
+	}
+
+	public void setDebug(boolean debug) {
+		this.debug = debug;
 	}
 
 	public void setVerbose(boolean verbose) {
