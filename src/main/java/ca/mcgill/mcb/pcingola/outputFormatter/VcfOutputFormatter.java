@@ -167,11 +167,10 @@ public class VcfOutputFormatter extends OutputFormatter {
 					Intron intron = changeEffect.getIntron();
 					if (intron != null) rank = intron.getRank();
 				}
-
 				effBuff.append(rank >= 0 ? rank : "");
 
 				// Add genotype (or genotype difference) for this effect
-				if (formatVersion == FormatVersion.FORMAT_SNPEFF_4) effBuff.append(changeEffect.getGenotype() + "|");
+				if (formatVersion == FormatVersion.FORMAT_SNPEFF_4) effBuff.append(changeEffect.getGenotype());
 				// Add genotype corresponding to this change
 
 				// Errors or warnings (this is the last thing in the list)
