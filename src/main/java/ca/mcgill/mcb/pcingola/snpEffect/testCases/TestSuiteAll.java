@@ -76,6 +76,9 @@ public class TestSuiteAll {
 		// TestCasesGenotypeVector
 		suite.addTestSuite(TestCasesGenotypeVector.class);
 
+		// Apply changes
+		suite.addTestSuite(TestCasesApply.class);
+
 		return suite;
 	}
 }

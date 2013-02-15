@@ -53,6 +53,104 @@ public class Marker extends Interval {
 		end = Math.max(end, child.getEnd());
 	}
 
+	/**
+	 * Apply a SeqChange to a marker.
+	 * 
+	 * Create a new marker 
+	 * 		newMarker = marker.apply( seqChange )
+	 * 
+	 * such that  
+	 *		seqChange = Diff( newMarker , marker )		// Differences in seuquence 
+	 * 
+	 * @param seqChange
+	 * @return A new marker after applying seqChange 
+	 */
+	public Marker apply(SeqChange seqChange) {
+		// SeqChange after this marker: No effect
+		if (end < seqChange.getStart()) return this;
+
+		// We can only handle one change at a time
+		if (seqChange.isChangeMultiple()) throw new RuntimeException("Cannot apply multiple changes!\n\tseqChange.isChangeMultiple() = " + seqChange.isChangeMultiple() + "\n\tSeqChange : " + seqChange);
+		// Negative strand changes are a pain. We will eventually get rid of them...(they do not make sense any more)
+		if (seqChange.isStrandMinus()) throw new RuntimeException("Only seqChenges in postive strand are accepted!\n\tSeqChange : " + seqChange);
+
+		int lenChange = seqChange.lengthChange();
+		if (lenChange == 0) return this;
+
+		// SeqChange after marker end: Nothing to do
+		if (end < seqChange.getStart()) return this;
+
+		// We are not ready for mixed changes
+		if (seqChange.isIns()) return applyIns(seqChange, lenChange);
+		if (seqChange.isDel()) return applyDel(seqChange, lenChange);
+
+		// TODO : Mixed changes are not supported
+		throw new RuntimeException("Seqchange type not supported: " + seqChange.getChangeType() + "\n\t" + seqChange);
+	}
+
+	/**
+	 * Apply a SeqChange to a marker. SeqChange is a deletion
+	 * @param seqChange
+	 * @return
+	 */
+	protected Marker applyDel(SeqChange seqChange, int lenChange) {
+		Marker m = clone();
+
+		// SeqChange Before start: Adjust coordinates
+		if (seqChange.getEnd() < start) {
+			m.start += lenChange;
+			m.end += lenChange;
+		} else if (seqChange.includes(this)) return null; // SeqChange completely includes this marker => The whole marker deleted
+		else if (this.includes(seqChange)) m.end += lenChange; // This marker completely includes seqChange. But seqChange does not include marker (i.e. they are not equal). Only 'end' coordinate needs to be updated
+		else {
+			// SeqChange is partially included in this marker.
+			// This is treated as three different type of deletions:
+			//		1- One before the marker
+			//		2- One inside the marker
+			//		3- One after the marker 
+			// Note that type 1 and 3 cannot exists at the same time, otherwise the deletion would fully include the marker (previouse case)
+
+			// Deletion after the marker
+			if (end < seqChange.getEnd()) {
+				// Actually this does not affect the coordinates, so we don't care about this part
+			}
+
+			// Deletion matching the marker
+			int istart = Math.max(start, m.getStart());
+			int iend = Math.min(end, m.getEnd());
+			if (iend < istart) throw new RuntimeException("This should never happen!"); // Sanity check
+
+			end -= (iend - istart); // Update end coordinate
+
+			// Deletion before the marker
+			if (seqChange.getStart() < start) {
+				// Update cooredinates shifting the marker to the left
+				int delta = start - seqChange.getStart();
+				m.start -= delta;
+				m.end -= delta;
+			}
+		}
+
+		return m;
+	}
+
+	/**
+	 * Apply a SeqChange to a marker. SeqChange is an insertion
+	 * @param seqChange
+	 * @return
+	 */
+	public Marker applyIns(SeqChange seqChange, int lenChange) {
+		Marker m = clone();
+
+		// Insertion point before marker start? => Adjust both coordinates
+		if (seqChange.getStart() <= start) {
+			m.start += lenChange;
+			m.end += lenChange;
+		} else if (seqChange.getStart() <= end) m.end += lenChange; // Insertion point after start, but before end? => Adjust end coordinate
+
+		return m;
+	}
+
 	@Override
 	public Marker clone() {
 		Marker m = (Marker) super.clone();

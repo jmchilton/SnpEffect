@@ -318,10 +318,6 @@ public class SeqChange extends Marker {
 		}
 	}
 
-	public boolean isChangeMultiple() {
-		return changeOptions.length > 1;
-	}
-
 	/**
 	 * Is this a change or are the changes actually the same as the reference
 	 * @return
@@ -330,6 +326,10 @@ public class SeqChange extends Marker {
 		for (String chg : changeOptions)
 			if (!reference.equals(chg)) return true; // Any change option is different? => true
 		return false;
+	}
+
+	public boolean isChangeMultiple() {
+		return changeOptions.length > 1;
 	}
 
 	public boolean isDel() {
@@ -371,6 +371,21 @@ public class SeqChange extends Marker {
 
 	public boolean isSnp() {
 		return changeType == ChangeType.SNP;
+	}
+
+	/**
+	 * Calculate the number of bases of change in length
+	 * @return
+	 */
+	public int lengthChange() {
+		if (isChangeMultiple()) throw new RuntimeException("Cannot ask for lengthChange on multiple changes!\n\tSeqChange : " + this);
+
+		if (isChangeMultiple()) throw new RuntimeException("Cannot ask for lengthChange onSeqChange modifies transcript length: Unimplemented!"); // We'll focus on SNPs & MNPs now, we'll do other changes later
+		if (isSnp() || isMnp()) return 0;
+
+		// This is a length changing SeqChange (i.e. Insertions, deletion, or mixed change)
+		// Calculate the number of bases of change in length
+		return changeOptions[0].length() - reference.length();
 	}
 
 	/**

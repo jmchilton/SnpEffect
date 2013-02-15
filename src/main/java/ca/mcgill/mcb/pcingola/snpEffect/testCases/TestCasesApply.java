@@ -1,6 +1,10 @@
-package ca.mcgill.mcb.pcingola;
+package ca.mcgill.mcb.pcingola.snpEffect.testCases;
 
 import java.util.Random;
+
+import junit.framework.TestCase;
+
+import org.junit.Test;
 
 import ca.mcgill.mcb.pcingola.interval.Exon;
 import ca.mcgill.mcb.pcingola.interval.Gene;
@@ -13,12 +17,26 @@ import ca.mcgill.mcb.pcingola.util.GprSeq;
 import ca.mcgill.mcb.pcingola.util.Timer;
 
 /**
- * Simple test program
+ * Test 'apply' method (apply seqChange to marker)
+ * 
  * @author pcingola
  */
-public class Zzz {
+public class TestCasesApply extends TestCase {
 
-	public static void main(String[] args) {
+	public static boolean debug = false;
+	public static boolean verbose = false;
+	public static int SHOW_EVERY = 10;
+
+	public TestCasesApply() {
+		super();
+	}
+
+	/**
+	 * Test 'apply' on exons (test sequence changes) 
+	 * Only using SNPs seqChanges
+	 */
+	@Test
+	public void test_01_Exon_SNPs() {
 		Config config = new Config("testHg3765Chr22");
 		Timer.show("Loading predictor");
 		SnpEffectPredictor snpEffectPredictor = config.loadSnpEffectPredictor();
@@ -26,24 +44,26 @@ public class Zzz {
 
 		Random random = new Random(20130214);
 
+		// All genes
 		Genome genome = snpEffectPredictor.getGenome();
 		for (Gene g : genome.getGenes()) {
-			if (g.isProteinCoding()) {
+
+			if (g.isProteinCoding()) { // Only protein coding ones...
 				System.out.println(g.getGeneName());
 
+				// All transcripts
 				for (Transcript t : g) {
 					System.out.println("\t" + t.getId());
 
+					// All exons
 					for (Exon ex : t) {
 						// Positive strand sequence
 						String seq = ex.getSequence();
 						seq = ex.isStrandPlus() ? seq : GprSeq.reverseWc(seq);
 
-						// Skip exon it too long
-						if (ex.size() > 1000) continue;
-
-						// Skip some exons (otherwise test is too long)
-						if (random.nextInt(10) > 1) continue;
+						// Skip some exons, otherwise test takes too much time
+						if (random.nextInt(10) > 1) continue; // Rnadomly some exons 
+						if (ex.size() > 1000) continue; // Skip exon if too long
 
 						System.out.println("\t\t" + ex.getId() + "\tStrand: " + ex.getStrand() + "\tSize: " + ex.size());
 
@@ -63,11 +83,8 @@ public class Zzz {
 							newSeq = newSeq.toLowerCase();
 
 							SeqChange seqChange = new SeqChange(t.getChromosome(), i, ref + "", alt + "", 1, "", -1, -1);
-							// System.out.println("\t\t\t" + seqChange);
 
 							Exon exNew = ex.apply(seqChange);
-							//							System.out.println("\t\t\t\tOriginal : " + ex);
-							//							System.out.println("\t\t\t\tNew      : " + exNew);
 
 							if (!exNew.getSequence().equals(newSeq)) throw new RuntimeException("Error:" //
 									+ "\n\t\tSeqChange : " + seqChange //

@@ -17,7 +17,7 @@ import ca.mcgill.mcb.pcingola.util.GprSeq;
 public class Exon extends Marker {
 
 	/**
-	 * Caracterize exons based on alternative splicing
+	 * Characterize exons based on alternative splicing
 	 * References: "Alternative splicing and evolution - diversification, exon definition and function"  (see Box 1)
 	 */
 	public enum ExonSpliceType {
@@ -53,6 +53,43 @@ public class Exon extends Marker {
 		this.rank = rank;
 		sequence = DnaSequence.empty();
 		type = EffectType.EXON;
+	}
+
+	/**
+	 * Apply seqChange to exon
+	 * 
+	 * WARNING: There might be conditions which change the exon type (e.g. an intron is deleted)
+	 * 			Nevertheless ExonSpliceType s not updated since it reflects the exon type before a sequence change. 
+	 * 
+	 */
+	@Override
+	public Exon apply(SeqChange seqChange) {
+		// Create new exon with updated coordinates
+		Exon ex = (Exon) super.apply(seqChange);
+
+		if (!seqChange.isSnp()) throw new RuntimeException("Unimplemented method for sequence change type " + seqChange.getChangeType());
+
+		// Sometimes 'apply' method return 'this'. Since we don't want to update the original exon, we have to create a clone
+		if (ex == this) ex = (Exon) clone();
+
+		// Update sites
+		if (spliceSiteAcceptor != null) ex.spliceSiteAcceptor = (SpliceSiteAcceptor) spliceSiteAcceptor.apply(seqChange);
+		if (spliceSiteDonor != null) ex.spliceSiteDonor = (SpliceSiteDonor) spliceSiteDonor.apply(seqChange);
+
+		// Update sequence
+		if ((sequence != null) && (!sequence.isEmpty())) {
+			// Get sequence in positive strand direction
+			String seq = isStrandPlus() ? sequence.getSequence() : sequence.reverseWc().getSequence();
+
+			// Apply change to sequence
+			int idx = seqChange.getStart() - start;
+			seq = seq.substring(0, idx) + seqChange.getChange() + seq.substring(idx + 1);
+
+			// Update sequence
+			ex.setSequence(isStrandPlus() ? seq : GprSeq.reverseWc(seq));
+		}
+
+		return ex;
 	}
 
 	/**

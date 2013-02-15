@@ -31,11 +31,10 @@ public class Transcript extends IntervalAndSubIntervals<Exon> {
 
 	private static final long serialVersionUID = -2665025617916107311L;
 
-	boolean proteinCoding = false; // Is this a protein-coding transcript?
-	int cdsStart = -1;
-	int cdsEnd = -1;
+	boolean proteinCoding; // Is this a protein-coding transcript?
+	int cdsStart, cdsEnd;
 	String bioType = ""; // Transcript biotype
-	String cds = null; // Coding sequence
+	String cds; // Coding sequence
 	ArrayList<SpliceSiteBranch> spliceBranchSites; // Branch splice sites
 	ArrayList<Utr> utrs; // UTRs
 	ArrayList<Cds> cdss; // CDS information
@@ -55,9 +54,6 @@ public class Transcript extends IntervalAndSubIntervals<Exon> {
 
 	public Transcript(Gene gene, int start, int end, int strand, String id) {
 		super(gene, start, end, strand, id);
-		spliceBranchSites = new ArrayList<SpliceSiteBranch>();
-		utrs = new ArrayList<Utr>();
-		cdss = new ArrayList<Cds>();
 		type = EffectType.TRANSCRIPT;
 	}
 
@@ -193,33 +189,37 @@ public class Transcript extends IntervalAndSubIntervals<Exon> {
 	 * @param seqChange
 	 * @return
 	 */
+	@Override
 	public Transcript apply(SeqChange seqChange) {
-		// Doesn't hit the transcript? => Nothing to do
-		if (!seqChange.intersects(this)) return this;
+		// SeqChange after this marker: No effect
+		if (end < seqChange.getStart()) return this;
 
-		// How much does length change?
-		int lengthChange = 0;
-		//		if (!seqChange.isSnp() && !seqChange.isMnp()) {
-		//			lengthChange = seqChange.getChange();
-		//		}
-		//
-		//		// Change is fully included in an intron? => Nothing to do
-		//		for (Intron intron : introns())
-		//			if (intron.includes(seqChange)) return this;
-		//
-		//		// At this point we know it hits an exon
-		//		//---
-		//		// Hits a SpliceSiteBranch region?
-		//		//---
-		//		included = false;
-		//		for (SpliceSiteBranch ssbranch : spliceBranchSites)
-		//			if (ssbranch.intersects(seqChange)) {
-		//				// Calculate the effect
-		//				List<ChangeEffect> chEffList = ssbranch.seqChangeEffect(seqChange, changeEffect.clone());
-		//				if (!chEffList.isEmpty()) changeEffectList.addAll(chEffList);
-		//				included |= ssbranch.includes(seqChange); // Is this seqChange fully included branch site?
-		//			}
-		//		if (included) return changeEffectList; // SeqChange fully included in the Branch site? => We are done.
+		// We can only handle one change at a time
+		if (seqChange.isChangeMultiple()) throw new RuntimeException("Cannot apply multiple changes!\n\tseqChange.isChangeMultiple() = " + seqChange.isChangeMultiple() + "\n\tSeqChange : " + seqChange);
+
+		// Create new transcript
+		Transcript tr = (Transcript) super.apply(seqChange);
+		tr.reset(); // Reset all parameters (we only wanted the coordinate change)
+
+		// Add changed introns
+		for (Intron intron : introns())
+			tr.introns.add((Intron) intron.apply(seqChange));
+
+		// Add changed exons
+		for (Exon ex : this)
+			tr.add(ex.apply(seqChange));
+
+		// Add changed UTRs
+		for (Utr utr : utrs)
+			tr.utrs.add((Utr) utr.apply(seqChange));
+
+		// Up & Down stream
+		if (upstream != null) upstream = (Upstream) upstream.apply(seqChange);
+		if (downstream != null) downstream = (Downstream) downstream.apply(seqChange);
+
+		// Splice branch
+		for (SpliceSiteBranch sbr : spliceBranchSites)
+			tr.spliceBranchSites.add((SpliceSiteBranch) sbr.apply(seqChange));
 
 		return this;
 	}
@@ -902,6 +902,23 @@ public class Transcript extends IntervalAndSubIntervals<Exon> {
 			rank++;
 		}
 		return changed;
+	}
+
+	@Override
+	public void reset() {
+		super.reset();
+		cdsStart = -1;
+		cdsEnd = -1;
+		firstCodingExon = null;
+		sorted = null;
+		spliceBranchSites = new ArrayList<SpliceSiteBranch>();
+		utrs = new ArrayList<Utr>();
+		cdss = new ArrayList<Cds>();
+		introns = new ArrayList<Intron>();
+		upstream = null;
+		downstream = null;
+		cds = null;
+		cds2pos = null;
 	}
 
 	/**
