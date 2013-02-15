@@ -199,6 +199,9 @@ public class Transcript extends IntervalAndSubIntervals<Exon> {
 
 		// Create new transcript
 		Transcript tr = (Transcript) super.apply(seqChange);
+
+		// We will change information, so we need a clone
+		if (tr == this) tr = (Transcript) clone();
 		tr.reset(); // Reset all parameters (we only wanted the coordinate change)
 
 		// Add changed introns
@@ -221,7 +224,7 @@ public class Transcript extends IntervalAndSubIntervals<Exon> {
 		for (SpliceSiteBranch sbr : spliceBranchSites)
 			tr.spliceBranchSites.add((SpliceSiteBranch) sbr.apply(seqChange));
 
-		return this;
+		return tr;
 	}
 
 	/**

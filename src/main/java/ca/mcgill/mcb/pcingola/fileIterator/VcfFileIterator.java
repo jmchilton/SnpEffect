@@ -25,7 +25,7 @@ import ca.mcgill.mcb.pcingola.vcf.VcfHeader;
  * 3. ID semi-colon separated list of unique identifiers where available. If this is a dbSNP variant it is encouraged to use the rs number(s). No identifier should be present in more than one data record. If there is no identifier available, then the missing value should be used. (Alphanumeric String)
  * 4. REF reference base(s): Each base must be one of A,C,G,T,N. Bases should be in uppercase. Multiple bases are permitted. The value in the POS field refers to the position of the first base in the String. For InDels, the reference String must include the base before the event (which must be reflected in the POS field). (String, Required).
  * 5. ALT comma separated list of alternate non-reference alleles called on at least one of the samples. Options are base Strings made up of the bases A,C,G,T,N, or an angle-bracketed ID String (”<ID>”). If there are no alternative alleles, then the missing value should be used. Bases should be in uppercase. (Alphanumeric String; no whitespace, commas, or angle-brackets are permitted in the ID String itself)
- * 6. QUAL phred-scaled quality score for the assertion made in ALT. i.e. give -10log_10 prob(call in ALT is wrong). If ALT is ”.” (no variant) then this is -10log_10 p(variant), and if ALT is not ”.” this is -10log_10 p(no variant). High QUAL scores indicate high confidence calls. Although traditionally people use integer phred scores, this field is permitted to be a floating point to enable higher resolution for low confidence calls if desired. (Numeric)
+ * 6. QUAL phred-scaled quality score for the assertion made in ALT. i.e. give -10log_10 prob(call in ALT is wrong). If ALT is 0/0 (no variant) then this is -10log_10 p(variant), and if ALT is not ”.” this is -10log_10 p(no variant). High QUAL scores indicate high confidence calls. Although traditionally people use integer phred scores, this field is permitted to be a floating point to enable higher resolution for low confidence calls if desired. (Numeric)
  * 7. FILTER filter: PASS if this position has passed all filters, i.e. a call is made at this position. Otherwise, if the site has not passed all filters, a semicolon-separated list of codes for filters that fail. e.g. “q10;s50” might indicate that at this site the quality is below 10 and the number of samples with data is below 50% of the total number of samples. “0” is reserved and should not be used as a filter String. If filters have not been applied, then this field should be set to the missing value. (Alphanumeric String)
  * 8. INFO additional information: (Alphanumeric String) INFO fields are encoded as a semicolon-separated series of short keys with optional values in the format: <key>=<data>[,data]. Arbitrary keys are permitted, although the following sub-fields are reserved (albeit optional):
  *        - AA ancestral allele
@@ -59,6 +59,7 @@ public class VcfFileIterator extends MarkerFileIterator<VcfEntry> implements Par
 	private static final String EMPTY = "";
 
 	boolean parseNow = true;
+	boolean headeSection = false;
 	VcfHeader header = new VcfHeader();
 
 	public VcfFileIterator(BufferedReader reader) {
@@ -93,6 +94,10 @@ public class VcfFileIterator extends MarkerFileIterator<VcfEntry> implements Par
 	 */
 	public VcfHeader getVcfHeader() {
 		return header;
+	}
+
+	public boolean isHeadeSection() {
+		return headeSection;
 	}
 
 	@Override
@@ -163,12 +168,14 @@ public class VcfFileIterator extends MarkerFileIterator<VcfEntry> implements Par
 	protected VcfEntry readNext() {
 		// Read another line from the file
 		try {
+			headeSection = false;
 			while (ready()) {
 				line = readLine();
 				if (line == null) return null; // End of file?
 
 				VcfEntry vcfEntry = parseVcfLine(line);
 				if (vcfEntry != null) return vcfEntry;
+				else headeSection |= true;
 			}
 		} catch (IOException e) {
 			throw new RuntimeException("Error reading file '" + fileName + "'. Line ignored:\n\tLine (" + lineNum + "):\t'" + line + "'");

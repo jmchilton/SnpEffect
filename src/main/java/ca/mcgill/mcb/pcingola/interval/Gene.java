@@ -192,7 +192,7 @@ public class Gene extends IntervalAndSubIntervals<Transcript> implements Seriali
 	 * @return
 	 */
 	@Override
-	public List<ChangeEffect> seqChangeEffect(SeqChange seqChange, ChangeEffect changeEffect) {
+	public List<ChangeEffect> seqChangeEffect(SeqChange seqChange, ChangeEffect changeEffect, SeqChange seqChangerRef) {
 		if (!intersects(seqChange)) return ChangeEffect.emptyResults(); // Sanity check
 
 		changeEffect.set(this, EffectType.GENE, "");
@@ -202,7 +202,15 @@ public class Gene extends IntervalAndSubIntervals<Transcript> implements Seriali
 		ArrayList<ChangeEffect> changeEffectList = new ArrayList<ChangeEffect>();
 		for (Transcript tr : this) {
 			ChangeEffect chEff = changeEffect.clone();
+
+			// Apply sequence change to create new 'reference'?
+			if (seqChangerRef != null) {
+				tr = tr.apply(seqChangerRef);
+			}
+
+			// Calculate effects
 			List<ChangeEffect> chEffList = tr.seqChangeEffect(seqChange, chEff);
+
 			if (!chEffList.isEmpty()) {
 				changeEffectList.addAll(chEffList);
 				hitTranscript = true; // Did we hit any transcript?

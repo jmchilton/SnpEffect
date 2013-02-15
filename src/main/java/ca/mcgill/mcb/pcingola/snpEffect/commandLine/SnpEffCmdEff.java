@@ -10,6 +10,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import akka.actor.Actor;
 import akka.actor.Props;
@@ -47,8 +48,11 @@ import ca.mcgill.mcb.pcingola.stats.SeqChangeStats;
 import ca.mcgill.mcb.pcingola.stats.VcfStats;
 import ca.mcgill.mcb.pcingola.util.Gpr;
 import ca.mcgill.mcb.pcingola.util.Timer;
+import ca.mcgill.mcb.pcingola.util.Tuple;
+import ca.mcgill.mcb.pcingola.vcf.PedigreeEnrty;
 import ca.mcgill.mcb.pcingola.vcf.VcfEffect;
 import ca.mcgill.mcb.pcingola.vcf.VcfEntry;
+import ca.mcgill.mcb.pcingola.vcf.VcfGenotype;
 import freemarker.template.Configuration;
 import freemarker.template.DefaultObjectWrapper;
 import freemarker.template.Template;
@@ -64,9 +68,11 @@ public class SnpEffCmdEff extends SnpEff {
 	public static final String SUMMARY_TEMPLATE = "snpEff_summary.ftl"; // Summary template file name
 	public static final String SUMMARY_GENES_TEMPLATE = "snpEff_genes.ftl"; // Genes template file name
 
+	boolean cancer = false; // Perform cancer comparisons
 	boolean canonical = false; // Use only canonical transcripts
 	boolean supressOutput = false; // Only used for debugging purposes 
 	boolean createSummary = true; // Do not create summary output file 
+	boolean useHgvs = false; // Use Hgvs notation
 	boolean useLocalTemplate = false; // Use template from 'local' file instead of 'jar' (this is only used for development and debugging)
 	boolean useSequenceOntolgy = false; // Use Sequence Ontolgy terms
 	Boolean treatAllAsProteinCoding = null; // Only use coding genes. Default is 'null' which means 'auto'
@@ -107,6 +113,57 @@ public class SnpEffCmdEff extends SnpEff {
 		customIntervalFiles = new ArrayList<String>(); // Custom interval files
 		summaryFile = DEFAULT_SUMMARY_FILE;
 		summaryGenesFile = DEFAULT_SUMMARY_GENES_FILE;
+	}
+
+	/**
+	 * Analyze which comparissons to make in cancer genomes
+	 * @param vcfEntry
+	 * @param pedigree
+	 * @return
+	 */
+	Set<Tuple<Integer, Integer>> compareCancerGenotypes(VcfEntry vcfEntry, List<PedigreeEnrty> pedigree) {
+		HashSet<Tuple<Integer, Integer>> comparisons = new HashSet<Tuple<Integer, Integer>>();
+
+		// Find out which comparisons have to be analyzed
+		for (PedigreeEnrty pe : pedigree) {
+			if (pe.isDerived()) {
+				VcfGenotype genOri = vcfEntry.getVcfGenotype(pe.getOriginalNum());
+				VcfGenotype genDer = vcfEntry.getVcfGenotype(pe.getDerivedNum());
+
+				int gd[] = genDer.getGenotype();
+				int go[] = genOri.getGenotype();
+
+				if (genOri.isPhased() && genDer.isPhased()) {
+					// Phased, we only have two possible comparissons
+					// TODO: Check if this is correct for phased genotypes!
+					for (int i = 0; i < 2; i++) {
+						// Add comparissons
+						if ((go[i] >= 0) && (gd[i] >= 0) // Both genotypes are non-missimg?
+								&& (go[i] != 0) // Origin genotype is non-reference? (this is always analyzed in the default mode)
+								&& (gd[i] != go[i]) // Both genotypes are different?
+						) {
+							Tuple<Integer, Integer> compare = new Tuple<Integer, Integer>(gd[i], go[i]);
+							comparisons.add(compare);
+						}
+					}
+				} else {
+					// Phased, we only have two possible comparissons	
+					for (int d = 0; d < gd.length; d++)
+						for (int o = 0; o < go.length; o++) {
+							// Add comparissons 
+							if ((go[o] >= 0) && (gd[d] >= 0) // Both genotypes are non-missimg?
+									&& (go[o] != 0) // Origin genotype is non-reference? (this is always analyzed in the default mode)
+									&& (gd[d] != go[o]) // Both genotypes are different?
+							) {
+								Tuple<Integer, Integer> compare = new Tuple<Integer, Integer>(gd[d], go[o]);
+								comparisons.add(compare);
+							}
+						}
+				}
+			}
+		}
+
+		return comparisons;
 	}
 
 	public ChangeEffectResutStats getChangeEffectResutStats() {
@@ -192,9 +249,25 @@ public class SnpEffCmdEff extends SnpEff {
 		VcfFileIterator vcfFile = new VcfFileIterator(inputFile, config.getGenome());
 		vcfFile.setInOffset(inOffset); // May be there is a special inOffset (not likely to happen).
 
+		boolean anyCancerSample = false;
+		List<PedigreeEnrty> pedigree = null;
+
 		for (VcfEntry vcfEntry : vcfFile) {
 			try {
 				countInputLines++;
+
+				// Find if there is a pedigree and if it has any 'derived' entry
+				if (vcfFile.isHeadeSection()) {
+					if (cancer) {
+						pedigree = vcfFile.getVcfHeader().getPedigree();
+
+						// Any 'derived' entry in this pedigree?
+						if (pedigree != null) {
+							for (PedigreeEnrty pe : pedigree)
+								anyCancerSample |= pe.isDerived();
+						}
+					}
+				}
 
 				// Sample vcf entry
 				if (createSummary) vcfStats.sample(vcfEntry);
@@ -205,7 +278,14 @@ public class SnpEffCmdEff extends SnpEff {
 				// Create new 'section'
 				outputFormatter.startSection(vcfEntry);
 
-				for (SeqChange seqChange : vcfEntry.seqChanges()) {
+				//---
+				// Analyze all changes in this VCF entry
+				// Note, this is the standard analysis. 
+				// Next section deals with cancer: Somatic vs Germline comparisons 
+				//---
+				boolean impact = false; // Does this entry have an impact (other than MODIFIER)?
+				List<SeqChange> seqChanges = vcfEntry.seqChanges();
+				for (SeqChange seqChange : seqChanges) {
 					countVariants += seqChange.getChangeOptionCount();
 					if (verbose && (countVariants % 100000 == 0)) Timer.showStdErr("\t" + countVariants + " variants");
 
@@ -224,8 +304,8 @@ public class SnpEffCmdEff extends SnpEff {
 						for (ChangeEffect changeEffect : changeEffects) {
 							if (createSummary) changeEffectResutStats.sample(changeEffect); // Perform basic statistics about this result
 
-							if (changeEffect.getEffectImpact() == EffectImpact.MODIFIER) {
-							}
+							// Does this entry have an impact (other than MODIFIER)?
+							impact |= (changeEffect.getEffectImpact() != EffectImpact.MODIFIER);
 
 							outputFormatter.add(changeEffect);
 							countEffects++;
@@ -235,6 +315,38 @@ public class SnpEffCmdEff extends SnpEff {
 						outputFormatter.printSection(seqChange);
 
 					} else countVariantsFilteredOut += seqChange.getChangeOptionCount();
+				}
+
+				//---
+				// Do we analyze cancer samples?
+				// Here we deal with Somatic vs Germline comparisons 
+				//---
+				if (anyCancerSample && impact && vcfEntry.isMultipleAlts()) {
+					// Calculate all required comparissons
+					Set<Tuple<Integer, Integer>> comparisons = compareCancerGenotypes(vcfEntry, pedigree);
+
+					// Analyze each comparison
+					for (Tuple<Integer, Integer> comp : comparisons) {
+						// We have to compare comp.first vs comp.second
+						int altGtNum = comp.first; // comp.first is 'derived' (our new ALT)
+						int refGtNum = comp.second; // comp.second is 'original' (our new REF)
+
+						SeqChange seqChangeRef = seqChanges.get(refGtNum - 1); // After applying this seqChange, we get the new 'reference'
+						SeqChange seqChangeAlt = seqChanges.get(altGtNum - 1); // This our new 'seqChange'
+
+						// Calculate effects
+						List<ChangeEffect> changeEffects = snpEffectPredictor.seqChangeEffect(seqChangeAlt, seqChangeRef);
+
+						// Create new 'section'
+						outputFormatter.startSection(seqChangeAlt);
+
+						// Show results (note, we don't add these to the statistics)
+						for (ChangeEffect changeEffect : changeEffects)
+							outputFormatter.add(changeEffect);
+
+						// Finish up this section
+						outputFormatter.printSection(seqChangeAlt);
+					}
 				}
 
 				// Finish up this section
@@ -364,10 +476,14 @@ public class SnpEffCmdEff extends SnpEff {
 						if (args[i].equalsIgnoreCase("auto")) treatAllAsProteinCoding = null;
 						else treatAllAsProteinCoding = Gpr.parseBoolSafe(args[i]);
 					}
-				} else if (args[i].equalsIgnoreCase("-canon")) canonical = true; // Use canonical transcripts
+				} else if (args[i].equalsIgnoreCase("-cancer")) cancer = true; // Perform cancer comparissons
+				else if (args[i].equalsIgnoreCase("-canon")) canonical = true; // Use canonical transcripts
 				else if (args[i].equalsIgnoreCase("-lof")) lossOfFunction = true; // Add LOF tag
-				else if (args[i].equalsIgnoreCase("-sequenceOntolgy")) useSequenceOntolgy = true; // Use SO temrs
-				else if (args[i].equalsIgnoreCase("-onlyTr")) {
+				else if (args[i].equalsIgnoreCase("-hgvs")) useHgvs = true; // Use HGVS notation
+				else if (args[i].equalsIgnoreCase("-sequenceOntolgy")) {
+					useSequenceOntolgy = true; // Use SO temrs
+					useHgvs = true; // Use SO temrs
+				} else if (args[i].equalsIgnoreCase("-onlyTr")) {
 					if ((i + 1) < args.length) onlyTranscriptsFile = args[++i]; // Only use the transcripts in this file
 				}
 				//---
@@ -738,6 +854,7 @@ public class SnpEffCmdEff extends SnpEff {
 		outputFormatter.setOutOffset(outOffset);
 		outputFormatter.setChrStr(chrStr);
 		outputFormatter.setUseSequenceOntolgy(useSequenceOntolgy);
+		outputFormatter.setUseHgvs(useHgvs);
 
 		//---
 		// Iterate over all changes
@@ -868,13 +985,15 @@ public class SnpEffCmdEff extends SnpEff {
 		System.err.println("\t-no-intron                      : Do not show INTRON changes");
 		System.err.println("\t-no-upstream                    : Do not show UPSTREAM changes");
 		System.err.println("\t-no-utr                         : Do not show 5_PRIME_UTR or 3_PRIME_UTR changes");
-		System.err.println("\nAnnotations filter options:");
+		System.err.println("\nAnnotations options:");
+		System.err.println("\t-cancer                         : Perform 'cancer' comparissons (Somatic vs Germline). Default: " + cancer);
 		System.err.println("\t-canon                          : Only use canonical transcripts.");
+		System.err.println("\t-hgvs                           : Use HGVS annotations for amino acid sub-field. Default: " + useHgvs);
 		System.err.println("\t-lof                            : Add loss of function (LOF) and Nonsense mediated decay (NMD) tags.");
 		System.err.println("\t-reg <name>                     : Regulation track to use (this option can be used add several times).");
 		System.err.println("\t-onlyReg                        : Only use regulation tracks.");
 		System.err.println("\t-onlyTr <file.txt>              : Only use the transcripts in this file. Format: One transcript ID per line.");
-		System.err.println("\t-sequenceOntolgy                : Use Sequence Ontolgy terms. Default: off" + useSequenceOntolgy);
+		System.err.println("\t-sequenceOntolgy                : Use Sequence Ontolgy terms. Default: " + useSequenceOntolgy);
 		System.err.println("\t-ss, -spliceSiteSize <int>      : Set size for splice sites (donor and acceptor) in bases. Default: " + spliceSiteSize);
 		System.err.println("\t-treatAllAsProteinCoding <bool> : If true, all transcript are treated as if they were protein conding. Default: Auto");
 		System.err.println("\t-ud, -upDownStreamLen <int>     : Set upstream downstream interval length (in bases)");

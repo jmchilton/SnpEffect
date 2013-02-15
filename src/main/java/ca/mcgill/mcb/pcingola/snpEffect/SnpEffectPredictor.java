@@ -457,6 +457,15 @@ public class SnpEffectPredictor implements Serializable {
 	 * @param seqChange
 	 */
 	public List<ChangeEffect> seqChangeEffect(SeqChange seqChange) {
+		return seqChangeEffect(seqChange, null);
+	}
+
+	/**
+	 * Predict the effect of a seqChange
+	 * @param seqChange : Sequence change
+	 * @param seqChangeRef : Before analyzing results, we have to change markers using seqChangerRef to create a new reference 'on the fly'
+	 */
+	public List<ChangeEffect> seqChangeEffect(SeqChange seqChange, SeqChange seqChangerRef) {
 		// No change? => Nothing to predict
 		if ((!seqChange.isChange()) && (!seqChange.isInterval())) return ChangeEffect.emptyResults();
 
@@ -478,8 +487,8 @@ public class SnpEffectPredictor implements Serializable {
 			for (Marker marker : intersects) {
 				if (marker instanceof Chromosome) hitChromo = true; // Do we hit any chromosome?
 				else { // Analyze all markers 
-					results = new ChangeEffect(seqChange);
-					List<ChangeEffect> resList = marker.seqChangeEffect(seqChange, results);
+					results = new ChangeEffect(seqChange, seqChangerRef);
+					List<ChangeEffect> resList = marker.seqChangeEffect(seqChange, results, seqChangerRef);
 					if (!resList.isEmpty()) resultsList.addAll(resList);
 					hitSomething = true;
 				}

@@ -58,6 +58,79 @@ public class VcfHeader {
 		if (!added) header.append(newHeaderLine + "\n"); // Add new header right before title line
 	}
 
+	public String[] getLines() {
+		return header.toString().split("\n");
+	}
+
+	/**
+	 * Get pedigree (if any)
+	 */
+	public List<PedigreeEnrty> getPedigree() {
+		ArrayList<PedigreeEnrty> list = new ArrayList<PedigreeEnrty>();
+
+		List<String> sampleNames = getSampleNames();
+
+		for (String line : getLines()) {
+			if (line.startsWith("##PEDIGREE=")) {
+				String l = line.substring("##PEDIGREE=".length());
+				l = l.replace('<', ' ');
+				l = l.replace('>', ' ');
+				l = l.trim();
+
+				String records[] = l.split(",");
+
+				if (records.length == 2) {
+					// Format:
+					//     ##PEDIGREE=<Derived=Patient_01_Somatic,Original=Patient_01_Germline>
+					String derived = null, original = null;
+					for (String r : records) {
+						String nv[] = r.split("=");
+						String name = nv[0];
+						String value = nv[1];
+
+						if (name.equalsIgnoreCase("Derived")) derived = value;
+						else if (name.equalsIgnoreCase("Original")) original = value;
+						else throw new RuntimeException("Cannot parse PEDIGREE heade line. Field name: '" + name + "'\n\tLine: '" + line + "'");
+					}
+
+					if (derived == null) throw new RuntimeException("Cannot parse PEDIGREE heade line. Missing 'Derived' name-value pair");
+					if (original == null) throw new RuntimeException("Cannot parse PEDIGREE heade line. Missing 'Original' name-value pair");
+
+					PedigreeEnrty pe = new PedigreeEnrty(original, derived);
+					pe.sampleNumbers(sampleNames);
+
+					list.add(pe);
+				} else if (records.length == 2) {
+					// Format:
+					//     ##PEDIGREE=<Child=CHILD-GENOME-ID,Mother=MOTHER-GENOME-ID,Father=FATHER-GENOME-ID>
+
+					String father = null, mother = null, child = null;
+					for (String r : records) {
+						String nv[] = r.split("=");
+						String name = nv[0];
+						String value = nv[1];
+
+						if (name.equalsIgnoreCase("Father")) father = value;
+						else if (name.equalsIgnoreCase("Mother")) mother = value;
+						else if (name.equalsIgnoreCase("Child")) child = value;
+						else throw new RuntimeException("Cannot parse PEDIGREE heade line. Field name: '" + name + "'\n\tLine: '" + line + "'");
+					}
+
+					if (father == null) throw new RuntimeException("Cannot parse PEDIGREE heade line. Missing 'Father' name-value pair");
+					if (mother == null) throw new RuntimeException("Cannot parse PEDIGREE heade line. Missing 'Mother' name-value pair");
+					if (child == null) throw new RuntimeException("Cannot parse PEDIGREE heade line. Missing 'Child' name-value pair");
+
+					PedigreeEnrty pe = new PedigreeEnrty(father, mother, child);
+					pe.sampleNumbers(sampleNames);
+					list.add(pe);
+
+				} else throw new RuntimeException("UNable to parse pedigree line:\n\t'" + line + "'");
+			}
+		}
+
+		return list;
+	}
+
 	/**
 	 * Get sample names
 	 * @return
@@ -200,8 +273,7 @@ public class VcfHeader {
 			vcfInfoById.put("NMD.PERC", new VcfInfo("NMD.PERC", VcfInfoType.Float, ".", "SnpEff NMD percentage of transcripts in this gene that are affected"));
 
 			// Add all INFO fields from header
-			String headerLines[] = header.toString().split("\n");
-			for (String line : headerLines) {
+			for (String line : getLines()) {
 				if (line.startsWith("##INFO=") || line.startsWith("##FORMAT=")) {
 					VcfInfo vcfInfo = new VcfInfo(line);
 					vcfInfoById.put(vcfInfo.getId(), vcfInfo);

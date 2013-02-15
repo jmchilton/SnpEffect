@@ -18,6 +18,7 @@ import ca.mcgill.mcb.pcingola.snpEffect.ChangeEffect;
 public abstract class OutputFormatter {
 
 	boolean supressOutput = false; // Do not print anything
+	boolean useHgvs = false; // Use HGVS notation
 	boolean useSequenceOntolgy = false; // Use Sequence Ontolgy terms
 	boolean showHeader = true; // Show header information
 	int sectionNum = 0;
@@ -124,6 +125,10 @@ public abstract class OutputFormatter {
 
 	public void setSupressOutput(boolean supressOutput) {
 		this.supressOutput = supressOutput;
+	}
+
+	public void setUseHgvs(boolean useHgvs) {
+		this.useHgvs = useHgvs;
 	}
 
 	public void setUseSequenceOntolgy(boolean useSequenceOntolgy) {

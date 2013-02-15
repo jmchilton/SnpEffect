@@ -411,12 +411,27 @@ public class Marker extends Interval {
 
 	/**
 	 * Calculate the effect of this seqChange
-	 * @param seqChange
+	 * @param seqChange : Sequence change
 	 * @param changeEffect
 	 * @return
 	 */
 	public List<ChangeEffect> seqChangeEffect(SeqChange seqChange, ChangeEffect changeEffect) {
+		return seqChangeEffect(seqChange, changeEffect, null);
+	}
+
+	/**
+	 * Calculate the effect of this seqChange
+	 * @param seqChange : Sequence change
+	 * @param changeEffect
+	 * @param seqChangeRef : Before analyzing results, we have to change markers using seqChangerRef to create a new reference 'on the fly'
+	 * @return
+	 */
+	public List<ChangeEffect> seqChangeEffect(SeqChange seqChange, ChangeEffect changeEffect, SeqChange seqChangerRef) {
 		if (!intersects(seqChange)) return ChangeEffect.emptyResults(); // Sanity check
+		if (seqChangerRef != null) {
+			Marker m = apply(seqChangerRef);
+			return m.seqChangeEffect(seqChange, changeEffect);
+		}
 		changeEffect.set(this, type, "");
 		return changeEffect.newList();
 	}

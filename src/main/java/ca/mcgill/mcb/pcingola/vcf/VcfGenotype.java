@@ -262,7 +262,7 @@ public class VcfGenotype {
 		// Create fields
 		genotype = new int[gtStr.length];
 		for (int i = 0; i < genotype.length; i++)
-			if (gtStr[i].isEmpty() || gtStr[i].isEmpty() || gtStr[i].equals(".")) genotype[i] = -1; // Genotype '-1' means missing values
+			if (gtStr[i].isEmpty() || gtStr[i].equals(".")) genotype[i] = -1; // Genotype '-1' means missing values
 			else {
 				genotype[i] = Gpr.parseIntSafe(gtStr[i]);
 

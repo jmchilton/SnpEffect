@@ -191,6 +191,7 @@ public class ChangeEffect implements Cloneable, Comparable<ChangeEffect> {
 	static final boolean COMPATIBLE_v1_8 = true; // Activate this in order to get the same out as version 1.8. This is only for testing & debugging 
 
 	SeqChange seqChange = null;
+	SeqChange seqChangeRef = null;
 	EffectType effectType = EffectType.NONE;
 	EffectImpact effectImpact = null;
 	Marker marker = null;
@@ -214,6 +215,11 @@ public class ChangeEffect implements Cloneable, Comparable<ChangeEffect> {
 
 	public ChangeEffect(SeqChange seqChange) {
 		this.seqChange = seqChange;
+	}
+
+	public ChangeEffect(SeqChange seqChange, SeqChange seqChangeRef) {
+		this.seqChange = seqChange;
+		this.seqChangeRef = seqChangeRef;
 	}
 
 	public void addError(ErrorType err) {
@@ -566,6 +572,16 @@ public class ChangeEffect implements Cloneable, Comparable<ChangeEffect> {
 	}
 
 	/**
+	 * Get genotype string
+	 * @return
+	 */
+	public String getGenotype() {
+		if (seqChange == null) return "";
+		if (seqChangeRef != null) return seqChange.getGenotype() + "-" + seqChangeRef.getGenotype();
+		return seqChange.getGenotype();
+	}
+
+	/**
 	 * Change in HGVS notation
 	 * References: http://www.hgvs.org/mutnomen/recs.html
 	 * 
@@ -842,10 +858,10 @@ public class ChangeEffect implements Cloneable, Comparable<ChangeEffect> {
 
 	@Override
 	public String toString() {
-		return toString(false);
+		return toString(false, false);
 	}
 
-	public String toString(boolean useSeqOntology) {
+	public String toString(boolean useSeqOntology, boolean useHgvs) {
 		// Get data to show
 		String geneId = "", geneName = "", bioType = "", transcriptId = "", exonId = "", customId = "";
 		int exonRank = -1;
@@ -886,6 +902,11 @@ public class ChangeEffect implements Cloneable, Comparable<ChangeEffect> {
 		int cdsSize = getCdsLength();
 
 		String errWarn = error + (error.isEmpty() ? "" : "|") + warning;
+
+		String aaChange = "";
+		if (useHgvs) aaChange = getHgvs();
+		else aaChange = ((codonsOld.length() + codonsNew.length()) > 0 ? codonsOld + "/" + codonsNew : "");
+
 		return errWarn //		
 				+ "\t" + geneId //
 				+ "\t" + geneName //
@@ -894,7 +915,7 @@ public class ChangeEffect implements Cloneable, Comparable<ChangeEffect> {
 				+ "\t" + exonId //
 				+ "\t" + (exonRank >= 0 ? exonRank : "") //
 				+ "\t" + effect(false, false, false, useSeqOntology) //
-				+ "\t" + ((aaOld.length() + aaNew.length()) > 0 ? aaOld + "/" + aaNew : "") //
+				+ "\t" + aaChange //
 				+ "\t" + ((codonsOld.length() + codonsNew.length()) > 0 ? codonsOld + "/" + codonsNew : "") //
 				+ "\t" + (codonNum >= 0 ? (codonNum + 1) : "") //
 				+ "\t" + (codonDegeneracy >= 0 ? codonDegeneracy + "" : "") //

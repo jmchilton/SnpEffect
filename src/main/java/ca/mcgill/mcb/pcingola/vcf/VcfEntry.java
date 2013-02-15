@@ -428,6 +428,15 @@ public class VcfEntry extends Marker implements Iterable<VcfGenotype> {
 		return changeType == ChangeType.MNP;
 	}
 
+	/**
+	 * Do we have more than one ATL in this entry?
+	 * @return
+	 */
+	public boolean isMultipleAlts() {
+		return getAlts().length > 1;
+
+	}
+
 	@Override
 	protected boolean isShowWarningIfParentDoesNotInclude() {
 		return false;
