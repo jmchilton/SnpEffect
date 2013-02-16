@@ -1,12 +1,10 @@
 package ca.mcgill.mcb.pcingola.vcf;
 
-import java.io.FileInputStream;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.MappedByteBuffer;
+import java.io.RandomAccessFile;
 import java.nio.channels.FileChannel;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Set;
 
@@ -14,7 +12,7 @@ import ca.mcgill.mcb.pcingola.interval.Chromosome;
 import ca.mcgill.mcb.pcingola.util.Gpr;
 
 /**
- * Extract intervals from an uncompressed VCF file using indexing.
+ * Index a file that has "chr \t pos" as the beginning of a line (e.g. VCF)
  * 
  * WARNING: It is assumed that the file is ordered by position (chromosome order does not matter)
  * 
@@ -22,7 +20,7 @@ import ca.mcgill.mcb.pcingola.util.Gpr;
  * 
  * @author pcingola
  */
-public class VcfFileIndexIntervals {
+public class FileIndexChrPos {
 
 	/**
 	 * A part of a file
@@ -55,19 +53,16 @@ public class VcfFileIndexIntervals {
 	}
 
 	public static final int POS_OFFSET = 1; // VCF files are one-based
-	private static final long PAGE_SIZE = Integer.MAX_VALUE;
 	private static final int BUFF_SIZE = 1024 * 1024;
 
 	boolean verbose = false;
 	boolean debug = false;
 	String fileName;
 	long size = 0;
-	FileChannel fileChannel;
-	ArrayList<MappedByteBuffer> maps = new ArrayList<MappedByteBuffer>();
-	ArrayList<ByteBuffer> buffers = new ArrayList<ByteBuffer>();
-	HashMap<String, FileRegion> fileRegions = new HashMap<String, VcfFileIndexIntervals.FileRegion>(); // Store file regions by chromosome
+	RandomAccessFile file;
+	HashMap<String, FileRegion> fileRegions = new HashMap<String, FileIndexChrPos.FileRegion>(); // Store file regions by chromosome
 
-	public VcfFileIndexIntervals(String fileName) {
+	public FileIndexChrPos(String fileName) {
 		this.fileName = fileName;
 	}
 
@@ -81,16 +76,17 @@ public class VcfFileIndexIntervals {
 		return line.split("\\t")[0];
 	}
 
+	/**
+	 * Close file
+	 */
 	public void close() {
 		try {
-			fileChannel.close();
-			fileChannel = null;
-			maps = null;
-			buffers = null;
+			if (file != null) file.close();
 		} catch (IOException e) {
 			System.err.println("I/O problem while closing file '" + fileName + "'");
 			throw new RuntimeException(e);
 		}
+		file = null;
 	}
 
 	/**
@@ -99,27 +95,23 @@ public class VcfFileIndexIntervals {
 	 * @param end
 	 */
 	void dump(long start, long end) {
-		int pageStart = (int) (start / PAGE_SIZE);
-		int indexStart = (int) (start % PAGE_SIZE);
-		int pageEnd = (int) (end / PAGE_SIZE);
-		int indexEnd = (int) (end % PAGE_SIZE);
+		if (verbose) System.err.println("\tDumping file '" + fileName + "' interval [ " + start + " , " + end + " ]");
+		try {
+			byte buff[] = new byte[BUFF_SIZE];
+			file.seek(start);
+			for (long curr = start; curr <= end;) {
+				long len = Math.min(BUFF_SIZE, end - curr + 1); // Maximum length to read
+				int read = file.read(buff, 0, (int) len); // Read file
 
-		byte buff[] = new byte[BUFF_SIZE];
-		for (int page = pageStart; page <= pageEnd; page++) {
-			long max = PAGE_SIZE;
-			if (page == pageEnd) max = indexEnd;
+				if (read <= 0) break; // Error or nothing read, abort
 
-			ByteBuffer bf = buffers.get(page);
-			bf.position(indexStart);
-
-			for (long pos = indexStart; pos < max; pos += buff.length) {
-				int len = (int) Math.min(max - pos, buff.length);
-				bf.get(buff, 0, len);
-
-				String out = new String(buff, 0, len);
+				String out = new String(buff, 0, read);
 				System.out.print(out);
+
+				curr += read;
 			}
-			indexStart = 0;
+		} catch (Exception e) {
+			throw new RuntimeException("Error reading file '" + fileName + "' from position " + start + " to " + end);
 		}
 	}
 
@@ -131,10 +123,12 @@ public class VcfFileIndexIntervals {
 	 * @param posEnd
 	 */
 	public void dump(String chr, int posStart, int posEnd) {
+		debug = true;
+		Gpr.debug("DEBUG!");
 		long fileStart = find(chr, posStart, false);
 		long fileEnd = find(chr, posEnd, true);
 
-		dump(fileStart, fileEnd);
+		dump(fileStart, fileEnd - 1);
 	}
 
 	/**
@@ -146,37 +140,45 @@ public class VcfFileIndexIntervals {
 	 * @param lineEnd
 	 * @return
 	 */
-	long find(int chrPos, long start, String lineStart, long end, String lineEnd, boolean lessEq) {
-		int posStart = pos(lineStart);
-		if (chrPos == posStart) return start;
+	long find(int chrPos, long start, String lineStart, long end, String lineEnd, boolean endOfLine) {
+		//---
+		// Check break conditions
+		//---
 
+		// Is it lineStart?
+		int posStart = pos(lineStart);
+		if (chrPos <= posStart) {
+			if (endOfLine) return start + lineStart.length(); // End of line
+			else return start; // Begining of 'start' line
+		}
+
+		// Is it lineEnd?
 		int posEnd = pos(lineEnd);
-		if (chrPos == posEnd) return end + lineEnd.length() + 1;
+		if (posEnd <= chrPos) {
+			if (endOfLine) return end + lineEnd.length(); // End of line
+			else return end; // Begining of 'start' line
+		}
+
+		// Interval is less than one line?
+		if ((start + lineStart.length()) >= end) {
+			if (endOfLine) return start + lineStart.length(); // End of line
+			else return start; // Begining of 'start' line
+		}
 
 		if (debug) Gpr.debug("Find:\t" + chrPos + "\t[" + posStart + ", " + posEnd + "]\tFile: [" + start + " , " + end + "]\tsize: " + (end - start));
-
-		// Break conditions
-		if (lessEq) {
-			if (posStart >= chrPos) return start;
-			if ((start + lineStart.length() + 1) >= end) return start;
-		} else {
-			if (posEnd <= chrPos) return end + lineEnd.length() + 1;
-			if ((start + lineStart.length() + 1) >= end) return end + lineEnd.length() + 1;
-		}
 
 		// Sanity check
 		if (posStart >= posEnd) throw new RuntimeException("This should never happen! Is the file sorted by position?");
 
+		//---
+		// Recurse
+		//---
 		long mid = (start + end) / 2;
 		String lineMid = getLine(mid).line;
 		long posMid = pos(lineMid);
 
-		if (lessEq) {
-			if (chrPos <= posMid) return find(chrPos, start, lineStart, mid, lineMid, lessEq);
-		} else {
-			if (chrPos < posMid) return find(chrPos, start, lineStart, mid, lineMid, lessEq);
-		}
-		return find(chrPos, mid, lineMid, end, lineEnd, lessEq);
+		if (chrPos <= posMid) return find(chrPos, start, lineStart, mid, lineMid, endOfLine);
+		else return find(chrPos, mid, lineMid, end, lineEnd, endOfLine);
 	}
 
 	/**
@@ -193,12 +195,44 @@ public class VcfFileIndexIntervals {
 		return getLine(posFound).position;
 	}
 
+	/**
+	 * Get a byte from a file
+	 * @param bytePosition
+	 * @return
+	 */
 	public byte get(long bytePosition) {
-		int page = (int) (bytePosition / PAGE_SIZE);
-		int index = (int) (bytePosition % PAGE_SIZE);
-		byte b = buffers.get(page).get(index);
-		if (debug) Gpr.debug("page: " + page + "\t" + index + "\t" + b + "\t'" + ((char) b) + "'");
-		return b;
+		try {
+			// Change position if needed
+			if (file.getFilePointer() != bytePosition) file.seek(bytePosition);
+			return (byte) file.read();
+		} catch (IOException e) {
+			throw new RuntimeException("Error readin file '" + fileName + "' at position " + bytePosition, e);
+		}
+	}
+
+	public byte[] get(long bytePosition, int len) {
+		try {
+			byte buff[] = new byte[len];
+
+			// Change position if needed
+			if (file.getFilePointer() != bytePosition) file.seek(bytePosition);
+
+			int read = file.read(buff);
+
+			// Nothing to read?
+			if (read <= 0) return null;
+
+			// Buffer was too long? Return an array of byte with exactly the number of byte that were  
+			if (read < buff.length) {
+				byte newBuff[] = new byte[read];
+				System.arraycopy(buff, 0, newBuff, 0, read);
+				buff = newBuff;
+			}
+
+			return buff;
+		} catch (IOException e) {
+			throw new RuntimeException("Error readin file '" + fileName + "' at position " + bytePosition, e);
+		}
 	}
 
 	/**
@@ -343,7 +377,7 @@ public class VcfFileIndexIntervals {
 		if (debug) Gpr.debug("Chromo:\tlineStart: " + chrStart + "\tlineEnd: " + chrEnd);
 
 		if ((start + lineStart.length() + 1) >= end) {
-			if (verbose) System.err.println("\tStart + 1 line = End\t==>Done!\t" + chrStart + " / " + chrEnd + "\t" + start + " / " + end);
+			if (verbose) System.err.println("\t\t" + chrStart + " / " + chrEnd + "\t" + start + " / " + end);
 
 			// Add index where chromosome starts
 			getFileRegion(chrEnd).start = getLine(end).position;
@@ -374,29 +408,11 @@ public class VcfFileIndexIntervals {
 	 */
 	public void open() {
 		try {
-			fileChannel = new FileInputStream(fileName).getChannel();
-			size = fileChannel.size();
-
-			// Create all mapped files required
-			long start = 0, length = 0;
-			for (int index = 0; start + length < fileChannel.size(); index++) {
-				if ((fileChannel.size() / PAGE_SIZE) == index) length = (fileChannel.size() - index * PAGE_SIZE);
-				else length = PAGE_SIZE;
-				start = index * PAGE_SIZE;
-
-				// Create map and add it to the array
-				MappedByteBuffer map = fileChannel.map(FileChannel.MapMode.READ_ONLY, start, length);
-				maps.add(index, map);
-
-				ByteBuffer buff = map.asReadOnlyBuffer();
-				buffers.add(index, buff);
-			}
-
+			File f = new File(fileName);
+			size = f.length();
+			file = new RandomAccessFile(f, "r");
 		} catch (FileNotFoundException e) {
 			System.err.println("File not found '" + fileName + "'");
-			throw new RuntimeException(e);
-		} catch (IOException e) {
-			System.err.println("I/O problem while mapping file '" + fileName + "'");
 			throw new RuntimeException(e);
 		}
 	}
