@@ -917,7 +917,7 @@ public class Transcript extends IntervalAndSubIntervals<Exon> {
 		spliceBranchSites = new ArrayList<SpliceSiteBranch>();
 		utrs = new ArrayList<Utr>();
 		cdss = new ArrayList<Cds>();
-		introns = new ArrayList<Intron>();
+		introns = null;
 		upstream = null;
 		downstream = null;
 		cds = null;

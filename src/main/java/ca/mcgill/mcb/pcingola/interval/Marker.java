@@ -416,7 +416,9 @@ public class Marker extends Interval {
 	 * @return
 	 */
 	public List<ChangeEffect> seqChangeEffect(SeqChange seqChange, ChangeEffect changeEffect) {
-		return seqChangeEffect(seqChange, changeEffect, null);
+		if (!intersects(seqChange)) return ChangeEffect.emptyResults(); // Sanity check
+		changeEffect.set(this, type, "");
+		return changeEffect.newList();
 	}
 
 	/**
@@ -432,8 +434,8 @@ public class Marker extends Interval {
 			Marker m = apply(seqChangerRef);
 			return m.seqChangeEffect(seqChange, changeEffect);
 		}
-		changeEffect.set(this, type, "");
-		return changeEffect.newList();
+
+		return seqChangeEffect(seqChange, changeEffect);
 	}
 
 	/**

@@ -943,9 +943,9 @@ public class ChangeEffect implements Cloneable, Comparable<ChangeEffect> {
 		if (exon != null) exonId = exon.getId();
 
 		String eff = effect(shortFormat, true, true, false);
-		if (eff.length() > 0) return eff;
-		if (exonId.length() > 0) return exonId;
-		if (transcriptId.length() > 0) return transcriptId;
+		if (!eff.isEmpty()) return eff;
+		if (!exonId.isEmpty()) return exonId;
+		if (!transcriptId.isEmpty()) return transcriptId;
 
 		return "NO EFFECT";
 	}
