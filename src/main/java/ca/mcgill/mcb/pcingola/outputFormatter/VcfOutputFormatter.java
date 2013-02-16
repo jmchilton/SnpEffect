@@ -168,15 +168,28 @@ public class VcfOutputFormatter extends OutputFormatter {
 					if (intron != null) rank = intron.getRank();
 				}
 				effBuff.append(rank >= 0 ? rank : "");
+				effBuff.append("|");
 
 				// Add genotype (or genotype difference) for this effect
 				if (formatVersion == FormatVersion.FORMAT_SNPEFF_4) effBuff.append(changeEffect.getGenotype());
 				// Add genotype corresponding to this change
 
 				// Errors or warnings (this is the last thing in the list)
-				if (!changeEffect.getWarning().isEmpty()) effBuff.append("|" + changeEffect.getWarning());
-				if (!changeEffect.getError().isEmpty()) effBuff.append("|" + changeEffect.getError());
+				if (changeEffect.hasErrorOrWarning()) {
+					StringBuilder err = new StringBuilder();
 
+					// Add warnings
+					if (!changeEffect.getWarning().isEmpty()) err.append(changeEffect.getWarning());
+
+					// Add errors
+					if (!changeEffect.getError().isEmpty()) {
+						if (err.length() > 0) err.append("+");
+						err.append(changeEffect.getError());
+					}
+
+					effBuff.append("|");
+					effBuff.append(err);
+				}
 				effBuff.append(")");
 
 				//---

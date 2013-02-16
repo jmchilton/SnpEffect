@@ -79,6 +79,9 @@ public class TestSuiteAll {
 		// Apply changes
 		suite.addTestSuite(TestCasesApply.class);
 
+		// Cancer effects (Somatic vs Germline)
+		suite.addTestSuite(TestCasesCancer.class);
+
 		return suite;
 	}
 }

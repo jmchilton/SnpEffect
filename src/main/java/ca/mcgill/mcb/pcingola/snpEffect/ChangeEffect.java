@@ -186,6 +186,11 @@ public class ChangeEffect implements Cloneable, Comparable<ChangeEffect> {
 	 */
 	public enum FunctionalClass {
 		NONE, SILENT, MISSENSE, NONSENSE
+	}
+
+	public enum WarningType {
+		WARNING_SEQUENCE_NOT_AVAILABLE //
+		, WARNING_REF_DOES_NOT_MATCH_GENOME //
 	};
 
 	static final boolean COMPATIBLE_v1_8 = true; // Activate this in order to get the same out as version 1.8. This is only for testing & debugging 
@@ -223,11 +228,11 @@ public class ChangeEffect implements Cloneable, Comparable<ChangeEffect> {
 	}
 
 	public void addError(ErrorType err) {
-		error += (error.isEmpty() ? "" : "|") + err;
+		error += (error.isEmpty() ? "" : "+") + err;
 	}
 
-	public void addWarning(String warn) {
-		warning += (warning.isEmpty() ? "" : "|") + warn;
+	public void addWarning(WarningType warn) {
+		warning += (warning.isEmpty() ? "" : "+") + warn;
 	}
 
 	@Override
@@ -650,10 +655,6 @@ public class ChangeEffect implements Cloneable, Comparable<ChangeEffect> {
 		return seqChange;
 	}
 
-	//	public boolean hasExon() {
-	//		return (marker instanceof Exon);
-	//	}
-
 	public Transcript getTranscript() {
 		if (marker != null) {
 			if (marker instanceof Transcript) return (Transcript) marker;
@@ -666,8 +667,9 @@ public class ChangeEffect implements Cloneable, Comparable<ChangeEffect> {
 		return warning;
 	}
 
-	public boolean hasWarning() {
-		return (warning != null) && (!warning.isEmpty());
+	public boolean hasErrorOrWarning() {
+		return (error != null) && (!error.isEmpty()) //
+				|| ((warning != null) && (!warning.isEmpty()));
 	}
 
 	/**

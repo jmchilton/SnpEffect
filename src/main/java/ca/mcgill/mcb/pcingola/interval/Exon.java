@@ -6,6 +6,7 @@ import ca.mcgill.mcb.pcingola.interval.SeqChange.ChangeType;
 import ca.mcgill.mcb.pcingola.snpEffect.ChangeEffect;
 import ca.mcgill.mcb.pcingola.snpEffect.ChangeEffect.EffectType;
 import ca.mcgill.mcb.pcingola.snpEffect.ChangeEffect.ErrorType;
+import ca.mcgill.mcb.pcingola.snpEffect.ChangeEffect.WarningType;
 import ca.mcgill.mcb.pcingola.util.GprSeq;
 
 /**
@@ -116,7 +117,7 @@ public class Exon extends Marker {
 
 		int mstart = Math.max(seqChange.getStart(), start);
 		int idxStart = mstart - start;
-		if (sequence.length() <= 0) results.addWarning("WARNING_SEQUENCE_NOT_AVAILABLE");
+		if (sequence.length() <= 0) results.addWarning(WarningType.WARNING_SEQUENCE_NOT_AVAILABLE);
 		else if (idxStart >= sequence.length()) results.addError(ErrorType.ERROR_OUT_OF_EXON);
 		else {
 			int mend = Math.min(seqChange.getEnd(), end);
@@ -126,7 +127,7 @@ public class Exon extends Marker {
 			String changeReference = seqChange.reference().substring(mstart - seqChange.getStart(), mend - seqChange.getStart() + 1);
 
 			// Reference sequence different than expected?
-			if (!realReference.equals(changeReference)) results.addWarning("WARNING_REF_IS_" + realReference + "_NOT_" + seqChange.getReference());
+			if (!realReference.equals(changeReference)) results.addWarning(WarningType.WARNING_REF_DOES_NOT_MATCH_GENOME);
 		}
 	}
 

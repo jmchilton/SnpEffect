@@ -131,9 +131,17 @@ public class VcfEffect {
 
 		// OK, guess format version
 		if (effectStrings == null) effectStrings = split(effectString);
+		int len = effectStrings.length;
 
-		if (effectStrings.length <= 11) return FormatVersion.FORMAT_SNPEFF_2;
-		return FormatVersion.FORMAT_SNPEFF_3;
+		// Error or Warning string is not added under normal situations
+		String lastField = effectStrings[len - 2]; // Actually las array item is after the last ')', so we use the previous one
+		if (lastField.startsWith("ERROR") || lastField.startsWith("WARNING")) len--;
+
+		// Guess format
+		if (len <= 11) return FormatVersion.FORMAT_SNPEFF_2;
+		if (len <= 12) return FormatVersion.FORMAT_SNPEFF_3;
+
+		return FormatVersion.FORMAT_SNPEFF_4;
 	}
 
 	/**
@@ -180,6 +188,10 @@ public class VcfEffect {
 
 	public String getGene() {
 		return gene;
+	}
+
+	public String getGenotype() {
+		return genotype;
 	}
 
 	public ChangeEffect.EffectImpact getImpact() {
@@ -328,6 +340,9 @@ public class VcfEffect {
 		sb.append("|");
 
 		sb.append(exonId);
+		sb.append("|");
+
+		sb.append(genotype);
 
 		sb.append(")");
 
