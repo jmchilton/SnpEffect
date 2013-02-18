@@ -65,6 +65,7 @@ public class TestSuiteAll {
 
 		// File 
 		suite.addTestSuite(TestCasesSeekableReader.class);
+		suite.addTestSuite(TestCasesFileIndexChrPos.class);
 
 		// Protein coding sequences
 		suite.addTestSuite(TestCasesProtein.class);

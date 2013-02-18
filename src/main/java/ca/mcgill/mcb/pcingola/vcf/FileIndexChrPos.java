@@ -27,7 +27,7 @@ public class FileIndexChrPos {
 	 * @author pcingola
 	 *
 	 */
-	class FileRegion {
+	public class FileRegion {
 		long start, end;
 		String lineStart, lineEnd;
 	}
@@ -37,9 +37,9 @@ public class FileIndexChrPos {
 	 * @author pcingola
 	 *
 	 */
-	class LineAndPos {
-		String line;
-		long position;
+	public class LineAndPos {
+		public String line;
+		public long position;
 
 		@Override
 		public String toString() {
@@ -91,11 +91,18 @@ public class FileIndexChrPos {
 
 	/**
 	 * Dump a region of the file to STDOUT
-	 * @param start
-	 * @param end
+	 * 
+	 * @param posStart : Start file coordinate 
+	 * @param posEnd   : End file coordinate 
+	 * @param toString : Return a sting with file contents?
+	 * 
+	 * @return If toString is 'true', return a string with file's content between those coordinates (this is used only for test cases and debugging) 
 	 */
-	void dump(long start, long end) {
+	String dump(long start, long end, boolean toString) {
 		if (verbose) System.err.println("\tDumping file '" + fileName + "' interval [ " + start + " , " + end + " ]");
+
+		StringBuilder sb = new StringBuilder();
+
 		try {
 			byte buff[] = new byte[BUFF_SIZE];
 			file.seek(start);
@@ -108,77 +115,82 @@ public class FileIndexChrPos {
 				String out = new String(buff, 0, read);
 				System.out.print(out);
 
+				if (toString) {
+					sb.append(out);
+					sb.append("\n");
+				}
+
 				curr += read;
 			}
 		} catch (Exception e) {
 			throw new RuntimeException("Error reading file '" + fileName + "' from position " + start + " to " + end);
 		}
+
+		return sb.toString();
 	}
 
 	/**
 	 * Dump all lines in the interval chr:posStart-posEnd
 	 * 
-	 * @param chr
-	 * @param posStart
-	 * @param posEnd
+	 * @param chr      : Chromosome
+	 * @param posStart : Start coordinate in chromosome (zero-based)
+	 * @param posEnd   : End coordinate in chromosome (zero-based)
+	 * @param toString : Return a sting with file contents?
+	 * 
+	 * @return If toString is 'true', return a string with file's content between those coordinates (this is used only for test cases and debugging) 
 	 */
-	public void dump(String chr, int posStart, int posEnd) {
+	public String dump(String chr, int posStart, int posEnd, boolean toString) {
 		debug = true;
 		Gpr.debug("DEBUG!");
 		long fileStart = find(chr, posStart, false);
+		Gpr.debug("File Start: " + fileStart + "\n\n\n\n");
 		long fileEnd = find(chr, posEnd, true);
 
-		dump(fileStart, fileEnd - 1);
+		return dump(fileStart, fileEnd - 1, toString);
 	}
 
 	/**
 	 * Find the position in the file for the first character of the first line whose genomic position is less or equal than 'chrPos'
-	 * @param chrPos
-	 * @param start
-	 * @param lineStart
-	 * @param end
-	 * @param lineEnd
-	 * @return
+	 * @param chrPos : Chromosome coordinate (zero-based)
+	 * @param start : File start coordinate (zero-based)
+	 * @param lineStart : Line at 'start' coordinate
+	 * @param end : File end coordinate (zero-based)
+	 * @param lineEnd : Line at 'end' coordinate
+	 * @return position in file between [start, end] where chrPos can be found
 	 */
-	long find(int chrPos, long start, String lineStart, long end, String lineEnd, boolean endOfLine) {
+	long find(int chrPos, long start, String lineStart, long end, String lineEnd, boolean nextLine) {
 		//---
 		// Check break conditions
 		//---
-
-		// Is it lineStart?
 		int posStart = pos(lineStart);
-		if (chrPos <= posStart) {
-			if (endOfLine) return start + lineStart.length(); // End of line
-			else return start; // Begining of 'start' line
-		}
-
-		// Is it lineEnd?
 		int posEnd = pos(lineEnd);
-		if (posEnd <= chrPos) {
-			if (endOfLine) return end + lineEnd.length(); // End of line
-			else return end; // Begining of 'start' line
+		if (debug) Gpr.debug("Find:\t" + chrPos + "\t[" + posStart + ", " + posEnd + "]\tFile: [" + start + " , " + end + "]\tsize: " + (end - start) //
+				+ "\n\t\t\t\t" + s(lineStart) //
+				+ "\n\t\t\t\t" + s(lineEnd) //
+				+ "\n");
+
+		if (chrPos == posStart) return found(start, lineStart, nextLine); // Is it lineStart?
+		if (posEnd == chrPos) return found(end, lineEnd, nextLine); // Is it lineEnd?
+		if (chrPos < posStart) return start; // Before start?
+		if (posEnd < chrPos) return end + lineEnd.length() + 1; // After end?
+		if (start + 1 >= end) { // Only one byte of difference between start an end?
+			if (chrPos <= posStart) return found(start, lineStart, nextLine);
+			return found(end, lineEnd, nextLine);
 		}
 
-		// Interval is less than one line?
-		if ((start + lineStart.length()) >= end) {
-			if (endOfLine) return start + lineStart.length(); // End of line
-			else return start; // Begining of 'start' line
-		}
-
-		if (debug) Gpr.debug("Find:\t" + chrPos + "\t[" + posStart + ", " + posEnd + "]\tFile: [" + start + " , " + end + "]\tsize: " + (end - start));
-
-		// Sanity check
-		if (posStart >= posEnd) throw new RuntimeException("This should never happen! Is the file sorted by position?");
+		if (posStart >= posEnd) throw new RuntimeException("This should never happen! Is the file sorted by position?"); // Sanity check
 
 		//---
 		// Recurse
 		//---
 		long mid = (start + end) / 2;
-		String lineMid = getLine(mid).line;
+		LineAndPos lpmid = getLine(mid);
+		String lineMid = lpmid.line;
+		// mid = lpmid.position; // Update position where line starts
 		long posMid = pos(lineMid);
 
-		if (chrPos <= posMid) return find(chrPos, start, lineStart, mid, lineMid, endOfLine);
-		else return find(chrPos, mid, lineMid, end, lineEnd, endOfLine);
+		if (chrPos <= posMid) return find(chrPos, start, lineStart, mid, lineMid, nextLine);
+		else return find(chrPos, mid, lineMid, end, lineEnd, nextLine);
 	}
 
 	/**
@@ -187,12 +199,24 @@ public class FileIndexChrPos {
 	 * @param pos
 	 * @return
 	 */
-	long find(String chr, int pos, boolean lessEq) {
+	public long find(String chr, int pos, boolean lessEq) {
 		chr = Chromosome.simpleName(chr);
 		FileRegion fr = fileRegions.get(chr);
 		if (fr == null) throw new RuntimeException("No such chromosome: '" + chr + "'");
 		long posFound = find(pos, fr.start, fr.lineStart, fr.end, fr.lineEnd, lessEq);
 		return getLine(posFound).position;
+	}
+
+	/**
+	 * Calculate coordinate of this line or next line
+	 * @param filePos
+	 * @param fileLine
+	 * @param nextLine
+	 * @return
+	 */
+	long found(long filePos, String fileLine, boolean nextLine) {
+		if (nextLine) return filePos + fileLine.length() + 1; // Next line
+		else return filePos; // Begining of 'filePos' line
 	}
 
 	/**
@@ -302,7 +326,7 @@ public class FileIndexChrPos {
 		}
 		linePos.line = sb.toString();
 
-		if (debug) Gpr.debug("Line & Position: " + linePos);
+		// if (debug) Gpr.debug("Line & Position: " + linePos);
 		return linePos;
 	}
 
@@ -418,12 +442,13 @@ public class FileIndexChrPos {
 	}
 
 	/**
-	 * The position argument of a line, or zero if not found
+	 * The position argument of a line (second column in tab-separated format). Negative if not found
+	 * 
 	 * @param line
-	 * @return
+	 * @return The position argument of a line. Negative if not found 
 	 */
-	int pos(String line) {
-		if (line.startsWith("#")) return 0; // In VCF, positions are one-based, so zero denotes an error
+	public int pos(String line) {
+		if (line.startsWith("#")) return -1; // In VCF, positions are one-based, so zero denotes an error
 		return Gpr.parseIntSafe(line.split("\\t")[1]) - POS_OFFSET;
 	}
 
