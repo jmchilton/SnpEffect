@@ -15,12 +15,12 @@ public class PedFamily extends PedPedigree {
 
 	/**
 	 * Add an entry t this family
-	 * @param pedEntry
+	 * @param tfamEntry
 	 */
 	@Override
-	public void add(PedEntry pedEntry) {
-		if ((familyId != null) && (!familyId.equals(pedEntry.getFamilyId()))) throw new RuntimeException("Cannot add memeber to family. Family IDs do not match: '" + familyId + "' vs '" + pedEntry.getFamilyId() + "'");
-		pedById.put(pedEntry.getId(), pedEntry);
+	public void add(TfamEntry tfamEntry) {
+		if ((familyId != null) && (!familyId.equals(tfamEntry.getFamilyId()))) throw new RuntimeException("Cannot add memeber to family. Family IDs do not match: '" + familyId + "' vs '" + tfamEntry.getFamilyId() + "'");
+		tfamById.put(tfamEntry.getId(), tfamEntry);
 	}
 
 }

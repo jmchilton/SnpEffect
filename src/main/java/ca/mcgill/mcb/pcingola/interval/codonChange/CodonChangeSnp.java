@@ -29,7 +29,7 @@ public class CodonChangeSnp extends CodonChange {
 		if (codonsOld.isEmpty()) changeEffect.addError(ErrorType.ERROR_MISSING_CDS_SEQUENCE);
 
 		codonsNew = codonsNew();
-		changeEffect.set(transcript, EffectType.CODON_CHANGE, "");
+		changeEffect.set(exon, EffectType.CODON_CHANGE, "");
 		changeEffect.setCodons(codonsOld, codonsNew, codonNum, codonIndex);
 		return true;
 	}

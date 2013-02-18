@@ -2,6 +2,7 @@ package ca.mcgill.mcb.pcingola.ped;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Set;
 
 import ca.mcgill.mcb.pcingola.util.Gpr;
@@ -11,39 +12,43 @@ import ca.mcgill.mcb.pcingola.util.Gpr;
  * 
  * @author pcingola
  */
-public class PedPedigree {
+public class PedPedigree implements Iterable<TfamEntry> {
 
 	boolean verbose = false;
-	HashMap<String, TfamEntry> pedById = new HashMap<String, TfamEntry>();
+	HashMap<String, TfamEntry> tfamById = new HashMap<String, TfamEntry>();
 	PlinkMap plinkMap;
 
 	public PedPedigree() {
-		pedById = new HashMap<String, TfamEntry>();
+		tfamById = new HashMap<String, TfamEntry>();
 	}
 
 	/**
 	 * Add an entry to this pedigree
-	 * @param pedEntry
+	 * @param tfamEntry
 	 */
-	public void add(PedEntry pedEntry) {
-		pedById.put(pedEntry.getId(), pedEntry);
+	public void add(TfamEntry tfamEntry) {
+		tfamById.put(tfamEntry.getId(), tfamEntry);
 	}
 
 	public TfamEntry get(String id) {
-		return pedById.get(id);
+		return tfamById.get(id);
 	}
 
 	public PlinkMap getPlinkMap() {
 		return plinkMap;
 	}
 
+	@Override
+	public Iterator<TfamEntry> iterator() {
+		return tfamById.values().iterator();
+	}
+
 	public Set<String> keySet() {
-		return pedById.keySet();
+		return tfamById.keySet();
 	}
 
 	/**
-	 * Load a pedigree from a file.
-	 * Actually reads two files: PED and MAP files
+	 * Load a pedigree from a PED and MAP file pair
 	 * 
 	 * @param pedFileName
 	 */
@@ -63,16 +68,37 @@ public class PedPedigree {
 		plinkMap = pedFile.getPlinkMap();
 	}
 
+	/**
+	 * Load a TFAM file
+	 * @param tfamFileName
+	 */
+	public void loadTfam(String tfamFileName) {
+		String tfamStr = Gpr.readFile(tfamFileName);
+		if (tfamStr.isEmpty()) throw new RuntimeException("Cannot read file '" + tfamFileName + "'");
+
+		for (String line : tfamStr.split("\n")) {
+			TfamEntry te = new TfamEntry(line);
+			add(te);
+		}
+	}
+
 	public void setVerbose(boolean verbose) {
 		this.verbose = verbose;
 	}
 
 	public int size() {
-		return pedById.size();
+		return tfamById.size();
+	}
+
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		for (TfamEntry te : this)
+			sb.append(te.toString() + "\n");
+		return sb.toString();
 	}
 
 	public Collection<TfamEntry> values() {
-		return pedById.values();
+		return tfamById.values();
 	}
-
 }
