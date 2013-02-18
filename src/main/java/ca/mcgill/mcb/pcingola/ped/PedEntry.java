@@ -9,22 +9,19 @@ import java.util.Iterator;
  * 
  * @author pcingola
  */
-public class PedEntry implements Iterable<PedGenotype> {
+public class PedEntry extends TfamEntry implements Iterable<PedGenotype> {
 
 	PlinkMap plinkMap;
-	String familyId, id, fatherId, motherId;
-	Sex sex;
 	String genotypes[];
-	String phenotype;
 
-	public PedEntry(PlinkMap plinkMap, String familyId, String id, String fatherId, String motherId, Sex sex, String phenotype, String genotypes[]) {
+	public PedEntry(PlinkMap plinkMap, String line) {
+		super(line);
 		this.plinkMap = plinkMap;
-		this.familyId = familyId;
-		this.id = id;
-		this.fatherId = fatherId;
-		this.motherId = motherId;
-		this.sex = sex;
-		this.phenotype = phenotype;
+	}
+
+	public PedEntry(PlinkMap plinkMap, String familyId, String id, String fatherId, String motherId, Sex sex, double phenotype, String genotypes[]) {
+		super(familyId, id, fatherId, motherId, sex, phenotype);
+		this.plinkMap = plinkMap;
 		this.genotypes = genotypes;
 	}
 
@@ -42,14 +39,6 @@ public class PedEntry implements Iterable<PedGenotype> {
 	String genoStr(String geno) {
 		if (geno.equals("x") || geno.equals("0")) return "";
 		return geno;
-	}
-
-	public String getFamilyId() {
-		return familyId;
-	}
-
-	public String getFatherId() {
-		return fatherId;
 	}
 
 	/**
@@ -90,22 +79,6 @@ public class PedEntry implements Iterable<PedGenotype> {
 		return genotypes;
 	}
 
-	public String getId() {
-		return id;
-	}
-
-	public String getMotherId() {
-		return motherId;
-	}
-
-	public String getPhenotype() {
-		return phenotype;
-	}
-
-	public Sex getSex() {
-		return sex;
-	}
-
 	@Override
 	public Iterator<PedGenotype> iterator() {
 		return new Iterator<PedGenotype>() {
@@ -130,6 +103,24 @@ public class PedEntry implements Iterable<PedGenotype> {
 		};
 	}
 
+	@Override
+	protected void parse(String line) {
+		String fields[] = line.split("\\s", -1);
+		parse(fields);
+	}
+
+	@Override
+	protected int parse(String fields[]) {
+		int fieldNum = super.parse(fields);
+
+		// Phenotypes
+		String genotypes[] = new String[fields.length - fieldNum];
+		for (int j = 0; fieldNum < fields.length; fieldNum++, j++)
+			genotypes[j] = fields[fieldNum];
+
+		return fieldNum;
+	}
+
 	/**
 	 * Number of phenotypes
 	 * @return
@@ -142,11 +133,7 @@ public class PedEntry implements Iterable<PedGenotype> {
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 
-		sb.append(familyId + "\t");
-		sb.append(id + "\t");
-		sb.append(fatherId + "\t");
-		sb.append(motherId + "\t");
-		sb.append(sex + "\t");
+		sb.append(super.toString() + "\t");
 
 		int len = genotypes.length / 2;
 		for (int i = 0; i < len; i += 2)

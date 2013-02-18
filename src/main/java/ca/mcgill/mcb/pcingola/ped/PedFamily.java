@@ -1,7 +1,7 @@
 package ca.mcgill.mcb.pcingola.ped;
 
 /**
- * A family of PedEntries
+ * A family: A group of Tfams with the same familyId
  * 
  * @author pcingola
  */
@@ -19,7 +19,7 @@ public class PedFamily extends PedPedigree {
 	 */
 	@Override
 	public void add(PedEntry pedEntry) {
-		if( (familyId != null) && (!familyId.equals(pedEntry.getFamilyId())) ) throw new RuntimeException("Cannot add memeber to family. Family IDs do not match: '" + familyId + "' vs '" + pedEntry.getFamilyId() + "'");
+		if ((familyId != null) && (!familyId.equals(pedEntry.getFamilyId()))) throw new RuntimeException("Cannot add memeber to family. Family IDs do not match: '" + familyId + "' vs '" + pedEntry.getFamilyId() + "'");
 		pedById.put(pedEntry.getId(), pedEntry);
 	}
 

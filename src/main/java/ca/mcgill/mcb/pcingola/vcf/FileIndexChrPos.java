@@ -38,8 +38,8 @@ public class FileIndexChrPos {
 	 *
 	 */
 	public class LineAndPos {
-		public String line;
-		public long position;
+		public String line; // Line
+		public long position; // Position in file where line starts
 
 		@Override
 		public String toString() {
@@ -230,23 +230,78 @@ public class FileIndexChrPos {
 		}
 	}
 
+	/**
+	 * Read 'len' bytes after 'bytePosition' or until a '\n' is reached. 
+	 * If len is negative, read 'abs(len)' bytes before bytePosition or until '\n' is reached
+	 * 
+	 * @param bytePosition
+	 * @param len
+	 * @return An array of 'len' bytes. null if either end of file (len > 0) or beginning of file (len < 0)
+	 */
 	public byte[] get(long bytePosition, int len) {
 		try {
-			byte buff[] = new byte[len];
+			int size = Math.abs(len);
 
 			// Change position if needed
-			if (file.getFilePointer() != bytePosition) file.seek(bytePosition);
+			long pos = bytePosition;
+			if (len < 0) {
+				if (bytePosition <= 0) return null;
+				pos -= size;
 
+				// Before beginning of file?
+				if (pos < 0) {
+					pos = 0;
+					size = (int) bytePosition;
+				}
+				pos = Math.max(pos, 0);
+			}
+			if (file.getFilePointer() != pos) file.seek(pos);
+
+			byte buff[] = new byte[size];
 			int read = file.read(buff);
 
 			// Nothing to read?
 			if (read <= 0) return null;
 
-			// Buffer was too long? Return an array of byte with exactly the number of byte that were  
+			// Buffer was too long? Return an array of byte with exactly the number of bytes
 			if (read < buff.length) {
 				byte newBuff[] = new byte[read];
 				System.arraycopy(buff, 0, newBuff, 0, read);
 				buff = newBuff;
+			}
+
+			// Only return bytes until 'new line'
+			if (len > 0) {
+				// Find new line
+				int newLine = -1;
+				for (int i = 0; i < read; i++)
+					if (buff[i] == '\n') {
+						newLine = i;
+						break;
+					}
+
+				// Copy only the part until a newLine
+				if (newLine >= 0) {
+					byte newBuff[] = new byte[newLine + 1];
+					System.arraycopy(buff, 0, newBuff, 0, newLine + 1);
+					buff = newBuff;
+				}
+			} else if (len < 0) {
+				// Find new line backwards
+				int newLine = -1;
+				for (int i = read - 1; i >= 0; i--)
+					if (buff[i] == '\n') {
+						newLine = i;
+						break;
+					}
+
+				// Copy only the part until a newLine
+				if (newLine >= 0) {
+					byte newBuff[] = new byte[read - newLine];
+					for (int i = newLine, j = 0; i < read; i++, j++)
+						newBuff[j] = buff[i];
+					buff = newBuff;
+				}
 			}
 
 			return buff;
@@ -299,6 +354,49 @@ public class FileIndexChrPos {
 	 * @return A string with the line that 'pos' hits, null if it's out of boundaries
 	 */
 	public LineAndPos getLine(long pos) {
+		int BUFF_SIZE = 10240;
+		long size = size();
+		if ((pos >= size) || (pos < 0)) return null;
+
+		LineAndPos linePos = new LineAndPos();
+		StringBuffer sb = new StringBuffer();
+
+		// Get bytes after 'pos'
+		long position;
+		for (position = pos; position < size;) {
+			byte b[] = get(position, BUFF_SIZE);
+			if (b == null) break; // End of file
+			sb.append(new String(b));
+			if (b[b.length - 1] == '\n') break; // Found new line?
+			position += b.length;
+		}
+
+		// Get bytes before 'pos'
+		for (position = pos; position >= 0;) {
+			byte b[] = get(position, -BUFF_SIZE);
+			if (b == null) break; // Beginning of file
+			sb.insert(0, new String(b));
+			position -= b.length;
+			if (b[0] == '\n') break; // Found new line?
+		}
+
+		// Remove leading and trailing '\n'?
+		int lineStart = 0, lineEnd = sb.length();
+		if (sb.charAt(0) == '\n') lineStart = 1;
+		if (sb.charAt(sb.length() - 1) == '\n') lineEnd = sb.length() - 1;
+
+		linePos.line = sb.toString().substring(lineStart, lineEnd);
+		linePos.position = position + lineStart;
+
+		return linePos;
+	}
+
+	/**
+	 * A slow method for getLine
+	 * @param pos
+	 * @return
+	 */
+	public LineAndPos getLineSlow(long pos) {
 		long size = size();
 		if ((pos >= size) || (pos < 0)) return null;
 

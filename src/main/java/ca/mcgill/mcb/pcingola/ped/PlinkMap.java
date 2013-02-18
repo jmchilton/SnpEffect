@@ -16,29 +16,33 @@ public class PlinkMap {
 
 	public static boolean debug = false;
 
-	HashMap<String, Integer> genotypeNames; // TODO: This should NOT be called genotypeNames!!!
+	HashMap<String, Integer> id2LineNumber; // TODO: This should NOT be called genotypeNames!!!
 	String chrNames[];
 	int positions[];
 	String ids[];
 
 	public PlinkMap() {
-		genotypeNames = new HashMap<String, Integer>();
+		id2LineNumber = new HashMap<String, Integer>();
+	}
+
+	public PlinkMap(String mapFileName) {
+		read(mapFileName);
 	}
 
 	public String getChrName(int idx) {
 		return chrNames[idx];
 	}
 
-	public String getId(int idx) {
-		return ids[idx];
-	}
-
 	public Collection<String> getGenotypeNames() {
-		return genotypeNames.keySet();
+		return id2LineNumber.keySet();
 	}
 
 	public Integer getGenotypeNames(String idStr) {
-		return genotypeNames.get(idStr);
+		return id2LineNumber.get(idStr);
+	}
+
+	public String getId(int idx) {
+		return ids[idx];
 	}
 
 	public int getPosition(int idx) {
@@ -59,13 +63,16 @@ public class PlinkMap {
 	 *            
 	 * @param dataFileName
 	 */
-	public void read(String mapFileName) {
+	protected void read(String mapFileName) {
+		// Read the whole file and split lines
 		String cols = Gpr.readFile(mapFileName);
 		String lines[] = cols.split("\n");
 
+		// Initialize data
 		positions = new int[lines.length];
 		chrNames = new String[lines.length];
 		ids = new String[lines.length];
+		id2LineNumber = new HashMap<String, Integer>();
 
 		int lineNum = 0;
 		for (String line : lines) {
@@ -75,11 +82,13 @@ public class PlinkMap {
 			ids[lineNum] = fields[1];
 			positions[lineNum] = Gpr.parseIntSafe(fields[fields.length - 1]);
 
-			if (!ids[lineNum].isEmpty()) {
+			String id = ids[lineNum];
+
+			if (!id.isEmpty()) {
 				// Is it duplicate?
-				if (genotypeNames.containsKey(ids)) throw new RuntimeException("Duplicate ID '" + ids[lineNum] + "'. File '" + mapFileName + "', line '" + (lineNum + 1) + "'");
-				genotypeNames.put(ids[lineNum], lineNum);
-				if (debug) Gpr.debug("genotypeNames.put(" + ids[lineNum] + ", " + lineNum + ")");
+				if (id2LineNumber.containsKey(id)) throw new RuntimeException("Duplicate ID '" + id + "'. File '" + mapFileName + "', line '" + (lineNum + 1) + "'");
+				id2LineNumber.put(id, lineNum);
+				if (debug) Gpr.debug("genotypeNames.put(" + id + ", " + lineNum + ")");
 			}
 			lineNum++;
 		}

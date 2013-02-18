@@ -1,5 +1,6 @@
 package ca.mcgill.mcb.pcingola.snpEffect.testCases;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Random;
@@ -21,6 +22,62 @@ public class TestCasesFileIndexChrPos extends TestCase {
 
 	boolean verbose = false;
 	boolean debug = false;
+
+	void readLinesCheck(String vcf, int numTests) {
+		Random random = new Random(20130218);
+
+		System.out.println("Opening file '" + vcf + "'");
+		FileIndexChrPos idx = new FileIndexChrPos(vcf);
+		idx.setVerbose(verbose);
+		idx.open();
+
+		// Get file size
+		long size = (new File(vcf)).length();
+		for (int i = 1; i < numTests; i++) {
+			long randPos = random.nextInt((int) size);
+
+			// Compare methods
+			LineAndPos lineSlow = idx.getLineSlow(randPos); // This method we trust
+			LineAndPos line = idx.getLine(randPos); // This method we test
+
+			// Check and show differences
+			if (!line.line.equals(lineSlow.line)) {
+				System.err.println("Length: " + lineSlow.line.length() + "\t" + line.line.length());
+				System.err.println("Lines:\n\t" + lineSlow.line + "\n\t" + line.line);
+				int shown = 0;
+				for (int j = 0; j < line.line.length(); j++) {
+					System.err.print(j + "\t'" + lineSlow.line.charAt(j) + "'\t'" + line.line.charAt(j) + "'");
+					if (lineSlow.line.charAt(j) != line.line.charAt(j)) {
+						System.err.print("\t<---");
+						if (shown++ > 20) break;
+					}
+					System.err.println("");
+				}
+			}
+
+			Assert.assertEquals(lineSlow.line, line.line);
+			Assert.assertEquals(lineSlow.position, line.position);
+
+			Gpr.showMark(i, 1);
+		}
+
+	}
+
+	/**
+	 * Test getting random lines from a file
+	 * @throws IOException
+	 */
+	public void test_00_long_file() throws IOException {
+		readLinesCheck("tests/test.chr1.vcf", 1000);
+	}
+
+	/**
+	 * Test getting random lines from a file
+	 * @throws IOException
+	 */
+	public void test_00_short_file() throws IOException {
+		readLinesCheck("tests/test_filter_transcripts_001.ori.vcf", 1000);
+	}
 
 	/**
 	 * Test : Find beginning of a chromosome

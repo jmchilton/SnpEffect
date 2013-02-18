@@ -14,22 +14,22 @@ import ca.mcgill.mcb.pcingola.util.Gpr;
 public class PedPedigree {
 
 	boolean verbose = false;
-	HashMap<String, PedEntry> pedById = new HashMap<String, PedEntry>();
+	HashMap<String, TfamEntry> pedById = new HashMap<String, TfamEntry>();
 	PlinkMap plinkMap;
 
 	public PedPedigree() {
-		pedById = new HashMap<String, PedEntry>();
+		pedById = new HashMap<String, TfamEntry>();
 	}
 
 	/**
-	 * Add an entry t this family
+	 * Add an entry to this pedigree
 	 * @param pedEntry
 	 */
 	public void add(PedEntry pedEntry) {
 		pedById.put(pedEntry.getId(), pedEntry);
 	}
 
-	public PedEntry get(String id) {
+	public TfamEntry get(String id) {
 		return pedById.get(id);
 	}
 
@@ -71,7 +71,7 @@ public class PedPedigree {
 		return pedById.size();
 	}
 
-	public Collection<PedEntry> values() {
+	public Collection<TfamEntry> values() {
 		return pedById.values();
 	}
 
