@@ -16,8 +16,6 @@ import ca.mcgill.mcb.pcingola.util.Gpr;
  * 
  * WARNING: It is assumed that the file is ordered by position (chromosome order does not matter)
  * 
- * TODO: Rewrite this method using java.io.RandomAccessFile
- * 
  * @author pcingola
  */
 public class FileIndexChrPos {
@@ -347,8 +345,6 @@ public class FileIndexChrPos {
 
 	/**
 	 * Get the line where 'pos' hits
-	 * 
-	 * TODO: This is really slow for huge files and huge lines. I should optimize this.
 	 * 
 	 * @param pos
 	 * @return A string with the line that 'pos' hits, null if it's out of boundaries
