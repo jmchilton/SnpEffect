@@ -1,6 +1,7 @@
 package ca.mcgill.mcb.pcingola.snpEffect.testCases;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Random;
 
 import junit.framework.Assert;
@@ -18,7 +19,7 @@ import ca.mcgill.mcb.pcingola.vcf.VcfEntry;
  */
 public class TestCasesFileIndexChrPos extends TestCase {
 
-	boolean verbose = true;
+	boolean verbose = false;
 	boolean debug = false;
 
 	/**
@@ -79,12 +80,10 @@ public class TestCasesFileIndexChrPos extends TestCase {
 
 		// Beginning of line
 		long pos = idx.find("1", chrPos, false);
-		Gpr.debug("Pos: " + pos);
 		Assert.assertEquals(82703, pos);
 
 		// End of line
 		pos = idx.find("1", chrPos, true);
-		Gpr.debug("Pos: " + pos);
 		Assert.assertEquals(82774, pos);
 
 		idx.close();
@@ -139,7 +138,6 @@ public class TestCasesFileIndexChrPos extends TestCase {
 		long pos = idx.find("1", chrPos, false);
 		LineAndPos lp = idx.getLine(pos);
 		int chrPosLp = idx.pos(lp.line);
-		Gpr.debug(lp.line);
 		Assert.assertEquals(chrPosReal, chrPosLp);
 
 		idx.close();
@@ -199,11 +197,39 @@ public class TestCasesFileIndexChrPos extends TestCase {
 		idx.close();
 	}
 
+	public void test_10() throws IOException {
+		String vcfFileName = "tests/test.chr1.vcf";
+		Random random = new Random(20130216);
+
+		// Index file
+		System.out.println("Indexing file '" + vcfFileName + "'");
+		FileIndexChrPos idx = new FileIndexChrPos(vcfFileName);
+		idx.setVerbose(verbose);
+		idx.setDebug(debug);
+		idx.open();
+		idx.index();
+
+		// Iterate over vcf file
+		VcfFileIterator vcf = new VcfFileIterator(vcfFileName);
+		for (VcfEntry ve : vcf) {
+			if (random.nextInt(1000) < 20) {
+				//System.out.println("\t" + ve);
+				int chrPos = ve.getStart();
+
+				long pos = idx.find("1", chrPos, false);
+				LineAndPos lp = idx.getLine(pos);
+				int chrPosLp = idx.pos(lp.line);
+				Assert.assertEquals(chrPos, chrPosLp); // We expect to find the next coordinate in VCF file (zero-based)
+			}
+		}
+
+	}
+
 	/**
 	 * Test : Find a chr:pos that does not exists
 	 * @throws IOException
 	 */
-	public void test_10() throws IOException {
+	public void test_11() throws IOException {
 		String vcfFileName = "tests/test.chr1.vcf";
 
 		Random random = new Random(20130217);
@@ -225,7 +251,7 @@ public class TestCasesFileIndexChrPos extends TestCase {
 
 			// Only perform some tests otherwise it's too long
 			if (random.nextInt(1000) < 2) {
-				Gpr.debug("Find: " + chrPosPrev + " - " + chrPos);
+				System.out.println("\tFind: " + chrPosPrev + " - " + chrPos);
 
 				// Find all positions from previous to current
 				int step = Math.max((chrPos - chrPosPrev) / 10, 1);
@@ -244,4 +270,194 @@ public class TestCasesFileIndexChrPos extends TestCase {
 
 		idx.close();
 	}
+
+	/**
+	 * Test : Find a chr:pos that does not exists
+	 * @throws IOException
+	 */
+	public void test_20() throws IOException {
+		String vcf = "tests/test.chr1.vcf";
+
+		System.out.println("Indexing file '" + vcf + "'");
+		FileIndexChrPos idx = new FileIndexChrPos(vcf);
+		idx.setVerbose(verbose);
+		idx.setDebug(debug);
+		idx.open();
+		idx.index();
+
+		String dump = idx.dump("1", 861292 - 1, 861315 - 1, true);
+		String expected = "1\t861292\t.\tC\tG\t2971.31\tPASS\tAC=3;AF=0.00182;AN=1644;DS;set=Intersection\n1\t861315\t.\tG\tA\t837.18\tPASS\tAC=1;AF=0.00061;AN=1644;DS;set=Intersection\n";
+		Assert.assertEquals(expected, dump);
+
+		idx.close();
+	}
+
+	/**
+	 * Test : Find a chr:pos that does not exists
+	 * @throws IOException
+	 */
+	public void test_21() throws IOException {
+		String vcf = "tests/test.chr1.vcf";
+
+		System.out.println("Indexing file '" + vcf + "'");
+		FileIndexChrPos idx = new FileIndexChrPos(vcf);
+		idx.setVerbose(verbose);
+		idx.setDebug(debug);
+		idx.open();
+		idx.index();
+
+		String dump = idx.dump("1", 861291 - 1, 861315 - 1, true);
+		String expected = "1\t861292\t.\tC\tG\t2971.31\tPASS\tAC=3;AF=0.00182;AN=1644;DS;set=Intersection\n1\t861315\t.\tG\tA\t837.18\tPASS\tAC=1;AF=0.00061;AN=1644;DS;set=Intersection\n";
+		Assert.assertEquals(expected, dump);
+
+		idx.close();
+	}
+
+	/**
+	 * Test : Find a chr:pos that does not exists
+	 * @throws IOException
+	 */
+	public void test_22() throws IOException {
+		String vcf = "tests/test.chr1.vcf";
+
+		System.out.println("Indexing file '" + vcf + "'");
+		FileIndexChrPos idx = new FileIndexChrPos(vcf);
+		idx.setVerbose(verbose);
+		idx.setDebug(debug);
+		idx.open();
+		idx.index();
+
+		String dump = idx.dump("1", 861292 - 1, 861316 - 1, true);
+		String expected = "1\t861292\t.\tC\tG\t2971.31\tPASS\tAC=3;AF=0.00182;AN=1644;DS;set=Intersection\n1\t861315\t.\tG\tA\t837.18\tPASS\tAC=1;AF=0.00061;AN=1644;DS;set=Intersection\n";
+		Assert.assertEquals(expected, dump);
+
+		idx.close();
+	}
+
+	/**
+	 * Test : Dump small portions of a file
+	 * @throws IOException
+	 */
+	public void test_23() throws IOException {
+		String vcfFileName = "tests/test.chr1.vcf";
+		int MAX_TEST = 1000;
+		Random random = new Random(20130217);
+
+		// Index file
+		System.out.println("Indexing file '" + vcfFileName + "'");
+		FileIndexChrPos idx = new FileIndexChrPos(vcfFileName);
+		idx.setVerbose(verbose);
+		idx.setDebug(debug);
+		idx.open();
+		idx.index();
+
+		// Read VCF file
+		int minPos = Integer.MAX_VALUE, maxPos = Integer.MIN_VALUE, count = 0;
+		ArrayList<VcfEntry> vcfEntries = new ArrayList<VcfEntry>();
+		VcfFileIterator vcf = new VcfFileIterator(vcfFileName);
+		for (VcfEntry ve : vcf) {
+			vcfEntries.add(ve);
+			minPos = Math.min(minPos, ve.getStart());
+			maxPos = Math.max(maxPos, ve.getStart());
+			count++;
+		}
+
+		// Add some slack
+		int dist = (maxPos - minPos) / count;
+		minPos -= 1000;
+		maxPos += 1000;
+
+		// Dump random parts of the file
+		System.out.println("\tDump test (short): ");
+		for (int testNum = 1; testNum < MAX_TEST; testNum++) {
+			// Random interval
+			int start = random.nextInt(maxPos - minPos) + minPos;
+			int end = start + random.nextInt(10) * dist; // Distance between a few lines 
+
+			// Dump file
+			String dump = idx.dump("1", start, end, true);
+
+			// Calculate expected result
+			StringBuilder expected = new StringBuilder();
+			for (VcfEntry ve : vcfEntries) {
+				if ((start <= ve.getStart()) && (ve.getStart() <= end)) {
+					// Append to expected output
+					if (expected.length() > 0) expected.append("\n");
+					expected.append(ve.getLine());
+				}
+			}
+			if (expected.length() > 0) expected.append("\n");
+
+			// Does it match?
+			Assert.assertEquals(expected.toString(), dump);
+
+			Gpr.showMark(testNum, 1);
+		}
+
+		idx.close();
+	}
+
+	/**
+	 * Test : Dump large portions of a file
+	 * @throws IOException
+	 */
+	public void test_24() throws IOException {
+		int MAX_TEST = 100;
+		String vcfFileName = "tests/test.chr1.vcf";
+		Random random = new Random(20130217);
+
+		// Index file
+		System.out.println("Indexing file '" + vcfFileName + "'");
+		FileIndexChrPos idx = new FileIndexChrPos(vcfFileName);
+		idx.setVerbose(verbose);
+		idx.setDebug(debug);
+		idx.open();
+		idx.index();
+
+		// Read VCF file
+		int minPos = Integer.MAX_VALUE, maxPos = Integer.MIN_VALUE;
+		ArrayList<VcfEntry> vcfEntries = new ArrayList<VcfEntry>();
+		VcfFileIterator vcf = new VcfFileIterator(vcfFileName);
+		for (VcfEntry ve : vcf) {
+			vcfEntries.add(ve);
+			minPos = Math.min(minPos, ve.getStart());
+			maxPos = Math.max(maxPos, ve.getStart());
+		}
+
+		// Add some slack
+		minPos -= 1000;
+		maxPos += 1000;
+
+		// Dump random parts of the file
+		for (int testNum = 0; testNum < MAX_TEST;) {
+			// Random interval
+			int start = random.nextInt(maxPos - minPos) + minPos;
+			int end = random.nextInt(maxPos - minPos) + minPos;
+
+			if (end > start) {
+				System.out.println("Dump test (long) " + testNum + "/" + MAX_TEST + "\tchr1:" + start + "\tchr1:" + end);
+				// Dump file
+				String dump = idx.dump("1", start, end, true);
+
+				// Calculate expected result
+				StringBuilder expected = new StringBuilder();
+				for (VcfEntry ve : vcfEntries) {
+					if ((start <= ve.getStart()) && (ve.getStart() <= end)) {
+						// Append to expected output
+						if (expected.length() > 0) expected.append("\n");
+						expected.append(ve.getLine());
+					}
+				}
+				if (expected.length() > 0) expected.append("\n");
+
+				// Does it match?
+				Assert.assertEquals(expected.toString(), dump);
+
+				testNum++;
+			}
+		}
+
+		idx.close();
+	}
+
 }

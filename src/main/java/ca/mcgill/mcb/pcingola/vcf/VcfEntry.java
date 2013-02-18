@@ -339,6 +339,14 @@ public class VcfEntry extends Marker implements Iterable<VcfGenotype> {
 		return infoStr;
 	}
 
+	/**
+	 * Original VCF line (from file)
+	 * @return
+	 */
+	public String getLine() {
+		return line;
+	}
+
 	public int getLineNum() {
 		return lineNum;
 	}

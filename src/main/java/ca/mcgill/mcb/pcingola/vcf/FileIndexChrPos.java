@@ -53,7 +53,7 @@ public class FileIndexChrPos {
 	}
 
 	public static final int POS_OFFSET = 1; // VCF files are one-based
-	private static final int BUFF_SIZE = 1024 * 1024;
+	private static final int BUFF_SIZE = 17; // 1024 * 1024;
 
 	boolean verbose = false;
 	boolean debug = false;
@@ -113,12 +113,10 @@ public class FileIndexChrPos {
 				if (read <= 0) break; // Error or nothing read, abort
 
 				String out = new String(buff, 0, read);
-				System.out.print(out);
 
-				if (toString) {
-					sb.append(out);
-					sb.append("\n");
-				}
+				// Show or append to string
+				if (toString) sb.append(out);
+				else System.out.print(out);
 
 				curr += read;
 			}
@@ -140,10 +138,7 @@ public class FileIndexChrPos {
 	 * @return If toString is 'true', return a string with file's content between those coordinates (this is used only for test cases and debugging) 
 	 */
 	public String dump(String chr, int posStart, int posEnd, boolean toString) {
-		debug = true;
-		Gpr.debug("DEBUG!");
 		long fileStart = find(chr, posStart, false);
-		Gpr.debug("File Start: " + fileStart + "\n\n\n\n");
 		long fileEnd = find(chr, posEnd, true);
 
 		return dump(fileStart, fileEnd - 1, toString);
@@ -158,7 +153,7 @@ public class FileIndexChrPos {
 	 * @param lineEnd : Line at 'end' coordinate
 	 * @return position in file between [start, end] where chrPos can be found
 	 */
-	long find(int chrPos, long start, String lineStart, long end, String lineEnd, boolean nextLine) {
+	long find(int chrPos, long start, String lineStart, long end, String lineEnd, boolean isEnd) {
 		//---
 		// Check break conditions
 		//---
@@ -169,13 +164,14 @@ public class FileIndexChrPos {
 				+ "\n\t\t\t\t" + s(lineEnd) //
 				+ "\n");
 
-		if (chrPos == posStart) return found(start, lineStart, nextLine); // Is it lineStart?
-		if (posEnd == chrPos) return found(end, lineEnd, nextLine); // Is it lineEnd?
+		if (chrPos == posStart) return found(start, lineStart, isEnd); // Is it lineStart?
+		if (posEnd == chrPos) return found(end, lineEnd, isEnd); // Is it lineEnd?
 		if (chrPos < posStart) return start; // Before start?
 		if (posEnd < chrPos) return end + lineEnd.length() + 1; // After end?
 		if (start + 1 >= end) { // Only one byte of difference between start an end?
-			if (chrPos <= posStart) return found(start, lineStart, nextLine);
-			return found(end, lineEnd, nextLine);
+			if (chrPos <= posStart) return found(start, lineStart, isEnd);
+			if (isEnd && (chrPos < posEnd)) return found(end, lineEnd, false);
+			return found(end, lineEnd, isEnd);
 		}
 
 		if (posStart >= posEnd) throw new RuntimeException("This should never happen! Is the file sorted by position?"); // Sanity check
@@ -189,8 +185,8 @@ public class FileIndexChrPos {
 		// mid = lpmid.position; // Update position where line starts
 		long posMid = pos(lineMid);
 
-		if (chrPos <= posMid) return find(chrPos, start, lineStart, mid, lineMid, nextLine);
-		else return find(chrPos, mid, lineMid, end, lineEnd, nextLine);
+		if (chrPos <= posMid) return find(chrPos, start, lineStart, mid, lineMid, isEnd);
+		else return find(chrPos, mid, lineMid, end, lineEnd, isEnd);
 	}
 
 	/**
