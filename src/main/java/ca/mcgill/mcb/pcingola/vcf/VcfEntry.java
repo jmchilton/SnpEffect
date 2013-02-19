@@ -307,7 +307,9 @@ public class VcfEntry extends Marker implements Iterable<VcfGenotype> {
 	 */
 	public double getInfoFloat(String key) {
 		if (info == null) parseInfo();
-		return Gpr.parseDoubleSafe(info.get(key));
+		String f = info.get(key);
+		if (f == null) return Double.NaN;
+		return Gpr.parseDoubleSafe(f);
 	}
 
 	/**
@@ -318,7 +320,9 @@ public class VcfEntry extends Marker implements Iterable<VcfGenotype> {
 	 */
 	public long getInfoInt(String key) {
 		if (info == null) parseInfo();
-		return Gpr.parseLongSafe(info.get(key));
+		String i = info.get(key);
+		if (i == null) return 0;
+		return Gpr.parseLongSafe(i);
 	}
 
 	/**
