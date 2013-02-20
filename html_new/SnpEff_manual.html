@@ -529,6 +529,34 @@ java -Xmx4g -jar snpEff.jar -vcf4 dm5.34 s.vcf > s_snpeff.txt
 				SnpEff creates an additional output file showing overall statistics.
 				This "stats" file is an HTML file which can be opned using a web browser.
 				You can find an example of a 'stats' file <a href="1kg.html"> here</a>.
+				<br>
+				<br>
+				The program performs some statistics and saves them to the file 'snpEff_summary.html' on the 
+				directory where snpEff is being executed. You can see the file, by opeining it in your browser.
+				<br>
+				<br>
+				<i class="icon-hand-right"></i>You can change the default location by using the '-stats' command line option. This also changes the location of the TXT summary file.
+				<br>
+				<br>
+				E.g.: In the stats file, you can see coverage histogram plots like this one <img src="http://chart.apis.google.com/chart?cht=bvg&chbh=8,4,2&chs=800x300&chxt=y,y,x,x&chg=11.0,40.0,3,2&chxp=1,50.0|3,50.0&chtt=Coverage+histogram&chxr=0,1.0,409.0|1,0.0,100.0|3,0.0,100.0&chxl=1:|Count|2:|1||||||||||11||||||||||21||||||||||31||||||||||41||||||||||51||||||||||61||||||||||76||||||||||3:|Coverage&chd=e:DNBSEfGaI9MKRSWZfXnrlwmZuE1wvW630e6O..638y3r7g8JsKxRlHgAkeZmY9XCR7PXRSOuOFMzNcIUJmHrHrFIFIFxEfCkDNDNBSBSB7BSB7BSApApApBSBSApAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA">
+				</p>
+
+				<p> <b> Details about Hom/Het calculation (summary file and TXT output format) </b>
+				<br>
+				In older formats, there used to be one sample per file, so 
+				identifying Hom/Het in a per variant basis made sense.
+				<br>
+				<br>
+				In VCF files, where many samples are analyzed simultaneously, 
+				identification of Hom/Het should be done in a per sample basis 
+				instead of per variant basis. In an attempt to output that field I 
+				used a majority vote (i.e. if most samples are Hom, I output 
+				Hom, otherwise, Het). This is not strictly correct and, it 
+				may also be confusing.
+				<br>
+				<br>
+				For this reason, the output is empty when using multi-sample files, such as VCF. 
+				Unless the file contains only one sample (i.e. only one genotype field)
 				</p>
 
 
@@ -567,8 +595,9 @@ java -Xmx4g -jar snpEff.jar -vcf4 dm5.34 s.vcf > s_snpeff.txt
 					<tr> <td>  Custom_interval_ID </td> <td>  If any custom interval was used, add the IDs here (may be more than one). </td> </tr>
 				</table>
 				</center>
-				<p>
 
+
+				<p> 
 				This is an example of an output file:<p>
 
 				<small>
@@ -584,6 +613,87 @@ chr2L   871556  G       R       SNP     Het     228                     FBgn0053
 chr2L   878267  T       W       SNP     Het     228             WARNING: Base is 'G' but SNP says 'T'.  FBgn0031292     CG15824         FBtr0078029     CG15824:14      14      3PRIME_UTR: 14 bases from transcript end  
 				</pre>
 				</small>
+
+				<p> <i> Meaning of 'Degeneracy' column </i><br>
+	  			Here is an explanation form Stephen Wright (Univ. Toronto), who requested to add this feature
+	  
+<pre>
+	     "...a fourfold degenerate site would be a site where any change is synonymous. So the 
+	     third codon position for the arginine CGN, is a fourfold degenerate site, as is the 
+	     third codon position for valine, alanine, etc.
+	     Similarly, all second positions of a codon are zerofold degenerate, since any change is 
+	     nonsynonymous. Many first codon positions are also zerofold degenerate, however, for 
+	     example, the first codon position of AGG is NOT zerofold, because a shift to CGG is a 
+	     synonymous change."
+</pre>
+				</p>
+
+				<br>
+				<p> <b> Coordinates differences between VCT and TXT outputs </b>
+				<br>
+				<br>
+				There are some situations when there seems to be a difference between TXT output coordinates and VCF output coordinates.
+				This happens because sometimes VCF files have a coordinate that does not start exactly were the variant is. 
+				Here is an example:
+				<pre>
+VCF line:                   "chr10   102770293       .       tgctgcggctgcggctgcggctacggctgcggct      tGCTGCGgctgcggctgcggctgcggctacggctgcggct"
+INS reported by SnpEff:     "chr10   102770315       *       +GCGGCT INS"
+</pre>
+<p>
+
+				At first glace, these two look different, since 102770293 is not the same as 102770315. 
+				But if you look at the sequences:
+
+<pre>
+tgctgcggctgcggctgcggct      acggctgcggct    REF (from VCF file)
+||||||||||||||||||||||      ||||||||||||
+tgctgcggctgcggctgcggctgcggctacggctgcggct    ALT (from VCF file)
+|      |         |    |||||| 
+|      |         |    gcggct                INS (reported by SnpEff TXT format)
+|      |         |    |
+102770293        |    |                     Position (VCF)
+       |         |    |
+       102770300 |    |
+                 |    |
+                 102770310
+                      |
+                      102770315             Position (TXT)
+</pre>
+				So the two VCF and TXT representations are equivalent.
+				</p>
+
+				<br>
+				<p> <b> Counting total number of effects of a given type </b>
+				<br>
+				Some people try to count the number of effects in a file by doing (assuming we want to count how many MODIFIER efefcts we have): 
+				<br>
+				<pre> grep -o MODIFIER output.eff.vcf | wc -l </pre>
+				<br>
+				This is incorrect because a VCF line can have multiple effects (e.g. when there are multiple transcripts in a gene).
+				A proper way to count effects would be:
+
+<pre>
+cat output.eff.vcf \
+	| cut -f 8 \
+	| tr ";" "\n" \
+	| grep ^EFF= \
+	| cut -f 2 -d = \
+	| tr "," "\n" \
+	| grep MODIFIER \
+	| wc -l
+</pre>
+
+				Brief explanation:
+
+				<table class="table table-striped">
+					<tr> <td> <tt>cut -f 8 </tt> </td> <td>  Extract INFO fields </td> </tr>
+					<tr> <td> <tt>tr ";" "\n" </tt> </td> <td>  Expand each field into one line </td> </tr>
+					<tr> <td> <tt>grep ^EFF= </tt> </td> <td>  Only keep 'EFF' fields </td> </tr>
+					<tr> <td> <tt>cut -f 2 -d = </tt> </td> <td>  Keep only the effect data (drop the 'EFF=' part) </td> </tr>
+					<tr> <td> <tt>tr "," "\n" </tt> </td> <td>  Expand effects to multiple lines </td> </tr>
+					<tr> <td> <tt>grep MODIFIER | wc -l </tt> </td> <td>  Count the ones you want (in this example 'MODIFIER')</td> </tr>
+				</table>
+				</p>
 
         <!-- Effects
         ================================================== -->
@@ -635,6 +745,32 @@ chr2L   878267  T       W       SNP     Het     228             WARNING: Base is
 					<tr > <td> NON_SYNONYMOUS_START  </td><td> Variant causes start codon to be mutated into another start codon (the new codon produces a different AA). </td><td> Atg/Ctg, M/L (ATG and CTG can be START codons) </td> </tr> 
 				</table> 
 				</center>
+
+				<p> <b>Details about Rare amino acid effect </b>
+				<br>
+				These are amino acids that occurs very rarely in an organism.
+				For instance, humans are supposed to use 20 amino acids, but
+				there is also one rare AA. Selenocysteine, single letter
+				code 'U', appears roughly 100 times in the whole genome.
+				The amino acid is so rare that usually it does not appear 
+				in codon translation tables. It is encoded as UGA, which usually 
+				means a STOP codon. Secondary RNA 
+				structures are assumed to enable this special translation.
+				<br>
+				<br>
+				A variant in one of these sites is likely to cause a loss of 
+				function in the protein. E.g. in case of a Selenocysteine, a 
+				loss of a selenium molecule is likely to cause loss of function.
+				Put it simply, the assumption is that there is a great deal of trouble 
+				to get that non-standard amino acid there, so it must be important.
+				RARE_AMINO_ACID mark is used to show that special attention should 
+				be paid in these cases.
+				<br>
+				<br>
+				<i class="icon-warning-sign"></i> When the variant hits a RARE_AMINO_ACID mark, it is likely that 
+				the 'old_AA/new_AA' field will be incorrect. This may happen because 
+				the amino acid is not predictable using a codon table. 
+				</p>
 
 				<p><b>Effect impact</b><br> 
 				Efefcts are categorized by 'impact': {High, Moderate, Low, Modifier}. 
@@ -700,10 +836,67 @@ chr2L   878267  T       W       SNP     Het     228             WARNING: Base is
 				</table>
 				</p>
 
-				<p style="font-size: 14pt"> <b> <a class="body" name="Why_do_I_see_the_same_SNP_in_different_output_lines?_(TXT_output_format)"> Why do I see the same SNP in different output lines? (TXT output format) </a> </b></p>
-				When using TXT output format, there is one effect per line. You usually get more than one line per variant since the same variant may affect several different transcripts in the same gene.<br>
+				<p> <b> Loss of function and nonsense-mediated decay predictions </b>
+				<br>
+				<br>
+				Loss of function ('LOF') and nonsense-mediated decay ('NMD') predictions can be activated by using '-lof' command line opion.
+				Details on how these variants work, can be found in <a class="body" href="snpEff_lof_nmd.pdf">these slides </a>
+				<br>
+				Usage example:
+<pre>
+java –Xmx4g -jar snpEff.jar –v \
+	-lof \
+	GRCh37.68 \
+	file.vcf.gz > file.eff.vcf
+</pre>
 
-				<p style="font-size: 14pt"> <b> <a class="body" name="I_only_want_result_that_intersect_some_intervals,_how_do_I_do_that?"> I only want result that intersect some intervals, how do I do that?  </a> </b></p>
+				SnpEff adds 'LOF' and 'MND' tags to INFO fields (column 8 in VCF format).  LOF and NMD tags have the following format:
+<pre>
+Gene | ID | num_transcripts | percent_affected
+</pre>
+				Where:
+				<table class="table table-striped">
+					<tr> <th> Field            </th><th> Description </th> </tr>
+					<tr> <td> Gene             </td><td> Gene name </td> </tr>
+					<tr> <td> ID               </td><td> Gene ID (usually ENSEMBL) </td> </tr>
+					<tr> <td> Num_transcripts  </td><td> Number of transcripts in this gene </td> </tr>
+					<tr> <td> percent_affected </td><td> Percentage of transcripts affected by this variant. </td> </tr>
+				</table>
+
+				<br>
+				Example: If we have this effect
+<pre>
+EFF=…, SPLICE_SITE_DONOR(HIGH||||639|ILDR2|protein_coding|CODING|ENST00000271417|1)
+</pre>
+
+				and the corresponding LOF tag is
+<pre>
+LOF=ILDR2|ENSG00000143195|7|1.00
+</pre>
+
+				The meaning of the LOF tag is:
+				<table class="table table-striped">
+					<tr> <th> Field            </th><th> Description </th> </tr>
+					<tr> <td> Gene             </td><td> ILDR2 </td> </tr>
+					<tr> <td> ID               </td><td> ENSG00000143195 </td> </tr>
+					<tr> <td> Num_transcripts  </td><td> There are 7 transcripts in this gene </td> </tr>
+					<tr> <td> percent_affected </td><td> 100% of transcripts are affected by this variant. </td> </tr>
+				</table>
+				</p>
+
+
+        <!-- Filter output
+        ================================================== -->
+        <section id="eff">
+          <div class="page-header">
+            <h1>8. Output filters </h1>
+          </div>
+				<p class="lead">
+				We describe how to filter the out or narrow down the number of results.
+				</p>
+
+
+				<p><b>Annotating only some intervals</b><br> 
 				You can use the '-fi' option (a.k.a. '-filterInterval). For instance, let's assume you have an interval file 'intervals.bed':
 <pre>2L	10000	10999
 2L	12000	12999
@@ -714,121 +907,16 @@ chr2L   878267  T       W       SNP     Het     228             WARNING: Base is
 <pre> java -Xmx4G -jar snpEff.jar -fi intervals.bed dm5.30 file.vcf</pre>
 <b>Note:</b> You may specify multiple files by using '-fi' many times.
 
-				<p style="font-size: 14pt"> <b> <a class="body" name="What_is_the_stats_file?"> What is the stats file?  </a> </b></p>
-				They program performs some statistics and saves them to the file 'snpEff_summary.html' on the directory where snpEff is being executed. You can see the file, by opeining it in your browser.
-				You can change the default location by using the '-stats' command line option.<p>
-				<b>E.g.:</b> In the stats file, you can see coverage histogram plots like this one <img src="http://chart.apis.google.com/chart?cht=bvg&chbh=8,4,2&chs=800x300&chxt=y,y,x,x&chg=11.0,40.0,3,2&chxp=1,50.0|3,50.0&chtt=Coverage+histogram&chxr=0,1.0,409.0|1,0.0,100.0|3,0.0,100.0&chxl=1:|Count|2:|1||||||||||11||||||||||21||||||||||31||||||||||41||||||||||51||||||||||61||||||||||76||||||||||3:|Coverage&chd=e:DNBSEfGaI9MKRSWZfXnrlwmZuE1wvW630e6O..638y3r7g8JsKxRlHgAkeZmY9XCR7PXRSOuOFMzNcIUJmHrHrFIFIFxEfCkDNDNBSBSB7BSB7BSApApApBSBSApAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA">
-
-				<p style="font-size: 14pt"> <b> <a class="body" name="What_does_the_'degeneracy'_column_mean_(in_the_TXT_output)"> What does the 'degeneracy' column mean (in the TXT output)?  </a> </b></p>
-	  			Here is an explanation form Stephen Wright (Univ. Toronto), who requested to add this feature
-	  
-<pre>
-	     "...a fourfold degenerate site would be a site where any change is synonymous. So the 
-	     third codon position for the arginine CGN, is a fourfold degenerate site, as is the 
-	     third codon position for valine, alanine, etc.
-	     Similarly, all second positions of a codon are zerofold degenerate, since any change is 
-	     nonsynonymous. Many first codon positions are also zerofold degenerate, however, for 
-	     example, the first codon position of AGG is NOT zerofold, because a shift to CGG is a 
-	     synonymous change."
-</pre>
 	     
-				<p style="font-size: 14pt"> <b> <a class="body" name="What_happened_to_the_Hom/Het_field_(TXT_output)?"> What happened to the Hom/Het field (TXT output)? </a> </b></p>
-				In older formats, there used to be one sample per file, so 
-				identifying Hom/Het in a per variant basis made sense.<p>
-
-				In VCF files, where many samples are analyzed simultaneously, 
-				identification of Hom/Het should be done in a per sample basis 
-				instead of per variant basis. In an attempt to output that field I 
-				used a majority vote (i.e. if most samples are Hom, I output 
-				Hom, otherwise, Het). This is not strictly correct and, it 
-				may also be confusing.<p>
-
-				For this reason, the output is empty when using multi-sample files, such as VCF. Unless the file contains only one sample (i.e. only one genotype field)
-
-				<p style="font-size: 14pt"> <b> <a class="body" name="What_is_a_rare_amino_acid?"> What is a rare amino acid (RARE_AMINO_ACID effect)? </a> </b></p>
-				These are amino acids that occurs very rarely in an organism.
-				For instance, humans are supposed to use 20 amino acids, but
-				there is also one rare AA. Selenocysteine, single letter
-				code 'U', appears roughly 100 times in the whole genome.
-				The amino acid is so rare that usually it does not appear 
-				in codon translation tables. It is encoded as UGA, which usually 
-				means a STOP codon. Secondary RNA 
-				structures are assumed to enable this special translation.<p> 
-
-				A variant in one of these sites is likely to cause a loss of 
-				function in the protein. E.g. in case of a Selenocysteine, a 
-				loss of a selenium molecule is likely to cause loss of function.
-				Put it simply, the assumption is that there is a great deal of trouble 
-				to get that non-standard amino acid there, so it must be important.<p>
-
-				RARE_AMINO_ACID mark is used to show that special attention should 
-				be paid in these cases.<p>
-
-				<b>WARNING:</b> When the variant hits a RARE_AMINO_ACID mark, it is likely that 
-				the 'old_AA/new_AA' field will be incorrect. This may happen because 
-				the amino acid is not predictable using the codon table. 
-
-				<p style="font-size: 14pt"> <b> <a class="body" name="Why_are_TXT_and_VCF_coordinates_different?"> Why are TXT and VCF coordinates different? </a> </b></p>
-				Sometimes VCF files have a coordinate that does not start were the variant is. Here is an example:
-				<pre>
-VCF line:                   "chr10   102770293       .       tgctgcggctgcggctgcggctacggctgcggct      tGCTGCGgctgcggctgcggctgcggctacggctgcggct"
-INS reported by SnpEff:     "chr10   102770315       *       +GCGGCT INS"
-</pre>
-<p>
-
-				At first glace, these two look different, since 102770293 is not the same as 102770315. 
-				But if you look at the sequences:
-
-<p>
-<pre>
-tgctgcggctgcggctgcggct      acggctgcggct    REF (from VCF file)
-||||||||||||||||||||||      ||||||||||||
-tgctgcggctgcggctgcggctgcggctacggctgcggct    ALT (from VCF file)
-|      |         |    |||||| 
-|      |         |    gcggct                INS (reported by SnpEff TXT format)
-|      |         |    |
-102770293        |    |                     Position (VCF)
-       |         |    |
-       102770300 |    |
-                 |    |
-                 102770310
-                      |
-                      102770315             Position (TXT)
-</pre>
-<p>
-
-				So the two VCF and TXT representations are equivalent.
 
 
 
-				<p style="font-size: 14pt"> <b> <a class="body" name="counting_effects"> The total number of XXX effects in the summary does not match with the output file </a> </b></p>
-				Some people try to count the number of effects in a file by doing (assuming we want to count how many MODIFIER efefcts we have): <tt> grep -o MODIFIER output.eff.vcf | wc -l </tt>.<br>
-				This is incorrect because a VCF line can have multiple effects (e.g. when there are multiple transcripts in a gene).
-				A proper way to count effects would be:
-
-<pre>
-cat output.eff.vcf | cut -f 8 | tr ";" "\n" | grep ^EFF= | cut -f 2 -d = | tr "," "\n" | grep MODIFIER | wc -l
-</pre>
-
-				Brief explanation:
-
-				<table border=0>
-					<tr> <td> <tt>cut -f 8 </tt> </td> <td>  Extract INFO fields </td> </tr>
-					<tr> <td> <tt>tr ";" "\n" </tt> </td> <td>  Expand each field into one line </td> </tr>
-					<tr> <td> <tt>grep ^EFF= </tt> </td> <td>  Only keep 'EFF' fields </td> </tr>
-					<tr> <td> <tt>cut -f 2 -d = </tt> </td> <td>  Keep only the effect data (drop the 'EFF=' part) </td> </tr>
-					<tr> <td> <tt>tr "," "\n" </tt> </td> <td>  Expand effects to multiple lines </td> </tr>
-					<tr> <td> <tt>grep MODIFIER | wc -l </tt> </td> <td>  Count the ones you want (in this example 'MODIFIER')</td> </tr>
-				</table>
 
 
 				<p style="font-size: 14pt"> <b> <a class="body" name="gatk"> What is the adequate output for GATK? </a> </b></p>
 				You should use the <b>'-o gatk'</b> command line option to avoid problems.
 				The reason is that, even though GATK uses VCF, but sometimes new formats of the 'EFF' info field might cause trouble.
 				This happens when switching from SnpEff v2.X to SnpEff v3.0, since the latest GATK version still uses an older format.<br>
-
-				<p style="font-size: 14pt"> <b> <a class="body" name="lof"> How is 'loss of function' / 'nonsense-mediated decay' used? </a> </b></p>
-				Take a look at <a class="body" href="snpEff_lof_nmd.pdf">these slides </p>
 
 				<hr> <center> <p style="font-size: 16pt"> <b> Output summary page </b></center></p>
 				<p style="font-size: 14pt"> <b> <a class="body" name="Effects_by_type_vs_Effects_by_region"> "Effects by type" vs "Effects by region" </a> </b></p>
