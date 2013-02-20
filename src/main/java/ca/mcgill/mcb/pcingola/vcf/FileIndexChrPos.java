@@ -483,15 +483,15 @@ public class FileIndexChrPos {
 
 		// Parse chromosome start and end
 		String chrStart = chromo(lineStart);
-		if (chrStart == null) throw new RuntimeException("Cannot extract chromosome data from line:\n"//
-				+ "\tPosition : " + start + " (byte position in file) "//
-				+ "\tLine     : " + lineStart//
+		if (chrStart == null) throw new RuntimeException("Cannot extract chromosome data from line:"//
+				+ "\n\tPosition : " + start + " (byte position in file) "//
+				+ "\n\tLine     : " + lineStart//
 		);
 
 		String chrEnd = chromo(lineEnd);
-		if (chrEnd == null) throw new RuntimeException("Cannot extract chromosome data from line:\n"//
-				+ "\tPosition : " + end + " (byte position in file) "//
-				+ "\tLine     : " + lineEnd//
+		if (chrEnd == null) throw new RuntimeException("Cannot extract chromosome data from line:"//
+				+ "\n\tPosition : " + end + " (byte position in file) "//
+				+ "\n\tLine     : " + lineEnd//
 		);
 
 		if (chrStart.equals(chrEnd)) {
