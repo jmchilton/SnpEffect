@@ -1,14 +1,15 @@
 package ca.mcgill.mcb.pcingola.snpEffect.commandLine;
 
+import scala.collection.mutable.StringBuilder;
 import ca.mcgill.mcb.pcingola.interval.Cds;
 import ca.mcgill.mcb.pcingola.interval.Exon;
 import ca.mcgill.mcb.pcingola.interval.Gene;
+import ca.mcgill.mcb.pcingola.interval.Intron;
 import ca.mcgill.mcb.pcingola.interval.Marker;
 import ca.mcgill.mcb.pcingola.interval.Transcript;
 import ca.mcgill.mcb.pcingola.interval.Utr;
 import ca.mcgill.mcb.pcingola.interval.tree.IntervalTree;
 import ca.mcgill.mcb.pcingola.snpEffect.Config;
-import ca.mcgill.mcb.pcingola.util.Gpr;
 import ca.mcgill.mcb.pcingola.util.Timer;
 
 /**
@@ -19,10 +20,10 @@ import ca.mcgill.mcb.pcingola.util.Timer;
 public class SnpEffCmdDump extends SnpEff {
 
 	public enum DumpFormat {
-		Simple, Bed
+		DUMP, BED, TXT
 	}
 
-	DumpFormat dumpFormat = DumpFormat.Simple;
+	DumpFormat dumpFormat = DumpFormat.DUMP;
 	String chrStr = "";
 
 	public SnpEffCmdDump() {
@@ -41,13 +42,14 @@ public class SnpEffCmdDump extends SnpEff {
 			// Argument starts with '-'?
 			if (args[i].startsWith("-")) {
 				if (args[i].equalsIgnoreCase("-chr")) chrStr = args[++i];
-				else if ((args[i].equals("-if") || args[i].equalsIgnoreCase("-inOffset"))) {
-					if ((i + 1) < args.length) inOffset = Gpr.parseIntSafe(args[++i]);
-				} else if (args[i].equals("-1")) inOffset = outOffset = 1;
+				else if (args[i].equals("-1")) inOffset = outOffset = 1;
 				else if (args[i].equals("-0")) inOffset = outOffset = 0;
 				else if (args[i].equals("-bed")) {
-					dumpFormat = DumpFormat.Bed;
+					dumpFormat = DumpFormat.BED;
 					inOffset = outOffset = 0;
+				} else if (args[i].equals("-txt")) {
+					dumpFormat = DumpFormat.TXT;
+					inOffset = outOffset = 1;
 				} else usage("Unknow option '" + args[i] + "'");
 			} else if (genomeVer.length() <= 0) genomeVer = args[i];
 			else usage("Unknow parameter '" + args[i] + "'");
@@ -61,10 +63,13 @@ public class SnpEffCmdDump extends SnpEff {
 	 * Show all intervals in BED format
 	 * References: http://genome.ucsc.edu/FAQ/FAQformat.html#format1
 	 */
-	void printBed() {
+	void print() {
+		// Show title
+		if (dumpFormat == DumpFormat.TXT) System.out.println("chr\tstart\tend\tstrand\ttype\tid\tgeneName\tgeneId\tnumberOfTranscripts\ttranscriptId\tcdsLength\tnumerOfExons\texonRank\texonSpliceType");
+
 		for (IntervalTree tree : config.getSnpEffectPredictor().getIntervalForest()) {
 			for (Marker i : tree) {
-				printBed(i);
+				print(i);
 
 				// Show gene specifics
 				if (i instanceof Gene) {
@@ -72,20 +77,32 @@ public class SnpEffCmdDump extends SnpEff {
 
 					// Show transcripts: UTR and Exons
 					for (Transcript t : g) {
-						printBed(t);
+						print(t);
 
 						for (Cds c : t.getCds())
-							printBed(c);
+							print(c);
 
 						for (Utr u : t.getUtrs())
-							printBed(u);
+							print(u);
 
 						for (Exon e : t)
-							printBed(e);
+							print(e);
+
+						for (Intron intron : t.introns())
+							print(intron);
 					}
 				}
 			}
 		}
+	}
+
+	/**
+	 * Print a marker
+	 * @param marker
+	 */
+	void print(Marker marker) {
+		if (dumpFormat == DumpFormat.BED) printBed(marker);
+		else if (dumpFormat == DumpFormat.TXT) printTxt(marker);
 	}
 
 	/**
@@ -98,6 +115,50 @@ public class SnpEffCmdDump extends SnpEff {
 		int end = marker.getEnd() + outOffset + 1; // The ending position of the feature in the chromosome or scaffold. The chromEnd base is not included in the display of the feature.
 		String name = marker.getClass().getSimpleName() + "_" + marker.getId();
 		System.out.println(chr + "\t" + start + "\t" + end + "\t" + name);
+	}
+
+	/**
+	 * Print as a TXT format
+	 * @param marker
+	 */
+	void printTxt(Marker marker) {
+		String chr = chrStr + marker.getChromosome().getId();
+		int start = marker.getStart() + outOffset; // The starting position of the feature in the chromosome or scaffold. The first base in a chromosome is numbered 0. 
+		int end = marker.getEnd() + outOffset + 1; // The ending position of the feature in the chromosome or scaffold. The chromEnd base is not included in the display of the feature.
+
+		StringBuilder info = new StringBuilder();
+		info.append(chr + "\t");
+		info.append(start + "\t");
+		info.append(end + "\t");
+		info.append((marker.isStrandPlus() ? "+1" : "-1") + "\t");
+		info.append(marker.getClass().getSimpleName() + "\t");
+		info.append(marker.getId() + "\t");
+
+		// Add gene info
+		Gene gene = null;
+		if (marker instanceof Gene) gene = (Gene) marker;
+		else gene = (Gene) marker.findParent(Gene.class);
+
+		if (gene != null) info.append(gene.getGeneName() + "\t" + gene.getId() + "\t" + gene.numChilds() + "\t");
+		else info.append("\t\t\t");
+
+		// Add transcript info		
+		Transcript tr = null;
+		if (marker instanceof Transcript) tr = (Transcript) marker;
+		else tr = (Transcript) marker.findParent(Transcript.class);
+
+		if (tr != null) info.append(tr.getId() + "\t" + tr.cds().length() + "\t" + tr.numChilds() + "\t");
+		else info.append("\t\t\t");
+
+		// Add exon info
+		Exon exon = null;
+		if (marker instanceof Exon) exon = (Exon) marker;
+		else exon = (Exon) marker.findParent(Exon.class);
+
+		if (exon != null) info.append(exon.getRank() + "\t" + exon.getSpliceType());
+		else info.append("\t");
+
+		System.out.println(info);
 	}
 
 	/**
@@ -121,8 +182,8 @@ public class SnpEffCmdDump extends SnpEff {
 		if (verbose) Timer.showStdErr("Done.");
 
 		// Dump database
-		if (dumpFormat == DumpFormat.Simple) config.getSnpEffectPredictor().print();
-		else if (dumpFormat == DumpFormat.Bed) printBed();
+		if (dumpFormat == DumpFormat.DUMP) config.getSnpEffectPredictor().print();
+		else if ((dumpFormat == DumpFormat.BED) || (dumpFormat == DumpFormat.TXT)) print();
 		else throw new RuntimeException("Unimplemented format '" + dumpFormat + "'");
 
 		return true;
@@ -139,9 +200,10 @@ public class SnpEffCmdDump extends SnpEff {
 		System.err.println("Usage: snpEff dump [options] genome_version");
 		System.err.println("\t-bed                    : Dump in BED format (implies -0)");
 		System.err.println("\t-chr <string>           : Prepend 'string' to chromosome name (e.g. 'chr1' instead of '1')");
+		System.err.println("\t-txt                    : Dump as a TXT table (implies -1)");
 		System.err.println("\nGeneric options:");
-		System.err.println("\t-0                      : File positions are zero-based");
-		System.err.println("\t-1                      : File positions are one-based");
+		System.err.println("\t-0                      : Output zero-based coordinates. ");
+		System.err.println("\t-1                      : Output one-based coordinates");
 		System.exit(-1);
 	}
 }

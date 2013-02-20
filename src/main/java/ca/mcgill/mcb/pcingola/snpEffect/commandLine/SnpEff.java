@@ -41,7 +41,7 @@ public class SnpEff implements CommandLine {
 	public static final int COMMAND_LINE_WIDTH = 40;
 
 	public static final String SOFTWARE_NAME = "SnpEff";
-	public static final String BUILD = "2013-02-18";
+	public static final String BUILD = "2013-02-20";
 	public static final String REVISION = "";
 	public static final String VERSION_MAJOR = "3.2";
 	public static final String VERSION_SHORT = VERSION_MAJOR + REVISION;
@@ -334,7 +334,8 @@ public class SnpEff implements CommandLine {
 		System.err.println("snpEff version " + VERSION);
 		System.err.println("Usage: snpEff [command] [options] [files]");
 		System.err.println("\nAvailable commands: ");
-		System.err.println("   [eff]           : Calculate effect of variants. Default (no command or 'eff').");
+		System.err.println("   [eff]           : Calculate effect of variants. Default: eff (no command or 'eff').");
+		System.err.println("   databases       : Show currently available databases (from local config file).");
 		System.err.println("   download        : Download a SnpEff database.");
 		System.err.println("   build           : Build a SnpEff database.");
 		System.err.println("   dump            : Dump to STDOUT a SnpEff database (mostly used for debugging).");
