@@ -78,10 +78,11 @@
           <li><a href="#seqData"><i class="icon-chevron-right"></i> Sequence data analysis </a></li>
           <li><a href="#input"><i class="icon-chevron-right"></i> Input files </a></li>
           <li><a href="#output"><i class="icon-chevron-right"></i> Output files </a></li>
+          <li><a href="#outputSummary"><i class="icon-chevron-right"></i> Output Summary file </a></li>
           <li><a href="#eff"><i class="icon-chevron-right"></i> Effect prediction details </a></li>
-          <li><a href="#"><i class="icon-chevron-right"></i> </a></li>
-          <li><a href="#"><i class="icon-chevron-right"></i> </a></li>
-          <li><a href="#"><i class="icon-chevron-right"></i> </a></li>
+          <li><a href="#filters"><i class="icon-chevron-right"></i> Filters </a></li>
+          <li><a href="#databases"><i class="icon-chevron-right"></i> Building databases</a></li>
+          <li><a href="#integration"><i class="icon-chevron-right"></i> Integration: GATK & Galaxy</a></li>
           <li><a href="#"><i class="icon-chevron-right"></i> </a></li>
         </ul>
       </div>
@@ -99,7 +100,7 @@
 				It annotates and predicts the effects of genetic variants (such as amino acid changes).
 				</p>
 
-				<p> <b> Variants </b><br>
+				<p> <h3> Variants </h3><br>
 				By genetic variant we mean difference between a genome and a "reference" genome.
 				As an example, imagine we are sequencing a "sample".
 				Here "sample" can mean anything that you are interested in studing, from a cell culture, to a mouse or a cancer patient.
@@ -121,7 +122,7 @@
 				This is not a comprehensive list, it is just to give you an idea.
 				</p>
 
-				<p> <b>Annotations</b><br>
+				<p> <h3>Annotations</h3><br>
 				So, you have a huge file describing all the differences between your sample and the reference genome.
 				But you want to know more about these variants than just their genetic coordinates. 
 				E.g.: Are they in a gene? In an exon? Do they change protein coding? Do they cause premature stop codons?
@@ -136,7 +137,7 @@
 				<i class="icon-warning-sign"></i> Results cannot be trusted blindly. SnpEff results may have to analyzed and independently validated.
 				</p>
 
-				<p> <b>Databases</b><br>
+				<p> <h3>Databases</h3><br>
 				In order to produce the annotations, SnpEff requires a database.
 				We build these databases using informations from trusted resources.
 				<br>
@@ -148,7 +149,7 @@
 				<br>
 				If you have problems adding you own organism, send me an email and I'll do my best to help you out.<p>
 
-				<p> <b>Summary</b><br>
+				<p> <h3>Summary</h3><br>
 				A typical SnpEff use case would be:
 				<ul>
 					<li> Input:
@@ -163,7 +164,7 @@
 				</ul>
 				</p>
 
-				<p> <b>Citing</b><br>
+				<p> <h3>Citing</h3><br>
 				If you are using SnpEff or SnpSift, please cite our work as shown <a href="SnpEff.html#citing">here</a>. Thank you!
 				</p>
         </section>
@@ -177,25 +178,25 @@
 				<p class="lead"> Download and installing SnpEff it pretty easy. 
 				</p>
 				
-				<p> <b>System requirements </b><br>
+				<p> <h3>System requirements </h3><br>
 				SnpEff requires that you have Java v1.6 or later installed (any modern operating system has it). <br>
 				You'll probably need at least 2Gb of memory. 
 				The amount of memory used can vary significantly depending on genome size and data analysis type you are doing.
 
-				<p> <b>Downloading and Installing</b><br>
+				<p> <h3>Downloading and Installing</h3><br>
 				In order to download and install the program, you can follow the directions <a href="download.html">here</a>.
 
-				<p> <b> How is it licensed? </b><br>
+				<p> <h3> How is it licensed? </h3><br>
 				SnpEff is open source. It is released mainly as "LGPLv3". If you prefer another open source license, just contact me and I'll try to add your preferred license as well. <br>
 
-				<p> <b>Source code </b><br>
+				<p> <h3>Source code </h3><br>
 				The project is hosted at SourceForge. <br>
 				Here is the SVN command to check out the development version of the code:
 <pre>
 svn co https://snpeff.svn.sourceforge.net/svnroot/snpeff/SnpEffect/trunk
 </pre>
 
-				<p> <b>Configuration</b><br>
+				<p> <h3>Configuration</h3><br>
 				The only configuration file is "snpEff.config".
 				Most configuration parameters, are explained in the comments in the same config file, so I won't repeat the explanation here :-)
 				<br>
@@ -211,13 +212,13 @@ svn co https://snpeff.svn.sourceforge.net/svnroot/snpeff/SnpEffect/trunk
           </div>
 				<p class="lead"> We show some basic examples how to use SnpEff.</p>
 
-				<p><b>Command line vs Web interface</b><br>
+				<p><h3>Command line vs Web interface</h3><br>
 				In order to run SnpEff you need to be comfortable running command from a command line terminal.
 				If you are not, then it is probably a good idea to ask you systems adminitrator to install a <a class="body"class="body" href="http://usegalaxy.org">Galaxy</a> server and use the web interface.
 				You can also use the open Galaxy server, but functionality may be limited and SnpEff versions may not be updated frequently.
 				</p>
 
-				<p><b>Usage example</b><br>
+				<p><h3>Usage example</h3><br>
 				In this example, we will annotate a variants file using the human reference genome.<br>
 
 				As an input, we will use a <a href="http://www.1000genomes.org/wiki/Analysis/Variant%20Call%20Format/vcf-variant-call-format-version-41"> Variant Call Format (VCF) </a> file.
@@ -247,13 +248,13 @@ $ cat demo.1kg.snpeff.vcf | grep STOP_
 				Note: The real output was edited for readibility reasons.
 				</p>
 
-				<p><b>Runnig from another directory</b> <br>
+				<p><h3>Runnig from another directory</h3> <br>
 				When you run SnpEff from a different directory than your install directory, you have to specify where the config file is located using the '-c' command line option.
 <pre>
 java -Xmx2g path/to/snpEff/snpEff.jar -c path/to/snpEff/snpEff.config GRCh37.70 path/to/snps.vcf
 </pre>
 
-				<p><b>Java memory options</b> <br>
+				<p><h3>Java memory options</h3> <br>
 				By default the amount of memory set by a java process is set too low.
 				If you don't assigm more memory to the process, you will most likely have an "OutOfMemory" error.<br>
 
@@ -267,7 +268,7 @@ java -Xmx4G snpEff.jar hg19 path/to/your/files/snps.vcf
 				Note: There is no space between "-Xmx" and "4G".
 				</p>
 
-				<p><b>Running SnpEff in the Cloud </b> <br>
+				<p><h3>Running SnpEff in the Cloud </h3> <br>
 				You can run SnpEff in a "the Cloud" exactly the same way as running it on your local computer.
 				You should not have any problems at all.
 				<br>
@@ -297,13 +298,13 @@ $ ssh -i ./aws_amazon/pcingola_aws.pem ec2-user@ec2-54-234-14-244.compute-1.amaz
 				<p>
 				As you can see, it's very simple.
 
-				<p><b>Command line options</b> <br>
+				<p><h3>Command line options</h3> <br>
 				In order to see all available options, you can run 
 				<pre>java -jar snpEff.jar -help</pre>
 				We'll explain many of those options in detail in the following chapters.
 				</p>
 
-				<p><b>Loading the database</b> <br>
+				<p><h3>Loading the database</h3> <br>
 				One of the first thins SnpEff has to do is to load the database.
 				Usually it takes frmo a few seconds to a couple of minutes, depending on database size.
 				Complex databases, like human, require more time to load.
@@ -318,7 +319,7 @@ $ ssh -i ./aws_amazon/pcingola_aws.pem ec2-user@ec2-54-234-14-244.compute-1.amaz
           </div>
 				<p class="lead"> Here we show an example on how to get from Sequenceing data to an annotated variants file </p>
 
-				<p><b>Sequencing data example</b> <br>
+				<p><h3>Sequencing data example</h3> <br>
 				<i class="icon-warning-sign"></i> This is an extremelly simplified version on how to analyze the data from scratch
 				This is not meant to be a tutorial on sequencing analysis as it would be way beyond the scope of this handbook.
 				<br>
@@ -371,7 +372,7 @@ java -Xmx4g -jar snpEff.jar -vcf4 dm5.34 s.vcf > s_snpeff.txt
 				Here we describe supported input data formats.
 				</p>
 				
-				<p><b>VCF</b> <br>
+				<p><h3>VCF</h3> <br>
 				As we mentioned before, <a class="body"class="body" href="http://www.1000genomes.org/wiki/Analysis/Variant%20Call%20Format/vcf-variant-call-format-version-41">Variant Call Format (VCF)</a> is the recomended format for input files.
 				This is the format used by the "1000 Genomes Project", and is currently considered the de-facto standard for genomic variants.
 				Furthermore, most variant calling programs output VCF files, so it is also the simplest format to use.
@@ -398,7 +399,7 @@ java -Xmx4g -jar snpEff.jar -vcf4 dm5.34 s.vcf > s_snpeff.txt
 				Note that the first line is header information. Header lines start with '#'
 				<p>
 
-				<p><b>TXT:</b><br>
+				<p><h3>TXT</h3><br>
 				<i class="icon-warning-sign"></i> TXT format is currently deprecated and discurraged.
 				<br>
 				TXT file format must be tab-separated, containing columns that correspond to:
@@ -439,7 +440,9 @@ java -Xmx4g -jar snpEff.jar -vcf4 dm5.34 s.vcf > s_snpeff.txt
 				Here we describe the format of SnpEff's output files and the information added.
 				</p>
 
-				<p><b>VCF output format</b><br> 
+				<p><h3>VCF output format</h3>
+				<br> 
+				<br> 
 				As we mentioned in the previous chapter, VCF is the default input format.
 				It is highly recomended to use VCF as input and output format, since it is a standard format that can be also used by other tools and software packages.
 				Thus VCF makes it much easier to integrate genomic data processing pipelines.
@@ -464,15 +467,17 @@ java -Xmx4g -jar snpEff.jar -vcf4 dm5.34 s.vcf > s_snpeff.txt
 1	897062	.	C	T	100.0	PASS	AF=0.0005;EFF=STOP_GAINED(HIGH|NONSENSE|Cag/Tag|Q141*|642|KLHL17||CODING|NM_198317|)
 </pre>
 				A you can see, SnpEff added an 'EFF' tag to the INFO field (eigth column).
+				</p>
 
-				<p>
-
-				<p><b>VCF EFF field</b><br>
-				<p>
+				<p><b>VCF EFF field</b>
+				<br>
+				<br>
 				Effects information is added to the INFO field using an 'EFF' tag. 
 
-				There can be multiple effects separated by comma. The format for each effect is:<p>
-				Effect ( Effefct_Impact | Codon_Change | Amino_Acid_change | Gene_Name | Gene_BioType | Coding | Transcript | Exon [ | ERRORS | WARNINGS ] )<br>
+				There can be multiple effects separated by comma. The format for each effect is:
+				<br>
+				Effect ( Effefct_Impact | Codon_Change | Amino_Acid_change | Gene_Name | Gene_BioType | Coding | Transcript | Exon [ | ERRORS | WARNINGS ] )
+				<br>
 				
 				<center>
 				<table class="table table-striped">
@@ -491,23 +496,28 @@ java -Xmx4g -jar snpEff.jar -vcf4 dm5.34 s.vcf > s_snpeff.txt
 					<tr> <td>  Warnings </td> <td>  Any warnings or errors (not shown if empty). </td> </tr>
 				</table>
 				</center>
-				<p>
+				</p>
 
-				<p><b>VCF Header lines </b><br>
+				<p><b>VCF Header lines </b>
+				<br>
+				<br>
 				SnpEff updates the header of the VCF file to reflect aditional fields.
 				This is required by the VCF specification.
 				SnpEff also adds the command line options used to annotate the file as well as SnpEff's version, so you can keep track of what exactly was done.
-
 				<br>
 				<br>
 				Here is an example of some header lines added to an anotated file:
-				<pre>
+<pre>
 ##SnpEffVersion="SnpEff 3.1m (build 2013-02-08)"
 ##SnpEffCmd="SnpEff  hg19 demo.1kg.vcf "
 ##INFO=&lt;ID=EFF,Number=.,Type=String,Description="Predicted effects for this variant.Format: 'Effect ( Effect_Impact | Functional_Class | Codon_Change | Amino_Acid_change| Amino_Acid_length | Gene_Name | Gene_BioType | Coding | Transcript | Exon [ | ERRORS | WARNINGS ] )' \"&gt;
 </pre>
+				</p>
 
-				<p><b>Mutiple effects per VCF line</b><br> 
+				<br> 
+				<p><b>Mutiple effects per VCF line</b>
+				<br> 
+				<br> 
 				Usually there is more than one effect reported in each EFF field.
 				<br>
 				There are several reasons for this:
@@ -525,48 +535,49 @@ java -Xmx4g -jar snpEff.jar -vcf4 dm5.34 s.vcf > s_snpeff.txt
 				</ul>
 				</p>
 
-				<p><b>Summary output file</b><br>
-				SnpEff creates an additional output file showing overall statistics.
-				This "stats" file is an HTML file which can be opned using a web browser.
-				You can find an example of a 'stats' file <a href="1kg.html"> here</a>.
+				<br>
+				<p> <b> Counting total number of effects of a given type </b>
 				<br>
 				<br>
-				The program performs some statistics and saves them to the file 'snpEff_summary.html' on the 
-				directory where snpEff is being executed. You can see the file, by opeining it in your browser.
+				Some people try to count the number of effects in a file by doing (assuming we want to count how many MODIFIER efefcts we have): 
 				<br>
+				<pre> grep -o MODIFIER output.eff.vcf | wc -l </pre>
 				<br>
-				<i class="icon-hand-right"></i>You can change the default location by using the '-stats' command line option. This also changes the location of the TXT summary file.
-				<br>
-				<br>
-				E.g.: In the stats file, you can see coverage histogram plots like this one <img src="http://chart.apis.google.com/chart?cht=bvg&chbh=8,4,2&chs=800x300&chxt=y,y,x,x&chg=11.0,40.0,3,2&chxp=1,50.0|3,50.0&chtt=Coverage+histogram&chxr=0,1.0,409.0|1,0.0,100.0|3,0.0,100.0&chxl=1:|Count|2:|1||||||||||11||||||||||21||||||||||31||||||||||41||||||||||51||||||||||61||||||||||76||||||||||3:|Coverage&chd=e:DNBSEfGaI9MKRSWZfXnrlwmZuE1wvW630e6O..638y3r7g8JsKxRlHgAkeZmY9XCR7PXRSOuOFMzNcIUJmHrHrFIFIFxEfCkDNDNBSBSB7BSB7BSApApApBSBSApAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA">
+				This is incorrect because a VCF line can have multiple effects (e.g. when there are multiple transcripts in a gene).
+				A proper way to count effects would be:
+
+<pre>
+cat output.eff.vcf \
+	| cut -f 8 \
+	| tr ";" "\n" \
+	| grep ^EFF= \
+	| cut -f 2 -d = \
+	| tr "," "\n" \
+	| grep MODIFIER \
+	| wc -l
+</pre>
+
+				Brief explanation:
+				<table class="table table-striped">
+					<tr> <td> <tt>cut -f 8 </tt> </td> <td>  Extract INFO fields </td> </tr>
+					<tr> <td> <tt>tr ";" "\n" </tt> </td> <td>  Expand each field into one line </td> </tr>
+					<tr> <td> <tt>grep ^EFF= </tt> </td> <td>  Only keep 'EFF' fields </td> </tr>
+					<tr> <td> <tt>cut -f 2 -d = </tt> </td> <td>  Keep only the effect data (drop the 'EFF=' part) </td> </tr>
+					<tr> <td> <tt>tr "," "\n" </tt> </td> <td>  Expand effects to multiple lines </td> </tr>
+					<tr> <td> <tt>grep MODIFIER | wc -l </tt> </td> <td>  Count the ones you want (in this example 'MODIFIER')</td> </tr>
+				</table>
 				</p>
 
-				<p> <b> Details about Hom/Het calculation (summary file and TXT output format) </b>
-				<br>
-				In older formats, there used to be one sample per file, so 
-				identifying Hom/Het in a per variant basis made sense.
-				<br>
-				<br>
-				In VCF files, where many samples are analyzed simultaneously, 
-				identification of Hom/Het should be done in a per sample basis 
-				instead of per variant basis. In an attempt to output that field I 
-				used a majority vote (i.e. if most samples are Hom, I output 
-				Hom, otherwise, Het). This is not strictly correct and, it 
-				may also be confusing.
-				<br>
-				<br>
-				For this reason, the output is empty when using multi-sample files, such as VCF. 
-				Unless the file contains only one sample (i.e. only one genotype field)
-				</p>
-
-
-				<p><b>TXT output format</b><br> 
+				<br> 
+				<p><h3>TXT output format</h3>
+				<br> 
+				<br> 
 				<i class="icon-warning-sign"></i> TXT format is currently deprecated and discurraged.
 				<br>
 				The TXT output format consist of one line per effect. 
 				This means that you usually get more than one line per SNP since the same SNP may affect several different transcripts in the same gene.
 				<br>
-				<p>
+				<br>
 				The format consist of tab separated columns:
 				<center>
 				<table class="table table-striped">
@@ -595,13 +606,11 @@ java -Xmx4g -jar snpEff.jar -vcf4 dm5.34 s.vcf > s_snpeff.txt
 					<tr> <td>  Custom_interval_ID </td> <td>  If any custom interval was used, add the IDs here (may be more than one). </td> </tr>
 				</table>
 				</center>
-
-
-				<p> 
-				This is an example of an output file:<p>
-
+				<br>
+				This is an example of an output file:
+				<br>
 				<small>
-				<pre>
+<pre>
 chr2L   35041   T       K       SNP     Het     50                      FBgn0051973     Cda5            FBtr0078164     FBgn0051973:11  11      SYNONYMOUS_CODING       Q/Q     CAA/CAA 332     5997    
 chr2L   35041   T       K       SNP     Het     50                      FBgn0051973     Cda5            FBtr0078163     FBgn0051973:11  11      NON_SYNONYMOUS_CODING   Q/H     CAA/CAC 332     3120    
 chr2L   200401  C       Y       SNP     Het     228                     FBgn0016977     spen            FBtr0078121     CG18497:10      10      STOP_GAINED     Y/*     TAC/TAG 5240    16602   
@@ -611,11 +620,12 @@ chr2L   856021  *       +CGGAGGAGG/*    INS     Het     267                     
 chr2L   856890  C       Y       SNP     Het     201                     FBgn0029095     aru             FBtr0078031                     DOWNSTREAM: 43 bases   
 chr2L   871556  G       R       SNP     Het     228                     FBgn0053526     PNUTS           FBtr0091487     CG33526:2       2       5PRIME_UTR: 18 bases from TSS  
 chr2L   878267  T       W       SNP     Het     228             WARNING: Base is 'G' but SNP says 'T'.  FBgn0031292     CG15824         FBtr0078029     CG15824:14      14      3PRIME_UTR: 14 bases from transcript end  
-				</pre>
+</pre>
 				</small>
+				</p>
 
-				<p> <i> Meaning of 'Degeneracy' column </i><br>
-	  			Here is an explanation form Stephen Wright (Univ. Toronto), who requested to add this feature
+				<br>
+				<i> Meaning of 'Degeneracy' column </i>: Here is an explanation form Stephen Wright (Univ. Toronto), who requested to add this feature
 	  
 <pre>
 	     "...a fourfold degenerate site would be a site where any change is synonymous. So the 
@@ -626,6 +636,26 @@ chr2L   878267  T       W       SNP     Het     228             WARNING: Base is
 	     example, the first codon position of AGG is NOT zerofold, because a shift to CGG is a 
 	     synonymous change."
 </pre>
+				</p>
+
+				<br>
+				<p> <b> Details about Hom/Het calculation (summary file and TXT output format) </b>
+				<br>
+				<br>
+				In older formats, there used to be one sample per file, so 
+				identifying Hom/Het in a per variant basis made sense.
+				<br>
+				<br>
+				In VCF files, where many samples are analyzed simultaneously, 
+				identification of Hom/Het should be done in a per sample basis 
+				instead of per variant basis. In an attempt to output that field I 
+				used a majority vote (i.e. if most samples are Hom, I output 
+				Hom, otherwise, Het). This is not strictly correct and, it 
+				may also be confusing.
+				<br>
+				<br>
+				For this reason, the output is empty when using multi-sample files, such as VCF. 
+				Unless the file contains only one sample (i.e. only one genotype field)
 				</p>
 
 				<br>
@@ -663,43 +693,165 @@ tgctgcggctgcggctgcggctgcggctacggctgcggct    ALT (from VCF file)
 				</p>
 
 				<br>
-				<p> <b> Counting total number of effects of a given type </b>
-				<br>
-				Some people try to count the number of effects in a file by doing (assuming we want to count how many MODIFIER efefcts we have): 
-				<br>
-				<pre> grep -o MODIFIER output.eff.vcf | wc -l </pre>
-				<br>
-				This is incorrect because a VCF line can have multiple effects (e.g. when there are multiple transcripts in a gene).
-				A proper way to count effects would be:
 
-<pre>
-cat output.eff.vcf \
-	| cut -f 8 \
-	| tr ";" "\n" \
-	| grep ^EFF= \
-	| cut -f 2 -d = \
-	| tr "," "\n" \
-	| grep MODIFIER \
-	| wc -l
-</pre>
 
-				Brief explanation:
+        <!-- Output Summary
+        ================================================== -->
+        <section id="outputSummary">
+          <div class="page-header">
+            <h1>7. Output summary files </h1>
+          </div>
+				<p class="lead"> 
+				SnpEff creates an additional output file showing overall statistics.
+				This "stats" file is an HTML file which can be opned using a web browser.
+				You can find an example of a 'stats' file <a href="1kg.html"> here</a>.
+				</p>
+				<p>
+				The program performs some statistics and saves them to the file 'snpEff_summary.html' on the 
+				directory where snpEff is being executed. You can see the file, by opeining it in your browser.
+				<br>
+				<br>
+				<i class="icon-hand-right"></i>You can change the default location by using the '-stats' command line option. This also changes the location of the TXT summary file.
+				<br>
+				<br>
+				E.g.: In the stats file, you can see coverage histogram plots like this one <img src="http://chart.apis.google.com/chart?cht=bvg&chbh=8,4,2&chs=800x300&chxt=y,y,x,x&chg=11.0,40.0,3,2&chxp=1,50.0|3,50.0&chtt=Coverage+histogram&chxr=0,1.0,409.0|1,0.0,100.0|3,0.0,100.0&chxl=1:|Count|2:|1||||||||||11||||||||||21||||||||||31||||||||||41||||||||||51||||||||||61||||||||||76||||||||||3:|Coverage&chd=e:DNBSEfGaI9MKRSWZfXnrlwmZuE1wvW630e6O..638y3r7g8JsKxRlHgAkeZmY9XCR7PXRSOuOFMzNcIUJmHrHrFIFIFxEfCkDNDNBSBSB7BSB7BSApApApBSBSApAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA">
+				</p>
 
+				<br>
+				<p> <b> "Effects by type" vs "Effects by region" </b>
+				<br>
+				<br>
+				SnpEff annotates variants. 
+				Variants produce effect of difference "types" (e.g. NON_SYNONYMOUS_CODING, STOP_GAINED). 
+				These variants affect regions of the genome (e.g. EXON, INTRON). 
+				The two tables count how many effects for each type and for each region exists.
+				<br>
+				E.g.: In an EXON region, you can have all the following effect types:	NON_SYNONYMOUS_CODING, SYNONYMOUS_CODING, FRAME_SHIFT, STOP_GAINED, etc.
+				<br>
+				<br>
+				The complicated part is that some effect types affect a region that has the same name (yes, I know, this is confusing).
+				<br>
+				E.g.: In a UTR_5_PRIME region you can have UTR_5_PRIME and START_GAINED effect type. <br>
+				<br>
+				<br>
+				This means that the number of both tables are not exactly the same, because the labels don't mean the same.
+				See the next figure as an example
+				<br>
+				<img width=700 src="images/type_vs_region.png">
+				<br>
+				So the number of effects that affect a UTR_5_PRIME <i>region</i> is 206. Of those, 57 are effects <i>type</i> START_GAINED and 149 are effects <i>type</i> UTR_5_PRIME.
+				<br>
+				How exactly are effect <i>type</i> and effect <i>region</i> related? See the following table<p>
+				<center>
 				<table class="table table-striped">
-					<tr> <td> <tt>cut -f 8 </tt> </td> <td>  Extract INFO fields </td> </tr>
-					<tr> <td> <tt>tr ";" "\n" </tt> </td> <td>  Expand each field into one line </td> </tr>
-					<tr> <td> <tt>grep ^EFF= </tt> </td> <td>  Only keep 'EFF' fields </td> </tr>
-					<tr> <td> <tt>cut -f 2 -d = </tt> </td> <td>  Keep only the effect data (drop the 'EFF=' part) </td> </tr>
-					<tr> <td> <tt>tr "," "\n" </tt> </td> <td>  Expand effects to multiple lines </td> </tr>
-					<tr> <td> <tt>grep MODIFIER | wc -l </tt> </td> <td>  Count the ones you want (in this example 'MODIFIER')</td> </tr>
+					<tr> <th> Effect Type </th><th> Region </th> </tr> 
+					 <tr>
+						<td>
+						NONE<br>
+						CHROMOSOME<br>
+						CUSTOM<br>
+						CDS<br>
+						</td>
+						<td>NONE</td>
+					</tr>
+					<tr>
+						<td>
+						INTERGENIC<br>
+						INTERGENIC_CONSERVED<br>
+						</td>
+						<td>INTERGENIC</td>
+					</tr>
+					<tr>
+						<td>
+						UPSTREAM<br>
+						</td>
+						<td>UPSTREAM</td>
+					</tr>
+					<tr>
+						<td>
+						UTR_5_PRIME<br>
+						UTR_5_DELETED<br>
+						START_GAINED<br>
+						</td>
+						<td>UTR_5_PRIME</td>
+					</tr>
+					<tr>
+						<td>
+						SPLICE_SITE_ACCEPTOR<br>
+						</td>
+						<td>SPLICE_SITE_ACCEPTOR</td>
+					</tr>
+					<tr>
+						<td>
+						SPLICE_SITE_DONOR<br>
+						</td>
+						<td>SPLICE_SITE_DONOR</td>
+					</tr>
+					<tr>
+						<td>
+						INTRAGENIC<br>
+						START_LOST<br>
+						SYNONYMOUS_START<br>
+						NON_SYNONYMOUS_START<br>
+						GENE<br>
+						TRANSCRIPT<br>
+						</td>
+						<td>EXON or NONE</td>
+					</tr>
+					<tr>
+						<td>
+						EXON<br>
+						EXON_DELETED<br>
+						NON_SYNONYMOUS_CODING<br>
+						SYNONYMOUS_CODING<br>
+						FRAME_SHIFT<br>
+						CODON_CHANGE<br>
+						CODON_INSERTION<br>
+						CODON_CHANGE_PLUS_CODON_INSERTION<br>
+						CODON_DELETION<br>
+						CODON_CHANGE_PLUS_CODON_DELETION<br>
+						STOP_GAINED<br>
+						SYNONYMOUS_STOP<br>
+						STOP_LOST<br>
+						RARE_AMINO_ACID<br>
+						</td>
+						<td>EXON</td>
+					</tr>
+					<tr>
+						<td>
+						INTRON<br>
+						INTRON_CONSERVED<br>
+						</td>
+						<td>INTRON</td>
+					</tr>
+					<tr>
+						<td>
+						UTR_3_PRIME<br>
+						UTR_3_DELETED<br>
+						</td>
+						<td>UTR_3_PRIME</td>
+					</tr>
+					<tr>
+						<td>
+						DOWNSTREAM<br>
+						</td>
+						<td>DOWNSTREAM</td>
+					</tr>
+					<tr>
+						<td>
+						REGULATION<br>
+						</td>
+						<td>REGULATION</td>
+					</tr>
 				</table>
+				</center>
 				</p>
 
         <!-- Effects
         ================================================== -->
         <section id="eff">
           <div class="page-header">
-            <h1>7. Effect prediction details</h1>
+            <h1>8. Effect prediction details</h1>
           </div>
 				<p class="lead">
 				We describe the effects predicted by SnpEff
@@ -746,7 +898,9 @@ cat output.eff.vcf \
 				</table> 
 				</center>
 
+				<br>
 				<p> <b>Details about Rare amino acid effect </b>
+				<br>
 				<br>
 				These are amino acids that occurs very rarely in an organism.
 				For instance, humans are supposed to use 20 amino acids, but
@@ -772,7 +926,10 @@ cat output.eff.vcf \
 				the amino acid is not predictable using a codon table. 
 				</p>
 
-				<p><b>Effect impact</b><br> 
+				<br>
+				<p><h3>Effect impact</h3>
+				<br>
+				<br>
 				Efefcts are categorized by 'impact': {High, Moderate, Low, Modifier}. 
 				This are pre-defined categories to help users find more significant variants.
 				<br>
@@ -836,7 +993,8 @@ cat output.eff.vcf \
 				</table>
 				</p>
 
-				<p> <b> Loss of function and nonsense-mediated decay predictions </b>
+				<br>
+				<p> <h3> Loss of function and nonsense-mediated decay predictions </h3>
 				<br>
 				<br>
 				Loss of function ('LOF') and nonsense-mediated decay ('NMD') predictions can be activated by using '-lof' command line opion.
@@ -884,10 +1042,71 @@ LOF=ILDR2|ENSG00000143195|7|1.00
 				</table>
 				</p>
 
+				<h3> Troubleshooting </h3>
+
+				<p> <b> Apparent inconsistencies when using UCSC genome browser </b>
+				<br>
+				<br>
+				<i class="icon-warning-sign"></i> <b>WARNING:</b> Usage of hg19 genome is deprecated and discouraged, you should use GRChXX.YY instead (e.g. the latest version at the time of writing is GRCh37.70)
+				<br>
+				<br>
+				Reference sequence and annotations are made for an organism version and sub-version. 
+				For examples human genome, version 37, sub-version 70 would be called (GRCh37.70).
+				<br>
+				UCSC doesn't specify sub-version. 
+				They just say hg19.
+				This annoying sub-version problem appeared often and, having reproducibility of results in mind, I dropped UCSC annotations in favor of ENSEMBL ones (they have clear versioning).
+				</p>
+
+				<p> <b> SnpEff reporting an effect that doesn't match ENSEMBL's web page </b>
+				<br>
+				<br>
+				Please remember that databases are updated often (e.g. by ENSEMBL), so if you are using an old database, you might get different effects.<br>
+				<br>
+				For example, this transcript ENST00000487462 changed from protein_coding in GRCh37.63 
+<pre>
+1       protein_coding  exon    1655388 1655458 .       -       .        gene_id "ENSG00000008128"; transcript_id "ENST00000487462"; exon_number "1"; gene_name "CDK11A"; transcript_name "CDK11A-013";
+1       protein_coding  exon    1653905 1654270 .       -       .        gene_id "ENSG00000008128"; transcript_id "ENST00000487462"; exon_number "2"; gene_name "CDK11A"; transcript_name "CDK11A-013";
+</pre>
+...to processed_transcript in GRCh37.64:
+<pre>
+1       processed_transcript    exon    1655388 1655458 .       -       .        gene_id "ENSG00000008128"; transcript_id "ENST00000487462"; exon_number "1"; gene_name "CDK11A"; gene_biotype "protein_coding"; transcript_name "CDK11A-013";
+1       processed_transcript    exon    1653905 1654270 .       -       .        gene_id "ENSG00000008128"; transcript_id "ENST00000487462"; exon_number "2"; gene_name "CDK11A"; gene_biotype "protein_coding"; transcript_name "CDK11A-013";
+</pre>
+
+				This means that you'll get different results for this transcript using sub-version 63 or 64. I assume that latest versions are improved, so I always encourage to upgrade.
+				<br>
+				Sometimes it might even be the case that latest released dataabse and the one shown on the web interface may be out of sync.
+				<br>
+				</p>
+
+				<p> <b> SnpEff reports a SYNONYMOUS and a NON_SYNONYMOUS effect on the same gene </b>
+				<br>
+				<br>
+				This is not a bug.
+				It is not uncommon for a gene to have more than one transcript (e.g. in human most genes have multiple transcripts). 
+				A variant (e.g. a SNP) might affect different transcripts in different ways, as a result of different reading frames.
+				<br>
+				For instance: 
+<pre>
+chr5 137622242 . C T . . EFF=NON_SYNONYMOUS_CODING(MODERATE|MISSENSE|Gaa/Aaa|E/K|CDC25C|protein_coding|CODING|ENST00000514017|exon_5_137622186_137622319),
+                             SYNONYMOUS_CODING(LOW|SILENT|caG/caA|Q|CDC25C|protein_coding|CODING|ENST00000323760|exon_5_137622186_137622319),
+                             SYNONYMOUS_CODING(LOW|SILENT|caG/caA|Q|CDC25C|protein_coding|CODING|ENST00000348983|exon_5_137622186_137622319),
+                             SYNONYMOUS_CODING(LOW|SILENT|caG/caA|Q|CDC25C|protein_coding|CODING|ENST00000356505|exon_5_137622186_137622319),
+                             SYNONYMOUS_CODING(LOW|SILENT|caG/caA|Q|CDC25C|protein_coding|CODING|ENST00000357274|exon_5_137622186_137622319),
+                             SYNONYMOUS_CODING(LOW|SILENT|caG/caA|Q|CDC25C|protein_coding|CODING|ENST00000415130|exon_5_137622186_137622319),
+                             SYNONYMOUS_CODING(LOW|SILENT|caG/caA|Q|CDC25C|protein_coding|CODING|ENST00000513970|exon_5_137622186_137622319),
+                             SYNONYMOUS_CODING(LOW|SILENT|caG/caA|Q|CDC25C|protein_coding|CODING|ENST00000514555|exon_5_137622186_137622319),
+                             SYNONYMOUS_CODING(LOW|SILENT|caG/caA|Q|CDC25C|protein_coding|CODING|ENST00000534892|exon_5_137622186_137622319)
+</pre>
+
+				in this example (it was divided into multiple lines for legibility), the first transcript ENST0000051401 has a NON_SYNONYMOUS effect, but all other transcripts have a SYNONYMOUS effect.
+				</p>
+
 
         <!-- Filter output
         ================================================== -->
-        <section id="eff">
+        <section id="filters">
           <div class="page-header">
             <h1>8. Output filters </h1>
           </div>
@@ -907,173 +1126,348 @@ LOF=ILDR2|ENSG00000143195|7|1.00
 <pre> java -Xmx4G -jar snpEff.jar -fi intervals.bed dm5.30 file.vcf</pre>
 <b>Note:</b> You may specify multiple files by using '-fi' many times.
 
-	     
 
+        <!-- Databases
+        ================================================== -->
+        <section id="databases">
+          <div class="page-header">
+            <h1>9. Databses </h1>
+          </div>
+				<p class="lead">
+				SnpEff needs a datbase to perform genomic annotations. 
+				There are pre-built databases for over 2,500 genomes, so chances are that your organism of coice already has a SnpEff database available.
+				In the (unlikely?) event that you need to build one yourself, here we descrive how to it.
+				</p>
 
-
-
-
-				<p style="font-size: 14pt"> <b> <a class="body" name="gatk"> What is the adequate output for GATK? </a> </b></p>
-				You should use the <b>'-o gatk'</b> command line option to avoid problems.
-				The reason is that, even though GATK uses VCF, but sometimes new formats of the 'EFF' info field might cause trouble.
-				This happens when switching from SnpEff v2.X to SnpEff v3.0, since the latest GATK version still uses an older format.<br>
-
-				<hr> <center> <p style="font-size: 16pt"> <b> Output summary page </b></center></p>
-				<p style="font-size: 14pt"> <b> <a class="body" name="Effects_by_type_vs_Effects_by_region"> "Effects by type" vs "Effects by region" </a> </b></p>
-				SnpEff annotates variants. 
-				Variants produce effect of difference "types" (e.g. NON_SYNONYMOUS_CODING, STOP_GAINED). 
-				These variants affect regions of the genome (e.g. EXON, INTRON). <p>
-				The two tables count how many effects for each type and for each region exists.
 				<p>
-				E.g.: In an EXON region, you can have all the following effect types:	NON_SYNONYMOUS_CODING, SYNONYMOUS_CODING, FRAME_SHIFT, STOP_GAINED, etc.
+				<i class="icon-hand-right"></i>You can know which genomes are supported by running the following command:
+<pre>
+java -jar snpEff.jar databases
+</pre>
+				<br>
+				<i class="icon-warning-sign"></i> Most people do NOT need to build a database, and can safely use a pre-built one. 
+				So unless you are working with an rare genome you most likely don't need to do it either.
+				<br>
+				<br>
+				<i class="icon-warning-sign"></i> Again, chances are that you DO NOT NEED to build a database.
+				Sorry to repeat this, but I cannot tell how many times I get emails asking for help to build database that is already available.
+				<br>
+				<br>
+				In order to add support for a new genome, you need to:
+				<ol>
+					<li> Get the reference genome sequence (e.g. in FASTA format).
+					<li> Get genome annotations. It can be either:
+						<ol>
+							<li> GTF file (the easiest way) 
+							<li> GFF file.
+							<li> RefSeq (UCSC) table.
+							<li> GenBank
+						</ol>
+					<li> Add genome to snpEff's configuration file
+					<li> Run a command to create the database (i.e. "java -jar snpEff.jar build ...")
+				</ol>
+
+				<b>Note:</b> All files can be compressed using gzip. E.g. the reference file 'hg19.fa' can be compressed to 'hg19.fa.gz', snpEff will automatically decompress the file.
+				<br>
+				<br>
+				<i class="icon-warning-sign"></i><b>Warning:</b> Some files claimed to be compressed using GZIP are actually not or even use a block compression variant not supported by Java's gzip library.
+				If you notice that your build process finishes abruptly for no aparent reason, try uncompressing the files. 
+				This sometimes happens with ENSEMBL files.
+				</p>
+
+				<h3>Option 1: Building a database from GTF files</h3>
 				<p>
-				The complicated part is that some effect types affect a region that has the same name (yes, I know, this is confusing).
+				GTF 2.2 files are supported by SnpEff (e.g. ENSEMBL relases genome annotations in this format).
+				<ol>
+					<li> Get the genome and uncompress it
+<pre>
+# Create directoy for this new genome
+cd /path/to/snpEff/data/
+mkdir mm37.61
+cd mm37.61
+
+# Get annotation files
+wget ftp://ftp.ensembl.org/pub/current/gtf/mus_musculus/Mus_musculus.NCBIM37.61.gtf.gz
+mv Mus_musculus.NCBIM37.61.gtf.gz genes.gtf.gz
+
+# Get the genome
+cd /path/to/snpEff/data/genomes
+wget ftp://ftp.ensembl.org/pub/current/fasta/mus_musculus/dna/Mus_musculus.NCBIM37.61.dna.toplevel.fa.gz
+mv Mus_musculus.NCBIM37.61.dna.toplevel.fa.gz mm37.61.fa.gz
+</pre>
+
+					<li> <b>Note:</b> The FASTA file can be either in <br> <tt>/path/to/snpEff/data/genomes/mm37.61.fa</tt> <br> or in <br> <tt>/path/to/snpEff/data/mm37.61/sequences.fa</tt><p>
+
+					<li> Add the new genome to the config file (see section "How to add a new genome to the configuration file" for details)
+
+					<li> Create database
+<pre>
+cd /path/to/snpEff
+java -jar snpEff.jar build -gtf22 -v mm37.61 
+</pre>
+				</ol>
+				</p>
+
+				<h3>Option 2: Building a database from GFF files </h3>
 				<p>
-				E.g.: In a UTR_5_PRIME region you can have UTR_5_PRIME and START_GAINED effect type. <br>
-				This means that the number of both tables are not exactly the same, because the labels don't mean the same.
-				See the next figure as an example
+				This example shows how to create a database for a new genome using GFF file ((e.g. FlyBase, WormBase, BeeBase release GFF files). 
+				For this example we'll use the Drosophila melanogaster genome (dm5.31):
+				<ol>
+					<li> Get a GFF file (into path/to/snpEff/data/dm5.31/genes.gff):
+
+<pre>
+mkdir path/to/snpEff/data/dm5.31
+cd path/to/snpEff/data/dm5.31
+wget ftp://ftp.flybase.net/genomes/Drosophila_melanogaster/dmel_r5.31_FB2010_08/gff/dmel-all-r5.31.gff.gz
+mv dmel-all-r5.31.gff.gz genes.gff.gz 
+</pre>
+
+					<li> <b>Note:</b> GFF3 files can include the reference sequence in the same file. This is done by dumping the fasta file after a '##FASTA' line. You can also add the sequence fasta file to the 'data/genomes/' directory, like it is done in when using GTF format.
+
+					<li> Add the new genome to the config file (see section "How to add a new genome to the configuration file" for details)
+
+					<li> Create database (note the "-gff3" flag):
+<pre>
+cd /path/to/snpEff
+java -jar snpEff.jar build -gff3 -v dm5.31 
+</pre>
+				</ol>
+				</p>
+
+				<h3>Option 3: Building a database from RefSeq table from UCSC</h3>
 				<p>
-				<img width=700 src="images/type_vs_region.png">
+				This example shows how to create a database for a new genome. 
+				For this example we'll use the Human genome (hg19).
+				<br>
+				<br>
+				<i class="icon-warning-sign"></i><b>Warning:</b> Using UCSC genome tables is highly discurraged, we recomend you use ENSEMBL versions instead.
+				<br>
+				<br>
+				<i class="icon-warning-sign"></i><b>Warning:</b> UCSC tables sometimes change for different species. 
+				This means that even if these instructions work for human genome, it might not work for other genomes.
+				Obviously creating a new parser for each genome is impractical, so working with UCSC genomes is higly discurraged.
+				We recommend to use ENSEMBL genomes instead.
+				<br>
+				<br>
+				<i class="icon-warning-sign"></i><b>Warning:</b> UCSC genomes provide only major release version, but NOT sub-versions.
+				E.g. UCSC's "hg19" has major version 19 but there is no "sub-version", whereas ENSEMBL's GRCh37.70 clearly has major version 37 and minor version 70. 
+				Not providing a minor version means that they might change the database and two "hg19" genomes are actually be different.
+				This creates all sorts of consitency problems (e.g. the annotations may not be the same that you see in the UCSC genome browser, even though both of them are 'hg19' version).
+				Using UCSC genome tables is highly discurraged, we recomend you use ENSEMBL versions instead.
+				<br>
+				<br>
+				In order to build a genome using UCSC tables, you can follow these instructions:
+				<ol>
+					<li> Go to UCSC genome browser (http://genome.ucsc.edu/)
+					<li> Click on "Table" menu
+					<li> Select parameters as shown here:
+							<br>
+							<img src="./images/ucsc_refSeq.png">
+							<br>
+					<li> Click on "get output" and save the data to file "/path/to/snpEff/data/hg19/genes.txt".
+
+					<li> Add the fasta reference genome. The FASTA file can be either in <br> <tt>/path/to/snpEff/data/genomes/hg19.fa</tt> <br> or in <br> <tt>/path/to/snpEff/data/hg19/sequences.fa</tt><p>
+
+					<li> <a class="body" href="#conf">Add</a> the new genome to the config file (see section "How to add a new genome to the configuration file" for details)
+
+					<li> Create database (note the "-refSeq" flag):
+<pre>
+cd /path/to/snpEff
+java -jar snpEff.jar build -refSeq -v hg19 
+</pre>
+				</ol>
+				</p>
+
+				<h3>Option 4: Building a database from GenBank files</h3>
 				<p>
-				So the number of effects that affect a UTR_5_PRIME <b>region</b> is 206. Of those, 57 are effects <b>type</b> START_GAINED and 149 are effects <b>type</b> UTR_5_PRIME.
+				This example shows how to create a database for a new genome. 
+				For this example we'll use "Staphylococcus aureus":
+				<ol>
+					<li> Go to NIH page for <a class="body" href="http://www.ncbi.nlm.nih.gov/nuccore/CP000730.1">CP000730</a>
+
+					<li> Download the features in geneBank format, by clicking as shown in the following images (red arrows)
+						<br>
+						<br>
+						<center> <img width=800 src="images/genBank_0.png"> </center> 
+						<br>
+						<br>
+						Make sure you click the "Update" button!
+						<br>
+						Then you go to the "Send" menu
+						<br>
+						<br>
+						<center> <img width=800 src="images/genBank_1.png"> </center>
+						<br>
+						<br>
+						and then
+						<br>
+						<br>
+						<center> <img width=800 src="images/genBank_2.png"> </center>
+						<br>
+						<br>
+
+					<li> Save the GenBank data to "/path/to/snpEff/data/CP000730/genes.gb".
+						<br>
+						<br>
+						 <b>Note:</b> If there are more than one genbank file for an organism (e.g. multiple chromosomes), then you can download each file and save them separately.
+						<br>
+						 E.g.: Vibrio Cholerae has two chromosomes with GenBank accessions: NC_002505.1 and NC_002506.1.
+						 You can download both files and save them as snpEff/data/vibrio/NC_002505.1.gb and snpEff/data/vibrio/NC_002506.1.gb respectively.
+						 Then you can add the following entries in the config file:
+						<br>
+						<br>
+<pre>
+# Vibrio Cholerae
+vibrio.genome : Vibrio Cholerae
+	vibrio.chromosomes : NC_002505.1, NC_002506.1
+	vibrio.NC_002505.1.codonTable : Bacterial_and_Plant_Plastid
+	vibrio.NC_002506.1.codonTable : Bacterial_and_Plant_Plastid
+</pre>
+
+						SnpEff will load both files when building the database.
+
+					<li> Create database (note the "-genbank" flag):
+						<br>
+						<br>
+<pre>
+	cd /path/to/snpEff
+	java -jar snpEff.jar build -genbank -v CP000730 
+</pre>
+				</ol>
+				</pre>
+				</p>
+
+				<h3>Add a genome to the configuration file</h3>
 				<p>
-				How exactly are effect <b>type</b> and effect <b>region</b> related? See the following table<p>
-				<center>
-				<table border=0>
-					<tr bgcolor=aaaaaa> <th> Effect Type </th><th> ..affect Region </th> </tr> 
-					 <tr bgcolor=eeeeee>
-						<td>
-						NONE<br>
-						CHROMOSOME<br>
-						CUSTOM<br>
-						CDS<br>
-						</td>
-						<td>NONE</td>
-					</tr>
-					<tr bgcolor=dddddd>
-						<td>
-						INTERGENIC<br>
-						INTERGENIC_CONSERVED<br>
-						</td>
-						<td>INTERGENIC</td>
-					</tr>
-					<tr bgcolor=eeeeee>
-						<td>
-						UPSTREAM<br>
-						</td>
-						<td>UPSTREAM</td>
-					</tr>
-					<tr bgcolor=dddddd>
-						<td>
-						UTR_5_PRIME<br>
-						UTR_5_DELETED<br>
-						START_GAINED<br>
-						</td>
-						<td>UTR_5_PRIME</td>
-					</tr>
-					<tr bgcolor=eeeeee>
-						<td>
-						SPLICE_SITE_ACCEPTOR<br>
-						</td>
-						<td>SPLICE_SITE_ACCEPTOR</td>
-					</tr>
-					<tr bgcolor=dddddd>
-						<td>
-						SPLICE_SITE_DONOR<br>
-						</td>
-						<td>SPLICE_SITE_DONOR</td>
-					</tr>
-					<tr bgcolor=eeeeee>
-						<td>
-						INTRAGENIC<br>
-						START_LOST<br>
-						SYNONYMOUS_START<br>
-						NON_SYNONYMOUS_START<br>
-						GENE<br>
-						TRANSCRIPT<br>
-						</td>
-						<td>EXON or NONE</td>
-					</tr>
-					<tr bgcolor=dddddd>
-						<td>
-						EXON<br>
-						EXON_DELETED<br>
-						NON_SYNONYMOUS_CODING<br>
-						SYNONYMOUS_CODING<br>
-						FRAME_SHIFT<br>
-						CODON_CHANGE<br>
-						CODON_INSERTION<br>
-						CODON_CHANGE_PLUS_CODON_INSERTION<br>
-						CODON_DELETION<br>
-						CODON_CHANGE_PLUS_CODON_DELETION<br>
-						STOP_GAINED<br>
-						SYNONYMOUS_STOP<br>
-						STOP_LOST<br>
-						RARE_AMINO_ACID<br>
-						</td>
-						<td>EXON</td>
-					</tr>
-					<tr bgcolor=eeeeee>
-						<td>
-						INTRON<br>
-						INTRON_CONSERVED<br>
-						</td>
-						<td>INTRON</td>
-					</tr>
-					<tr bgcolor=dddddd>
-						<td>
-						UTR_3_PRIME<br>
-						UTR_3_DELETED<br>
-						</td>
-						<td>UTR_3_PRIME</td>
-					</tr>
-					<tr bgcolor=eeeeee>
-						<td>
-						DOWNSTREAM<br>
-						</td>
-						<td>DOWNSTREAM</td>
-					</tr>
-					<tr bgcolor=dddddd>
-						<td>
-						REGULATION<br>
-						</td>
-						<td>REGULATION</td>
-					</tr>
-				</table>
-				</center>
+				This example shows how to add a new genome to the config files. For this example we'll use the mouse genome (mm37.61):
+				<br>
+				<br>
+				<ol>
+					<li> Edit the config file to create the new genome
 
+						<pre> vi snpEffect.config </pre>
+							
+						Add the following lines (you are editting snpEffect.config)<br>
+<pre>
+# Mouse genome, version mm37.61
+mm37.61.genome : Mouse 
+</pre>
+				<br>
+				<i class="icon-warning-sign"></i><b>Warning:</b> You may need to add codon table information for the genome or some parts of it (e.g. mitochondrial "chromosome"). 
+				See next section for details.
+				<br>
+				<br>
 
-				<hr> <center> <p style="font-size: 16pt"> <b> Supporting genomes </b></center></p>
+					<li> Optional: Add genome to Galaxy's menu 
+<pre>
+cd /path/to/galaxy
+cd tools/snpEffect/
+vi snpEffect.xml 
+</pre>
 
-				<p style="font-size: 14pt"> <b> <a class="body" name="Where_is_the_human_genome?"> Where is the human genome?</a> </b></p>
-				Human genome is now called 'GRCh37.XX' for ENSEMBL annotations, or 'hg19' for UCSC/RefSeq annotations. <br>
-				Note that ENSEMBl provides better versioning (e.g GRCh37.63, GRCh37.64, GRCh37.65 ...) while UCSC has only one 'hg19' version which they might update. So your results using hg19 today might not be the same as using hg19 a year ago since UCSC might have updated the data, but the name is still hg19.
+						Add the following lines to the file
+<pre>
+	&lt;param name="genomeVersion" type="select" label="Genome"&gt;
+		&lt;option value="hg37"&gt;Human (hg37)&lt;option&gt;
+		&lt;option value="mm37.61"&gt;Mouse (mm37.61)&lt;option&gt;
+	&lt;param&gt; 
+</pre>
+				</ol>
+				</p>
 
-				<p style="font-size: 14pt"> <b> <a class="body" name="Which_genomes_are_supported?"> Which genomes are supported? </a> </b></p>
-				There is a detailed list at the <a class="body" href="download.html">download</a> page.
-
-				<p style="font-size: 14pt"> <b> <a class="body" name="How_do_I_add_support_for_XXX_genome?"> How do I build add support for XXX genome? How do I build a database?</a> </b></p>
-				<a class="body"class="body" href="supportNewGenome.html">Here</a> is a detailed, step by step explanation.
-
-				<p style="font-size: 14pt"> <b> <a class="body" name="How_do_I_add_support_for_regulatory_annotations?"> How do I add support for regulatory annotations? </a> </b></p>
-				<a class="body"class="body" href="supportRegulation.html">Here</a> is a detailed, step by step explanation.
-
-				<p style="font-size: 14pt"> <b> <a class="body" name="How_do_I_add_another_codon_table?"> How do I add another codon table?  </a> </b></p>
-				You have to edit the <code>snpEff.config</code> file and add a parameter <code>"codon.Name_of_your_codon_table"</code> followed by a comma separaated list of <code>"CODON/AMINO_ACID"</code>. E.g.: 
+				<h3> Configuring codon tables </h3>
+				<p>
+				Codon tables are provided in the <code>snpEff.config</code> configuration file under the section <code>codon.Name_of_your_codon_table</code>.
+				The format is a comma separaated list of <code>CODON/AMINO_ACID</code>. 
+				<br>
+				E.g.: 
 <pre>
 codon.Invertebrate_Mitochondrial:  TTT/F, TTC/F, TAC/Y, TAA/*, ATG/M+, ATG/M+, ACT/T, ...
 </pre>
-				Note that codons marked with '*' are STOP codons and codons marked with a '+' are START codons.<br>
-				The next step is to tell snpEff to use that codon table for a given "chromosome" e.g. here we say the chromosome 'M' from fly genome (dm3) uses Invertebrate_Mitochondrial codon table:
+				Note that codons marked with '*' are STOP codons and codons marked with a '+' are START codons.
+				<br>
+				<br>
+				In order for you to use them, you have to specify that a given "chromosome" uses one of the tables (otherwise the default codon table is used).
+				<br>
+				E.g. Here we say the chromosome 'M' from fly genome (dm3) uses Invertebrate_Mitochondrial codon table:
 <pre>
-	dm3.M.codonTable : Invertebrate_Mitochondrial
+dm3.M.codonTable : Invertebrate_Mitochondrial
+</pre>
+				...of course, chromosome 'M' is not a real chromosome, it is just a way to mark the sequence as mitochondrial DNA in the reference genome.
+				</p>
+
+				<h3>Example: Building the Human Genome database</h3>
+				<p>
+				This is a full example on how to build the human genome database (using GTF file from ENSEBML), it includes support for regulatory features, sanity check, rare amino acids, etc..
+				<br>
+				<br>
+<pre>
+# Go to SnpEff's install dir
+cd ~/snpeff
+
+# Create database dir
+mkdir data/GRCh37.70
+cd data/GRCh37.70
+
+# Download annotated genes
+wget ftp://ftp.ensembl.org/pub/release-70/gtf/homo_sapiens/Homo_sapiens.GRCh37.70.gtf.gz
+mv Homo_sapiens.GRCh37.70.gtf.gz genes.gtf.gz
+
+# Download proteins 
+# This is used for:
+#	- "Rare Amino Acid" annotations
+#	- Sanity check (checking protein predicted from DNA sequences match 'real' proteins)
+wget ftp://ftp.ensembl.org/pub/release-70/fasta/homo_sapiens/pep/Homo_sapiens.GRCh37.70.pep.all.fa.gz
+mv Homo_sapiens.GRCh37.70.pep.all.fa.gz protein.fa.gz
+
+# Download CDSs
+# Note: This is used as "sanity check" (checking that CDSs prediscted from gene sequences match 'real' CDSs)
+wget ftp://ftp.ensembl.org/pub/release-70/fasta/homo_sapiens/cdna/Homo_sapiens.GRCh37.70.cdna.all.fa.gz
+mv Homo_sapiens.GRCh37.70.cdna.all.fa.gz cds.fa.gz
+
+# Download regulatory annotations
+wget ftp://ftp.ensembl.org/pub/release-70/regulation/homo_sapiens/AnnotatedFeatures.gff.gz
+mv AnnotatedFeatures.gff.gz regulation.gff.gz
+
+# Uncompress
+gunzip *.gz
+
+# Download genome
+cd ../genomes/
+wget ftp://ftp.ensembl.org/pub/release-70/fasta/homo_sapiens/dna/Homo_sapiens.GRCh37.70.dna.toplevel.fa.gz
+mv Homo_sapiens.GRCh37.70.dna.toplevel.fa.gz GRCh37.70.fa.gz
+
+# Uncompress: 
+# Why do we need to uncompress? 
+# Because ENSEMBL compresses files using a block compress gzip which is not compatibles whith Java's library Gunzip 
+gunzip GRCh37.70.fa.gz
+
+# Edit snpEff.config file
+#
+# WARNING! You must do this yourself. Just copying and pasting this into a terminal won't work.
+#
+# Add lines:
+#		GRCh37.70.genome : Homo_sapiens
+#		GRCh37.70.reference : ftp://ftp.ensembl.org/pub/release-70/gtf/
+
+# Now we are ready to build tha database
+cd ~/snpeff
+java -Xmx20g -jar snpEff.jar build -v GRCh37.70 2>&1 | tee GRCh37.70.build
 </pre>
 
-				...of course, chromosome 'M' is not a real chromosome, it is just a way to mark the sequence as mitochondrial DNA.
-
-				<p style="font-size: 14pt"> <b> <a class="body" name="When_I_build_the_database_using_GFF_3_it_says_that_Exons_don't_have_s"> When I build the database using GFF 3 it says that Exons don't have sequences </a> </b></p>
-
-				GFF3 files can have sequence information either in the same file or in a separate fasta file.<p>
+				</p>
+				<h3> Troubleshooting </h3>
+				<br>
+				<i class="icon-warning-sign"></i><b>Warning:</b> By far the most common problem is that the FASTA file chromosome names are different than the GFF chromosome names.
+				Make sure chromosome names are consistent in all the files you use.
+				<br>
+				<br>
+				<p> 
+				<b> When I build the database using GFF 3 SnpEff reports that Exons don't have sequences</b>
+				<br>
+				<br>
+				GFF3 files can have sequence information either in the same file or in a separate fasta file.
+				<br>
 				In order to add sequence information in the GFF file, you can do this:
 <pre>
 cat annotations.gff > genes.gff
@@ -1081,26 +1475,53 @@ echo "###"  >> genes.gff
 echo "##FASTA"  >> genes.gff
 cat sequence.fa  >> genes.gff
 </pre>
+				</p>
 
-				<p style="font-size: 14pt"> <b> <a class="body" name="I_get_zero_protein_coding_genes"> When building a database, I get zero protein coding genes</a> </b></p>
-				When building a database, snpEff tries to find which transcripts are protein coding. This is done using the 'bioType' information.<br>
-				The bioType information is not a standard GFF or GTF feature. So I follow ENSEMBL's convention of using the second column ('source') for bioType, as well as the gene_biotype attribute.<br>
- 				If your file was not produced by ENSEMBL, it probably doesn't have this information. This means that snpEff doesn't know which genes are protein coding and which ones are not. <br>
-				Having no information, snpEff will treat all genes as protein coding (assuming you have '-treatAllAsProteinCoding Auto' option in the command line, which is the default).<br>
- 				So you will get effects as if all genes were protein coding, then you can filter out the irrelevant genes. unfortunately, this is the best I can do if there is no 'bioType' information <br>
+				<p> <b> When building a database, I get zero protein coding genes </b>
+				<br>
+				<br>
+				When building a database, snpEff tries to find which transcripts are protein coding. This is done using the 'bioType' information.
+				<br>
+				The bioType information is not a standard GFF or GTF feature. So I follow ENSEMBL's convention of using the second column ('source') for bioType, as well as the gene_biotype attribute.
+				<br>
+				If your file was not produced by ENSEMBL, it probably doesn't have this information. This means that snpEff doesn't know which genes are protein coding and which ones are not. 
+				<br>
+				Having no information, snpEff will treat all genes as protein coding (assuming you have '-treatAllAsProteinCoding Auto' option in the command line, which is the default).
+				<br>
+				So you will get effects as if all genes were protein coding, then you can filter out the irrelevant genes. unfortunately, this is the best I can do if there is no 'bioType' information 
+				</p>
 
-				<p style="font-size: 14pt"> <b> <a class="body" name="I_get_too_many_warnings">When building a database, I get too many warnings</a> </b></p>
+				<p> <b> When building a database, I get too many warnings </b>
+				<br>
+				<br>
 				There are plenty of GFF and GTF files that, unfortunately, do not follow the specification. 
 				SnpEff usually complains about this, but tries hard to correct the problems. 
-				So the database may be OK even after you see many warnings.<br>
-
+				So the database may be OK even after you see many warnings.
+				<br>
 				You can check the database to see if the features (genes, exons, UTRs) have been correctly incorporated, by taking a look at the database:
-
 <pre>
 java -jar snpEff.jar dump myGenome | less
 </pre>
+				</p>
 
-				<hr> <center> <p style="font-size: 16pt"> <b> Unexpected results </b></center></p>
+			<!-- Integration
+			================================================== -->
+			<section id="integration">
+			  <div class="page-header">
+				<h1>10. Integration: GATK &amp; Galaxy </h1>
+			  </div>
+					<p class="lead">
+					<p style="font-size: 14pt"> <b> <a class="body" name="gatk"> What is the adequate output for GATK? </a> </b></p>
+					You should use the <b>'-o gatk'</b> command line option to avoid problems.
+					The reason is that, even though GATK uses VCF, but sometimes new formats of the 'EFF' info field might cause trouble.
+					This happens when switching from SnpEff v2.X to SnpEff v3.0, since the latest GATK version still uses an older format.<br>
+
+
+
+					<p style="font-size: 14pt"> <b> <a class="body" name="How_do_I_add_support_for_regulatory_annotations?"> How do I add support for regulatory annotations? </a> </b></p>
+					<a class="body"class="body" href="supportRegulation.html">Here</a> is a detailed, step by step explanation.
+
+				<center> <p> <b> Unexpected results </b></center></p>
 
 				<p style="font-size: 14pt"> <b> <a class="body" name="Why_are_coordinates_changed_in_InDels?"> Why are coordinates changed in InDels?  </a> </b></p>
 
@@ -1117,57 +1538,11 @@ java -jar snpEff.jar dump myGenome | less
 				If you look at the sequences, the first 6 bases are the same (i.e. the VCF file says that the INDEL is "CAACTA / CAACTAACTA" at position 7797903).
 				So the actual insertion is "ACTA" a position 7797903 + 6 = 7797909.
 
-				<p style="font-size: 14pt"> <b> <a class="body" name="When_I_look_at_the_UCSC_borwser_for_hg19,_it_doesn't_match_the_information_from_snpEff?"> When I look at the UCSC browser for hg19, it doesn't match the information from snpEff?  </a> </b></p>
-
-				<b>WARNING:</b> Usage of hg19 genome is deprecated and discouraged, you should use GRChXX.YY instead<p>
-
-				Reference sequence and annotations are made for an organism, version and sub-version. 
-				For examples human genome, version 37, sub-version 63 would be called (GRCh37.63 or hg37.63 aka hg19.63).<br>
-				UCSC doesn't specify sub-version. 
-				They just say hg19.
-				This annoying sub-version problem appeared often and, having reproducibility of results in mind, I dropped UCSC annotations in favor of ENSEMBL ones (they have clear versioning).<p>
-
 				<p style="font-size: 14pt"> <b> <a class="body" name="When_I_run_SnpEff_from_GATK_I_only_get_one_effect!"> When I run SnpEff from GATK I only get one effect! </a> </b></p>
 				Indeed,  the GATK team decided to only report the highest impact effect. This was done intentionally for the sake of brevity, in a 'less is more' spirit.<br>
 				You can get the full effect by using snpEff independently (instead of using it from GATK).
 
-				<p style="font-size: 14pt"> <b> <a class="body" name="Why_SnpEff_is_reporting_an_effect_that_doesn't_match_ENSEMBL_(web)?"> Why SnpEff is reporting an effect that doesn't match ENSEMBL (web)? </a> </b></p>
-				Please remember that databases are updated often (e.g. by ENSEMBL), so if you are using an old database, you might get different effects.<br>
-				<p>
-				For example, this transcript ENST00000487462 changed from protein_coding in GRCh37.63 
-<pre>
-1       protein_coding  exon    1655388 1655458 .       -       .        gene_id "ENSG00000008128"; transcript_id "ENST00000487462"; exon_number "1"; gene_name "CDK11A"; transcript_name "CDK11A-013";
-1       protein_coding  exon    1653905 1654270 .       -       .        gene_id "ENSG00000008128"; transcript_id "ENST00000487462"; exon_number "2"; gene_name "CDK11A"; transcript_name "CDK11A-013";
-</pre>
-...to processed_transcript in GRCh37.64:
-<pre>
-1       processed_transcript    exon    1655388 1655458 .       -       .        gene_id "ENSG00000008128"; transcript_id "ENST00000487462"; exon_number "1"; gene_name "CDK11A"; gene_biotype "protein_coding"; transcript_name "CDK11A-013";
-1       processed_transcript    exon    1653905 1654270 .       -       .        gene_id "ENSG00000008128"; transcript_id "ENST00000487462"; exon_number "2"; gene_name "CDK11A"; gene_biotype "protein_coding"; transcript_name "CDK11A-013";
-</pre>
-
-				This means that you'll get different results for this transcript using sub-version 63 or 64. I assume that latest versions are improved, so I always encourage to upgrade.<p>
-				As I mentioned before it might even be the case that latest released dataabse and the one shown on the web interface may be out of sync.<br>
-
-				<p style="font-size: 14pt"> <b> <a class="body" name="Why_is_snpEff_reporting_a_SYNONYMOUS_and_a_NON_SYNONYMOUS_effect_on_te_same_gene?"> Why is snpEff reporting a SYNONYMOUS and a NON_SYNONYMOUS effect on the same gene? </a> </b></p>
-
-				It is not uncommon for a gene to have more than one transcript (e.g. in human most genes have multiple transcripts). A variant (e.g. a SNP) might affect different transcripts in different ways, as a result of different reading frames. <p>
-				For instance: 
-<pre>
-chr5 137622242 . C T . . EFF=NON_SYNONYMOUS_CODING(MODERATE|MISSENSE|Gaa/Aaa|E/K|CDC25C|protein_coding|CODING|ENST00000514017|exon_5_137622186_137622319),
-                             SYNONYMOUS_CODING(LOW|SILENT|caG/caA|Q|CDC25C|protein_coding|CODING|ENST00000323760|exon_5_137622186_137622319),
-                             SYNONYMOUS_CODING(LOW|SILENT|caG/caA|Q|CDC25C|protein_coding|CODING|ENST00000348983|exon_5_137622186_137622319),
-                             SYNONYMOUS_CODING(LOW|SILENT|caG/caA|Q|CDC25C|protein_coding|CODING|ENST00000356505|exon_5_137622186_137622319),
-                             SYNONYMOUS_CODING(LOW|SILENT|caG/caA|Q|CDC25C|protein_coding|CODING|ENST00000357274|exon_5_137622186_137622319),
-                             SYNONYMOUS_CODING(LOW|SILENT|caG/caA|Q|CDC25C|protein_coding|CODING|ENST00000415130|exon_5_137622186_137622319),
-                             SYNONYMOUS_CODING(LOW|SILENT|caG/caA|Q|CDC25C|protein_coding|CODING|ENST00000513970|exon_5_137622186_137622319),
-                             SYNONYMOUS_CODING(LOW|SILENT|caG/caA|Q|CDC25C|protein_coding|CODING|ENST00000514555|exon_5_137622186_137622319),
-                             SYNONYMOUS_CODING(LOW|SILENT|caG/caA|Q|CDC25C|protein_coding|CODING|ENST00000534892|exon_5_137622186_137622319)
-</pre>
-
-				in this example (it was divided into multiple lines for legibility), the first transcript ENST0000051401 has a NON_SYNONYMOUS effect, but all other transcripts have a SYNONYMOUS effect.
-				<p>
-
-				<hr> <center> <p style="font-size: 16pt"> <b> Other utilities </b></center></p>
+				<center> <p style="font-size: 16pt"> <b> Other utilities </b></center></p>
 				<p style="font-size: 14pt"> <b> <a class="body" name="countReads"> SnpEff countReads: Counting how many reads / bases from a BAM file hit a gene, transcript, exon, intron, etc. </a> </b></p>
 				If you need to count how many reads (and bases) from a BAM file hit each genomic region, you can use 'countReads' utility.<br>
 				The command line is quite simple. E.g. in order to count how many reads (from N BAM files) hit regions of the human genome, you simply run: <br>
@@ -1211,31 +1586,6 @@ chr  start  end       type                IDs                         Reads:read
 					<li> Column 7: Count of bases (in file readsFile_1.bam) intersecting genomic region, i.e. each read is intersected and the resulting number of bases added.
 					<li> Column ...:  (repeat count reads and bases for each BAM file provided)
 				</ul>
-
-				<hr> <center> <p style="font-size: 16pt"> <b> Troubleshooting </b></center></p>
-
-				<p style="font-size: 14pt"> <b> <a class="body" name="I_get_an_OutOfMemoryError"> I get an OutOfMemoryError </a> </b></p>
-
-				This means that your Java Virtual Machine (JVM) is running with low memory. You should increase the amount of memory assigned to the JVM by using the '-Xmx' command line option. For instance
-<pre>
-java -Xmx4G -jar snpEff.jar eff -v GRCh37.64 variants.vcf
-</pre>
-
-				Note that the amount of memory ("4G") is not separated by a space from the '-Xmx'. Be carefull not to exced the amount of physical memory on your computer, otherwise the process will start swaping to disc (you don't want that).
-
-				<p style="font-size: 14pt"> <b> <a class="body" name="I_get_an_InvalidClassException"> I get an InvalidClassException </a> </b></p>
-
-				This usually means that you are trying to use a database from another version . Binary databases are not backwards compatible (I hope to fix this soon).<br>
-				The solution is to download the database which matches your SnpEff version. In order to get SnpEff's version, just run the program without any argument, and it will show the version in the first line, e.g.:
-<pre>
-$ java -Xmx64M -jar snpEff.jar
-
-snpEff version 2.0.4 (build 2011-10-08), by Pablo Cingolani
-Usage: snpEff [eff] [options] genome_version snp_file
-   or: snpEff build [options] genome_version
-   or: snpEff dump  [options] genome_version
-   or: snpEff cds   [options] genome_version
-</pre>
 
       </div>
     </div>
