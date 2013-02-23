@@ -69,28 +69,32 @@ public class SnpEffCmdDump extends SnpEff {
 
 		for (IntervalTree tree : config.getSnpEffectPredictor().getIntervalForest()) {
 			for (Marker i : tree) {
-				print(i);
+				try {
+					print(i);
 
-				// Show gene specifics
-				if (i instanceof Gene) {
-					Gene g = (Gene) i;
+					// Show gene specifics
+					if (i instanceof Gene) {
+						Gene g = (Gene) i;
 
-					// Show transcripts: UTR and Exons
-					for (Transcript t : g) {
-						print(t);
+						// Show transcripts: UTR and Exons
+						for (Transcript t : g) {
+							print(t);
 
-						for (Cds c : t.getCds())
-							print(c);
+							for (Cds c : t.getCds())
+								print(c);
 
-						for (Utr u : t.getUtrs())
-							print(u);
+							for (Utr u : t.getUtrs())
+								print(u);
 
-						for (Exon e : t)
-							print(e);
+							for (Exon e : t)
+								print(e);
 
-						for (Intron intron : t.introns())
-							print(intron);
+							for (Intron intron : t.introns())
+								print(intron);
+						}
 					}
+				} catch (Throwable t) {
+					t.printStackTrace();
 				}
 			}
 		}
@@ -127,38 +131,47 @@ public class SnpEffCmdDump extends SnpEff {
 		int end = marker.getEnd() + outOffset + 1; // The ending position of the feature in the chromosome or scaffold. The chromEnd base is not included in the display of the feature.
 
 		StringBuilder info = new StringBuilder();
-		info.append(chr + "\t");
-		info.append(start + "\t");
-		info.append(end + "\t");
-		info.append((marker.isStrandPlus() ? "+1" : "-1") + "\t");
-		info.append(marker.getClass().getSimpleName() + "\t");
-		info.append(marker.getId() + "\t");
+		info.append(chr);
+		info.append("\t" + start);
+		info.append("\t" + end);
+		info.append("\t" + (marker.isStrandPlus() ? "+1" : "-1"));
+		info.append("\t" + marker.getClass().getSimpleName());
+		info.append("\t" + marker.getId());
 
 		// Add gene info
 		Gene gene = null;
 		if (marker instanceof Gene) gene = (Gene) marker;
-		else gene = (Gene) marker.findParent(Gene.class);
+		else if (marker != null) gene = (Gene) marker.findParent(Gene.class);
 
 		if (gene != null) {
 			Transcript canonical = gene.canonical();
-			info.append(gene.getGeneName() + "\t" + gene.getId() + "\t" + gene.numChilds() + "\t" + canonical.cds().length());
+			info.append("\t" + gene.getGeneName() //
+					+ "\t" + gene.getId() //
+					+ "\t" + gene.numChilds() //
+					+ "\t" + (canonical == null ? 0 : canonical.cds().length()) //
+			);
 		} else info.append("\t\t\t\t");
 
 		// Add transcript info		
 		Transcript tr = null;
 		if (marker instanceof Transcript) tr = (Transcript) marker;
-		else tr = (Transcript) marker.findParent(Transcript.class);
+		else if (marker != null) tr = (Transcript) marker.findParent(Transcript.class);
 
-		if (tr != null) info.append(tr.getId() + "\t" + tr.cds().length() + "\t" + tr.numChilds() + "\t");
+		if (tr != null) info.append("\t" + tr.getId() //
+				+ "\t" + tr.cds().length() //
+				+ "\t" + tr.numChilds() //
+		);
 		else info.append("\t\t\t");
 
 		// Add exon info
 		Exon exon = null;
 		if (marker instanceof Exon) exon = (Exon) marker;
-		else exon = (Exon) marker.findParent(Exon.class);
+		else if (marker != null) exon = (Exon) marker.findParent(Exon.class);
 
-		if (exon != null) info.append(exon.getRank() + "\t" + exon.getSpliceType());
-		else info.append("\t");
+		if (exon != null) info.append("\t" + exon.getRank() //
+				+ "\t" + exon.getSpliceType() //
+		);
+		else info.append("\t\t");
 
 		System.out.println(info);
 	}
