@@ -65,7 +65,7 @@ public class SnpEffCmdDump extends SnpEff {
 	 */
 	void print() {
 		// Show title
-		if (dumpFormat == DumpFormat.TXT) System.out.println("chr\tstart\tend\tstrand\ttype\tid\tgeneName\tgeneId\tnumberOfTranscripts\ttranscriptId\tcdsLength\tnumerOfExons\texonRank\texonSpliceType");
+		if (dumpFormat == DumpFormat.TXT) System.out.println("chr\tstart\tend\tstrand\ttype\tid\tgeneName\tgeneId\tnumberOfTranscripts\tcanonicalTranscriptLength\ttranscriptId\tcdsLength\tnumerOfExons\texonRank\texonSpliceType");
 
 		for (IntervalTree tree : config.getSnpEffectPredictor().getIntervalForest()) {
 			for (Marker i : tree) {
@@ -139,8 +139,10 @@ public class SnpEffCmdDump extends SnpEff {
 		if (marker instanceof Gene) gene = (Gene) marker;
 		else gene = (Gene) marker.findParent(Gene.class);
 
-		if (gene != null) info.append(gene.getGeneName() + "\t" + gene.getId() + "\t" + gene.numChilds() + "\t");
-		else info.append("\t\t\t");
+		if (gene != null) {
+			Transcript canonical = gene.canonical();
+			info.append(gene.getGeneName() + "\t" + gene.getId() + "\t" + gene.numChilds() + "\t" + canonical.cds().length());
+		} else info.append("\t\t\t\t");
 
 		// Add transcript info		
 		Transcript tr = null;

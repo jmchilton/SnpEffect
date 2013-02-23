@@ -93,6 +93,30 @@ public class Gene extends IntervalAndSubIntervals<Transcript> implements Seriali
 	}
 
 	/**
+	 * Get canonical transcript
+	 */
+	public Transcript canonical() {
+		ArrayList<Transcript> toDelete = new ArrayList<Transcript>();
+		Transcript canonical = null;
+
+		if (isProteinCoding()) {
+			// Find canonical transcript (longest CDS)
+			for (Transcript t : this) {
+				if (t.isProteinCoding() && ((canonical == null) || (canonical.cds().length() < t.cds().length()))) canonical = t;
+				toDelete.add(t);
+			}
+		} else {
+			// Find canonical transcript (longest cDNA)
+			for (Transcript t : this) {
+				if ((canonical == null) || (canonical.cds().length() < t.cds().length())) canonical = t;
+				toDelete.add(t);
+			}
+		}
+
+		return canonical;
+	}
+
+	/**
 	 * Calculate CpG bias: number of CpG / expected[CpG]
 	 * @return
 	 */
@@ -160,27 +184,16 @@ public class Gene extends IntervalAndSubIntervals<Transcript> implements Seriali
 	 * Remove all non-canonical transcripts
 	 */
 	public void removeNonCanonical() {
-		ArrayList<Transcript> toDelete = new ArrayList<Transcript>();
-		Transcript canonical = null;
-
-		if (isProteinCoding()) {
-			// Find canonical transcript (longest CDS)
-			for (Transcript t : this) {
-				if (t.isProteinCoding() && ((canonical == null) || (canonical.cds().length() < t.cds().length()))) canonical = t;
-				toDelete.add(t);
-			}
-		} else {
-			// Find canonical transcript (longest cDNA)
-			for (Transcript t : this) {
-				if ((canonical == null) || (canonical.cds().length() < t.cds().length())) canonical = t;
-				toDelete.add(t);
-			}
-		}
+		Transcript canonical = canonical();
 
 		// Found canonical? => Remove all others
 		if (canonical != null) {
 			// Remove all other transcripts
+			ArrayList<Transcript> toDelete = new ArrayList<Transcript>();
+			toDelete.addAll(subIntervals.values());
 			toDelete.remove(canonical); // Do not remove canonical transcript.
+
+			// Remove all other transcripts
 			for (Transcript t : toDelete)
 				remove(t);
 		}
