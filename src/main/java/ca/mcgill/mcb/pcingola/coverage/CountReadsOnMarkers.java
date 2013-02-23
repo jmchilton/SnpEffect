@@ -15,6 +15,7 @@ import ca.mcgill.mcb.pcingola.interval.Exon;
 import ca.mcgill.mcb.pcingola.interval.Genome;
 import ca.mcgill.mcb.pcingola.interval.Intron;
 import ca.mcgill.mcb.pcingola.interval.Marker;
+import ca.mcgill.mcb.pcingola.interval.Transcript;
 import ca.mcgill.mcb.pcingola.snpEffect.SnpEffectPredictor;
 import ca.mcgill.mcb.pcingola.stats.CountByKey;
 import ca.mcgill.mcb.pcingola.util.Gpr;
@@ -125,7 +126,8 @@ public class CountReadsOnMarkers {
 			switch (m.getType()) {
 			case EXON:
 				if (sb.length() > 0) sb.append(";");
-				sb.append("exon_" + ((Exon) m).getRank());
+				Transcript tr = (Transcript) m.getParent();
+				sb.append("exon_" + ((Exon) m).getRank() + "_" + tr.numChilds());
 				break;
 
 			case INTRON:

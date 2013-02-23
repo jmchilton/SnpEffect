@@ -96,6 +96,7 @@ public class SnpEffCmdCountReads extends SnpEff {
 
 		// Count reads
 		CountReadsOnMarkers countReadsOnMarkers = new CountReadsOnMarkers(snpEffectPredictor);
+		countReadsOnMarkers.setVerbose(verbose);
 		for (String file : samFileNames)
 			countReadsOnMarkers.addFile(file);
 		countReadsOnMarkers.count();
