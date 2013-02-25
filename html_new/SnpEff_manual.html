@@ -80,10 +80,12 @@
           <li><a href="#output"><i class="icon-chevron-right"></i> Output files </a></li>
           <li><a href="#outputSummary"><i class="icon-chevron-right"></i> Output Summary file </a></li>
           <li><a href="#eff"><i class="icon-chevron-right"></i> Effect prediction details </a></li>
+          <li><a href="#effNc"><i class="icon-chevron-right"></i> Regulatory and Non-coding annotations </a></li>
           <li><a href="#filters"><i class="icon-chevron-right"></i> Filters </a></li>
           <li><a href="#databases"><i class="icon-chevron-right"></i> Building databases</a></li>
+          <li><a href="#databasesNc"><i class="icon-chevron-right"></i> Building databases: Regulatory and Non-coding</a></li>
           <li><a href="#integration"><i class="icon-chevron-right"></i> Integration: GATK & Galaxy</a></li>
-          <li><a href="#"><i class="icon-chevron-right"></i> </a></li>
+          <li><a href="#utils"><i class="icon-chevron-right"></i>Commands and utilities </a></li>
         </ul>
       </div>
       <div class="span9">
@@ -100,7 +102,7 @@
 				It annotates and predicts the effects of genetic variants (such as amino acid changes).
 				</p>
 
-				<p> <h3> Variants </h3><br>
+				<p> <h3> Variants </h3>
 				By genetic variant we mean difference between a genome and a "reference" genome.
 				As an example, imagine we are sequencing a "sample".
 				Here "sample" can mean anything that you are interested in studing, from a cell culture, to a mouse or a cancer patient.
@@ -122,7 +124,7 @@
 				This is not a comprehensive list, it is just to give you an idea.
 				</p>
 
-				<p> <h3>Annotations</h3><br>
+				<p> <h3>Annotations</h3>
 				So, you have a huge file describing all the differences between your sample and the reference genome.
 				But you want to know more about these variants than just their genetic coordinates. 
 				E.g.: Are they in a gene? In an exon? Do they change protein coding? Do they cause premature stop codons?
@@ -137,7 +139,7 @@
 				<i class="icon-warning-sign"></i> Results cannot be trusted blindly. SnpEff results may have to analyzed and independently validated.
 				</p>
 
-				<p> <h3>Databases</h3><br>
+				<p> <h3>Databases</h3>
 				In order to produce the annotations, SnpEff requires a database.
 				We build these databases using informations from trusted resources.
 				<br>
@@ -149,7 +151,7 @@
 				<br>
 				If you have problems adding you own organism, send me an email and I'll do my best to help you out.<p>
 
-				<p> <h3>Summary</h3><br>
+				<p> <h3>Summary</h3>
 				A typical SnpEff use case would be:
 				<ul>
 					<li> Input:
@@ -164,7 +166,7 @@
 				</ul>
 				</p>
 
-				<p> <h3>Citing</h3><br>
+				<p> <h3>Citing</h3>
 				If you are using SnpEff or SnpSift, please cite our work as shown <a href="SnpEff.html#citing">here</a>. Thank you!
 				</p>
         </section>
@@ -178,25 +180,25 @@
 				<p class="lead"> Download and installing SnpEff it pretty easy. 
 				</p>
 				
-				<p> <h3>System requirements </h3><br>
+				<p> <h3>System requirements </h3>
 				SnpEff requires that you have Java v1.6 or later installed (any modern operating system has it). <br>
 				You'll probably need at least 2Gb of memory. 
 				The amount of memory used can vary significantly depending on genome size and data analysis type you are doing.
 
-				<p> <h3>Downloading and Installing</h3><br>
+				<p> <h3>Downloading and Installing</h3>
 				In order to download and install the program, you can follow the directions <a href="download.html">here</a>.
 
-				<p> <h3> How is it licensed? </h3><br>
+				<p> <h3> How is it licensed? </h3>
 				SnpEff is open source. It is released mainly as "LGPLv3". If you prefer another open source license, just contact me and I'll try to add your preferred license as well. <br>
 
-				<p> <h3>Source code </h3><br>
+				<p> <h3>Source code </h3>
 				The project is hosted at SourceForge. <br>
 				Here is the SVN command to check out the development version of the code:
 <pre>
 svn co https://snpeff.svn.sourceforge.net/svnroot/snpeff/SnpEffect/trunk
 </pre>
 
-				<p> <h3>Configuration</h3><br>
+				<p> <h3>Configuration</h3>
 				The only configuration file is "snpEff.config".
 				Most configuration parameters, are explained in the comments in the same config file, so I won't repeat the explanation here :-)
 				<br>
@@ -212,13 +214,13 @@ svn co https://snpeff.svn.sourceforge.net/svnroot/snpeff/SnpEffect/trunk
           </div>
 				<p class="lead"> We show some basic examples how to use SnpEff.</p>
 
-				<p><h3>Command line vs Web interface</h3><br>
+				<p><h3>Command line vs Web interface</h3>
 				In order to run SnpEff you need to be comfortable running command from a command line terminal.
 				If you are not, then it is probably a good idea to ask you systems adminitrator to install a <a class="body"class="body" href="http://usegalaxy.org">Galaxy</a> server and use the web interface.
 				You can also use the open Galaxy server, but functionality may be limited and SnpEff versions may not be updated frequently.
 				</p>
 
-				<p><h3>Usage example</h3><br>
+				<p><h3>Usage example</h3>
 				In this example, we will annotate a variants file using the human reference genome.<br>
 
 				As an input, we will use a <a href="http://www.1000genomes.org/wiki/Analysis/Variant%20Call%20Format/vcf-variant-call-format-version-41"> Variant Call Format (VCF) </a> file.
@@ -248,13 +250,13 @@ $ cat demo.1kg.snpeff.vcf | grep STOP_
 				Note: The real output was edited for readibility reasons.
 				</p>
 
-				<p><h3>Runnig from another directory</h3> <br>
+				<p><h3>Runnig from another directory</h3>
 				When you run SnpEff from a different directory than your install directory, you have to specify where the config file is located using the '-c' command line option.
 <pre>
 java -Xmx2g path/to/snpEff/snpEff.jar -c path/to/snpEff/snpEff.config GRCh37.70 path/to/snps.vcf
 </pre>
 
-				<p><h3>Java memory options</h3> <br>
+				<p><h3>Java memory options</h3>
 				By default the amount of memory set by a java process is set too low.
 				If you don't assigm more memory to the process, you will most likely have an "OutOfMemory" error.<br>
 
@@ -268,7 +270,7 @@ java -Xmx4G snpEff.jar hg19 path/to/your/files/snps.vcf
 				Note: There is no space between "-Xmx" and "4G".
 				</p>
 
-				<p><h3>Running SnpEff in the Cloud </h3> <br>
+				<p><h3>Running SnpEff in the Cloud </h3>
 				You can run SnpEff in a "the Cloud" exactly the same way as running it on your local computer.
 				You should not have any problems at all.
 				<br>
@@ -298,13 +300,13 @@ $ ssh -i ./aws_amazon/pcingola_aws.pem ec2-user@ec2-54-234-14-244.compute-1.amaz
 				<p>
 				As you can see, it's very simple.
 
-				<p><h3>Command line options</h3> <br>
+				<p><h3>Command line options</h3>
 				In order to see all available options, you can run 
 				<pre>java -jar snpEff.jar -help</pre>
 				We'll explain many of those options in detail in the following chapters.
 				</p>
 
-				<p><h3>Loading the database</h3> <br>
+				<p><h3>Loading the database</h3>
 				One of the first thins SnpEff has to do is to load the database.
 				Usually it takes frmo a few seconds to a couple of minutes, depending on database size.
 				Complex databases, like human, require more time to load.
@@ -319,7 +321,7 @@ $ ssh -i ./aws_amazon/pcingola_aws.pem ec2-user@ec2-54-234-14-244.compute-1.amaz
           </div>
 				<p class="lead"> Here we show an example on how to get from Sequenceing data to an annotated variants file </p>
 
-				<p><h3>Sequencing data example</h3> <br>
+				<p><h3>Sequencing data example</h3>
 				<i class="icon-warning-sign"></i> This is an extremelly simplified version on how to analyze the data from scratch
 				This is not meant to be a tutorial on sequencing analysis as it would be way beyond the scope of this handbook.
 				<br>
@@ -372,7 +374,7 @@ java -Xmx4g -jar snpEff.jar -vcf4 dm5.34 s.vcf > s_snpeff.txt
 				Here we describe supported input data formats.
 				</p>
 				
-				<p><h3>VCF</h3> <br>
+				<p><h3>VCF</h3>
 				As we mentioned before, <a class="body"class="body" href="http://www.1000genomes.org/wiki/Analysis/Variant%20Call%20Format/vcf-variant-call-format-version-41">Variant Call Format (VCF)</a> is the recomended format for input files.
 				This is the format used by the "1000 Genomes Project", and is currently considered the de-facto standard for genomic variants.
 				Furthermore, most variant calling programs output VCF files, so it is also the simplest format to use.
@@ -399,7 +401,7 @@ java -Xmx4g -jar snpEff.jar -vcf4 dm5.34 s.vcf > s_snpeff.txt
 				Note that the first line is header information. Header lines start with '#'
 				<p>
 
-				<p><h3>TXT</h3><br>
+				<p><h3>TXT</h3>
 				<i class="icon-warning-sign"></i> TXT format is currently deprecated and discurraged.
 				<br>
 				TXT file format must be tab-separated, containing columns that correspond to:
@@ -441,8 +443,6 @@ java -Xmx4g -jar snpEff.jar -vcf4 dm5.34 s.vcf > s_snpeff.txt
 				</p>
 
 				<p><h3>VCF output format</h3>
-				<br> 
-				<br> 
 				As we mentioned in the previous chapter, VCF is the default input format.
 				It is highly recomended to use VCF as input and output format, since it is a standard format that can be also used by other tools and software packages.
 				Thus VCF makes it much easier to integrate genomic data processing pipelines.
@@ -570,8 +570,6 @@ cat output.eff.vcf \
 
 				<br> 
 				<p><h3>TXT output format</h3>
-				<br> 
-				<br> 
 				<i class="icon-warning-sign"></i> TXT format is currently deprecated and discurraged.
 				<br>
 				The TXT output format consist of one line per effect. 
@@ -928,8 +926,6 @@ tgctgcggctgcggctgcggctgcggctacggctgcggct    ALT (from VCF file)
 
 				<br>
 				<p><h3>Effect impact</h3>
-				<br>
-				<br>
 				Efefcts are categorized by 'impact': {High, Moderate, Low, Modifier}. 
 				This are pre-defined categories to help users find more significant variants.
 				<br>
@@ -995,8 +991,6 @@ tgctgcggctgcggctgcggctgcggctacggctgcggct    ALT (from VCF file)
 
 				<br>
 				<p> <h3> Loss of function and nonsense-mediated decay predictions </h3>
-				<br>
-				<br>
 				Loss of function ('LOF') and nonsense-mediated decay ('NMD') predictions can be activated by using '-lof' command line opion.
 				Details on how these variants work, can be found in <a class="body" href="snpEff_lof_nmd.pdf">these slides </a>
 				<br>
@@ -1042,7 +1036,7 @@ LOF=ILDR2|ENSG00000143195|7|1.00
 				</table>
 				</p>
 
-				<h3> Troubleshooting </h3>
+				<h3> Troubleshooting Effect predictions </h3>
 
 				<p> <b> Apparent inconsistencies when using UCSC genome browser </b>
 				<br>
@@ -1104,16 +1098,58 @@ chr5 137622242 . C T . . EFF=NON_SYNONYMOUS_CODING(MODERATE|MISSENSE|Gaa/Aaa|E/K
 				</p>
 
 
-        <!-- Filter output
+        <!-- Non-coding
+        ================================================== -->
+        <section id="effNc">
+          <div class="page-header">
+            <h1>9. Non-coding &amp; Regulatory annotations</h1>
+          </div>
+				<p class="lead">
+				SnpEff can also provide non-coding and regulatory annotations.
+				Here we show how to annotate them.
+				</p>
+				<p>
+				<i class="icon-warning-sign"></i> Non-coding and regulatory annotations databases are available only for a few organisms (e.g. human, mouse, etc.).
+				We intend to incorporate more non-coding annotations as soon as public databases are availble, but your organism of choice might not have a non-coding/regulatory database available.
+				</p>
+				<p>
+				First of all, you need to see if your organism has a regulatory database.
+				You can just look into the database directory to see if <code>regulation_*.bin</code> files are there.
+				For instance, for human genome:
+<pre>
+$ cd ~/snpEff
+$ cd data/GRCh37.70/
+$ ls -al
+total 2399156
+drwxr-xr-x    2 pcingola pcingola       4096 Feb 11 22:01 .
+drwxr-xr-x 2472 pcingola pcingola     122880 Feb 11 19:55 ..
+-rw-r--r--    1 pcingola pcingola    6292802 Feb 11 22:01 regulation_CD4.bin
+-rw-r--r--    1 pcingola pcingola    2474396 Feb 11 22:01 regulation_GM06990.bin
+-rw-r--r--    1 pcingola pcingola    7924641 Feb 11 22:00 regulation_GM12878.bin
+-rw-r--r--    1 pcingola pcingola    6212489 Feb 11 22:01 regulation_H1ESC.bin
+-rw-r--r--    1 pcingola pcingola    5152384 Feb 11 22:00 regulation_HeLa-S3.bin
+-rw-r--r--    1 pcingola pcingola    7392256 Feb 11 22:01 regulation_HepG2.bin
+-rw-r--r--    1 pcingola pcingola    3991817 Feb 11 22:01 regulation_HMEC.bin
+-rw-r--r--    1 pcingola pcingola    4562241 Feb 11 22:01 regulation_HSMM.bin
+-rw-r--r--    1 pcingola pcingola    5550176 Feb 11 22:01 regulation_HUVEC.bin
+-rw-r--r--    1 pcingola pcingola    5528240 Feb 11 22:01 regulation_IMR90.bin
+-rw-r--r--    1 pcingola pcingola     534786 Feb 11 22:01 regulation_K562b.bin
+-rw-r--r--    1 pcingola pcingola    8371354 Feb 11 22:01 regulation_K562.bin
+-rw-r--r--    1 pcingola pcingola    3063189 Feb 11 22:01 regulation_NH-A.bin
+-rw-r--r--    1 pcingola pcingola    5621629 Feb 11 22:00 regulation_NHEK.bin
+-rw-r--r--    1 pcingola pcingola   89937614 Feb 11 21:57 snpEffectPredictor.bin
+</pre>
+				</p>
+
+        <!-- Filters
         ================================================== -->
         <section id="filters">
           <div class="page-header">
-            <h1>8. Output filters </h1>
+            <h1>10. Filters </h1>
           </div>
 				<p class="lead">
 				We describe how to filter the out or narrow down the number of results.
 				</p>
-
 
 				<p><b>Annotating only some intervals</b><br> 
 				You can use the '-fi' option (a.k.a. '-filterInterval). For instance, let's assume you have an interval file 'intervals.bed':
@@ -1131,7 +1167,7 @@ chr5 137622242 . C T . . EFF=NON_SYNONYMOUS_CODING(MODERATE|MISSENSE|Gaa/Aaa|E/K
         ================================================== -->
         <section id="databases">
           <div class="page-header">
-            <h1>9. Databses </h1>
+            <h1>11. Databases </h1>
           </div>
 				<p class="lead">
 				SnpEff needs a datbase to perform genomic annotations. 
@@ -1456,8 +1492,7 @@ java -Xmx20g -jar snpEff.jar build -v GRCh37.70 2>&1 | tee GRCh37.70.build
 </pre>
 
 				</p>
-				<h3> Troubleshooting </h3>
-				<br>
+				<h3> Troubleshooting Database builds </h3>
 				<i class="icon-warning-sign"></i><b>Warning:</b> By far the most common problem is that the FASTA file chromosome names are different than the GFF chromosome names.
 				Make sure chromosome names are consistent in all the files you use.
 				<br>
@@ -1504,46 +1539,193 @@ java -jar snpEff.jar dump myGenome | less
 </pre>
 				</p>
 
+        <!-- Databases Non-coding
+        ================================================== -->
+        <section id="databasesNc">
+          <div class="page-header">
+            <h1>12. Building databases: Regulatory and Non-coding </h1>
+          </div>
+				<p class="lead">
+				SnpEff supports regulatory and non-coding annotations.
+				In this sections we show how to build those databases.
+				As in the previous section, most likely you will never have to do it yourself and can just use available pre-built databases.
+				</p>
+
+				<p>
+				There are two ways to add support for regulatory annotations (these are not mutually exclusive, you can use both at the same time): 
+				<ol>
+					<li> GFF regulation file (from ENSEMBL).
+					<li> BED files.
+				</ol>
+
+				<i class="icon-warning-sign"></i> Adding regulation support and analyzing data using regulation tracks can take much more memory. For instance, for the human genome I use 10Gb to 20Gb of RAM.
+				<br>
+				<br>
+				<i class="icon-warning-sign"></i> It is assumed the the genome is already installed, only regulatory tracks are added.
+
+				<h3> <h3>Option 1: Using a GFF file </h3>
+
+				This example shows how to create a regulation database for human (GRCh37.65):
+
+				<ol>
+					<li> Get the GFF regulatory annotations (into path/to/snpEff/data/GRCh37.65/regulation.gff):
+
+<pre>
+cd path/to/snpEff/data/GRCh37.65
+wget ftp:/ftp.ensembl.org/pub/release-65/regulation/homo_sapiens/AnnotatedFeatures.gff.gz
+mv AnnotatedFeatures.gff.gz regulation.gff.gz 
+</pre>
+
+					<li> Create databases. Note that we use "-onlyReg" flag, because we are only creating regulatory databases. If you omit it, it will create both of "normal' and regulatory databases:
+<pre>
+cd /path/to/snpEff
+java -Xmx20G -jar snpEff.jar build -v -onlyReg GRCh37.65 
+</pre>
+
+						The output looks like this
+<pre>
+Reading regulation elements (GFF)
+	Chromosome '11'	line: 226964
+	Chromosome '12'	line: 493780
+	...
+	Chromosome '9'	line: 4832434
+	Chromosome 'X'  line: 5054301
+	Chromosome 'Y'  line: 5166958
+Done
+	Total lines                 : 5176289
+	Total annotation count      : 3961432
+	Percent                     : 76.5%
+	Total annotated length      : 3648200193
+	Number of cell/annotations  : 266
+Saving database 'HeLa-S3' in file '/path/to/snpEff/data/GRCh37.65/regulation_HeLa-S3.bin'
+Saving database 'HepG2' in file '/path/to/snpEff/data/GRCh37.65/regulation_HepG2.bin'
+Saving database 'NHEK' in file '/path/to/snpEff/data/GRCh37.65/regulation_NHEK.bin'
+Saving database 'GM12878' in file '/path/to/snpEff/data/GRCh37.65/regulation_GM12878.bin'
+Saving database 'HUVEC' in file '/path/to/snpEff/data/GRCh37.65/regulation_HUVEC.bin'
+Saving database 'H1ESC' in file '/path/to/snpEff/data/GRCh37.65/regulation_H1ESC.bin'
+Saving database 'CD4' in file '/path/to/snpEff/data/GRCh37.65/regulation_CD4.bin'
+Saving database 'GM06990' in file '/path/to/snpEff/data/GRCh37.65/regulation_GM06990.bin'
+Saving database 'IMR90' in file '/path/to/snpEff/data/GRCh37.65/regulation_IMR90.bin'
+Saving database 'K562' in file '/path/to/snpEff/data/GRCh37.65/regulation_K562.bin'
+Done.
+</pre>
+
+						As you can see, annotations for each cell type are saved in different files. This makes it easier to load annotations only for the desired cell types when analyzing data.
+				</ol>
+				</p>
+
+				<h3>Option 2: Using an BED filed </h3>
+				<p>
+				This example shows how to create a regulation database for human (GRCh37.65). 
+				We assume we have a file called "my_regulation.bed" which has infromation for H3K9me3 in Pancreatic Islets (for instance, as a result of a Chip-Seq experiment and peak enrichment analysis).
+
+				<ol>
+					<li> Add all your BED files to 'path/to/snpEff/data/GRCh37.65/regulation.bed/' dir:
+
+<pre>
+cd path/to/snpEff/data/GRCh37.65
+mkdir regulation.bed
+cd regulation.bed
+mv where/everh/your/bed/file/is/my_regulation.bed ./regulation.Pancreatic_Islets.H3K9me3.bed 
+</pre>
+
+						<b>Note:</b> The name of the file must be 'regulation.CELL_TYPE.ANNOTATION_TYPE.bed'. In this case, 'CELL_TYPE=Pancreatic_Islets' and 'ANNOTATION_TYPE=H3K9me3' <br>
+
+					<li> Create databases (note the "-onlyReg" flag):
+<pre>
+cd /path/to/snpEff
+java -Xmx20G -jar snpEff.jar build -v -onlyReg GRCh37.65 
+</pre>
+
+						The output looks like this
+<pre>
+Building database for 'GRCh37.65'
+Reading regulation elements (GFF)
+Cannot read regulation elements form file '/path/to/snpEff/data/GRCh37.65/regulation.gff'
+Directory has 1 bed files and 1 cell types
+Creating consensus for cellType 'Pancreatic_Islets', files: [/path/to/snpEff/data/GRCh37.65/regulation.bed/regulation.Pancreatic_Islets.H3K9me3.bed]
+Reading file '/path/to/snpEff/data/GRCh37.65/regulation.bed/regulation.Pancreatic_Islets.H3K9me3.bed'
+	Chromosome '10'	line: 5143
+	Chromosome '11'	line: 8521
+	...
+	Chromosome 'X'	line: 52481
+	Chromosome 'Y'	line: 53340
+Done
+	Total lines                 : 53551
+	Total annotation count      : 53573
+	Percent                     : 100.0%
+	Total annotated length      : 75489402
+	Number of cell/annotations  : 1
+Creating consensus for cell type: Pancreatic_Islets
+Sorting: Pancreatic_Islets	, size: 53573
+Adding to final consensus
+Final consensus for cell type: Pancreatic_Islets	, size: 53549
+Saving database 'Pancreatic_Islets' in file '/path/to/snpEff/data/GRCh37.65/regulation_Pancreatic_Islets.bin'
+Done
+Finishing up
+</pre>
+
+						<b>Note:</b> If there are many annotations, they are saved in one binary file for each cell type (i.e. several BED files for different cell types are collapsed toghether). 
+						This makes it easier to load annotations only for the desired cell types when analyzing data.
+				</ol>
+				</p>
+
+
 			<!-- Integration
 			================================================== -->
 			<section id="integration">
 			  <div class="page-header">
-				<h1>10. Integration: GATK &amp; Galaxy </h1>
+				<h1>13. Integration: GATK &amp; Galaxy </h1>
 			  </div>
-					<p class="lead">
-					<p style="font-size: 14pt"> <b> <a class="body" name="gatk"> What is the adequate output for GATK? </a> </b></p>
-					You should use the <b>'-o gatk'</b> command line option to avoid problems.
-					The reason is that, even though GATK uses VCF, but sometimes new formats of the 'EFF' info field might cause trouble.
-					This happens when switching from SnpEff v2.X to SnpEff v3.0, since the latest GATK version still uses an older format.<br>
+				<p class="lead">
+				SnpEff is integrated with other tools commonly used in sequencing data analysis pipelines. 
+				Most notably <a href="http://galaxyproject.org/">Galaxy</a> and <a href="http://www.broadinstitute.org/gatk/">GATK</a> projects support SnpEff.</p>
+				</p>
 
+				<h3> GATK </h3> 
+				SnpEff can be run within Broad's Genome Analysis Toolkit (<a href="http://www.broadinstitute.org/gatk/">GATK</a>).
+				<br>
+				<br>
+				In order to make sure SnpEff and GATK understand each other, you must activate '-o gatk' SnpEff's command line option.
+				The reason is that, even though GATK uses VCF, SnpEff's has updated the format and the new formats of the 'EFF' info field might cause trouble (since GATK still uses the older version).
+				<br>
+				<br>
+				<i class="icon-warning-sign"></i> GATK only picks one effect.
+				Indeed,  the GATK team decided to only report the effect having the highest impact. 
+				This was done intentionally for the sake of brevity, in a 'less is more' spirit.
+				You can get the full effect by using snpEff independently, instead of using it within GATK.
+				<br>
 
+				<h3> Galaxy </h3> 
+				<p>
+				SnpEff provides integrations with <a href="http://galaxyproject.org/">Galaxy</a> project.
+				</p>
+				In order to install SnpEff in your own Galaxy server, you can use the <code>galaxy/*.xml</code> files provided in the main distribution. 
+				<br>
+				<br>
+ 				This is a screen capture from a Galaxy server (click to enlarge) <p>
+				<center> <a href="images/snpEff_galaxy.png"><img src="images/snpEff_galaxy_small.png"></a> </center>
+				</p>
+				
 
-					<p style="font-size: 14pt"> <b> <a class="body" name="How_do_I_add_support_for_regulatory_annotations?"> How do I add support for regulatory annotations? </a> </b></p>
-					<a class="body"class="body" href="supportRegulation.html">Here</a> is a detailed, step by step explanation.
+			<!-- Utilities
+			================================================== -->
+			<section id="utils">
+			  <div class="page-header">
+				<h1>14. Commands and utilities </h1>
+			  </div>
+				<p class="lead">
+				SnpEff provides several other commands and utilities that can be useful for genomic data analysis.
+				</p>
 
-				<center> <p> <b> Unexpected results </b></center></p>
+				<p>
+				Most of this manual was dedicated the <code>SnpEff eff</code> and <code>SnpEff build</code> commands, which annotate effects and build databases respectively.
+				Here we describe all the other commands and some scripts provided, that are useful for genomic data analysis.
+				</p>
 
-				<p style="font-size: 14pt"> <b> <a class="body" name="Why_are_coordinates_changed_in_InDels?"> Why are coordinates changed in InDels?  </a> </b></p>
-
-				This is not a bug, just a feature of VCF input files.
-				Suppose that you have an InDel like this one
-
-<pre>10      7797903 .       CAACTA  CAACTAACTA      214     .       INDEL;DP=94;AF1=1;AC1=2;DP4=0,0,90,0;MQ=53;FQ=-290      GT:PL:GQ        1/1:255,255,0:99</pre>
-
-				After running snpEff, you get an output like this
-
-<pre>10      7797909 *       +ACTA   INS     Hom     214     94              ENSG00000151657 KIN     protein_coding  ENST00000463666 exon_10_7797777_7798105 6       FRAME_SHIFT: ENST00000463666                            699</pre>
-
-				Although it may seem like a change of coordinated (from 7797903 to 7797909) it not.
-				If you look at the sequences, the first 6 bases are the same (i.e. the VCF file says that the INDEL is "CAACTA / CAACTAACTA" at position 7797903).
-				So the actual insertion is "ACTA" a position 7797903 + 6 = 7797909.
-
-				<p style="font-size: 14pt"> <b> <a class="body" name="When_I_run_SnpEff_from_GATK_I_only_get_one_effect!"> When I run SnpEff from GATK I only get one effect! </a> </b></p>
-				Indeed,  the GATK team decided to only report the highest impact effect. This was done intentionally for the sake of brevity, in a 'less is more' spirit.<br>
-				You can get the full effect by using snpEff independently (instead of using it from GATK).
-
-				<center> <p style="font-size: 16pt"> <b> Other utilities </b></center></p>
-				<p style="font-size: 14pt"> <b> <a class="body" name="countReads"> SnpEff countReads: Counting how many reads / bases from a BAM file hit a gene, transcript, exon, intron, etc. </a> </b></p>
+				<h3> SnpEff countReads </h3>
+				As the name suggests, <code>snpEff countReads</code> command counts how many reads and bases from a BAM file hit a gene, transcript, exon, intron, etc.
+				<br>
 				If you need to count how many reads (and bases) from a BAM file hit each genomic region, you can use 'countReads' utility.<br>
 				The command line is quite simple. E.g. in order to count how many reads (from N BAM files) hit regions of the human genome, you simply run: <br>
 <pre>
@@ -1586,6 +1768,62 @@ chr  start  end       type                IDs                         Reads:read
 					<li> Column 7: Count of bases (in file readsFile_1.bam) intersecting genomic region, i.e. each read is intersected and the resulting number of bases added.
 					<li> Column ...:  (repeat count reads and bases for each BAM file provided)
 				</ul>
+			</p>
+
+
+				<h3> SnpEff databases </h3>
+				<p>
+				This command provides a list of configured databases, i.e. available in snpEff.config file.
+				<br>
+				Example:
+<pre>
+$ java -jar snpEff.jar databases
+Genome                                                          Organism                                                        Database download link
+------                                                          --------                                                        ----------------------
+ADWO01                                                          Prevotella bryantii B14                                         http://sourceforge.net/projects/snpeff/files/databases/v3.2/snpEff_v3.2_Prevotella bryantii B14.zip
+Acholeplasma_laidlawii_PG_8A_uid58901                           Acholeplasma_laidlawii_PG_8A_uid58901                           http://sourceforge.net/projects/snpeff/files/databases/v3.2/snpEff_v3.2_Acholeplasma_laidlawii_PG_8A_uid58901.zip
+Achromobacter_xylosoxidans_A8_uid59899                          Achromobacter_xylosoxidans_A8_uid59899                          http://sourceforge.net/projects/snpeff/files/databases/v3.2/snpEff_v3.2_Achromobacter_xylosoxidans_A8_uid59899.zip
+Acidaminococcus_fermentans_DSM_20731_uid43471                   Acidaminococcus_fermentans_DSM_20731_uid43471                   http://sourceforge.net/projects/snpeff/files/databases/v3.2/snpEff_v3.2_Acidaminococcus_fermentans_DSM_20731_uid43471.zip
+Acidaminococcus_intestini_RyC_MR95_uid74445                     Acidaminococcus_intestini_RyC_MR95_uid74445                     http://sourceforge.net/projects/snpeff/files/databases/v3.2/snpEff_v3.2_Acidaminococcus_intestini_RyC_MR95_uid74445.zip
+Acidianus_hospitalis_W1_uid66875                                Acidianus_hospitalis_W1_uid66875                                http://sourceforge.net/projects/snpeff/files/databases/v3.2/snpEff_v3.2_Acidianus_hospitalis_W1_uid66875.zip
+Acidilobus_saccharovorans_345_15_uid51395                       Acidilobus_saccharovorans_345_15_uid51395                       http://sourceforge.net/projects/snpeff/files/databases/v3.2/snpEff_v3.2_Acidilobus_saccharovorans_345_15_uid51395.zip
+Acidimicrobium_ferrooxidans_DSM_10331_uid59215                  Acidimicrobium_ferrooxidans_DSM_10331_uid59215                  http://sourceforge.net/projects/snpeff/files/databases/v3.2/snpEff_v3.2_Acidimicrobium_ferrooxidans_DSM_10331_uid59215.zip
+Acidiphilium_cryptum_JF_5_uid58447                              Acidiphilium_cryptum_JF_5_uid58447                              http://sourceforge.net/projects/snpeff/files/databases/v3.2/snpEff_v3.2_Acidiphilium_cryptum_JF_5_uid58447.zip
+Acidiphilium_multivorum_AIU301_uid63345                         Acidiphilium_multivorum_AIU301_uid63345                         http://sourceforge.net/projects/snpeff/files/databases/v3.2/snpEff_v3.2_Acidiphilium_multivorum_AIU301_uid63345.zip
+Acidithiobacillus_caldus_SM_1_uid70791                          Acidithiobacillus_caldus_SM_1_uid70791                          http://sourceforge.net/projects/snpeff/files/databases/v3.2/snpEff_v3.2_Acidithiobacillus_caldus_SM_1_uid70791.zip
+Acidithiobacillus_ferrivorans_SS3_uid67387                      Acidithiobacillus_ferrivorans_SS3_uid67387                      http://sourceforge.net/projects/snpeff/files/databases/v3.2/snpEff_v3.2_Acidithiobacillus_ferrivorans_SS3_uid67387.zip
+Acidithiobacillus_ferrooxidans_ATCC_23270_uid57649              Acidithiobacillus_ferrooxidans_ATCC_23270_uid57649              http://sourceforge.net/projects/snpeff/files/databases/v3.2/snpEff_v3.2_Acidithiobacillus_ferrooxidans_ATCC_23270_uid57649.zip
+Acidithiobacillus_ferrooxidans_ATCC_53993_uid58613              Acidithiobacillus_ferrooxidans_ATCC_53993_uid58613              http://sourceforge.net/projects/snpeff/files/databases/v3.2/snpEff_v3.2_Acidithiobacillus_ferrooxidans_ATCC_53993_uid58613.zip
+...
+...
+</pre>
+
+
+				<h3> SnpEff download </h3>
+				<p>
+				This command downloads and installs a database. 
+				<br>
+				<i class="icon-warning-sign"></i>Note that the database must be configured in <code>snpEff.config</code> and available at the download site.
+				<br>
+				Example:
+
+<pre>
+$ java -jar snpEff.jar download -v GRCh37.70
+</pre>
+
+				</p>
+
+				<h3> SnpEff dump </h3>
+				<p>
+				Dump the contets od a database to a text file, a BED file or a tab separated TXT file (that can be loaded into R).
+				<br>
+				<br>
+				Example:
+<pre>
+$ java -jar snpEff.jar download -v GRCh37.70
+</pre>
+
+				</p>
 
       </div>
     </div>
