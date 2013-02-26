@@ -94,6 +94,8 @@ public class Gene extends IntervalAndSubIntervals<Transcript> implements Seriali
 
 	/**
 	 * Get canonical transcript
+	 * Canonical transcripts are defined as the longest CDS of amongst the protein coding transcripts.
+	 * If none of the transcripts is protein coding, then it is the longest cDNA. 
 	 */
 	public Transcript canonical() {
 		ArrayList<Transcript> toDelete = new ArrayList<Transcript>();

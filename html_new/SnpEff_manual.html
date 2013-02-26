@@ -81,7 +81,7 @@
           <li><a href="#outputSummary"><i class="icon-chevron-right"></i> Output Summary file </a></li>
           <li><a href="#eff"><i class="icon-chevron-right"></i> Effect prediction details </a></li>
           <li><a href="#effNc"><i class="icon-chevron-right"></i> Regulatory and Non-coding annotations </a></li>
-          <li><a href="#filters"><i class="icon-chevron-right"></i> Filters </a></li>
+          <li><a href="#filters"><i class="icon-chevron-right"></i> Annotations options </a></li>
           <li><a href="#databases"><i class="icon-chevron-right"></i> Building databases</a></li>
           <li><a href="#databasesNc"><i class="icon-chevron-right"></i> Building databases: Regulatory and Non-coding</a></li>
           <li><a href="#integration"><i class="icon-chevron-right"></i> Integration: GATK & Galaxy</a></li>
@@ -991,7 +991,7 @@ tgctgcggctgcggctgcggctgcggctacggctgcggct    ALT (from VCF file)
 
 				<br>
 				<p> <h3> Loss of function and nonsense-mediated decay predictions </h3>
-				Loss of function ('LOF') and nonsense-mediated decay ('NMD') predictions can be activated by using '-lof' command line opion.
+				Loss of function ('LOF') and nonsense-mediated decay ('NMD') predictions can be activated by using <code>-lof</code> command line opion.
 				Details on how these variants work, can be found in <a class="body" href="snpEff_lof_nmd.pdf">these slides </a>
 				<br>
 				Usage example:
@@ -1037,6 +1037,45 @@ LOF=ILDR2|ENSG00000143195|7|1.00
 				</p>
 
 				<h3> Troubleshooting Effect predictions </h3>
+
+				<p> <b> Chromosome not found </b>
+				<br>
+				<br>
+				<i class="icon-warning-sign"></i> This is by far the most common problem. 
+				It means that the input VCF file has chromosome names that do not match SnpEff's database and don't match reference genome either, since SnpEff's database are created using reference genome chromosome names.
+				<br>
+				<br>
+				The solution is simple: fix your VCF file to use standard chromosome names.
+				You can see which chromosome names are used by SnpEff simply by using the <code>-v</code> (verbose) command line option.
+				This shows all chromosome names and their respective lengths. Notice the last line ("Chromosomes names [sizes]"):
+<pre>
+$ java -Xmx4g eff -v GRCh37.70 test.1K.vcf 
+00:00:00.000    Reading configuration file 'snpEff.config'
+00:00:00.176    done
+00:00:00.176    Reading database for genome version 'GRCh37.70' from file '/home/pcingola//snpEff/data/GRCh37.70/snpEffectPredictor.bin' (this might take a 
+00:01:13.513    done
+00:01:13.555    Setting '-treatAllAsProteinCoding' to 'false'
+00:01:13.556    Building interval forest
+00:01:32.642    done.
+00:01:38.280    Genome stats :
+# Genome name                : 'Homo_sapiens'
+# Genome version             : 'GRCh37.70'
+# Has protein coding info    : true
+# Genes                      : 62069
+# Protein coding genes       : 22643
+# Transcripts                : 206046
+# Avg. transcripts per gene  : 3.32
+# Protein coding transcripts : 85685
+# Cds                        : 756629
+# Exons                      : 1262644
+# Exons with sequence        : 1262644
+# Exons without sequence     : 0
+# Avg. exons per transcript  : 6.13
+# Number of chromosomes      : 275
+# Chromosomes names [sizes]  : '1' [249250621] '2' [243199373] '3' [198022430] '4' [191154276] '5' [180915260] '6' [171115067] '7' [159138663] 'X' [155270560] '8' [146364022] '9' [141213431] '10' [135534747] '11' [135006516] '12' [133851895] '13' [115169878] '14' [107349540] '15' [102531392] '16' [90354753] '17' [81195210] '18' [78077248] '20' [63025520] 'Y' [59373566] '19' [59128983] '22' [51304566] '21' [48129895] 'HG1287_PATCH' [249889652]  'HG1292_PATCH' [249822337]  'HG1473_PATCH' [249272860]  'HG1471_PATCH' [249269426] ...
+...
+</pre>
+				</p>
 
 				<p> <b> Apparent inconsistencies when using UCSC genome browser </b>
 				<br>
@@ -1139,46 +1178,150 @@ drwxr-xr-x 2472 pcingola pcingola     122880 Feb 11 19:55 ..
 -rw-r--r--    1 pcingola pcingola    5621629 Feb 11 22:00 regulation_NHEK.bin
 -rw-r--r--    1 pcingola pcingola   89937614 Feb 11 21:57 snpEffectPredictor.bin
 </pre>
+
+				So we can annotate using any of those tracks.
+				<br>
+				E.g. To use 'HeLa-S3' and 'NHEK' tracks, you can run:
+<pre>
+java -Xmx4g -jar snpEff.jar eff -reg HeLa-S3 -reg NHEK GRCh37.70 in.vcf > out.vcf
+</pre>
 				</p>
 
         <!-- Filters
         ================================================== -->
         <section id="filters">
           <div class="page-header">
-            <h1>10. Filters </h1>
+            <h1>10. Annotations options </h1>
           </div>
 				<p class="lead">
-				We describe how to filter the out or narrow down the number of results.
+				We describe how to change some defaults and filter input and outputs to narrow down the number of results.
 				</p>
 
 				<h3>Annotating selected intervals </h3>
 				<p>
-				You can use the '-fi' option (a.k.a. '-filterInterval). For instance, let's assume you have an interval file 'intervals.bed':
+				You can use the <code>-fi intervals.bed</code> command line option (filterInterval). For instance, let's assume you have an interval file 'intervals.bed':
 <pre>2L	10000	10999
 2L	12000	12999
 2L	14000	14999
 2L	16000	16999
 2L	18000	18999 </pre>
-				In order to get only changes that match your intervals, you can use the command:
-<pre> java -Xmx4G -jar snpEff.jar -fi intervals.bed dm5.30 file.vcf</pre>
-<b>Note:</b> You may specify multiple files by using '-fi' many times.
 				</p>
 
 				<h3>Canonical transcripts </h3>
 				<p>
+				SnpEff allows to annotate using canonical transcripts by using <code>-canon</code> command line option.
+				<br>
+				<br>
+				<i class="icon-warning-sign"></i>Canonical transcripts are defined as the longest CDS of amongst the protein coding transcripts in a gene.
+				If none of the transcripts in a gene is protein coding, then it is the longest cDNA. 
+				<br>
+				<br>
+				<i class="icon-warning-sign"></i>Although this seems to be the standard definitions of "canonical transcript", there is no waranties that what SnpEff considers a canonical transcript will match exactly what UCSC or ENSEMBL consider a canonical transcript.
+				</p>
+				Example on how to use canonical transcripts annotations:
+<pre> java -Xmx4G -jar snpEff.jar -canon GRCh37.70 file.vcf > file.snpeff.canon.vcf</pre>
+				<br>
+				In order to get only changes that match your intervals, you can use the command:
+<pre> java -Xmx4G -jar snpEff.jar -fi intervals.bed dm5.30 file.vcf </pre>
+
+				<br>
+				In order to get a list of cannonical transcipts, you can use the <code>-d</code> (debug) command line option. E.g.:
+<pre>
+$ java -Xmx4G -jar snpEff.jar eff -d -v -canon GRCh37.66 test.vcf
+00:00:00.000    Reading configuration file 'snpEff.config'
+00:00:00.173    done
+00:00:00.173    Reading database for genome version 'GRCh37.66'
+00:00:02.834    done
+00:00:02.845    Filtering out non-canonical transcripts.
+00:00:03.219    Canonical transcripts:
+                geneName        geneId          transcriptId    cdsLength
+                GGPS1           ENSG00000152904 ENST00000488594 903
+                RP11-628K18.1.1 ENSG00000235112 ENST00000430808 296
+                MIPEPP2         ENSG00000224783 ENST00000422560 1819
+                FEN1P1          ENSG00000215873 ENST00000401028 1145
+                AL591704.7.1    ENSG00000224784 ENST00000421658 202
+                CAPNS1P1        ENSG00000215874 ENST00000401029 634
+                ST13P20         ENSG00000215875 ENST00000447996 1061
+                NCDN            ENSG00000020129 ENST00000373243 2190
+                RP11-99H8.1.1   ENSG00000226208 ENST00000423187 432
+                AL391001.1      ENSG00000242652 ENST00000489859 289
+...
+</pre> 
+
+
+				<h3>Selected list of transcripts </h3>
+				<p>
+				SnpEff allows you to provide a list of transcripts to use for annotations by using the <code>-onlyTr file.txt</code> and providing a file with one transcript ID per line.
+				Any other transcript will be ignored.
+				<pre> java -Xmx4G -jar snpEff.jar -onlyTr my_transcripts.txt GRCh37.70 file.vcf > file.snpeff.vcf</pre>
 				</p>
 
 				<h3>Upstream and downstream</h3>
 				<p>
+				You can change the default upstream and downstream interval size (default is 5K) using the <code>-ud size_in_bases</code> option.
+				This also allows to eliminate any upstream and downstream effect by using "-ud 0".
+				<br>
+				<br>
+				Example: Make upstream and downstream size zero (i.e. do not report any upstream or downstream effect).
+				<pre> java -Xmx4G -jar snpEff.jar -ud 0 GRCh37.70 file.vcf > file.snpeff.vcf</pre>
 				</p>
 
-				<h3>Canonical transcripts </h3>
+				<h3>Splice site size</h3>
 				<p>
+				You can change the default splice site size (default is 2 bases) using the <code>-spliceSiteSize size_in_bases</code> option.
+				<br>
+				<br>
+				Example: Make splice sites four bases long
+				<pre> java -Xmx4G -jar snpEff.jar -spliceSiteSize 4 GRCh37.70 file.vcf > file.snpeff.vcf</pre>
 				</p>
 
-				<h3>Canonical transcripts </h3>
+				<h3>Adding your own annotations</h3>
 				<p>
+				SnpEff allows user defined instervals to be annotated.
+				This is achieved using the <code>-interval file.bed</code> command line option, which can be used mutiple times in the same command line.
+				Any variant that intersecs an interval defined in those files, will be anotated using the "name" field (fourth column) in the input bed file.
+				<br>
+				<br>
+				Example: We create our own annotations in <code>my_annotations.bed</code>
+<pre>
+$ cat my_annotations.bed 
+1	10000	20000	MY_ANNOTATION
+
+$ cat test.vcf 
+1	10469	.	C	G	365.78	PASS	AC=30;AF=0.0732
+
+$ java -Xmx4g -jar snpEff.jar eff -interval my_annotations.bed GRCh37.66 test.vcf
+1	10469	.	C	G	365.78	PASS	AC=30;AF=0.0732;EFF=CUSTOM(MODIFIER||||||MY_ANNOTATION||||1),DOWNSTREAM(MODIFIER|||||WASH7P|unprocessed_pseudogene|NON_CODING|ENST00000423562||1),DOWNSTREAM(MODIFIER|||||WASH7P|unprocessed_pseudogene|NON_CODING|ENST00000438504||1),DOWNSTREAM(MODIFIER|||||WASH7P|unprocessed_pseudogene|NON_CODING|ENST00000488147||1),DOWNSTREAM(MODIFIER|||||WASH7P|unprocessed_pseudogene|NON_CODING|ENST00000538476||1),DOWNSTREAM(MODIFIER|||||WASH7P|unprocessed_pseudogene|NON_CODING|ENST00000541675||1),INTERGENIC(MODIFIER||||||||||1),UPSTREAM(MODIFIER|||||DDX11L1|processed_transcript|NON_CODING|ENST00000456328||1),UPSTREAM(MODIFIER|||||DDX11L1|transcribed_unprocessed_pseudogene|NON_CODING|ENST00000450305||1),UPSTREAM(MODIFIER|||||DDX11L1|transcribed_unprocessed_pseudogene|NON_CODING|ENST00000515242||1),UPSTREAM(MODIFIER|||||DDX11L1|transcribed_unprocessed_pseudogene|NON_CODING|ENST00000518655||1)
+</pre>
+				Notice that the variant was annotated using "MY_ANNOTATION" in the EFF field.
 				</p>
+
+				<h3>Chromosome names</h3>
+				<p>
+				<i class="icon-warning-sign"></i> This is only used in TXT output format, which is deprecated.
+				<br>
+				<br>
+				By default SnpEff simplifies all chromosome names. For instance 'chr1' is just '1'. 
+				Some people just hate this, so you can prepend any string you want to the chromosome name by using the <code>-chr string</code>
+				<br>
+				<br>
+				Example:
+<pre>
+$ java -Xmx4g -jar snpEff.jar eff -v -o txt -chr "CHROMOSOME" GRCh37.66 test.vcf 
+# Chromo	Position	Reference	Change	Change_type	Homozygous	Quality	Coverage	Warnings	Gene_ID	Gene_name	Bio_type	Trancript_ID	Exon_ID	Exon_Rank	Effect	old_AA/new_AA	Old_codon/New_codon	Codon_Num(CDS)	Codon_Degeneracy	CDS_size	Codons_around	AAs_around	Custom_interval_ID
+CHROMOSOME1	10469	C	G	SNP	Hom	365.78	0		ENSG00000227232	WASH7P	unprocessed_pseudogene	ENST00000423562			DOWNSTREAM: 3894 bases								
+CHROMOSOME1	10469	C	G	SNP	Hom	365.78	0		ENSG00000227232	WASH7P	unprocessed_pseudogene	ENST00000438504			DOWNSTREAM: 3894 bases								
+CHROMOSOME1	10469	C	G	SNP	Hom	365.78	0		ENSG00000227232	WASH7P	unprocessed_pseudogene	ENST00000541675			DOWNSTREAM: 3894 bases								
+CHROMOSOME1	10469	C	G	SNP	Hom	365.78	0		ENSG00000227232	WASH7P	unprocessed_pseudogene	ENST00000488147			DOWNSTREAM: 3935 bases								
+CHROMOSOME1	10469	C	G	SNP	Hom	365.78	0		ENSG00000227232	WASH7P	unprocessed_pseudogene	ENST00000538476			DOWNSTREAM: 3942 bases								
+CHROMOSOME1	10469	C	G	SNP	Hom	365.78	0		ENSG00000223972	DDX11L1	transcribed_unprocessed_pseudogene	ENST00000518655			UPSTREAM: 1405 bases								
+CHROMOSOME1	10469	C	G	SNP	Hom	365.78	0		ENSG00000223972	DDX11L1	transcribed_unprocessed_pseudogene	ENST00000450305			UPSTREAM: 1541 bases								
+CHROMOSOME1	10469	C	G	SNP	Hom	365.78	0								INTERGENIC			
+CHROMOSOME1	10469	C	G	SNP	Hom	365.78	0		ENSG00000223972	DDX11L1	processed_transcript	ENST00000456328			UPSTREAM: 1400 bases								
+CHROMOSOME1	10469	C	G	SNP	Hom	365.78	0		ENSG00000223972	DDX11L1	transcribed_unprocessed_pseudogene	ENST00000515242			UPSTREAM: 1403 bases								
+</pre>
+				</p>
+
 
         <!-- Databases
         ================================================== -->
