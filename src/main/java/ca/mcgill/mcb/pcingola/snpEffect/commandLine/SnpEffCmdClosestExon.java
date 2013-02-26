@@ -162,7 +162,7 @@ public class SnpEffCmdClosestExon extends SnpEff {
 		int initialExtension = 1000;
 
 		Chromosome chr = inputInterval.getChromosome();
-		if (chr.size() > 0) {
+		if ((chr != null) && (chr.size() > 0)) {
 			// Extend interval to capture 'close' exons
 			for (int extend = initialExtension; extend < chr.size(); extend *= 2) {
 				int start = Math.max(inputInterval.getStart() - extend, 0);
@@ -203,14 +203,8 @@ public class SnpEffCmdClosestExon extends SnpEff {
 
 			// Argument starts with '-'?
 			if (args[i].startsWith("-")) {
-				if ((args[i].equals("-c") || args[i].equalsIgnoreCase("-config"))) {
-					if ((i + 1) < args.length) configFile = args[++i];
-					else usage("Option '-c' without config file argument");
-				} else if (args[i].equals("-bed")) {
-					bedFormat = true;
-				} else if (args[i].equals("-v") || args[i].equalsIgnoreCase("-verbose")) {
-					verbose = true;
-				} else usage("Unknow option '" + args[i] + "'");
+				if (args[i].equals("-bed")) bedFormat = true;
+				else usage("Unknow option '" + args[i] + "'");
 			} else if (genomeVer.isEmpty()) genomeVer = args[i];
 			else if (inFile.isEmpty()) inFile = args[i];
 			else usage("Unknow parameter '" + args[i] + "'");
@@ -247,6 +241,7 @@ public class SnpEffCmdClosestExon extends SnpEff {
 		return true;
 	}
 
+	@Override
 	public void setVerbose(boolean verbose) {
 		this.verbose = verbose;
 	}
@@ -261,9 +256,6 @@ public class SnpEffCmdClosestExon extends SnpEff {
 		System.err.println("Usage: snpEff closestExon [options] genome_version file.vcf");
 		System.err.println("\nOptions:");
 		System.err.println("\t-bed          : Input format is BED. Default: VCF");
-		System.err.println("\t-c , -config  : Specify config file");
-		System.err.println("\t-noLog        : Do not report usage statistics to server");
-		System.err.println("\t-v , -verbose : Verbose mode");
 		System.exit(-1);
 	}
 

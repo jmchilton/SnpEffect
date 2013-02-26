@@ -1,9 +1,9 @@
 #!/usr/bin/perl
 
 #------------------------------------------------------------------------------
-# Split a fasta file (create one file per sequence)
+# Transform a fasta file to a TXT (tab-separated) table
 #
-#
+#																Pablo Cingolani
 #------------------------------------------------------------------------------
 
 use strict;

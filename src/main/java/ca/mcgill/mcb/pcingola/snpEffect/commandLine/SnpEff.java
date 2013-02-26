@@ -43,8 +43,7 @@ public class SnpEff implements CommandLine {
 	public static final String SOFTWARE_NAME = "SnpEff";
 	public static final String BUILD = "2013-02-20";
 	public static final String REVISION = "";
-	public static final String VERSION_MAJOR = "3.1";
-	//public static final String VERSION_MAJOR = "3.2";
+	public static final String VERSION_MAJOR = "3.2";
 	public static final String VERSION_SHORT = VERSION_MAJOR + REVISION;
 	public static final String VERSION = SOFTWARE_NAME + " " + VERSION_SHORT + " (build " + BUILD + "), by " + Pcingola.BY;
 	public static final String DEFAULT_SUMMARY_FILE = "snpEff_summary.html";
@@ -346,7 +345,7 @@ public class SnpEff implements CommandLine {
 		System.err.println("   spliceAnalysis  : Perform an analysis of splice sites. Experimental feature.");
 		System.err.println("   countReads      : Count how many reads (from a BAM file) overlap with each genomic interval. Experimental feature.");
 		System.err.println("   genes2bed       : Create a bed file from a genes list.");
-		System.err.println("\nRun 'java -jar snpEff.jar command' for help on each specifig command");
+		System.err.println("\nRun 'java -jar snpEff.jar command' for help on each specific command");
 		System.exit(-1);
 	}
 }

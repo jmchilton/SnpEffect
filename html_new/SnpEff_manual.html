@@ -1151,7 +1151,8 @@ drwxr-xr-x 2472 pcingola pcingola     122880 Feb 11 19:55 ..
 				We describe how to filter the out or narrow down the number of results.
 				</p>
 
-				<p><b>Annotating only some intervals</b><br> 
+				<h3>Annotating selected intervals </h3>
+				<p>
 				You can use the '-fi' option (a.k.a. '-filterInterval). For instance, let's assume you have an interval file 'intervals.bed':
 <pre>2L	10000	10999
 2L	12000	12999
@@ -1161,7 +1162,23 @@ drwxr-xr-x 2472 pcingola pcingola     122880 Feb 11 19:55 ..
 				In order to get only changes that match your intervals, you can use the command:
 <pre> java -Xmx4G -jar snpEff.jar -fi intervals.bed dm5.30 file.vcf</pre>
 <b>Note:</b> You may specify multiple files by using '-fi' many times.
+				</p>
 
+				<h3>Canonical transcripts </h3>
+				<p>
+				</p>
+
+				<h3>Upstream and downstream</h3>
+				<p>
+				</p>
+
+				<h3>Canonical transcripts </h3>
+				<p>
+				</p>
+
+				<h3>Canonical transcripts </h3>
+				<p>
+				</p>
 
         <!-- Databases
         ================================================== -->
@@ -1723,6 +1740,35 @@ Finishing up
 				Here we describe all the other commands and some scripts provided, that are useful for genomic data analysis.
 				</p>
 
+				<h3> SnpEff closestExon </h3>
+				<p>
+				Annotates using the closest exon, as well as the transcript ID, gene name and distance to the exon in bases.
+				<br>
+				Example:
+<pre>
+$ java -Xmx4g -jar snpEff.jar closestExon GRCh37.66 test.vcf
+##INFO=<ID=CLOSEST_EXON,Number=4,Type=String,Description="Closest exon: Distance (bases), exons Id, transcript Id, gene name">
+1       12078   .       G       A       25.69   PASS    AC=2;AF=0.048;CLOSEST_EXON=0,exon_1_11869_12227,ENST00000456328,DDX11L1
+1       16097   .       T       G       42.42   PASS    AC=9;AF=0.0113;CLOSEST_EXON=150,exon_1_15796_15947,ENST00000423562,WASH7P
+1       40261   .       C       A       366.26  PASS    AC=30;AF=0.484;CLOSEST_EXON=4180,exon_1_35721_36081,ENST00000417324,FAM138A
+1       63880   .       C       T       82.13   PASS    AC=10;AF=0.0400;CLOSEST_EXON=0,exon_1_62948_63887,ENST00000492842,OR4G11P
+</pre>
+
+				For intance, in the third line (1:16097 T G), it added the tag <code>CLOSEST_EXON=150,exon_1_15796_15947,ENST00000423562,WASH7P</code>
+				, which means that the variant is 150 bases away from exon "exon_1_15796_15947" 
+				located in transcript "ENST00000423562" of gene "WASH7P"
+				<br>
+				<br>
+				The input can also be a BED file, the output file has the same information as CLOSEST_EXON info field, added to the fourth column of the output BED file:
+<pre>
+$ snpeff closestExon -bed GRCh37.66 test.bed 
+1	12077	12078	line_1;0,exon_1_11869_12227,ENST00000456328,DDX11L1
+1	16096	16097	line_2;150,exon_1_15796_15947,ENST00000423562,WASH7P
+1	40260	40261	line_3;4180,exon_1_35721_36081,ENST00000417324,FAM138A
+1	63879	63880	line_4;0,exon_1_62948_63887,ENST00000492842,OR4G11P
+</pre>
+				</p>
+
 				<h3> SnpEff countReads </h3>
 				As the name suggests, <code>snpEff countReads</code> command counts how many reads and bases from a BAM file hit a gene, transcript, exon, intron, etc.
 				<br>
@@ -1768,8 +1814,7 @@ chr  start  end       type                IDs                         Reads:read
 					<li> Column 7: Count of bases (in file readsFile_1.bam) intersecting genomic region, i.e. each read is intersected and the resulting number of bases added.
 					<li> Column ...:  (repeat count reads and bases for each BAM file provided)
 				</ul>
-			</p>
-
+				</p>
 
 				<h3> SnpEff databases </h3>
 				<p>
@@ -1798,17 +1843,45 @@ Acidithiobacillus_ferrooxidans_ATCC_53993_uid58613              Acidithiobacillu
 ...
 </pre>
 
-
 				<h3> SnpEff download </h3>
 				<p>
 				This command downloads and installs a database. 
 				<br>
 				<i class="icon-warning-sign"></i>Note that the database must be configured in <code>snpEff.config</code> and available at the download site.
 				<br>
-				Example:
+				Example: Download and install C.Elegans genome
 
 <pre>
-$ java -jar snpEff.jar download -v GRCh37.70
+$ java -jar snpEff.jar download -v WBcel215.69
+00:00:00.000	Downloading database for 'WBcel215.69'
+00:00:00.002	Connecting to http://downloads.sourceforge.net/project/snpeff/databases/v3_1/snpEff_v3_1_WBcel215.69.zip
+00:00:00.547	Copying file (type: application/zip, modified on: Sat Dec 01 20:59:55 EST 2012)
+00:00:00.547	Local file name: 'snpEff_v3_1_WBcel215.69.zip'
+00:00:01.949	Downloaded 1049506 bytes
+00:00:03.624	Downloaded 2135266 bytes
+00:00:05.067	Downloaded 3185026 bytes
+00:00:06.472	Downloaded 4234786 bytes
+00:00:07.877	Downloaded 5284546 bytes
+00:00:09.580	Downloaded 6374626 bytes
+00:00:11.005	Downloaded 7424386 bytes
+00:00:12.410	Downloaded 8474146 bytes
+00:00:13.815	Downloaded 9523906 bytes
+00:00:15.358	Downloaded 10604226 bytes
+00:00:16.761	Downloaded 11653666 bytes
+00:00:18.168	Downloaded 12703426 bytes
+00:00:19.573	Downloaded 13753186 bytes
+00:00:21.198	Downloaded 14837506 bytes
+00:00:22.624	Downloaded 15887266 bytes
+00:00:24.029	Downloaded 16937026 bytes
+00:00:25.434	Downloaded 17986786 bytes
+00:00:26.864	Downloaded 19036546 bytes
+00:00:28.269	Downloaded 20086306 bytes
+00:00:29.155	Donwload finished. Total 20748168 bytes.
+00:00:29.156	Local file name: '/home/pcingola//snpEff/data/WBcel215.69/snpEffectPredictor.bin'
+00:00:29.156	Extracting file 'data/WBcel215.69/snpEffectPredictor.bin' to '/home/pcingola//snpEff/data/WBcel215.69/snpEffectPredictor.bin'
+00:00:29.157	Creating local directory: '/home/pcingola/snpEff/data/WBcel215.69'
+00:00:29.424	Unzip: OK
+00:00:29.424	Done
 </pre>
 
 				</p>
@@ -1818,10 +1891,236 @@ $ java -jar snpEff.jar download -v GRCh37.70
 				Dump the contets od a database to a text file, a BED file or a tab separated TXT file (that can be loaded into R).
 				<br>
 				<br>
-				Example:
+				<b>BED file example</b>:
 <pre>
 $ java -jar snpEff.jar download -v GRCh37.70
+$ java -Xmx4g -jar snpEff.jar dump -v -bed GRCh37.70 > GRCh37.70.bed
+00:00:00.000	Reading database for genome 'GRCh37.70' (this might take a while)
+00:00:32.476	done
+00:00:32.477	Building interval forest
+00:00:45.928	Done.
 </pre>
+
+				The ouput file looks like a typical BED file (chr \t start \t end \t name).
+				<br>
+				<i class="icon-warning-sign"></i>Keep in mind that BED file coordinates are zero based, semi-open intervals. 
+				So a 2 base interval at (one-based) positions 100 and 101 is expressed as a BED interval [99 - 101].
+				<br>
+<pre>
+$ head GRCh37.70.bed
+1	0	249250621	Chromosome_1
+1	111833483	111863188	Gene_ENSG00000134216
+1	111853089	111863002	Transcript_ENST00000489524
+1	111861741	111861861	Cds_CDS_1_111861742_111861861
+1	111861948	111862090	Cds_CDS_1_111861949_111862090
+1	111860607	111860731	Cds_CDS_1_111860608_111860731
+1	111861114	111861300	Cds_CDS_1_111861115_111861300
+1	111860305	111860427	Cds_CDS_1_111860306_111860427
+1	111862834	111863002	Cds_CDS_1_111862835_111863002
+1	111853089	111853114	Utr5prime_exon_1_111853090_111853114
+</pre>
+
+				<b>TXT file example</b>:
+<pre>
+$ java -Xmx4g -jar snpEff.jar dump -v -txt GRCh37.70 > GRCh37.70.txt
+00:00:00.000	Reading database for genome 'GRCh37.70' (this might take a while)
+00:00:31.961	done
+00:00:31.962	Building interval forest
+00:00:45.467	Done.
+</pre>
+				In this case, the ouput file looks like a typical BED file (chr \t start \t end \t name):
+<pre>
+$ head GRCh37.70.txt
+chr start       end        strand  type         id                          geneName  geneId            numberOfTranscripts  canonicalTranscriptLength  transcriptId     cdsLength  numerOfExons  exonRank  exonSpliceType
+1   1           249250622  +1      Chromosome   1                                                                                                       
+1   111833484   111863189  +1      Gene         ENSG00000134216             CHIA      ENSG00000134216   10                   1431                                                                  
+1   111853090   111863003  +1      Transcript   ENST00000489524             CHIA      ENSG00000134216   10                   1431                       ENST00000489524  862        9                     
+1   111861742   111861862  +1      Cds          CDS_1_111861742_111861861   CHIA      ENSG00000134216   10                   1431                       ENST00000489524  862        9                     
+1   111861949   111862091  +1      Cds          CDS_1_111861949_111862090   CHIA      ENSG00000134216   10                   1431                       ENST00000489524  862        9                     
+1   111853090   111853115  +1      Utr5prime    exon_1_111853090_111853114  CHIA      ENSG00000134216   10                   1431                       ENST00000489524  862        9             1         ALTTENATIVE_3SS
+1   111854311   111854341  +1      Utr5prime    exon_1_111854311_111854340  CHIA      ENSG00000134216   10                   1431                       ENST00000489524  862        9             2         SKIPPED
+1   111860608   111860732  +1      Exon         exon_1_111860608_111860731  CHIA      ENSG00000134216   10                   1431                       ENST00000489524  862        9             5         RETAINED
+1   111853090   111853115  +1      Exon         exon_1_111853090_111853114  CHIA      ENSG00000134216   10                   1431                       ENST00000489524  862        9             1         ALTTENATIVE_3SS
+1   111861742   111861862  +1      Exon         exon_1_111861742_111861861  CHIA      ENSG00000134216   10                   1431                       ENST00000489524  862        9             7         RETAINED
+</pre>
+
+				The format is
+				<table class="table table-striped">
+					<tr> <th> Column </th><th> Meaning </th></tr>
+					<tr> <td> chr </td> <td> Chromosome name</td> </tr>
+					<tr> <td> start </td> <td> Marker start (one-based coordinate)</td> </tr>
+					<tr> <td> end </td> <td> Marker end (one-based coordinate)</td> </tr>
+					<tr> <td> strand </td> <td> Strand (positive or negative)</td> </tr>
+					<tr> <td> type </td> <td> Type of marker (e.g. exon, transcript, etc.)</td> </tr>
+					<tr> <td> id </td> <td> ID. E.g. if it's a Gene, then it may be ENSEBML's gene ID</td> </tr>
+					<tr> <td> geneName </td> <td> Gene name, if marker is within a gene (exon, transcript, UTR, etc.), empty otherwise (e.g. intergenic) </td> </tr>
+					<tr> <td> geneId </td> <td> Gene is, if marker is within a gene</td> </tr>
+					<tr> <td> numberOfTranscripts </td> <td>Number of transcripts in the gene</td> </tr>
+					<tr> <td> canonicalTranscriptLength </td> <td>CDS length of canonical transcript.</td> </tr>
+					<tr> <td> transcriptId </td> <td> Transcript ID, if marker is within a transcript</td> </tr>
+					<tr> <td> cdsLength </td> <td> CDS length of the transcript</td> </tr>
+					<tr> <td> numerOfExons </td> <td> Number of exons in this transcript</td> </tr>
+					<tr> <td> exonRank </td> <td> Exon rank, if marker is an exon</td> </tr>
+					<tr> <td> exonSpliceType </td> <td> Exon splice type, if marker is an exon </td> </tr>
+				</table>
+				</p>
+
+				<h3> SnpEff genes2bed </h3>
+				<p>
+				Dumps a selected set of genes as BED intervals.
+				<br>
+				<br>
+				<i class="icon-warning-sign"></i>The functionality of this comand is a subset of <code>SnpEff dump</code>, so it is likely to be deprecated in the future.
+				<br>
+				<br>
+				Example:
+<pre>
+$ java -Xmx4g -jar snpEff.jar genes2bed GRCh37.66 DDX11L1 WASH7P
+#chr	start	end	geneName;geneId
+1	11868	14411	DDX11L1;ENSG00000223972
+1	14362	29805	WASH7P;ENSG00000227232
+</pre>
+
+				<h3> SnpEff cds &amp; SnpEff protein </h3>
+				<p>
+				These commands perform SnpEff database sanity checks.
+				They calculate CDS and protein sequences from a SnpEff database and then compare the results to a FASTA file (having the "correct" sequences).
+				<br>
+				The commands are invoked automatically when building databases, so there is no need for the user to invoke them manually.
+				</p>
+
+				<h3> Scripts </h3>
+				<p>
+				Several scripts are provided in the <code>scripts</code> directory.
+				Here we briefly describe their functionality:
+				<table class="table table-striped">
+					<tr> <th> Script </th><th> Functionality </th></tr>
+					<tr> <td> sam2fastq.pl </td> 
+											<td> Convert a SAM input to a FASTQ output. Example:
+<pre>
+samtools view test.bam | ./scripts/bam2fastq.pl | head -n 12
+@HWI-ST1220:76:D12CHACXX:7:2207:18986:95756
+CGACAATGCACGACAGAGGAAGCAGAACAGATATTTAGATTGCCTCTCATT
++
+CCCFFFFFGHHHHIIJIJJIJIJJIJJIIIJIIHIJJJIJJIJJJJJJIJJ
+@HWI-ST1220:76:D12CHACXX:7:2206:4721:162268
+ATATTATAGGGAGAAATATGATCGCGTATGCGAGAGTAGTGCCAACATATT
++
+@@@DDD>DAB;?DGGEGGBCD>BFGI?FCFFBFGG@<?B*?BFB9FGII@E
+@HWI-ST1220:76:D12CHACXX:7:1304:13069:17740
+ATAGGGAGAAATATGATCGCGTATGCGAGAGTAGTGCCAACATATTGTGCT
++
+CCCFFFFFHHHHHJJJJJJJJGIJJJJJJAGBGGIIIJJJJJJJJJJJIJG
+</pre> </td> </tr>
+
+					<tr> <td> fasta2tab.pl </td> <td> 
+													Convert a fasta file to a two column tab-separated TXT file (name \t sequence)
+Example (output truncated for brevity)
+<pre>
+$ zcat ce6.fa.gz | ./scripts/fasta2tab.pl 
+chrI    gcctaagcctaagcctaagcctaagcctaagcctaagcctaagcct...
+chrV    GAATTcctaagcctaagcctaagcctaagcctaagcctaagcctaa...
+chrII   cctaagcctaagcctaagcctaagcctaagcctaagcctaagccta...
+chrM    CAGTAAATAGTTTAATAAAAATATAGCATTTGGGTTGCTAAGATAT...
+chrX    ctaagcctaagcctaagcctaagcctaagcctaagcctaagcctaa...
+chrIV   cctaagcctaagcctaagcctaagcctaagcctaagcctaagccta...
+chrIII  cctaagcctaagcctaagcctaagcctaagcctaagcctaagccta...
+</pre> </td> </tr>
+
+					<tr> <td> fastaSplit.pl </td> <td>	Split a multiple sequence FASTA file to individial files.
+														Example: Creates one file per chromsome
+<pre>
+$ zcat ce6.fa.gz | ./scripts/fastaSplit.pl
+Writing to chrI.fa
+Writing to chrV.fa
+Writing to chrII.fa
+Writing to chrM.fa
+Writing to chrX.fa
+Writing to chrIV.fa
+Writing to chrIII.fa
+</pre> 
+														</td> </tr>
+
+					<tr> <td> hist.pl </td> <td>	Given a list of numbers (one per line), shows a histogram. Note: It requires R.
+													<br>
+													Example: Extract the file sizes in a directory and show a histogram
+<pre>
+$ ls -al scripts/ | tr -s " " | cut -f 5 -d " " | ./scripts/hist.pl 
+</pre> 
+													Creates the following plot
+													<br>
+													<img src=hist_example.png>
+													</td> </tr>
+
+
+					<tr> <td> maPlot.pl <br> 
+								plot.pl <br> 
+								qqplot.pl <br> 
+								smoothScatter.pl
+								</td> 
+											<td>	Similar to 'hist.pl', these perform plots based on input from STDIN. 
+													Note that in some cases, inputs are expected to be probabilities (qqplot.pl) or pairs of numbers (maPlot.pl).
+<pre>
+$ ls -al scripts/ | tr -s " " | cut -f 5 -d " " | ./scripts/plot.pl
+</pre> 
+													Creates the following plot
+													<br>
+													<img src=plot_example.png>
+													</td> </tr>
+
+					<tr> <td> queue.pl </td> <td>	Process a list of statements in parallel accordig to the number of CPUs available in the local machine </td> </tr>
+
+					<tr> <td> splitChr.pl </td> <td> Splits a file by chromosome. Works on any tab separated file that the first column is CHR field (e.g. BED, VCF, etc.)
+													<br>
+													Example:
+<pre>
+$ cat large_test.vcf | ./scripts/splitChr.pl 
+Input line 28. Creating file 'chr1.txt'
+Input line 13332. Creating file 'chr2.txt'
+Input line 22097. Creating file 'chr3.txt'
+Input line 29289. Creating file 'chr4.txt'
+Input line 34236. Creating file 'chr5.txt'
+Input line 39899. Creating file 'chr6.txt'
+Input line 47120. Creating file 'chr7.txt'
+Input line 53371. Creating file 'chr8.txt'
+Input line 57810. Creating file 'chr9.txt'
+Input line 63005. Creating file 'chr10.txt'
+Input line 68080. Creating file 'chr11.txt'
+Input line 76629. Creating file 'chr12.txt'
+Input line 83071. Creating file 'chr13.txt'
+Input line 85124. Creating file 'chr14.txt'
+Input line 89281. Creating file 'chr15.txt'
+Input line 93215. Creating file 'chr16.txt'
+Input line 99081. Creating file 'chr17.txt'
+Input line 106405. Creating file 'chr18.txt'
+Input line 108330. Creating file 'chr19.txt'
+Input line 118568. Creating file 'chr20.txt'
+Input line 121795. Creating file 'chr21.txt'
+Input line 123428. Creating file 'chr22.txt'
+Input line 126520. Creating file 'chrX.txt'
+Input line 129094. Creating file 'chrY.txt'
+Input line 129113. Creating file 'chrMT.txt'
+</pre> </td> </tr>
+
+					<tr> <td> uniqCount.pl </td> <td> Count number of unique lines. It's the same as doing <code>cat lines.tst | sort | uniq -c </code>, but much faster. Particularly useful for very large inputs. </td> </tr>
+
+					<tr> <td> vcfEffOnePerLine.pl </td> <td> Splits EFF fields in a VCF file, creating mutiple lines, each one with only one effect. 
+															<br>
+															Very useful for filtering with SnpSift.
+															<br>
+															Example: </td> </tr>
+				</table>
+<pre>
+$ cat test.stop.vcf 
+1	897062	.	C	T	100.0	PASS	AC=1;EFF=STOP_GAINED(HIGH|NONSENSE|Cag/Tag|Q141*|642|KLHL17||CODING|NM_198317|),UPSTREAM(MODIFIER||||576|PLEKHN1||CODING|NM_001160184|),UPSTREAM(MODIFIER||||611|PLEKHN1||CODING|NM_032129|),UPSTREAM(MODIFIER||||749|NOC2L||CODING|NM_015658|)
+
+$ cat test.stop.vcf | ./scripts/vcfEffOnePerLine.pl 
+1	897062	.	C	T	100.0	PASS	AC=1;EFF=STOP_GAINED(HIGH|NONSENSE|Cag/Tag|Q141*|642|KLHL17||CODING|NM_198317|)
+1	897062	.	C	T	100.0	PASS	AC=1;EFF=UPSTREAM(MODIFIER||||576|PLEKHN1||CODING|NM_001160184|)
+1	897062	.	C	T	100.0	PASS	AC=1;EFF=UPSTREAM(MODIFIER||||611|PLEKHN1||CODING|NM_032129|)
+1	897062	.	C	T	100.0	PASS	AC=1;EFF=UPSTREAM(MODIFIER||||749|NOC2L||CODING|NM_015658|)
+</pre> 
+
 
 				</p>
 
