@@ -12,6 +12,7 @@
     <link href="css/bootstrap-responsive.css" rel="stylesheet">
     <link href="css/docs.css" rel="stylesheet">
     <link href="js/google-code-prettify/prettify.css" rel="stylesheet">
+	<link href="css/my.css" rel="stylesheet">
 
     <!-- hTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
@@ -72,9 +73,6 @@
       <div class="span3 bs-docs-sidebar">
         <ul class="nav nav-list bs-docs-sidenav">
           <li><a href="#intro"> <i class="icon-chevron-right"></i> Introduction</a></li>
-          <li><a href="#utils"> <i class="icon-chevron-right"></i> SnpSift utilities</a></li>
-          <li><a href="#cite"> <i class="icon-chevron-right"></i> Citing SnpSift</a></li>
-          <li><a href="#source"> <i class="icon-chevron-right"></i> Source code</a></li>
           <li><a href="#filter"> <i class="icon-chevron-right"></i> SnpSift filter </a></li>
           <li><a href="#annotate"> <i class="icon-chevron-right"></i> SnpSift Annotate & AnnMEM </a></li>
           <li><a href="#casecontrol"> <i class="icon-chevron-right"></i> SnpSift CaseControl </a></li>
@@ -101,44 +99,39 @@
           </div>
 				<p class="lead">
 				SnpSift is a toolbox that allows you to filter and manipulate annotated files. 
+				</p>
+				<p>
 				Once your genomic variants have been annotated, you need to filter them out in order to find the "interesting / relevant variants".
 				Given the large data files, this is not a trivial task (e.g. you cannot load all the variants into XLS spreasheet).
 				SnpSift helps to perform this VCF file manipulation and filtering required at this stage in data processing pipelines.
 				</p>
-        </section>
 
-        <!-- Utilities
-        ================================================== -->
-        <section id="utils">
-          <div class="page-header">
-            <h1>2. SnpSift utilities</h1>
-          </div>
-				<p class="lead"> SnpSift is a collection of tools to manipulate <a class="body" href="http://www.1000genomes.org/wiki/Analysis/Variant%20Call%20Format/vcf-variant-call-format-version-41">VCF</a> (variant call format) files.<br>
+            <h3>Download and install</h3>
+				<p> SnpSift is part of SnpEff main distribution, so please click on <a href="download.html">here</a> and follow the instructions on how to download and install SnpEff.
+				</p>
+
+            <h3>SnpSift utilities</h3>
+				<p> SnpSift is a collection of tools to manipulate <a href="http://www.1000genomes.org/wiki/Analysis/Variant%20Call%20Format/vcf-variant-call-format-version-41">VCF</a> (variant call format) files.<br>
 				Some examples of what you can do:
 				<table class="table table-striped">
-					<tr> <td> <a href="#filter"><b>Filter</b></a> </td> <td> You can filter using arbitrary expressions, for instance "(QUAL &gt; 30) | (exists INDEL) | ( countHet() &gt; 2 )". The actual expressions can be quite complex, so it allows for a lot of flexibility. </td> </tr>
-					<tr> <td> <a href="#annotate"><b>Annotate & AnnMem</b></a> </td> <td> You can add 'ID' and INFO fields from another "VCF database" (e.g.  typically dbSnp database in VCF format). </td> </tr>
-					<tr> <td> <a href="#casecontrol"><b>CaseControl</b></a> </td> <td> You can compare how many variants are in 'case' and in 'control' groups. Also calculates p-values (Fisher exact test). </td> </tr>
-					<tr> <td> <a href="#intervals"><b>Intervals</b></a> </td> <td> Filter variants that intersect with intervals. </td> </tr>
-					<tr> <td> <a href="#intidx"><b>Intervals (intidx)</b></a> </td> <td> Filter variants that intersect with intervals. Index the VCF file using memory mapped I/O to speed up the search. This is intended for huge VCF files and a small number of intervals to retrieve. </td> </tr>
-					<tr> <td> <a href="#join"><b>Join</b></a> </td> <td> Join by generic genomic regions (intersecting or closest). </td> </tr>
-					<tr> <td> <a href="#rmRefGen"><b>RmRefGen</b></a> </td> <td> Remove reference genotype (i.e. replace '0/0' genotypes by '.') </td> </tr>
-					<tr> <td> <a href="#tstv"><b>TsTv</b></a> </td> <td> Calculate transiton to transversion ratio. </td> </tr>
-					<tr> <td> <a href="#extractFields"><b>Extract fields</b></a> </td> <td> Extract fields from a VCF file to a TXT (tab separated) format. </td> </tr>
-					<tr> <td> <a href="#varType"><b>Variant type</b></a> </td> <td> Adds SNP/MNP/INS/DEL to info field. It also adds "HOM/HET" if there is only one sample. </td> </tr>
-					<tr> <td> <a href="#gwasCat"><b>GWAS Catalog</b></a> </td> <td> Annotate using GWAS Catalog. </td> </tr>
-					<tr> <td> <a href="#dbnsfp"><b>DbNSFP</b></a> </td> <td> Annotate using dbNSFP: The dbNSFP is an integrated database of functional predictions from multiple algorithms (SIFT, Polyphen2, LRT and MutationTaster, PhyloP and GERP++, etc.) </td> </tr>
-					<tr> <td> <a href="#splitChr"><b>SplitChr</b></a> </td> <td> Split a VCF file by chromosome </td> </tr>
+					<tr> <td> <b>Filter</b> </td> <td> You can filter using arbitrary expressions, for instance "(QUAL &gt; 30) | (exists INDEL) | ( countHet() &gt; 2 )". The actual expressions can be quite complex, so it allows for a lot of flexibility. </td> </tr>
+					<tr> <td> <b>Annotate & AnnMem</b> </td> <td> You can add 'ID' and INFO fields from another "VCF database" (e.g.  typically dbSnp database in VCF format). </td> </tr>
+					<tr> <td> <b>CaseControl</b> </td> <td> You can compare how many variants are in 'case' and in 'control' groups. Also calculates p-values (Fisher exact test). </td> </tr>
+					<tr> <td> <b>Intervals</b> </td> <td> Filter variants that intersect with intervals. </td> </tr>
+					<tr> <td> <b>Intervals (intidx)</b> </td> <td> Filter variants that intersect with intervals. Index the VCF file using memory mapped I/O to speed up the search. This is intended for huge VCF files and a small number of intervals to retrieve. </td> </tr>
+					<tr> <td> <b>Join</b> </td> <td> Join by generic genomic regions (intersecting or closest). </td> </tr>
+					<tr> <td> <b>RmRefGen</b> </td> <td> Remove reference genotype (i.e. replace '0/0' genotypes by '.') </td> </tr>
+					<tr> <td> <b>TsTv</b> </td> <td> Calculate transiton to transversion ratio. </td> </tr>
+					<tr> <td> <b>Extract fields</b> </td> <td> Extract fields from a VCF file to a TXT (tab separated) format. </td> </tr>
+					<tr> <td> <b>Variant type</b> </td> <td> Adds SNP/MNP/INS/DEL to info field. It also adds "HOM/HET" if there is only one sample. </td> </tr>
+					<tr> <td> <b>GWAS Catalog</b> </td> <td> Annotate using GWAS Catalog. </td> </tr>
+					<tr> <td> <b>DbNSFP</b> </td> <td> Annotate using dbNSFP: The dbNSFP is an integrated database of functional predictions from multiple algorithms (SIFT, Polyphen2, LRT and MutationTaster, PhyloP and GERP++, etc.) </td> </tr>
+					<tr> <td> <b>SplitChr</b> </td> <td> Split a VCF file by chromosome </td> </tr>
 				</table>
-        </section>
+				</p>
 
-        <!-- Citing
-        ================================================== -->
-        <section id="cite">
-          <div class="page-header">
-            <h1>3. Citing SnpSift</h1>
-          </div>
-				<p class="lead"> In order to cite SnpSift, please use the following reference: <br>
+            <h3>Citing SnpSift</h3>
+				<p> In order to cite SnpSift, please use the following reference: <br>
 
 				<blockquote>
 				"Using Drosophila melanogaster as a model for genotoxic chemical mutational studies with a new program, SnpSift", Cingolani, P., et. al., Frontiers in Genetics, 3, 2012.<br>
@@ -156,21 +149,14 @@
 }
 </pre>
 				</p>
-        </section>
-
 				
-        <!-- Source code
-        ================================================== -->
-        <section id="source">
-          <div class="page-header">
-            <h1>4. Source code</h1>
-          </div>
-				<p class="lead">  The project is hosted at SourceForge. <br>
-				</p>
+            <h3>Source code</h3>
+				<p> The project is hosted at SourceForge. </p>
 				Here is the SVN command to check out the development version of the code:
 <pre>
 svn co https://snpeff.svn.sourceforge.net/svnroot/snpeff/SnpSift/trunk
 </pre>
+
         </section>
 
 
@@ -178,10 +164,10 @@ svn co https://snpeff.svn.sourceforge.net/svnroot/snpeff/SnpSift/trunk
         ================================================== -->
         <section id="filter">
           <div class="page-header">
-            <h1>5. SnpSift filter </h1>
+            <h1>2. SnpSift filter </h1>
           </div>
 				<p class="lead">
-				SnpSift filter is one of the most usefull commands.
+				SnpSift filter is one of the most useful SnpSift commands.
 				Using SnpSift filter you can filter VCF files using arbitrary expressions, for instance "(QUAL &gt; 30) | (exists INDEL) | ( countHet() &gt; 2 )". The actual expressions can be quite complex, so it allows for a lot of flexibility.<p>
 				</p>
 
@@ -298,119 +284,119 @@ rs71262673</pre>
 
 				<b> Available operands and functions </b><p>
 				<center>
-				<table border=0>
-					<tr bgcolor=999999> <th> Operand </th> <th> Description </th> <th> Data type </th> <th> Example </th> </tr>
-					<tr bgcolor=eeeeee> 
+				<table class="table table-striped">
+					<tr> <th> Operand </th> <th> Description </th> <th> Data type </th> <th> Example </th> </tr>
+					<tr> 
 						<td> = </td> 
 						<td> Equality test </td> 
 						<td> FLOAT, INT or STRING </td> 
 						<td style="white-space: nowrap"> (REF <b>=</b> 'A') </td> 
 					</tr>
-					<tr bgcolor=dddddd> 
+					<tr> 
 						<td> &gt; </td> 
 						<td> Greater than </td> 
 						<td> FLOAT or INT </td>
 						<td style="white-space: nowrap"> (DP <b>&gt;</b> 20) </td> 
 					</tr>
-					<tr bgcolor=eeeeee> 
+					<tr> 
 						<td> &ge; </td> 
 						<td> Greater or equal than </td> 
 						<td> FLOAT or INT </td>
 						<td style="white-space: nowrap"> (DP <b>&ge;</b> 20) </td> 
 					</tr>
-					<tr bgcolor=dddddd> 
+					<tr> 
 						<td> &lt; </td> 
 						<td> Less than </td> 
 						<td> FLOAT or INT </td>
 						<td style="white-space: nowrap"> (DP <b>&lt;</b> 20) </td> 
 					</tr>
-					<tr bgcolor=eeeeee> 
+					<tr> 
 						<td> &le; </td> 
 						<td> Less or equal than </td> 
 						<td> FLOAT or INT </td>
 						<td style="white-space: nowrap"> (DP <b>&le;</b> 20) </td> 
 					</tr>
-					<tr bgcolor=dddddd> 
+					<tr> 
 						<td> =~ </td> 
 						<td> Match regular expression </td> 
 						<td> STRING </td>
 						<td style="white-space: nowrap"> (REL <b>=~</b> 'AC') </td> 
 					</tr>
-					<tr bgcolor=eeeeee> 
+					<tr> 
 						<td> !~ </td> 
 						<td> Does not match regular expression </td> 
 						<td> STRING </td>
 						<td style="white-space: nowrap"> (REL <b>!~</b> 'AC') </td> 
 					</tr>
-					<tr bgcolor=dddddd> 
+					<tr> 
 						<td> &amp; </td> 
 						<td> AND operator  </td> 
 						<td> Boolean </td>
 						<td style="white-space: nowrap"> (DP &gt 20) <b>&amp;</b> (REF = 'A') </td> 
 					</tr>
-					<tr bgcolor=eeeeee> 
+					<tr> 
 						<td> | </td> 
 						<td> OR operator  </td> 
 						<td> Boolean </td>
 						<td style="white-space: nowrap"> (DP &gt 20) <b>|</b> (REF = 'A') </td> 
 					</tr>
-					<tr bgcolor=dddddd> 
+					<tr> 
 						<td> ! </td> 
 						<td> NOT operator  </td> 
 						<td> Boolean </td>
 						<td style="white-space: nowrap"> <b>!</b> (DP &gt 20) </td>
 					</tr>
-					<tr bgcolor=eeeeee> 
+					<tr> 
 						<td> exists </td> 
 						<td> The variable exists (not missing)</td> 
 						<td> Any </td>
 						<td style="white-space: nowrap"> (<b>exists</b> INDEL) </td>
 					</tr>
-					<tr bgcolor=999999> <th> Function </th> <th> Description </th> <th> Data type </th> <th> Example </th> </tr>
-					<tr bgcolor=dddddd> 
+					<tr> <th> Function </th> <th> Description </th> <th> Data type </th> <th> Example </th> </tr>
+					<tr> 
 						<td> countHom() </td> 
 						<td> Count number of homozygous genotypes</td> 
 						<td> No arguments </td>
 						<td style="white-space: nowrap"> (<b>countHom()</b> &gt 0) </td>
 					</tr>
-					<tr bgcolor=eeeeee> 
+					<tr> 
 						<td> countHet() </td> 
 						<td> Count number of heterozygous genotypes</td> 
 						<td> No arguments </td>
 						<td style="white-space: nowrap"> (<b>countHet()</b> &gt 2) </td>
 					</tr>
-					<tr bgcolor=dddddd> 
+					<tr> 
 						<td> countVariant() </td> 
 						<td> Count number of genotypes that are variants (i.e. not reference 0/0)</td> 
 						<td> No arguments </td>
 						<td style="white-space: nowrap"> (<b>countVariant()</b> &gt 5) </td>
 					</tr>
-					<tr bgcolor=eeeeee> 
+					<tr> 
 						<td> countRef() </td> 
 						<td> Count number of genotypes that are NOT variants (i.e. reference 0/0)</td> 
 						<td> No arguments </td>
 						<td style="white-space: nowrap"> (<b>countRef()</b> &lt 1) </td>
 					</tr>
-					<tr bgcolor=999999> <th> Genotype <br> Function </th> <th> Description </th> <th> Data type </th> <th> Example </th> </tr>
-					<tr bgcolor=dddddd> 
+					<tr> <th> Genotype <br> Function </th> <th> Description </th> <th> Data type </th> <th> Example </th> </tr>
+					<tr> 
 						<td> isHom </td> 
 						<td> Is homozygous genotype?</td> 
 						<td> Genotype </td>
 						<td style="white-space: nowrap"> <b>isHom( GEN[0] )</b> </td>
 					</tr>
-					<tr bgcolor=eeeeee> 
+					<tr> 
 						<td> isHet </td> 
 						<td> Is heterozygous genotype?</td> 
 						<td> Genotype </td>
 						<td style="white-space: nowrap"> <b>isHet( GEN[0] )</b> </td>
 					</tr>
-					<tr bgcolor=dddddd> 
+					<tr> 
 						<td> isVariant </td> 
 						<td> Is genotype a variant? (i.e. not reference 0/0)</td> 
 						<td> Genotype </td>
 						<td style="white-space: nowrap"> <b>isVariant( GEN[0] )</b> </td>
 					</tr>
-					<tr bgcolor=eeeeee> 
+					<tr> 
 						<td> isRef </td> 
 						<td> Is genotype a reference? (i.e. 0/0)</td> 
 						<td> Genotype </td>
@@ -424,7 +410,7 @@ rs71262673</pre>
         ================================================== -->
         <section id="annotate">
           <div class="page-header">
-            <h1>6. SnpSift Annotate & AnnMEM </h1>
+            <h1>3. SnpSift Annotate & AnnMEM </h1>
           </div>
 				<p class="lead">
 				Annotate using fields from another VCF file (e.g. dbSnp or 1000 genomes projects).
@@ -434,26 +420,27 @@ rs71262673</pre>
 				Here is an example:
 				<pre> java -jar SnpSift.jar annotate dbSnp132.vcf variants.vcf > variants_annotated.vcf </pre>
 				<p>
-				<b>WARNING:</b> 
+				Important:
 					<ul>
-						<li> <b>'annotate'</b> command assumes that both the database and the input VCF files are sorted by position.  Chromosome sort order can differ between files.
-						<li> <b>'annotateMem'</b> command allows unsorted VCF files, but it loads the entire 'database' VCF file into memory (which may not be practical for large 'database' VCF files). 
+						<li> <code>SnpSift annotate</code> command assumes that both the database and the input VCF files are sorted by position.  Chromosome sort order can differ between files.
+						<li> <code>SnpSift annotateMem</code> command allows unsorted VCF files, but it loads the entire 'database' VCF file into memory (which may not be practical for large 'database' VCF files). 
 					</ul>
 				<p>
-				<b>Notes:</b> 
+				Note:
 					<ul>
 						<li> By default it adds ALL database INFO fields. 
 						<li> You can use the '-info' command line option if you only want select only a subset of fields from db.vcf file.
 						<li> You can use the '-id' command line option if you only want to add ID fields (no INFO fields will be added).
 					</ul>
-				<b>dbSnp in VCF:</b> You can download dbSnp in VCF format <a class="body" href="ftp://ftp.ncbi.nih.gov/snp/organisms/human_9606/VCF/00-All.vcf.gz"> here </a><p>
+				<br>
+				<i class="icon-hand-right"></i> DbSnp in VCF format can download <a href="ftp://ftp.ncbi.nih.gov/snp/organisms/human_9606/VCF/00-All.vcf.gz"> here </a><p>
         </section>
 
         <!-- CaseControl
         ================================================== -->
         <section id="casecontrol">
           <div class="page-header">
-            <h1>7. SnpSift CaseControl </h1>
+            <h1>4. SnpSift CaseControl </h1>
           </div>
 				<p class="lead">
 				Allows you to count how many samples are in 'case' group and a 'control' group. 
@@ -482,16 +469,18 @@ rs71262673</pre>
         ================================================== -->
         <section id="Intervals">
           <div class="page-header">
-            <h1>8. SnpSift Intervals </h1>
+            <h1>5. SnpSift Intervals </h1>
           </div>
 				<p class="lead">
 				This is used to extract variants that intersect any interval. 
 				</p>
 
-				You must provide intervals as BED files.<br>
-
-				<b>Note:</b> BED file format is tab separated zero-based coordinates "chr \t start \t end " (for this application, all other fields in the BED file are ignored).<br>
-				<b>Command line options:</b> <br>
+				<p>
+				You must provide intervals as BED files.
+				<br>
+				<i class="icon-warning-sign"></i>  BED file format is tab separated zero-based coordinates "chr \t start \t end " (for this application, all other fields in the BED file are ignored).<br>
+				<br>
+				Command line options: <br>
 				<ul>
 					<li> '-x' : Filter out (exclude) VCF entries that match any interval in the BED files.
 					<li> '-i file.vcf' : Specify the input VCF file (default is STDIN).
@@ -506,24 +495,25 @@ rs71262673</pre>
         ================================================== -->
         <section id="intidx">
           <div class="page-header">
-            <h1>9. SnpSift Intervals Index </h1>
+            <h1>6. SnpSift Intervals Index </h1>
           </div>
 				<p class="lead">
-				This is used to extract variants that intersect any interval. <br>
-				<b>Important:</b> This is similar to "SnpSift intervals", but intended for huge VCF files, and relatively small number of intervals.
+				This is used to extract variants that intersect any interval. 
 				</p>
-
-				This command indexes the VCF file using memory mapped I/O to speed up the search. 
-				Thus, this is optimized for huge VCF files.<p>
-				<b>Note:</b> You must provide intervals as BED files.<br>
-				<b>Note:</b> BED file format is tab separated zero-based coordinates "chr \t start \t end " (for this application, all other fields in the BED file are ignored).<br>
-				<b>Note:</b> You can use command line option '-if 1' if you want one-based coordinates.<br>
-
 				<p>
+				<i class="icon-warning-sign"></i>  This is similar to "SnpSift intervals", but intended for huge VCF files, and relatively small number of intervals.
+				<br>
+				<br>
+				This command indexes the VCF file, thus is optimized for huge VCF files.
+				You must provide intervals as BED files.
+				BED format is tab separated zero-based coordinates "chr \t start \t end " (for this application, all other fields in the BED file are ignored).
+				You can use command line option '-if 1' if you want one-based coordinates.
+				<br>
+				<br>
 				E.g.: 
 				<pre> java -jar SnpSift.jar intidx variants.vcf my_intervals.bed > variants_intersecting_intervals.vcf </pre>
 
-				You can also have genomic coordinate in the command line<br>
+				You can also have genomic coordinate in the command line.
 				Note that in this case, coordinates are assumed to be one-based (instead of zero-based, like in BED files):
 				<pre> java -jar SnpSift.jar intidx -c variants.vcf chr1:12345-23456 chr2:3456789-4567890  > variants_intersecting_intervals.vcf </pre>
         </section>
@@ -532,7 +522,7 @@ rs71262673</pre>
         ================================================== -->
         <section id="Join">
           <div class="page-header">
-            <h1>10. SnpSift Join </h1>
+            <h1>7. SnpSift Join </h1>
           </div>
 				<p class="lead">
 				Join files by genomic regions (i.e. chr:start-end). 
@@ -545,11 +535,16 @@ Note: It is assumed that both files fit in memory.
 Options:
     -if1 &lt;num&gt;       : Offset for file1 (e.g. 1 if coordinates are one-based. Default: 1
     -if2 &lt;num&gt;       : Offset for file2 (e.g. 2 if coordinates are one-based. Default: 1
-    -cols1 &lt;colDef&gt;  : Column definition for file 1. Format: chrCol,startCol,endCol (e.g. '1,2,3'). Shortcuts 'bed' or 'vcf' are allowed. Default: 'vcf
-    -cols2 &lt;colDef&gt;  : Column definition for file 2. Format: chrCol,startCol,endCol (e.g. '1,2,3'). Shortcuts 'bed' or 'vcf' are allowed. Default: 'vcf
-    -all             : For each interval, show all intersecting. Default: show only one (the largest intersection)
-    -closest         : Show closest intervals in file2 if none intersect. Default: off
-    -empty           : Show intervals in file1 even if they do not intersect with any other interval. Default: off
+    -cols1 &lt;colDef&gt;  : Column definition for file 1. Format: chrCol,startCol,endCol (e.g. '1,2,3'). 
+                       Shortcuts 'bed' or 'vcf' are allowed. Default: 'vcf
+    -cols2 &lt;colDef&gt;  : Column definition for file 2. Format: chrCol,startCol,endCol (e.g. '1,2,3'). 
+                       Shortcuts 'bed' or 'vcf' are allowed. Default: 'vcf
+    -all             : For each interval, show all intersecting. 
+                       Default: show only one (the largest intersection)
+    -closest         : Show closest intervals in file2 if none intersect. 
+                       Default: off
+    -empty           : Show intervals in file1 even if they do not intersect with any other interval. 
+                       Default: off
 </pre>
 
 Example: Join two bed files, showing intersecting or closest intervals
@@ -567,7 +562,7 @@ java -Xmx2G -jar SnpSift.jar join -v -cols1 bed -cols2 7,8,9 -empty file.bed my_
         ================================================== -->
         <section id="RmRefGen">
           <div class="page-header">
-            <h1>11. SnpSift RmRefGen </h1>
+            <h1>8. SnpSift RmRefGen </h1>
           </div>
 				<p class="lead">
 				Remove reference genotypes. 
@@ -602,7 +597,7 @@ and you get this (notice the last two columns, that had '0/0' genotype):
         ================================================== -->
         <section id="TsTv">
           <div class="page-header">
-            <h1>12. SnpSift TsTv </h1>
+            <h1>9. SnpSift TsTv </h1>
           </div>
 				<p class="lead">
 				Calculate transition vs transversion ratios for each sample.
@@ -624,10 +619,10 @@ Ts/Tv         :	2.123	2.139	2.154	2.163	2.159	2.106	2.114	2.158	2.145	2.153	2.15
         ================================================== -->
         <section id="Extract">
           <div class="page-header">
-            <h1>13. SnpSift Extract Fields </h1>
+            <h1>10. SnpSift Extract Fields </h1>
           </div>
 				<p class="lead">
-				Extract fields from a VCF file to a TXT (tab separated) format.
+				Extract fields from a VCF file to a TXT, tab separated format, that you can easily load in R, XLS, etc.
 				</p>
 				You can also use sub-fields and genotype fields / sub-fields such as:
 				<p>
@@ -663,6 +658,7 @@ Ts/Tv         :	2.123	2.139	2.154	2.163	2.159	2.106	2.114	2.158	2.145	2.153	2.15
 							<li> EFF[*].TRID
 							<li> EFF[*].EXID
 						</ul>
+						<i class="icon-hand-right"></i> You can combine <code>vcfEffOnePerLine.pl</code> script with <code>SnpSift extractFields</code> if you want to have each effect in a seprarate line.
 					<li> SnpEff 'LOF' fields: 
 						<ul>
 							<li> LOF[*].GENE
@@ -724,13 +720,36 @@ $ java -jar SnpSift.jar extractFields file.vcf CHROM POS ID THETA GEN[0].GL[1] G
 1       47190   rs200430748     0.0153  0               0,0,0                   0       0       0       0|0     0|0     0|0     0|0     0|0     0|0     0|0     0|0     0|0 
 </pre>
 
+				<b>Exmample 3:</b> Extracting effects, one per line
+				<br>
+				In order to extract effects, you can simply do something like this (notice that there are multiple columns per line because there are mutiple effects per variant):
+<pre>
+$ java -jar SnpSift.jar extractFields test.snpeff.vcf CHROM POS "EFF[*].EFFECT"
+#CHROM  POS     EFF[*].EFFECT
+1       10303   DOWNSTREAM      INTERGENIC      UPSTREAM
+</pre>
+				Note that since that variant has three effects, there are three "EFFECT" columns.
+				<br>
+				<br>
+				If we prefer to have one effect per line, then we can use the <code>vcfEffOnePerLine.pl</code> provided with SnpEff distribution
+<pre>
+$ cat test.snpeff.vcf | ./scripts/vcfEffOnePerLine.pl | java -jar SnpSift.jar extractFields - CHROM POS "EFF[*].EFFECT"
+#CHROM  POS     EFF[*].EFFECT
+1       10303   DOWNSTREAM
+1       10303   INTERGENIC
+1       10303   UPSTREAM
+</pre>
+				Now we obtain one effect per line, while all other parameters in the line are repeated across mutiple lines (e.g. there are three 1:10303 lines).
+				<br>
+				<i class="icon-hand-right"></i> Note that in SnpSift, we used <code>-</code> as input file name, which denotes STDIN.
+				</p>
         </section>
 
         <!-- Variant type
         ================================================== -->
         <section id="VariantType">
           <div class="page-header">
-            <h1>14. SnpSift Variant type </h1>
+            <h1>11. SnpSift Variant type </h1>
           </div>
 				<p class="lead">
 				Adds an INFO fild denoting variant type.
@@ -751,12 +770,12 @@ $ java -jar SnpSift.jar varType  test.vcf | grep -v "^#" | head
         ================================================== -->
         <section id="gwasCatalog">
           <div class="page-header">
-            <h1>15. SnpSift GWAS Catalog </h1>
+            <h1>12. SnpSift GWAS Catalog </h1>
           </div>
 				<p class="lead">
-				Annotate using <a class="body" href="http://www.genome.gov/gwastudies/">GWAS catalog</a><br>
+				Annotate using <a href="http://www.genome.gov/gwastudies/">GWAS catalog</a><br>
 				</p>
-				You need the GWAS catalog file (in TXT format), which can be downloaded <a class="body" href="http://www.genome.gov/admin/gwascatalog.txt"> here </a> <p>
+				You need the GWAS catalog file (in TXT format), which can be downloaded <a href="http://www.genome.gov/admin/gwascatalog.txt"> here </a> <p>
 <pre>
 $ java -jar SnpSift.jar gwasCat gwascatalog.txt test.vcf | tee test.gwas.vcf
 1   1005806 rs3934834   C   T   .   PASS    AF=0.091;GWASCAT=Body_mass_index    
@@ -783,18 +802,18 @@ $ java -jar SnpSift.jar gwasCat gwascatalog.txt test.vcf | tee test.gwas.vcf
         ================================================== -->
         <section id="dbNSFP">
           <div class="page-header">
-            <h1>16. SnpSift dbNSFP </h1>
+            <h1>13. SnpSift dbNSFP </h1>
           </div>
 				<p class="lead">
 				The dbNSFP is an integrated database of functional predictions from multiple algorithms (SIFT, Polyphen2, LRT and MutationTaster, PhyloP and GERP++, etc.).
 				</p>
 				One of the main advantages is that you can annotate using multiple prediction tools with just one command.
-				<a class="body" href="https://sites.google.com/site/jpopgen/dbNSFP">Here</a> is the link to dbNSFP database website.
+				<a href="https://sites.google.com/site/jpopgen/dbNSFP">Here</a> is the link to dbNSFP database website.
 				<p>
 
-				In order to use this command, you need to download the dbNSFP database file from our <a class="body" href="http://sourceforge.net/projects/snpeff/files/databases/">'databases' directory</a>.
+				In order to use this command, you need to download the dbNSFP database file from our <a href="http://sourceforge.net/projects/snpeff/files/databases/">'databases' directory</a>.
 				The file is named 'dbNSFP-version.txt.gz', where 'version' is the version number (e.g. 'dbNSFP2.0b3.txt.gz').<br>
-				Another option is to download from the original <a class="body" href="https://sites.google.com/site/jpopgen/dbNSFP">dbNSFP</a> site, and create a single file from the individual chromosome files (a simple 'cat dbNSFP2.0b3_variant.chr* | grep -v "^#" &gt; dbNSFP2.0b3.txt' command will be enough).
+				Another option is to download from the original <a href="https://sites.google.com/site/jpopgen/dbNSFP">dbNSFP</a> site, and create a single file from the individual chromosome files (a simple 'cat dbNSFP2.0b3_variant.chr* | grep -v "^#" &gt; dbNSFP2.0b3.txt' command will be enough).
 				<p>
 
 				Here is a full example how to perform annotations:
@@ -808,33 +827,75 @@ gunzip dbNSFP2.0b3.txt.gz
 java -jar SnpSift.jar dbnsfp -v dbNSFP2.0b3.txt myFile.vcf > myFile.annotated.vcf
 </pre>
 
-				<b>Note:</b> You can now specify which fields you want to use for annotation using the '-f' command line option followed by a comma separated list of field names.<br>
-				Defaults fileds are "Ensembl_transcriptid,Uniprot_acc,Interpro_domain,SIFT_score,Polyphen2_HVAR_pred,GERP++_NR,GERP++_RS,29way_logOdds,1000Gp1_AF,1000Gp1_AFR_AF,1000Gp1_EUR_AF,1000Gp1_AMR_AF,1000Gp1_ASN_AF,ESP5400_AA_AF,ESP5400_EA_AF".
+				<i class="icon-warning-sign"></i> You can now specify which fields you want to use for annotation using the '-f' command line option followed by a comma separated list of field names.
+				Defaults fileds are 
+				<ul>
+					<li> Ensembl_transcriptid
+					<li> Uniprot_acc
+					<li> Interpro_domain
+					<li> SIFT_score
+					<li> Polyphen2_HVAR_pred
+					<li> GERP++_NR
+					<li> GERP++_RS
+					<li> 29way_logOdds
+					<li> 1000Gp1_AF
+					<li> 1000Gp1_AFR_AF
+					<li> 1000Gp1_EUR_AF
+					<li> 1000Gp1_AMR_AF
+					<li> 1000Gp1_ASN_AF
+					<li> ESP5400_AA_AF
+					<li> ESP5400_EA_AF
+				</ul>
+
         </section>
 
         <!-- Split
         ================================================== -->
         <section id="Split">
           <div class="page-header">
-            <h1>17. SnpSift Split </h1>
+            <h1>14. SnpSift Split </h1>
           </div>
 				<p class="lead">
-				Simply split a VCF file, creating one file per chromosome or one file ever N lines. 
+				Simply split (or join) VCF files. 
+				Allows to create one file per chromosome or one file every N lines.
 				</p>
+
+				<i class="icon-hand-right"></i> A typical usage for this command is to: 
+				<ol>
+					<li> Split very large VCF files <code>SnpSift split huge.vcf</code>
+					<li> Perform some CPU intensive processing in parallel using several computers or cores
+					<li> Join the resulting VCF files <code>SnpSift split -j huge.000.vcf huge.001.vcf huge.002.vcf ...  > huge.out.vcf</code>.
+				</ol>
 
 				E.g.: Splitting a VCF having human variants <p>
 <pre>
-java -jar SnpSift.jar splitChr myHugeVcf.vcf.gz
+java -jar SnpSift.jar split myHugeVcf.vcf.gz
 </pre>
 
 				<p> Will create files myHugeVcf.1.vcf, myHugeVcf.2.vcf, ... , myHugeVcf.22.vcf, myHugeVcf.X.vcf, myHugeVcf.Y.vcf </p>
 				<p> You can also specify '-l' command line option to split the file every N lines </p>
 				E.g.: Split a VCF file every 10,000 lines<p>
 <pre>
-java -jar SnpSift.jar splitChr -l 10000 myHugeVcf.vcf.gz
+java -jar SnpSift.jar split -l 10000 myHugeVcf.vcf.gz
 </pre>
 				<p> Will create files myHugeVcf.001.vcf, myHugeVcf.002.vcf, ...  </p>
-				Note: VCF header will be added to each file, so resulting files will be more than 10,000 lines.
+				<i class="icon-hand-right"></i> VCF header will be added to each file, so resulting files will be more than 10,000 lines.
+				<br>
+				<br>
+				You can use <code>-j</code> (join) command line option to join a set of VCF files.
+<pre>
+java -jar SnpSift.jar split -j huge.000.vcf huge.001.vcf huge.002.vcf ...  > huge.out.vcf
+</pre>
+
+        </section>
+
+        <!-- PhastCons
+        ================================================== -->
+        <section id="PhastCons">
+          <div class="page-header">
+            <h1>17. SnpSift phastCons </h1>
+          </div>
+        </section>
 
       </div>
     </div>
