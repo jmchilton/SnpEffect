@@ -73,6 +73,7 @@
       <div class="span3 bs-docs-sidebar">
         <ul class="nav nav-list bs-docs-sidenav">
           <li><a href="#intro"><i class="icon-chevron-right"></i> Introduction</a></li>
+          <li><a href="#examples"><i class="icon-chevron-right"></i>Usage examples (for the impatient) </a></li>
           <li><a href="#install"><i class="icon-chevron-right"></i> Download & Install</a></li>
           <li><a href="#run"><i class="icon-chevron-right"></i> Running SnpEff </a></li>
           <li><a href="#seqData"><i class="icon-chevron-right"></i> Sequence data analysis </a></li>
@@ -171,11 +172,149 @@
 				</p>
         </section>
 
+		<!-- Examples
+		================================================== -->
+		<section id="examples">
+		  <div class="page-header">
+			<h1>2. Usage examples (for the impatient)</h1>
+		  </div>
+				<p class="lead">
+				Here we'll show a few examples that should be enough to get you started.
+				</p>
+
+				<h3> Basic examples: Installing SnpEff </h3>
+				<p>
+				Obviously the first step to use the program is to install it.
+				You have to download the core program from the "Download" page.
+				Then you have to uncompress the ZIP file.
+				In Windows systems, you can just double click and copy the contents of the ZIP file to wherever you want the program installed.
+				If you have a Unix or a Mac system, the command line would be:
+<pre>
+unzip snpEff_latest_core.zip 
+</pre>
+
+				<p>
+				<i class="icon-hand-right"></i> By default SnpEff stores all the databases in $HOME/snpeff/data (where $HOME is your home directory).
+				If you want to change this, you can edit the config file and change the "data_dir" entry:
+				<p>
+<pre>
+#---
+# Databases are stored here
+# E.g.: Information for 'hg19' is stored in data_dir/hg19/
+#
+# Note: Since version 2.1 you can use tilde ('~') as first character to refer to your home directory
+#---
+data_dir = ~/snpEff/data/
+</pre>
+				</p>
+
+				<h3> Basic examples: Managing SnpEff databses </h3>
+				<p>
+				In order to use SnpEff, you need a database for the reference genome you want to use. 
+				SnpEff databases for the most popular genomes are already pre-built and avaialable for you to download.
+				So there is no need for you to build it (this will save you a LOT of work).
+				<p>
+				<i class="icon-warning-sign"></i> Most of the time you don't need to build the SnpEff database. You can just download a pre-built one.
+				<p>
+
+				The easiest way to download and install a pre-built SnpEff database it using the "download" command.
+				E.g. if you want to install the SnpEff database for the human genome, you can run the following command:
+<pre>
+java -jar snpEff.jar download -v GRCh37.66
+</pre>
+				<p>
+				<i class="icon-hand-right"></i> If you are running SnpEff from a directory different than the one it was installed, you will have to specify where the config file is.
+				This is done using the '-c' command line option:
+<p><pre>
+java -Xmx4g -jar snpEff.jar download <b>-c path/to/snpEff/snpEff.config</b> -v GRCh37.66 
+</pre><p>
+
+				<h3> Basic examples: Annotate using SnpEff </h3>
+				Let's assume you have a VCF file ("file.vcf") and you want to annotate the variants in that file.
+				You can download the file for this example <a class="body" href="examples/file.vcf">here</a>.
+				This data is from the 1000 Genomes project, so the reference genome is the human genome (GRCh37.66).
+				<p>
+				Let's assume this is the first time you use SnpEff, so you don't have the database installed, so the fisrt step is to download the database.
+				Then you can annotate the file:
+
+<p><pre>
+# Go to the directory where snpEff is installed
+cd snpEff
+
+# Do this only if you don't already have the database installed.
+java -jar snpEff.jar download -v GRCh37.66
+
+# Annotate the file
+java -Xmx4g -jar snpEff.jar eff -v GRCh37.66 file.vcf > file.eff.vcf
+</pre><p>
+
+				The annotated variants will be in the new file "file.eff.vcf".<p>
+				<p>
+				<i class="icon-warning-sign"></i> SnpEff creates a file called "snpEff_summary.html" showing basic statistices about the analyzed variants. 
+				Take a quick look at it!
+
+				<p>
+				<i class="icon-hand-right"></i> We used the java parameter -Xmx4g to increase the memory avaialble to the Java Virtual Machine to 4G. 
+				SnpEff's human genome database is large and it has to be loaded into memory. 
+				If your computer doesn't have at least 4G of memeory, you problably won't be able to run this example.
+
+				<p>
+				<i class="icon-hand-right"></i> If you are running SnpEff from a directory different than the one it was installed, you will have to specify where the config file is.
+				This is done using the '-c' command line option:
+<p><pre>
+java -Xmx4g -jar snpEff.jar eff <b>-c path/to/snpEff/snpEff.config</b> -v GRCh37.66 file.vcf > file.eff.vcf
+</pre><p>
+
+
+				<h3> Advanced examples: Filter out SNPs from dbSnp </h3>
+
+				These are slighlty more advanced examples. 
+				Here we'll try to show how to perform specific tasks.
+
+				If you want to filter out SNPs from dbSnp, you can do it using SnpSift.
+				You can download SnpSift from the "Downloads" page.
+				<p>
+				You can download the file for this example <a class="body" href="examples/file.vcf">here</a>.<br>
+				Here is how to do it:
+				<p>
+				<ol>
+					<li> Annotate ID fields using <code>SnpSif annotate</code> and DbSnp<br>
+						<i class="icon-hand-right"></i> We annotate using dbSnp before using SnpEff in order to 
+								have 'known' and 'unknown' statistics in SnpEff's summary page.
+								Those stats are based on the presence of an ID field. If the ID 
+								is non-empty, then it is assumed to be a 'known variant'.
+<pre>
+# Download and uncompress dbSnp database.
+wget -O dbSnp.vcf.gz ftp://ftp.ncbi.nih.gov/snp/organisms/human_9606/VCF/00-All.vcf.gz
+gunzip dbSnp.vcf.gz
+
+# Annotate ID field using dbSnp
+java -jar SnpSif.jar annotate -v dbSnp.vcf.gz file.vcf > file.dbSnp.vcf
+</pre>
+
+					<li> Annotate using SnpEff:
+<pre>
+# Do this only if you don't already have the database installed.
+java -jar snpEff.jar download -v GRCh37.66
+
+# Annotate the file
+java -Xmx4g -jar snpEff.jar eff -v GRCh37.66 file.dbSnp.vcf > file.eff.vcf
+</pre>
+
+					<li> Filter out variants that have a non-empty ID field. 
+					These variants are the ones that are NOT in dbSnp, since we annotated the ID field using rs-numbers from dbSnp in step 1.
+<pre>
+java -jar SnpSift.jar filter -f file.eff.vcf "! exists ID" > file.eff.not_in_dbSnp.vcf
+</pre>
+					<i class="icon-hand-right"></i>The expression using to filter the file is "! exists ID".
+					This means that the ID field does not exists (i.e. the value is empty) which is represented as a dot (".") in a VCF file.
+				</ol>
+				</p>
         <!-- Download
         ================================================== -->
         <section id="install">
           <div class="page-header">
-            <h1>2. Download &amp; Install</h1>
+            <h1>3. Download &amp; Install</h1>
           </div>
 				<p class="lead"> Download and installing SnpEff it pretty easy. 
 				</p>
@@ -210,7 +349,7 @@ svn co https://snpeff.svn.sourceforge.net/svnroot/snpeff/SnpEffect/trunk
         ================================================== -->
         <section id="run">
           <div class="page-header">
-            <h1>3. Running SnpEff</h1>
+            <h1>4. Running SnpEff</h1>
           </div>
 				<p class="lead"> We show some basic examples how to use SnpEff.</p>
 
@@ -317,7 +456,7 @@ $ ssh -i ./aws_amazon/pcingola_aws.pem ec2-user@ec2-54-234-14-244.compute-1.amaz
         ================================================== -->
         <section id="seqData">
           <div class="page-header">
-            <h1>4. Sequence data analysis</h1>
+            <h1>5. Sequence data analysis</h1>
           </div>
 				<p class="lead"> Here we show an example on how to get from Sequenceing data to an annotated variants file </p>
 
@@ -367,7 +506,7 @@ java -Xmx4g -jar snpEff.jar -vcf4 dm5.34 s.vcf > s_snpeff.txt
         ================================================== -->
         <section id="input">
           <div class="page-header">
-            <h1>5. Input files </h1>
+            <h1>6. Input files </h1>
           </div>
 				<p class="lead"> 
 				Files used as input to SnpEff must comply with standard formats.
@@ -436,7 +575,7 @@ java -Xmx4g -jar snpEff.jar -vcf4 dm5.34 s.vcf > s_snpeff.txt
         ================================================== -->
         <section id="output">
           <div class="page-header">
-            <h1>6. Output files </h1>
+            <h1>7. Output files </h1>
           </div>
 				<p class="lead"> 
 				Here we describe the format of SnpEff's output files and the information added.
@@ -697,7 +836,7 @@ tgctgcggctgcggctgcggctgcggctacggctgcggct    ALT (from VCF file)
         ================================================== -->
         <section id="outputSummary">
           <div class="page-header">
-            <h1>7. Output summary files </h1>
+            <h1>8. Output summary files </h1>
           </div>
 				<p class="lead"> 
 				SnpEff creates an additional output file showing overall statistics.
@@ -849,7 +988,7 @@ tgctgcggctgcggctgcggctgcggctacggctgcggct    ALT (from VCF file)
         ================================================== -->
         <section id="eff">
           <div class="page-header">
-            <h1>8. Effect prediction details</h1>
+            <h1>9. Effect prediction details</h1>
           </div>
 				<p class="lead">
 				We describe the effects predicted by SnpEff
@@ -1141,7 +1280,7 @@ chr5 137622242 . C T . . EFF=NON_SYNONYMOUS_CODING(MODERATE|MISSENSE|Gaa/Aaa|E/K
         ================================================== -->
         <section id="effNc">
           <div class="page-header">
-            <h1>9. Non-coding &amp; Regulatory annotations</h1>
+            <h1>10. Non-coding &amp; Regulatory annotations</h1>
           </div>
 				<p class="lead">
 				SnpEff can also provide non-coding and regulatory annotations.
@@ -1185,16 +1324,99 @@ drwxr-xr-x 2472 pcingola pcingola     122880 Feb 11 19:55 ..
 <pre>
 java -Xmx4g -jar snpEff.jar eff -reg HeLa-S3 -reg NHEK GRCh37.70 in.vcf > out.vcf
 </pre>
+				<br>
+				<i class="icon-hand-right"></i> You can use <code>-onlyReg</code> command line option to perform only regulatory annotations (i.e. coding annotations will be omitted).
 				</p>
 
-        <!-- Filters
+        <!-- Options
         ================================================== -->
         <section id="filters">
           <div class="page-header">
-            <h1>10. Annotations options </h1>
+            <h1>11. Annotations options </h1>
           </div>
 				<p class="lead">
 				We describe how to change some defaults and filter input and outputs to narrow down the number of results.
+				</p>
+
+				<h3>Speed up options: Multithreaded &amp; No statistics </h3>
+				<p>
+				In order to speed up the annotation process, there are two options that can be activated:
+				<ul>
+					<li> No statistics: Calculating statistics can take a significant amout of time. 
+							Particularly if there are hundreds or thousands of samples in the VCF file.
+							The command line option <code>-noStats</code> disables the statistics and may result in a significant speedup.
+
+					<li> Mutlithreaded: SnpEff has a mutlithreaded implementation. 
+							This allows to use several cores available in the local machine. 
+							It can be activated using the <code>-p</code> command line option.
+
+							<br>
+							<br>
+							<i class="icon-warning-sign"></i> Some features are not available when running in mutlithreaded mode. 
+							For instance, statistics are disabled in order to speed up the annotation process.
+							<br>
+							<br>
+							<i class="icon-warning-sign"></i> In mutlithreaded mode, SnpEff will attempt to use all available cores. 
+							Nevertheless is very rare that all cores get 100% usage.
+				</ul>
+				</p>
+
+				<h3>HGVS notation</h3>
+				<p>
+				SnpEff partially implements <a href="http://www.hgvs.org/">HGVS notation</a>, which is somewhat popular amongst clinicians.
+				You can activate HGVS notation using the command line option <code>-hgvs</code>.
+				When activated, the "AA" sub-field in the EFF field (VCF file, INFO column) will be written in HGVS notation.
+				<br>
+				<br>
+				<i class="icon-warning-sign"></i> HGVS notation is only partially implemented, some cases may be missing.
+				</p>
+
+				<h3>Logging</h3>
+				<p>
+				SnpEff will try to log usage statistics to our "log server".
+				This is useful for us to understand user's needs and have some statistics on what users are doing with the program (e.g. decide wether a command or option is useful or not).
+				<br>
+				Logging can be deactivated by using the <code>-noLog</code> command line option.
+				</p>
+
+				<h3>Input filters</h3>
+				<p>
+				SnpEff supports filter on input files by using combinations of the following command line options:
+				<br>
+				<br>
+				<i class="icon-warning-sign"></i> Input filters can be implemented using <code>SnpSift filter</code>, which allows to create more flexible and complex filters.
+				<br>
+				<br>
+				<table class="table table-striped">
+					<tr> <th>	Command line option     </th><th> Meaning </th></tr>
+					<tr> <td>	-del                    </td><td> Analyze deletions only </td></tr>
+					<tr> <td>	-ins                    </td><td> Analyze insertions only </td></tr>
+					<tr> <td>	-hom                    </td><td> Analyze homozygous variants only </td></tr>
+					<tr> <td>	-het                    </td><td> Analyze heterozygous variants only </td></tr>
+					<tr> <td>	-minQ X, -minQuality X  </td><td> Filter out variants with quality lower than X </td></tr>
+					<tr> <td>	-maxQ X, -maxQuality X  </td><td> Filter out variants with quality higher than X </td></tr>
+					<tr> <td>	-minC X, -minCoverage X </td><td> Filter out variants with coverage lower than X </td></tr>
+					<tr> <td>	-maxC X, -maxCoverage X </td><td> Filter out variants with coverage higher than X </td></tr>
+					<tr> <td>	-nmp                    </td><td> Only MNPs (multiple nucleotide polymorphisms) </td></tr>
+					<tr> <td>	-snp                    </td><td> Only SNPs (single nucleotide polymorphisms) </td></tr>
+				</table>
+
+				<h3>Output filters</h3>
+				<p>
+				SnpEff supports filter of output results by using combinations of the following command line options:
+				<br>
+				<br>
+				<i class="icon-warning-sign"></i> Output filters can be implemented using <code>SnpSift filter</code>, which allows to create more flexible and complex filters.
+				<br>
+				<br>
+				<table class="table table-striped">
+					<tr> <th>	Command line option     </th><th> Meaning </th></tr>
+					<tr> <td>	-no-downstream                  </td><td> Do not show DOWNSTREAM changes </td></tr>
+					<tr> <td>	-no-intergenic                  </td><td> Do not show INTERGENIC changes </td></tr>
+					<tr> <td>	-no-intron                      </td><td> Do not show INTRON changes </td></tr>
+					<tr> <td>	-no-upstream                    </td><td> Do not show UPSTREAM changes </td></tr>
+					<tr> <td>	-no-utr                         </td><td> Do not show 5_PRIME_UTR or 3_PRIME_UTR changes </td></tr>
+				</table>
 				</p>
 
 				<h3>Annotating selected intervals </h3>
@@ -1327,7 +1549,7 @@ CHROMOSOME1	10469	C	G	SNP	Hom	365.78	0		ENSG00000223972	DDX11L1	transcribed_unpr
         ================================================== -->
         <section id="databases">
           <div class="page-header">
-            <h1>11. Databases </h1>
+            <h1>12. Databases </h1>
           </div>
 				<p class="lead">
 				SnpEff needs a datbase to perform genomic annotations. 
@@ -1703,7 +1925,7 @@ java -jar snpEff.jar dump myGenome | less
         ================================================== -->
         <section id="databasesNc">
           <div class="page-header">
-            <h1>12. Building databases: Regulatory and Non-coding </h1>
+            <h1>13. Building databases: Regulatory and Non-coding </h1>
           </div>
 				<p class="lead">
 				SnpEff supports regulatory and non-coding annotations.
@@ -1831,12 +2053,12 @@ Finishing up
 				</p>
 
 
-			<!-- Integration
-			================================================== -->
-			<section id="integration">
-			  <div class="page-header">
-				<h1>13. Integration: GATK &amp; Galaxy </h1>
-			  </div>
+		<!-- Integration
+		================================================== -->
+		<section id="integration">
+		  <div class="page-header">
+			<h1>14. Integration: GATK &amp; Galaxy </h1>
+		  </div>
 				<p class="lead">
 				SnpEff is integrated with other tools commonly used in sequencing data analysis pipelines. 
 				Most notably <a href="http://galaxyproject.org/">Galaxy</a> and <a href="http://www.broadinstitute.org/gatk/">GATK</a> projects support SnpEff.</p>
@@ -1868,12 +2090,12 @@ Finishing up
 				</p>
 				
 
-			<!-- Utilities
-			================================================== -->
-			<section id="utils">
-			  <div class="page-header">
-				<h1>14. Commands and utilities </h1>
-			  </div>
+		<!-- Utilities
+		================================================== -->
+		<section id="utils">
+		  <div class="page-header">
+			<h1>15. Commands and utilities </h1>
+		  </div>
 				<p class="lead">
 				SnpEff provides several other commands and utilities that can be useful for genomic data analysis.
 				</p>
