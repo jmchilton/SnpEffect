@@ -43,12 +43,16 @@ public class VcfHeader {
 		// Find "#CHROM" line in header (should always be the last one)
 		boolean added = false;
 		for (String line : headerLines) {
-			if (line.equals(newHeaderLine)) {
-				newHeaderLine = null; // Line already present? => Don't add
-				added = true;
-			} else if (line.startsWith("#CHROM") && (newHeaderLine != null)) {
-				header.append(newHeaderLine + "\n"); // Add new header right before title line
-				added = true;
+
+			if (newHeaderLine != null) { // Anything to add?
+				if (line.equals(newHeaderLine)) {
+					newHeaderLine = null; // Line already present? => Don't add
+					added = true;
+				} else if (line.startsWith("#CHROM")) {
+					header.append(newHeaderLine + "\n"); // Add new header right before title line
+					added = true;
+					newHeaderLine = null;
+				}
 			}
 
 			if (!line.isEmpty()) header.append(line + "\n"); // Add non-empty lines

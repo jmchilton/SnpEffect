@@ -113,9 +113,30 @@ public class VcfGenotype {
 
 		int code = 0;
 		for (int i = 0; i < genotype.length; i++) {
-			if ((genotype[i] < 0) || (genotype[i] > 1)) return -1;
-			code += genotype[i];
+			if (genotype[i] < 0) return -1;
+			code += (genotype[i] > 0 ? 1 : 0); // Any variant is '1', reference is '0'
 		}
+
+		return code;
+	}
+
+	/**
+	 * Return as a genotype SNP code:
+	 * 		0:	if aa (0/0) or any missing value 
+	 * 		1:	if Aa (0/1 or 1/0)
+	 * 		2:	if AA (1/1)
+	 * 
+	 * @return
+	 */
+	public int getGenotypeCodeIgnoreMissing() {
+		parseFields(); // Lazy parse
+
+		// No genotype info?
+		if (genotype == null) return -1;
+
+		int code = 0;
+		for (int i = 0; i < genotype.length; i++)
+			code += (genotype[i] > 0 ? 1 : 0); // Any variant is '1', reference or missing is '0'
 
 		return code;
 	}

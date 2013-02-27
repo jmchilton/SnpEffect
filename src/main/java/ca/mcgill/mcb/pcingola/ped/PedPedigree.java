@@ -22,6 +22,11 @@ public class PedPedigree implements Iterable<TfamEntry> {
 		tfamById = new HashMap<String, TfamEntry>();
 	}
 
+	public PedPedigree(String tfamFileName) {
+		tfamById = new HashMap<String, TfamEntry>();
+		loadTfam(tfamFileName);
+	}
+
 	/**
 	 * Add an entry to this pedigree
 	 * @param tfamEntry
