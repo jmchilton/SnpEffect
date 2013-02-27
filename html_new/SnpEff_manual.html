@@ -1727,11 +1727,14 @@ java -jar snpEff.jar build -refSeq -v hg19
 					<li> Save the GenBank data to "/path/to/snpEff/data/CP000730/genes.gb".
 						<br>
 						<br>
-						 <b>Note:</b> If there are more than one genbank file for an organism (e.g. multiple chromosomes), then you can download each file and save them separately.
+						 <b>Note:</b> If there are more than one genbank file for an organism (e.g. multiple chromosomes), then you can download each file and  concatenate them.
 						<br>
 						 E.g.: Vibrio Cholerae has two chromosomes with GenBank accessions: NC_002505.1 and NC_002506.1.
-						 You can download both files and save them as snpEff/data/vibrio/NC_002505.1.gb and snpEff/data/vibrio/NC_002506.1.gb respectively.
-						 Then you can add the following entries in the config file:
+						 You can download both files and save them as snpEff/data/vibrio/NC_002505.1.gb and snpEff/data/vibrio/NC_002506.1.gb respectively, and then concatenate both files:
+<pre>
+cat NC_002505.1.gb NC_002506.1.gb > genes.gb
+</pre>
+						 Add the following entries in the config file:
 						<br>
 						<br>
 <pre>
@@ -1742,7 +1745,6 @@ vibrio.genome : Vibrio Cholerae
 	vibrio.NC_002506.1.codonTable : Bacterial_and_Plant_Plastid
 </pre>
 
-						SnpEff will load both files when building the database.
 
 					<li> Create database (note the "-genbank" flag):
 						<br>
