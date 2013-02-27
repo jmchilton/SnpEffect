@@ -471,6 +471,18 @@ $ java -jar SnpSift.jar caseControl "++++0-----" cc.vcf
 				Phenotype order in TFAM files do not need to match VCF sample order (sample IDs are used).
 				Phenotype column should be coded as {0,1,2} meaning {Missing, Control, Case} respectively.
 				See <a href="http://pngu.mgh.harvard.edu/~purcell/plink/data.shtml">PLINK's reference</a> for details about TFAM file format.
+				<br>
+				<br>
+				<i class="icon-hand-right"></i> You can use the <code>-name nameString</code> command line option to add name to the INFO tags. 
+				This can be used to count different case/control groups in the same dataset (e.g. mutiple phenotypes)
+<pre>
+$  java -jar SnpSift.jar caseControl -name "_MY_GROUP" "++++0-----" cc.vcf \
+	| java -jar SnpSift.jar caseControl -name "_ANOTHER_GROUP" "+-+-+-+-+-" -
+
+#CHROM  POS    ID  REF  ALT  QUAL  FILTER  INFO                                                                                                         FORMAT  Sample_01  Sample_02  Sample_03  Sample_04  Sample_05  Sample_06  Sample_07  Sample_08  Sample_09  Sample_10
+1       69496  .   G    A    .     PASS    AF=0.01;Cases_MY_GROUP=1,2,4;Controls_MY_GROUP=2,2,6;Cases_ANOTHER_GROUP=1,3,5;Controls_ANOTHER_GROUP=2,1,5  GT      0/1        1/1        1/0        0/0        0/0        0/1        1/1        1/1        1/0        0/0
+</pre>
+
         </section>
 
 
