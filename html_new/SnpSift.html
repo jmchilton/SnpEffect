@@ -444,25 +444,33 @@ rs71262673</pre>
             <h1>4. SnpSift CaseControl </h1>
           </div>
 				<p class="lead">
-				Allows you to count how many samples are in 'case' group and a 'control' group. 
+				Allows you to count how many samples are in 'case' and 'control' groups. 
 				</p>
 
-				You can count 'homozygous', 'heterozygous' or 'any' variants. 
-				Case and control are defined by a string containing plus and minus symbols {'+', '-', '0'} where '+' is case, '-' is control and '0' is neutral.
-				<p>
-				This command adds two annotations to the VCF file:
-				<ul>
-					<li> <b>CaseControl</b>: Two comma separated numbers numbers representing the number of samples that have the variant in the case and the control group: E.g.: "CaseControl=3,4" the variant is present in 3 cases and 4 controls.
-					<p>
-					<li> <b>CaseControlP</b>: A p-value (Fisher exact test) that the number of cases is N or more. E.g.: "CaseControl=4,0;CaseControlP=3.030303e-02" in this case the pValue of having 4 or more cases and zero controls is 0.03
-				</ul>
-				E.g. We have ten samples (which means ten genotype columns in the VCF file), the first four are 'case' and the last six are 'control', so the description string would be "++++------". Let's say we want to distinguish genotypes that are homozygous in 'case' and either homozygous or heterozygous in 'control':
-				<pre> java -jar ~/tools/SnpSift.jar caseControl hom any "++++------" variants.vcf &gt; variants_case_control.vcf </pre>
-
-				E.g. ...from the previous example, we want to filter the variants that have a p-value less than 0.05:
-				<pre> java -jar ~/tools/SnpSift.jar caseControl hom any "++++------" variants.vcf \
-	| java -jar SnpSift.jar filter "( CaseControlP &lt; 0.05 )" \
-	&gt; variants_case_control_filtered.vcf</pre>
+				This commnand counts the number of 'homozygous', 'heterozygous' and 'total' variants in a case and control groups.
+				Case and Control groups are defined by a string containing plus and minus symbols {'+', '-', '0'} where '+' is case, '-' is control and '0' is neutral (ignored).
+				<br>
+				<br>
+				E.g. We have ten samples, which means ten genotype columns in the VCF file. 
+				The first four are 'cases', the fifth one is 'neutral', and the last five are 'control'. 
+				So the description string would be "++++0-----"
+<pre>
+$ java -jar SnpSift.jar caseControl "++++0-----" cc.vcf 
+#CHROM  POS    ID  REF  ALT  QUAL  FILTER  INFO                                FORMAT  Sample_01  Sample_02  Sample_03  Sample_04  Sample_05  Sample_06  Sample_07  Sample_08  Sample_09  Sample_10
+1       69496  .   G    A    .     PASS    AF=0.01;Cases=1,2,4;Controls=2,2,6  GT      0/1        1/1        1/0        0/0        0/0        0/1        1/1        1/1        1/0        0/0
+</pre>
+				Cases genotypes are samples 1 to 4 : 0/1, 1/1, 1/0 and 0/0. So there are 1 homozygous, 2 heterozygous, and a total of 4 vairnats (2 * 1 + 1 * 2 = 4).
+				Thus the annotation is <code>Cases=1,2,4</code>
+				<br>
+				Control genotypes are samples 6 to 10 : 0/1, 1/1, 1/1, 1/0 and 0/0. So there are 2 homozygous, 2 heterozygous, and a total of 6 vairnats (2 * 2 + 1 * 2 = 6)
+				Thus the annotation is <code>Controls=2,2,6</code>
+				<br>
+				<br>
+				<i class="icon-hand-right"></i> You can use the <code>-tfam</code> command line option to specify a TFAM file.
+				Case, control from are read from phenotype field of a TFAM file (6th column). 
+				Phenotype order in TFAM files do not need to match VCF sample order (sample IDs are used).
+				Phenotype column should be coded as {0,1,2} meaning {Missing, Control, Case} respectively.
+				See <a href="http://pngu.mgh.harvard.edu/~purcell/plink/data.shtml">PLINK's reference</a> for details about TFAM file format.
         </section>
 
 
