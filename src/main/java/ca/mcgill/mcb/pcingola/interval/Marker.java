@@ -100,15 +100,21 @@ public class Marker extends Interval {
 		if (seqChange.getEnd() < start) {
 			m.start += lenChange;
 			m.end += lenChange;
-		} else if (seqChange.includes(this)) return null; // SeqChange completely includes this marker => The whole marker deleted
-		else if (this.includes(seqChange)) m.end += lenChange; // This marker completely includes seqChange. But seqChange does not include marker (i.e. they are not equal). Only 'end' coordinate needs to be updated
+		} else if (seqChange.includes(this)) {
+			// TODO: Should I create a zero length marker?
+			//       This brings a few problems: 
+			//			- We don't have any way to represent a zero length marker (if start=end then length is 1 base)
+			//			- How does a zero length marker behaves in an INSERTION?
+			//			- How does a zero length marker intersect?
+			return null; // SeqChange completely includes this marker => The whole marker deleted
+		} else if (this.includes(seqChange)) m.end += lenChange; // This marker completely includes seqChange. But seqChange does not include marker (i.e. they are not equal). Only 'end' coordinate needs to be updated
 		else {
 			// SeqChange is partially included in this marker.
 			// This is treated as three different type of deletions:
 			//		1- One before the marker
 			//		2- One inside the marker
 			//		3- One after the marker 
-			// Note that type 1 and 3 cannot exists at the same time, otherwise the deletion would fully include the marker (previouse case)
+			// Note that type 1 and 3 cannot exists at the same time, otherwise the deletion would fully include the marker (previous case)
 
 			// Deletion after the marker
 			if (end < seqChange.getEnd()) {
@@ -142,11 +148,16 @@ public class Marker extends Interval {
 	public Marker applyIns(SeqChange seqChange, int lenChange) {
 		Marker m = clone();
 
-		// Insertion point before marker start? => Adjust both coordinates
 		if (seqChange.getStart() <= start) {
+			// Insertion point before marker start? => Adjust both coordinates
 			m.start += lenChange;
 			m.end += lenChange;
-		} else if (seqChange.getStart() <= end) m.end += lenChange; // Insertion point after start, but before end? => Adjust end coordinate
+		} else if (seqChange.getStart() <= end) {
+			// Insertion point after start, but before end? => Adjust end coordinate
+			m.end += lenChange;
+		} else {
+			// Insertion point after end, no effect on marker coordinates
+		}
 
 		return m;
 	}

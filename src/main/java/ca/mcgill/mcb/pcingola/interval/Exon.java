@@ -68,8 +68,6 @@ public class Exon extends Marker {
 		// Create new exon with updated coordinates
 		Exon ex = (Exon) super.apply(seqChange);
 
-		if (!seqChange.isSnp()) throw new RuntimeException("Unimplemented method for sequence change type " + seqChange.getChangeType());
-
 		// Sometimes 'apply' method return 'this'. Since we don't want to update the original exon, we have to create a clone
 		if (ex == this) ex = (Exon) clone();
 
@@ -77,6 +75,51 @@ public class Exon extends Marker {
 		if (spliceSiteAcceptor != null) ex.spliceSiteAcceptor = (SpliceSiteAcceptor) spliceSiteAcceptor.apply(seqChange);
 		if (spliceSiteDonor != null) ex.spliceSiteDonor = (SpliceSiteDonor) spliceSiteDonor.apply(seqChange);
 
+		switch (seqChange.getChangeType()) {
+		case SNP:
+			applySnp(seqChange, ex);
+			break;
+
+		case INS:
+			applyIns(seqChange, ex);
+			break;
+
+		default:
+			throw new RuntimeException("Unimplemented method for sequence change type " + seqChange.getChangeType());
+		}
+
+		return ex;
+	}
+
+	/**
+	 * Apply a change type insertion
+	 * @param seqChange
+	 * @param ex
+	 */
+	protected void applyIns(SeqChange seqChange, Exon ex) {
+		// Update sequence
+		if ((sequence != null) && (!sequence.isEmpty())) {
+
+			// Get sequence in positive strand direction
+			String seq = isStrandPlus() ? sequence.getSequence() : sequence.reverseWc().getSequence();
+
+			String netChange = seqChange.netChange(this);
+			// Apply change to sequence
+			int idx = seqChange.getStart() - start - 1;
+			if (idx >= 0) seq = seq.substring(0, idx + 1) + netChange + seq.substring(idx + 1);
+			else seq = netChange + seq;
+
+			// Update sequence
+			ex.setSequence(isStrandPlus() ? seq : GprSeq.reverseWc(seq));
+		}
+	}
+
+	/**
+	 * Apply a change type SNP
+	 * @param seqChange
+	 * @param ex
+	 */
+	protected void applySnp(SeqChange seqChange, Exon ex) {
 		// Update sequence
 		if ((sequence != null) && (!sequence.isEmpty())) {
 			// Get sequence in positive strand direction
@@ -89,8 +132,6 @@ public class Exon extends Marker {
 			// Update sequence
 			ex.setSequence(isStrandPlus() ? seq : GprSeq.reverseWc(seq));
 		}
-
-		return ex;
 	}
 
 	/**

@@ -219,9 +219,7 @@ public class Gene extends IntervalAndSubIntervals<Transcript> implements Seriali
 			ChangeEffect chEff = changeEffect.clone();
 
 			// Apply sequence change to create new 'reference'?
-			if (seqChangerRef != null) {
-				tr = tr.apply(seqChangerRef);
-			}
+			if (seqChangerRef != null) tr = tr.apply(seqChangerRef);
 
 			// Calculate effects
 			List<ChangeEffect> chEffList = tr.seqChangeEffect(seqChange, chEff);

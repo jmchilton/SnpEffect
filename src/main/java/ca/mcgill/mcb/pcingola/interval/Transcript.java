@@ -202,7 +202,7 @@ public class Transcript extends IntervalAndSubIntervals<Exon> {
 
 		// We will change information, so we need a clone
 		if (tr == this) tr = (Transcript) clone();
-		tr.reset(); // Reset all parameters (we only wanted the coordinate change)
+		tr.reset(); // Reset all parameters (we only wanted the coordinate changes)
 
 		// Add changed introns
 		for (Intron intron : introns())
