@@ -8,6 +8,8 @@ import net.sf.samtools.AbstractBAMFileIndex;
 import net.sf.samtools.BAMIndexMetaData;
 import net.sf.samtools.SAMFileReader;
 import ca.mcgill.mcb.pcingola.coverage.CountReadsOnMarkers;
+import ca.mcgill.mcb.pcingola.fileIterator.SeqChangeBedFileIterator;
+import ca.mcgill.mcb.pcingola.interval.SeqChange;
 import ca.mcgill.mcb.pcingola.snpEffect.Config;
 import ca.mcgill.mcb.pcingola.snpEffect.SnpEffectPredictor;
 import ca.mcgill.mcb.pcingola.util.Timer;
@@ -23,10 +25,12 @@ public class SnpEffCmdCountReads extends SnpEff {
 
 	CountReadsOnMarkers countReadsOnMarkers;
 	SnpEffectPredictor snpEffectPredictor;
-	List<String> samFileNames;
+	List<String> samFileNames; // SAM or BAM files 
+	List<String> bedFileNames; // BED files for custom intervals
 
 	public SnpEffCmdCountReads() {
 		samFileNames = new ArrayList<String>();
+		bedFileNames = new ArrayList<String>();
 	}
 
 	/**
@@ -64,7 +68,8 @@ public class SnpEffCmdCountReads extends SnpEff {
 	public void parseArgs(String[] args) {
 		// Parse command line arguments
 		for (int i = 0; i < args.length; i++) {
-			if ((genomeVer == null) || genomeVer.isEmpty()) genomeVer = args[i];
+			if (args[i].equals("-i")) bedFileNames.add(args[++i]);
+			else if ((genomeVer == null) || genomeVer.isEmpty()) genomeVer = args[i];
 			else samFileNames.add(args[i]);
 		}
 
@@ -86,11 +91,22 @@ public class SnpEffCmdCountReads extends SnpEff {
 		// Load database
 		if (verbose) Timer.showStdErr("Reading database for genome '" + genomeVer + "'");
 		config.loadSnpEffectPredictor(); // Read snpEffect predictor
+		snpEffectPredictor = config.getSnpEffectPredictor(); // Read snpEffect predictor
 		if (verbose) Timer.showStdErr("done");
+
+		// Load BED files
+		for (String bedFile : bedFileNames) {
+			// Load file
+			if (verbose) Timer.showStdErr("Reading intervals from file '" + bedFile + "'");
+			SeqChangeBedFileIterator bed = new SeqChangeBedFileIterator(bedFile);
+			List<SeqChange> markers = bed.load();
+			for (SeqChange marker : markers)
+				snpEffectPredictor.add(marker);
+			if (verbose) Timer.showStdErr("Done. Intervals added : " + markers.size());
+		}
 
 		// Build forest
 		if (verbose) Timer.showStdErr("Building interval forest");
-		snpEffectPredictor = config.getSnpEffectPredictor(); // Read snpEffect predictor
 		snpEffectPredictor.buildForest();
 		if (verbose) Timer.showStdErr("done");
 
@@ -109,8 +125,9 @@ public class SnpEffCmdCountReads extends SnpEff {
 	public void usage(String message) {
 		if (message != null) System.err.println("Error: " + message + "\n");
 		System.err.println("snpEff version " + VERSION);
-		System.err.println("Usage: snpEff countReads genome readsFile_1 readsFile_2 ...  readsFile_N");
-		System.err.println("\treadsFile : A file contianing the reads. Either BAM or SAM format.");
+		System.err.println("Usage: snpEff countReads [-i intervals.bed] genome readsFile_1 readsFile_2 ...  readsFile_N");
+		System.err.println("\t-i intervals.bed : User defined intervals. Mutiple '-i' commands are allowed.");
+		System.err.println("\treadsFile        : A file contianing the reads. Either BAM or SAM format.");
 		System.exit(-1);
 	}
 }

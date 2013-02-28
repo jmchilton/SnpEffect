@@ -2181,6 +2181,14 @@ chr  start  end       type                IDs                         Reads:read
 					<li> Column 7: Count of bases (in file readsFile_1.bam) intersecting genomic region, i.e. each read is intersected and the resulting number of bases added.
 					<li> Column ...:  (repeat count reads and bases for each BAM file provided)
 				</ul>
+				<br>
+				<i class="icon-hand-right"></i> You can add user defined intervals using <code>-i file.bed</code> command line option.
+				The option can be used muiple times, thus allowing mutiple BED files to be added.
+				<br>
+				Example : You want to know how many reads intersect each peak from a peak detection algorithm:
+<pre>
+java -Xmx4g -jar snpEff.jar countReads -i peaks.bed GRCh37.68 reads.bam
+</pre>
 				</p>
 
 				<h3> SnpEff databases </h3>
