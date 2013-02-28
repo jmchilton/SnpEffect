@@ -204,25 +204,27 @@ public class Transcript extends IntervalAndSubIntervals<Exon> {
 		if (tr == this) tr = (Transcript) clone();
 		tr.reset(); // Reset all parameters (we only wanted the coordinate changes)
 
-		// Add changed introns
-		for (Intron intron : introns())
-			tr.introns.add((Intron) intron.apply(seqChange));
-
 		// Add changed exons
-		for (Exon ex : this)
-			tr.add(ex.apply(seqChange));
+		for (Exon ex : this) {
+			Exon newExon = ex.apply(seqChange);
+			if (newExon != null) tr.add(newExon);
+		}
 
 		// Add changed UTRs
-		for (Utr utr : utrs)
-			tr.utrs.add((Utr) utr.apply(seqChange));
+		for (Utr utr : utrs) {
+			Utr newUtr = (Utr) utr.apply(seqChange);
+			if (newUtr != null) tr.utrs.add(newUtr);
+		}
 
 		// Up & Down stream
-		if (upstream != null) upstream = (Upstream) upstream.apply(seqChange);
-		if (downstream != null) downstream = (Downstream) downstream.apply(seqChange);
+		if (upstream != null) tr.upstream = (Upstream) upstream.apply(seqChange);
+		if (downstream != null) tr.downstream = (Downstream) downstream.apply(seqChange);
 
 		// Splice branch
-		for (SpliceSiteBranch sbr : spliceBranchSites)
-			tr.spliceBranchSites.add((SpliceSiteBranch) sbr.apply(seqChange));
+		for (SpliceSiteBranch sbr : spliceBranchSites) {
+			SpliceSiteBranch newSbs = (SpliceSiteBranch) sbr.apply(seqChange);
+			if (newSbs != null) tr.spliceBranchSites.add(newSbs);
+		}
 
 		return tr;
 	}

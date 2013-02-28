@@ -68,6 +68,9 @@ public class Exon extends Marker {
 		// Create new exon with updated coordinates
 		Exon ex = (Exon) super.apply(seqChange);
 
+		// Exon eliminated?
+		if (ex == null) return null;
+
 		// Sometimes 'apply' method return 'this'. Since we don't want to update the original exon, we have to create a clone
 		if (ex == this) ex = (Exon) clone();
 
@@ -84,11 +87,41 @@ public class Exon extends Marker {
 			applyIns(seqChange, ex);
 			break;
 
+		case DEL:
+			applyDel(seqChange, ex);
+			break;
+
 		default:
 			throw new RuntimeException("Unimplemented method for sequence change type " + seqChange.getChangeType());
 		}
 
 		return ex;
+	}
+
+	/**
+	 * Apply a change type deletion
+	 * @param seqChange
+	 * @param ex
+	 */
+	protected void applyDel(SeqChange seqChange, Exon ex) {
+		// Update sequence
+		if ((sequence != null) && (!sequence.isEmpty())) {
+
+			// Get sequence in positive strand direction
+			String seq = isStrandPlus() ? sequence.getSequence() : sequence.reverseWc().getSequence();
+
+			// Apply change to sequence
+			int idxStart = seqChange.getStart() - start;
+			int idxEnd = seqChange.getStart() - start + seqChange.size();
+
+			StringBuilder newSeq = new StringBuilder();
+			if (idxStart >= 0) newSeq.append(seq.substring(0, idxStart));
+			if (idxEnd >= 0) newSeq.append(seq.substring(idxEnd));
+
+			// Update sequence
+			seq = newSeq.toString();
+			ex.setSequence(isStrandPlus() ? seq : GprSeq.reverseWc(seq));
+		}
 	}
 
 	/**

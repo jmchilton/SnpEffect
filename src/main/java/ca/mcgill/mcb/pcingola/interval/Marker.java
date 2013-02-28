@@ -443,6 +443,11 @@ public class Marker extends Interval {
 		if (!intersects(seqChange)) return ChangeEffect.emptyResults(); // Sanity check
 		if (seqChangerRef != null) {
 			Marker m = apply(seqChangerRef);
+
+			// Has the marker been deleted?
+			// Then there is no effect over this marker (it does not exist any more)
+			if (m == null) return ChangeEffect.emptyResults();
+
 			return m.seqChangeEffect(seqChange, changeEffect);
 		}
 

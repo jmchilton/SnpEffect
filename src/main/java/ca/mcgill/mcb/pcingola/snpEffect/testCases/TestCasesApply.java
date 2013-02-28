@@ -145,7 +145,7 @@ public class TestCasesApply extends TestCase {
 							char ref = seq.charAt(idx);
 
 							// Random ALT
-							int insLen = random.nextInt(8) + 2;
+							int insLen = 1 + random.nextInt(8);
 							StringBuilder altsb = new StringBuilder();
 							for (int j = 0; j < insLen; j++)
 								altsb.append(GprSeq.randBase(random));
@@ -180,4 +180,87 @@ public class TestCasesApply extends TestCase {
 		}
 	}
 
+	/**
+	 * Test 'apply' on exons (test sequence changes) 
+	 * Only using deletions seqChanges
+	 */
+	@Test
+	public void test_03_Exon_DEL() {
+		Config config = new Config("testHg3765Chr22");
+		Timer.show("Loading predictor");
+		SnpEffectPredictor snpEffectPredictor = config.loadSnpEffectPredictor();
+		Timer.show("Done");
+
+		Random random = new Random(20130214);
+
+		// All genes
+		Genome genome = snpEffectPredictor.getGenome();
+		for (Gene g : genome.getGenes()) {
+
+			if (g.isProteinCoding()) { // Only protein coding ones...
+				System.out.println(g.getGeneName());
+
+				// All transcripts
+				for (Transcript t : g) {
+					System.out.println("\t" + t.getId());
+
+					// All exons
+					for (Exon ex : t) {
+						// Positive strand sequence
+						String seq = ex.getSequence();
+						seq = ex.isStrandPlus() ? seq : GprSeq.reverseWc(seq);
+
+						// Skip some exons, otherwise test takes too much time
+						if (random.nextInt(10) > 1) continue; // Randomly some exons 
+						if (ex.size() > 1000) continue; // Skip exon if too long
+
+						System.out.println("\t\t" + ex.getId() + "\tStrand: " + ex.getStrand() + "\tSize: " + ex.size());
+
+						// Change each base
+						for (int i = ex.getStart(), idx = 0; i < ex.getEnd(); i++, idx++) {
+							// Create a fake DEL:  Random REF (since it's a deletion, alt="") 
+							int delLen = 1 + random.nextInt(8);
+							int end = idx + delLen;
+							String alt = end < seq.length() ? seq.substring(idx, end) : seq.substring(idx);
+
+							// Resulting sequence
+							String newSeq = "";
+							if (idx > 0) newSeq = seq.substring(0, idx);
+							newSeq += (end < seq.length() ? seq.substring(end) : "");
+
+							newSeq = ex.isStrandPlus() ? newSeq : GprSeq.reverseWc(newSeq);
+							newSeq = newSeq.toLowerCase();
+
+							SeqChange seqChange = new SeqChange(t.getChromosome(), i, "", "-" + alt, 1, "", -1, -1);
+							if (debug) Gpr.debug("SeqChange: " + seqChange.getChangeType() + "\t" + seqChange);
+
+							Exon exNew = ex.apply(seqChange);
+
+							String newExSeq = (exNew != null ? exNew.getSequence() : "");
+							Assert.assertEquals(newSeq, newExSeq);
+							if (!newExSeq.equals(newSeq)) {
+								String msg = "Error:" //
+										+ "\n\t\tSeqChange : " + seqChange //
+										+ "\n\t\tOriginal  : " + ex //
+										+ "\n\t\tNew       : " + exNew //
+										+ "\n\t\tNew seq   : " + newSeq //
+								;
+								System.err.println(msg);
+								throw new RuntimeException(msg);
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	/**
+	 * Test 'apply' on exons (test sequence changes) 
+	 * Only using deletions seqChanges
+	 */
+	@Test
+	public void test_04_Exon_MNP() {
+		Assert.fail("Unimplemented!");
+	}
 }
