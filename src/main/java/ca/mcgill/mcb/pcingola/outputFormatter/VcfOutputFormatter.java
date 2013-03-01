@@ -93,7 +93,7 @@ public class VcfOutputFormatter extends OutputFormatter {
 		// Calculate all effects and genes
 		//---
 		HashSet<String> effs = new HashSet<String>();
-		HashSet<String> oicr = new HashSet<String>();
+		HashSet<String> oicr = (useOicr ? new HashSet<String>() : null);
 		for (ChangeEffect changeEffect : changeEffects) {
 			// If it is not filtered out by changeEffectResutFilter  => Show it
 			if ((changeEffectResutFilter == null) || (!changeEffectResutFilter.filter(changeEffect))) {
@@ -218,7 +218,7 @@ public class VcfOutputFormatter extends OutputFormatter {
 				// Add OICR data
 				// 
 				//---
-				if (useSequenceOntolgy && (tr != null)) {
+				if (useOicr && (tr != null)) {
 					StringBuilder sb = new StringBuilder();
 					SeqChange seqChange = changeEffect.getSeqChange();
 
@@ -240,8 +240,10 @@ public class VcfOutputFormatter extends OutputFormatter {
 		vcfEntry.addInfo(VCF_INFO_EFF_NAME, toStringVcfInfo(effs));
 
 		// Add 'OICR' info field
-		String oicrInfo = toStringVcfInfo(oicr);
-		if (!oicrInfo.isEmpty()) vcfEntry.addInfo(VCF_INFO_OICR_NAME, oicrInfo);
+		if (useOicr && (oicr.size() > 0)) {
+			String oicrInfo = toStringVcfInfo(oicr);
+			if (!oicrInfo.isEmpty()) vcfEntry.addInfo(VCF_INFO_OICR_NAME, oicrInfo);
+		}
 
 		// Add LOF info?
 		if (lossOfFunction) {
@@ -291,11 +293,15 @@ public class VcfOutputFormatter extends OutputFormatter {
 		ArrayList<String> newLines = new ArrayList<String>();
 		newLines.add("##SnpEffVersion=\"" + version + "\"");
 		newLines.add("##SnpEffCmd=\"" + commandLineStr + "\"");
-		newLines.add("##INFO=<ID=EFF,Number=.,Type=String,Description=\"Predicted effects for this variant.Format: 'Effect ( Effect_Impact | Functional_Class | Codon_Change | Amino_Acid_change| Amino_Acid_length | Gene_Name | Gene_BioType | Coding | Transcript | Exon [ | ERRORS | WARNINGS ] )' \">");
+		newLines.add("##INFO=<ID=EFF,Number=.,Type=String,Description=\"Predicted effects for this variant.Format: 'Effect ( Effect_Impact | Functional_Class | Codon_Change | Amino_Acid_change| Amino_Acid_length | Gene_Name | Gene_BioType | Coding | Transcript | Exon  | GenotypeNum [ | ERRORS | WARNINGS ] )' \">");
+
 		if (lossOfFunction) {
 			newLines.add("##INFO=<ID=LOF,Number=.,Type=String,Description=\"Predicted loss of function effects for this variant. Format: 'Gene_Name | Gene_ID | Number_of_transcripts_in_gene | Percent_of_transcripts_affected' \">");
 			newLines.add("##INFO=<ID=NMD,Number=.,Type=String,Description=\"Predicted nonsense mediated decay effects for this variant. Format: 'Gene_Name | Gene_ID | Number_of_transcripts_in_gene | Percent_of_transcripts_affected' \">");
 		}
+
+		if (useOicr) newLines.add("##INFO=<ID=OICR,Number=.,Type=String,Description=\"Format: ( Transcript | Distance from begining cDNA )\">");
+
 		return newLines;
 	}
 
@@ -335,11 +341,15 @@ public class VcfOutputFormatter extends OutputFormatter {
 	 * @return
 	 */
 	String toStringVcfInfo(Collection<String> strs) {
+		// Sort strings
 		ArrayList<String> list = new ArrayList<String>(strs);
 		Collections.sort(list);
+
+		// Add the all
 		StringBuffer sb = new StringBuffer();
 		for (String str : list)
 			if (!str.isEmpty()) sb.append(str + ",");
+
 		if (sb.length() > 0) sb.deleteCharAt(sb.length() - 1); // Remove last comma
 		return sb.toString();
 	}

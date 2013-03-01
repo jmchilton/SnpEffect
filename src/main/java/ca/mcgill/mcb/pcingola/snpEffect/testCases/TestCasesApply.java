@@ -261,6 +261,79 @@ public class TestCasesApply extends TestCase {
 	 */
 	@Test
 	public void test_04_Exon_MNP() {
-		Assert.fail("Unimplemented!");
+		Config config = new Config("testHg3765Chr22");
+		Timer.show("Loading predictor");
+		SnpEffectPredictor snpEffectPredictor = config.loadSnpEffectPredictor();
+		Timer.show("Done");
+
+		Random random = new Random(20130214);
+
+		// All genes
+		Genome genome = snpEffectPredictor.getGenome();
+		for (Gene g : genome.getGenes()) {
+
+			if (g.isProteinCoding()) { // Only protein coding ones...
+				System.out.println(g.getGeneName());
+
+				// All transcripts
+				for (Transcript t : g) {
+					System.out.println("\t" + t.getId());
+
+					// All exons
+					for (Exon ex : t) {
+						// Positive strand sequence
+						String seq = ex.getSequence();
+						seq = ex.isStrandPlus() ? seq : GprSeq.reverseWc(seq);
+
+						// Skip some exons, otherwise test takes too much time
+						if (random.nextInt(10) > 1) continue; // Randomly some exons 
+						if (ex.size() > 1000) continue; // Skip exon if too long
+
+						System.out.println("\t\t" + ex.getId() + "\tStrand: " + ex.getStrand() + "\tSize: " + ex.size());
+
+						// Change each base
+						for (int i = ex.getStart(), idx = 0; i < ex.getEnd(); i++, idx++) {
+							// Create a fake MNP. Random REF and ALT bases
+							int len = random.nextInt(9) + 1;
+							int end = idx + len;
+							StringBuilder altsb = new StringBuilder(), refsb = new StringBuilder();
+							for (int j = 0; j < len; j++) {
+								if ((idx + j) < seq.length()) refsb.append(seq.charAt(idx + j));
+								else refsb.append(GprSeq.randBase(random));
+								altsb.append(GprSeq.randBase(random));
+							}
+							if (refsb.length() != altsb.length()) throw new RuntimeException("This should never happen!");
+
+							// Resulting sequence
+							String newSeq = "";
+							if (idx > 0) newSeq = seq.substring(0, idx);
+							int maxlen = Math.min(ex.getEnd() - i + 1, len);
+							newSeq += altsb.substring(0, maxlen);
+							newSeq += (end < seq.length() ? seq.substring(end) : "");
+
+							newSeq = ex.isStrandPlus() ? newSeq : GprSeq.reverseWc(newSeq);
+							newSeq = newSeq.toLowerCase();
+
+							// Create seqChange and apply 
+							SeqChange seqChange = new SeqChange(t.getChromosome(), i, refsb.toString(), altsb.toString(), 1, "", -1, -1);
+							if (debug) Gpr.debug("SeqChange: " + seqChange);
+							Exon exNew = ex.apply(seqChange);
+
+							// Check
+							if (!exNew.getSequence().equals(newSeq)) {
+								String msg = "Error:" //
+										+ "\n\t\tSeqChange : " + seqChange //
+										+ "\n\t\tOriginal  : " + ex //
+										+ "\n\t\tNew       : " + exNew //
+										+ "\n\t\tNew seq   : " + newSeq //
+								;
+								System.err.println(msg);
+								throw new RuntimeException(msg);
+							}
+						}
+					}
+				}
+			}
+		}
 	}
 }

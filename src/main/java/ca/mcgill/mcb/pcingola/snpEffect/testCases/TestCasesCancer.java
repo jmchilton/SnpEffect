@@ -57,7 +57,7 @@ public class TestCasesCancer extends TestCase {
 	/**
 	 * Test Somatic vs Germline
 	 */
-	public void test_09() {
+	public void test_01() {
 		String file = "tests/test.cancer.snp.01.vcf";
 		snpEffect(file, "p.Leu1Val", "2-1");
 	}

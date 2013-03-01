@@ -20,6 +20,7 @@ public abstract class OutputFormatter {
 	boolean supressOutput = false; // Do not print anything
 	boolean useHgvs = false; // Use HGVS notation
 	boolean useSequenceOntolgy = false; // Use Sequence Ontolgy terms
+	boolean useOicr = false; // Use OICR tag
 	boolean showHeader = true; // Show header information
 	int sectionNum = 0;
 	int outOffset = 1;
@@ -129,6 +130,10 @@ public abstract class OutputFormatter {
 
 	public void setUseHgvs(boolean useHgvs) {
 		this.useHgvs = useHgvs;
+	}
+
+	public void setUseOicr(boolean useOicr) {
+		this.useOicr = useOicr;
 	}
 
 	public void setUseSequenceOntolgy(boolean useSequenceOntolgy) {

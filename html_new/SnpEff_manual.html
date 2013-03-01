@@ -83,6 +83,7 @@
           <li><a href="#eff"><i class="icon-chevron-right"></i> Effect prediction details </a></li>
           <li><a href="#effNc"><i class="icon-chevron-right"></i> Regulatory and Non-coding annotations </a></li>
           <li><a href="#filters"><i class="icon-chevron-right"></i> Annotations options </a></li>
+          <li><a href="#cancer"><i class="icon-chevron-right"></i> Cancer samples </a></li>
           <li><a href="#databases"><i class="icon-chevron-right"></i> Building databases</a></li>
           <li><a href="#databasesNc"><i class="icon-chevron-right"></i> Building databases: Regulatory and Non-coding</a></li>
           <li><a href="#integration"><i class="icon-chevron-right"></i> Integration: GATK & Galaxy</a></li>
@@ -632,6 +633,7 @@ java -Xmx4g -jar snpEff.jar -vcf4 dm5.34 s.vcf > s_snpeff.txt
 					<tr> <td>  Gene_Coding </td> <td>  [CODING | NON_CODING]. This field is 'CODING' if any transcript of the gene is marked as protein coding. </td> </tr>
 					<tr> <td>  Trancript </td> <td>  Transcript ID (usually ENSEMBL IDs) </td> </tr>
 					<tr> <td>  Exon </td> <td>  Exon ID (usually ENSEMBL IDs) </td> </tr>
+					<tr> <td>  Genotype </td> <td>  Genotype number corresponding to this effect </td> </tr>
 					<tr> <td>  Warnings </td> <td>  Any warnings or errors (not shown if empty). </td> </tr>
 				</table>
 				</center>
@@ -1545,11 +1547,156 @@ CHROMOSOME1	10469	C	G	SNP	Hom	365.78	0		ENSG00000223972	DDX11L1	transcribed_unpr
 				</p>
 
 
+        <!-- Cancer
+        ================================================== -->
+        <section id="cancer">
+          <div class="page-header">
+            <h1>12. Cancer samples </h1>
+          </div>
+				<p class="lead">
+				Here we describe details about annotating cancer samples.
+				</p>
+
+				<h3>Representing cancer data</h3>
+				<p>
+				In a typical cancer sequencing experiment, we want to measure and annotate differernces between germline (healthy) and somatic (cancer) tissue samples from the same patient.
+				The complication is that germline is not always the same as the reference genome, so a typical annotation does not work.
+				<br>
+				For instance, let's assume tha at a given genomic position (e.g. chr1:69091), reference genome is 'A', germline is 'C' and somatic is 'C'.
+				This should be represented in a VCF file as:
+<pre>
+#CHROM  POS    ID  REF  ALT    QUAL  FILTER  INFO  FORMAT  Patient_01_Germline  Patient_01_Somatic
+1       69091  .   A    C,G    .     PASS    AC=1  GT      1/0                  2/1
+</pre>
+				<br>
+				<i class="icon-warning-sign"></i> Some people tend to represent this by changing REF base 'A' using germline 'C'. 
+				This is a mistake, REF must always represent the reference genome, not one of your samples.
+				<br>
+				<br>
+				Under normal conditions, SnpEff would provide the effects of changes "A -&gt; C" and "A -&gt; G". 
+				But in case of cancer samples, we are actually interested in the difference between somatic and germline, so we'd like to calculate the effect of a "C -&gt; G" mutation.
+				Calculating this effect is not trivial, since we have to build a new "reference" by calculating the effect of the first mutation ("A -&gt; C") and then calculate the effect of the second one ("C -&gt; G") on our "new reference".
+				<br>
+				<br>
+				<i class="icon-hand-right"></i> In order to activate cancer analysis, you must use <code>-cancer</code> command line option.
+				<br>
+				<br>
+				As we already mentioned, cancer data is represented in a VCF file using multiple ALTs (REF field always is reference genome).
+				In order to specify which samples are somatic, we use the PEDIGREE meta information (header).
+				<br>
+				E.g.:
+<pre>
+##PEDIGREE=&lt;Derived=Patient_01_Somatic,Original=Patient_01_Germline>
+#CHROM  POS ID  REF ALT QUAL    FILTER  INFO        FORMAT  Patient_01_Germline Patient_01_Somatic
+1   69091   .   A   C,G .       PASS    AF=0.1122   GT      1/0                 2/1
+1   69849   .   G   A,C .       PASS    AF=0.1122   GT      1/0                 2/1
+1   69511   .   A   C,G .       PASS    AF=0.3580   GT      1/1                 2/2
+</pre>
+				Here we say that the sample called <code>Patient_01_Somatic</code> is derived from the sample called <code>Patient_01_Germline</code>. 
+				In this context, this means that cancer sample is derived from the healthy tissue. 
+
+				<br>
+				<br>
+				<i class="icon-warning-sign"></i> If you do not provide <code>PEDIGREE</code> meta information, SnpEff will not know which somatic samples derive from which germline samples. 
+				Thus it will be unable to perform cancer effect analaysis.
+
+				<h3>Running in cancer analysis mode</h3>
+				We added '-cancer'  command line option for somatic vs germline comparisons. 
+				By default SnpEff does not perform them because they computationally intensive. 
+				So your command line would be:
+
+				<pre> java -Xmx4g -jar snpEff.jar eff -v -cancer GRCh37.70 cancer.vcf > cancer.snpeff.vcf </pre>
+
+				<br>
+				<i class="icon-hand-right"></i> HGVS notations seems to be preferred in the clinical and cancer community. 
+				You can activate it by using <code>-hgvs</code> to provide HGVS notation in AA sub-field. 
+				<br>
+				<br>
+
+				<h3>Interpreting Cancer effects</h3>
+				Interpretation of EFF field cancer sample relies heavily on 'Genotype' sub-field.
+				Just as a reminder, EFF field has the following format:
+
+<pre>
+EFF= Effect ( Effect_Impact | Functional_Class | Codon_Change | Amino_Acid_change| Amino_Acid_length | Gene_Name | Gene_BioType | Coding | Transcript | Exon  | GenotypeNum [ | ERRORS | WARNINGS ] )
+</pre>
+				The <code>GenotypeNum</code> field tells you which effect relates to which genotype. 
+				More importantly, genotype difference between Somatic and Germline. 
+				<br>
+				Example: when there are multiple ALTs (e.g. REF='A' ALT='C,G') and the genotype field says:
+				<ul>
+					<li> GenotypeNum = "1": it means is the effect related to the first ALT ('C')
+					<li> GenotypeNum = "2" if it's the effect related to the second ALT ('G') 
+					<li> GenotypeNum = "2-1" means that this is the effect of having the second ALT as variant while using the first ALT as reference ("C -&gt; G").
+				</ul>
+				It is importantthat you understand the meaning of the last one, because you'll use it often for your cancer analysis.
+				<br>
+				<br>
+				Example: Sample output for the previously mentioned VCF example would be (the output has been edited for readability reasons)
+				<br>
+				For the first line:
+<pre>
+1   69091   .   A   C,G .   PASS    AF=0.1122
+    ;EFF=NON_SYNONYMOUS_START(LOW|MISSENSE|Atg/Ctg|M1L|305|OR4F5|protein_coding|CODING|ENST00000335137|1|1)
+        ,START_LOST(HIGH|MISSENSE|Atg/Gtg|M1V|305|OR4F5|protein_coding|CODING|ENST00000335137|1|2)
+        ,START_LOST(HIGH|MISSENSE|Ctg/Gtg|L1V|305|OR4F5|protein_coding|CODING|ENST00000335137|1|2-1)
+    GT  1/0 2/1 
+</pre>
+				What does it mean: 
+				<ol>
+				   <li> In this case, we have two ALTs = 'C' and 'G'. 
+				   <li> Germline sample is heterozygous 'C/A' (GT = '1/0') 
+				   <li> Soamtic tissue is heterozygous 'G/C' (GT = '2/1')
+				   <li> Change A -&gt; C and A -&gt; G are always calculated by SnpEff (this is the "default mode"). 
+						<ul>
+						 <li> A -&gt; C produces this effect
+						 <code>NON_SYNONYMOUS_START(LOW|MISSENSE|Atg/Ctg|p.Met1Leu|305|OR4F5|protein_coding|CODING|ENST00000335137|1)</code>
+						 Note that the last field (genotype field) is '1' indicating this is produced by the first ALT (C)
+
+						 <li> A -&gt; G produces this effect
+						 <code>START_LOST(HIGH|MISSENSE|Atg/Gtg|p.Met1Val|305|OR4F5|protein_coding|CODING|ENST00000335137|2)</code>
+						 Note that the last field (genotype field) is '2' indicating this is produced by the first ALT (G)
+						</ul>
+
+					<li> Finally, this is what you were expecting for, the cancer comparisons. Since both germline and somatic 
+						are heterozygous (GT are '1/0' and '2/1'), there are 4 possible comparisons to make:  
+						<ul>
+							<li> 2 vs 1 : This is the Somatic vs Germline we are interested in. SnpEff reports this one
+							<li> 2 vs 0 : This compares ALT to REF, so it was already reported in "default mode". SnpEff doesn't report this one again.
+							<li> 1 vs 1 : This is not a variant, since both og them ar '1'. SnpEff skips this one.
+							<li> 1 vs 0 : This compares ALT to REF, so it was already reported in "default mode". SnpEff doesn't report this one again.
+						</ul>
+						I know is confusing, but the bototm line is that only the first comparisosn one makes sense, and is the one SnpEff reports.
+						So 'C -&gt; G' produces the following effect:
+						<br>
+						<code>'START_LOST(HIGH|MISSENSE|Ctg/Gtg|p.Leu1Val|305|OR4F5|protein_coding|CODING|ENST00000335137|2-1)</code>
+						<br>
+						<br>
+						<i class="icon-warning-sign"></i> Notice the genotype field is "2-1" meaning the we produce a new reference on the fly using ALT 1 ('C') and then used ALT 2 ('G') as the change.
+				</ol>
+				<br>
+				If your brain hasn't exploded yet and want to have some more fun, the other lines produced in the above example are (again, lines edited for the sake of brevity):
+<pre>
+1   69849   .   G   A,C .   PASS    AF=0.1122
+    ;EFF=STOP_GAINED(HIGH|NONSENSE|tgG/tgA|W253*|305|OR4F5|protein_coding|CODING|ENST00000335137|1|1)
+        ,NON_SYNONYMOUS_CODING(MODERATE|MISSENSE|tgG/tgC|W253C|305|OR4F5|protein_coding|CODING|ENST00000335137|1|2)
+        ,STOP_LOST(HIGH|MISSENSE|tgA/tgC|*253C|305|OR4F5|protein_coding|CODING|ENST00000335137|1|2-1)
+    GT  1/0 2/1 
+
+
+1   69511   .   A   C,G .   PASS    AF=0.3580
+    ;EFF=NON_SYNONYMOUS_CODING(MODERATE|MISSENSE|Aca/Cca|T141P|305|OR4F5|protein_coding|CODING|ENST00000335137|1|1)
+        ,NON_SYNONYMOUS_CODING(MODERATE|MISSENSE|Aca/Gca|T141A|305|OR4F5|protein_coding|CODING|ENST00000335137|1|2)
+        ,NON_SYNONYMOUS_CODING(MODERATE|MISSENSE|Cca/Gca|P141A|305|OR4F5|protein_coding|CODING|ENST00000335137|1|2-1)
+    GT  1/1 2/2 
+</pre>
+				</p>
+				
         <!-- Databases
         ================================================== -->
         <section id="databases">
           <div class="page-header">
-            <h1>12. Databases </h1>
+            <h1>13. Databases </h1>
           </div>
 				<p class="lead">
 				SnpEff needs a datbase to perform genomic annotations. 
@@ -1927,7 +2074,7 @@ java -jar snpEff.jar dump myGenome | less
         ================================================== -->
         <section id="databasesNc">
           <div class="page-header">
-            <h1>13. Building databases: Regulatory and Non-coding </h1>
+            <h1>14. Building databases: Regulatory and Non-coding </h1>
           </div>
 				<p class="lead">
 				SnpEff supports regulatory and non-coding annotations.
@@ -2059,7 +2206,7 @@ Finishing up
 		================================================== -->
 		<section id="integration">
 		  <div class="page-header">
-			<h1>14. Integration: GATK &amp; Galaxy </h1>
+			<h1>15. Integration: GATK &amp; Galaxy </h1>
 		  </div>
 				<p class="lead">
 				SnpEff is integrated with other tools commonly used in sequencing data analysis pipelines. 
@@ -2096,7 +2243,7 @@ Finishing up
 		================================================== -->
 		<section id="utils">
 		  <div class="page-header">
-			<h1>15. Commands and utilities </h1>
+			<h1>16. Commands and utilities </h1>
 		  </div>
 				<p class="lead">
 				SnpEff provides several other commands and utilities that can be useful for genomic data analysis.
@@ -2501,7 +2648,6 @@ $ cat test.stop.vcf | ./scripts/vcfEffOnePerLine.pl
 
       </div>
     </div>
-
   </div>
 
 

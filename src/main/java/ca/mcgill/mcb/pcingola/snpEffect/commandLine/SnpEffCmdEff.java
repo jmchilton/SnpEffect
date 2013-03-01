@@ -75,6 +75,7 @@ public class SnpEffCmdEff extends SnpEff {
 	boolean useHgvs = false; // Use Hgvs notation
 	boolean useLocalTemplate = false; // Use template from 'local' file instead of 'jar' (this is only used for development and debugging)
 	boolean useSequenceOntolgy = false; // Use Sequence Ontolgy terms
+	boolean useOicr = false; // Use OICR tag
 	Boolean treatAllAsProteinCoding = null; // Only use coding genes. Default is 'null' which means 'auto'
 	boolean chromoPlots = true; // Create methylation by chromosome plots?
 	boolean onlyRegulation = false; // Only build regulation tracks
@@ -480,10 +481,9 @@ public class SnpEffCmdEff extends SnpEff {
 				else if (args[i].equalsIgnoreCase("-canon")) canonical = true; // Use canonical transcripts
 				else if (args[i].equalsIgnoreCase("-lof")) lossOfFunction = true; // Add LOF tag
 				else if (args[i].equalsIgnoreCase("-hgvs")) useHgvs = true; // Use HGVS notation
-				else if (args[i].equalsIgnoreCase("-sequenceOntolgy")) {
-					useSequenceOntolgy = true; // Use SO temrs
-					useHgvs = true; // Use SO temrs
-				} else if (args[i].equalsIgnoreCase("-onlyTr")) {
+				else if (args[i].equalsIgnoreCase("-sequenceOntolgy")) useSequenceOntolgy = true; // Use SO temrs
+				else if (args[i].equalsIgnoreCase("-oicr")) useOicr = true; // Use OICR tag
+				else if (args[i].equalsIgnoreCase("-onlyTr")) {
 					if ((i + 1) < args.length) onlyTranscriptsFile = args[++i]; // Only use the transcripts in this file
 				}
 				//---
@@ -854,6 +854,7 @@ public class SnpEffCmdEff extends SnpEff {
 		outputFormatter.setOutOffset(outOffset);
 		outputFormatter.setChrStr(chrStr);
 		outputFormatter.setUseSequenceOntolgy(useSequenceOntolgy);
+		outputFormatter.setUseSequenceOntolgy(useOicr);
 		outputFormatter.setUseHgvs(useHgvs);
 
 		//---
@@ -991,6 +992,7 @@ public class SnpEffCmdEff extends SnpEff {
 		System.err.println("\t-hgvs                           : Use HGVS annotations for amino acid sub-field. Default: " + useHgvs);
 		System.err.println("\t-lof                            : Add loss of function (LOF) and Nonsense mediated decay (NMD) tags.");
 		System.err.println("\t-reg <name>                     : Regulation track to use (this option can be used add several times).");
+		System.err.println("\t-oicr                           : Add OICR tag in VCF file. Default: " + useOicr);
 		System.err.println("\t-onlyReg                        : Only use regulation tracks.");
 		System.err.println("\t-onlyTr <file.txt>              : Only use the transcripts in this file. Format: One transcript ID per line.");
 		System.err.println("\t-sequenceOntolgy                : Use Sequence Ontolgy terms. Default: " + useSequenceOntolgy);

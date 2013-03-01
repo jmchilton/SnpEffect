@@ -91,6 +91,10 @@ public class Exon extends Marker {
 			applyDel(seqChange, ex);
 			break;
 
+		case MNP:
+			applyMnp(seqChange, ex);
+			break;
+
 		default:
 			throw new RuntimeException("Unimplemented method for sequence change type " + seqChange.getChangeType());
 		}
@@ -143,6 +147,33 @@ public class Exon extends Marker {
 			else seq = netChange + seq;
 
 			// Update sequence
+			ex.setSequence(isStrandPlus() ? seq : GprSeq.reverseWc(seq));
+		}
+	}
+
+	/**
+	 * Apply a change type MNP
+	 * @param seqChange
+	 * @param ex
+	 */
+	protected void applyMnp(SeqChange seqChange, Exon ex) {
+		// Update sequence
+		if ((sequence != null) && (!sequence.isEmpty())) {
+			// Get sequence in positive strand direction
+			String seq = isStrandPlus() ? sequence.getSequence() : sequence.reverseWc().getSequence();
+
+			// Apply change to sequence
+			int idxStart = seqChange.getStart() - start;
+			int changeSize = seqChange.intersectSize(this);
+			int idxEnd = seqChange.getStart() - start + changeSize;
+
+			StringBuilder seqsb = new StringBuilder();
+			seqsb.append(seq.substring(0, idxStart));
+			seqsb.append(seqChange.getChange().substring(0, changeSize));
+			seqsb.append(seq.substring(idxEnd));
+
+			// Update sequence
+			seq = seqsb.toString();
 			ex.setSequence(isStrandPlus() ? seq : GprSeq.reverseWc(seq));
 		}
 	}
