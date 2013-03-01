@@ -139,7 +139,7 @@ public class SnpEffCmdEff extends SnpEff {
 					// TODO: Check if this is correct for phased genotypes!
 					for (int i = 0; i < 2; i++) {
 						// Add comparissons
-						if ((go[i] >= 0) && (gd[i] >= 0) // Both genotypes are non-missimg?
+						if ((go[i] >= 0) && (gd[i] >= 0) // Both genotypes are non-missing?
 								&& (go[i] != 0) // Origin genotype is non-reference? (this is always analyzed in the default mode)
 								&& (gd[i] != go[i]) // Both genotypes are different?
 						) {
@@ -152,7 +152,7 @@ public class SnpEffCmdEff extends SnpEff {
 					for (int d = 0; d < gd.length; d++)
 						for (int o = 0; o < go.length; o++) {
 							// Add comparissons 
-							if ((go[o] >= 0) && (gd[d] >= 0) // Both genotypes are non-missimg?
+							if ((go[o] >= 0) && (gd[d] >= 0) // Both genotypes are non-missing?
 									&& (go[o] != 0) // Origin genotype is non-reference? (this is always analyzed in the default mode)
 									&& (gd[d] != go[o]) // Both genotypes are different?
 							) {

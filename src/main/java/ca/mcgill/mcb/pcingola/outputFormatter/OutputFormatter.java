@@ -17,10 +17,10 @@ import ca.mcgill.mcb.pcingola.snpEffect.ChangeEffect;
  */
 public abstract class OutputFormatter {
 
-	boolean supressOutput = false; // Do not print anything
-	boolean useHgvs = false; // Use HGVS notation
-	boolean useSequenceOntolgy = false; // Use Sequence Ontolgy terms
-	boolean useOicr = false; // Use OICR tag
+	boolean supressOutput; // Do not print anything
+	boolean useHgvs; // Use HGVS notation
+	boolean useSequenceOntolgy; // Use Sequence Ontolgy terms
+	boolean useOicr; // Use OICR tag
 	boolean showHeader = true; // Show header information
 	int sectionNum = 0;
 	int outOffset = 1;
