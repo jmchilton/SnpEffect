@@ -78,26 +78,28 @@ public class Exon extends Marker {
 		if (spliceSiteAcceptor != null) ex.spliceSiteAcceptor = (SpliceSiteAcceptor) spliceSiteAcceptor.apply(seqChange);
 		if (spliceSiteDonor != null) ex.spliceSiteDonor = (SpliceSiteDonor) spliceSiteDonor.apply(seqChange);
 
-		switch (seqChange.getChangeType()) {
-		case SNP:
-			applySnp(seqChange, ex);
-			break;
+		if (seqChange.intersects(this)) {
+			switch (seqChange.getChangeType()) {
+			case SNP:
+				applySnp(seqChange, ex);
+				break;
 
-		case INS:
-			applyIns(seqChange, ex);
-			break;
+			case INS:
+				applyIns(seqChange, ex);
+				break;
 
-		case DEL:
-			applyDel(seqChange, ex);
-			break;
+			case DEL:
+				applyDel(seqChange, ex);
+				break;
 
-		case MNP:
-			applyMnp(seqChange, ex);
-			break;
+			case MNP:
+				applyMnp(seqChange, ex);
+				break;
 
-		default:
-			throw new RuntimeException("Unimplemented method for sequence change type " + seqChange.getChangeType());
-		}
+			default:
+				throw new RuntimeException("Unimplemented method for sequence change type " + seqChange.getChangeType());
+			}
+		} else ex.setSequence(getSequence());
 
 		return ex;
 	}

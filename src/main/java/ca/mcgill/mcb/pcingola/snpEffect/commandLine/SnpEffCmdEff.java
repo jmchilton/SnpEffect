@@ -721,7 +721,7 @@ public class SnpEffCmdEff extends SnpEff {
 			// treatAllAsProteinCoding was set to 'auto'
 			// I.e.: Use 'true' if there is protein coding info, otherwise use false.
 			boolean tapc = !config.getGenome().hasCodingInfo();
-			if (verbose) Timer.showStdErr("Setting '-treatAllAsProteinCoding' to '" + tapc + "'");
+			if (debug) Timer.showStdErr("Setting '-treatAllAsProteinCoding' to '" + tapc + "'");
 			config.setTreatAllAsProteinCoding(tapc);
 		}
 
@@ -997,7 +997,7 @@ public class SnpEffCmdEff extends SnpEff {
 		System.err.println("\t-onlyTr <file.txt>              : Only use the transcripts in this file. Format: One transcript ID per line.");
 		System.err.println("\t-sequenceOntolgy                : Use Sequence Ontolgy terms. Default: " + useSequenceOntolgy);
 		System.err.println("\t-ss, -spliceSiteSize <int>      : Set size for splice sites (donor and acceptor) in bases. Default: " + spliceSiteSize);
-		System.err.println("\t-treatAllAsProteinCoding <bool> : If true, all transcript are treated as if they were protein conding. Default: Auto");
+		// System.err.println("\t-treatAllAsProteinCoding <bool> : If true, all transcript are treated as if they were protein conding. Default: Auto");
 		System.err.println("\t-ud, -upDownStreamLen <int>     : Set upstream downstream interval length (in bases)");
 		System.err.println("\nGeneric options:");
 		System.err.println("\t-0                      : File positions are zero-based (same as '-inOffset 0 -outOffset 0')");
