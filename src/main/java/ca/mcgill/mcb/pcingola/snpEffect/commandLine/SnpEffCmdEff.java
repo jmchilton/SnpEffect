@@ -372,8 +372,8 @@ public class SnpEffCmdEff extends SnpEff {
 		vcfFile.close();
 
 		// Show errors and warnings
-		if (!errByType.isEmpty()) System.err.println("ERRORS: Some errors were detected\nError type\tNumber of errors\n" + errByType);
-		if (!warnByType.isEmpty()) System.err.println("WARNINGS: Some warning were detected\nWarning type\tNumber of warnings\n" + warnByType);
+		if (!errByType.isEmpty()) System.err.println("\nERRORS: Some errors were detected\nError type\tNumber of errors\n" + errByType + "\n");
+		if (!warnByType.isEmpty()) System.err.println("\nWARNINGS: Some warning were detected\nWarning type\tNumber of warnings\n" + warnByType + "\n");
 	}
 
 	/**
