@@ -175,7 +175,7 @@ public class VcfOutputFormatter extends OutputFormatter {
 				// Add genotype corresponding to this change
 
 				// Errors or warnings (this is the last thing in the list)
-				if (changeEffect.hasErrorOrWarning()) {
+				if (changeEffect.hasError() || changeEffect.hasWarning()) {
 					StringBuilder err = new StringBuilder();
 
 					// Add warnings

@@ -635,11 +635,74 @@ java -Xmx4g -jar snpEff.jar -vcf4 dm5.34 s.vcf > s_snpeff.txt
 					<tr> <td>  Trancript </td> <td>  Transcript ID (usually ENSEMBL IDs) </td> </tr>
 					<tr> <td>  Exon </td> <td>  Exon ID (usually ENSEMBL IDs) </td> </tr>
 					<tr> <td>  Genotype </td> <td>  Genotype number corresponding to this effect </td> </tr>
-					<tr> <td>  Warnings </td> <td>  Any warnings or errors (not shown if empty). </td> </tr>
+					<tr> <td>  Warnings / Errors </td> <td>  Any warnings or errors (not shown if empty). </td> </tr>
 				</table>
 				</center>
 				</p>
 
+				<p><b>Errors and Warnings </b>
+				<br>
+				<br>
+				As mentioned int the previous section, the last sub-field in EFF field shows errors or warnings (if any).
+				Here is a description of the errors and warnings:
+				<center>
+				<table class="table table-striped">
+					<tr> <th>  Error </th> <th>  Meaning and possible solutions</th> </tr>
+					<tr> <td> ERROR_CHROMOSOME_NOT_FOUND </td> 
+						<td>
+							Chromosome does not exits in reference database. 
+							Typically this means that there is a mismatch between the chromosome names in your input file and the chromosome names used in the reference genome to build SnpEff's database. 
+							<br>
+							<br>
+							<b>Warning:</b> This could be caused because you are trying to annotate using a reference genome that is different than the one you used for sequence alignment.
+							Obviously doing this makes no sense and the annotaion information you'll get will be garbage.
+							That's why SnpEff shows you an error message.
+							<br>
+							<br>
+							<b>Possible solution:</b> Sometime SnpEff database matches the reference genome for your organism, and it's just that the chromosome names are changed.
+							You can fix this by changing the input file.
+							<br>
+							You can see chromosome names used by SnpEff by using <code>-v</code> (verbose) option. 
+							SnpEff will show a line like this one:
+							<pre># Chromosomes names [sizes]  : '1' [249250621] '2' [243199373] ...</pre>
+							Then you can modify your input file chromosome names to match the database (e.g. using <code>sed</code> unix command).
+						</td> 
+					</tr>
+					<tr> <td> ERROR_OUT_OF_CHROMOSOME_RANGE </td> 
+						<td> 
+							This means that the position is higher than chromosome's length. 
+							Probably an indicator that your data is not from this reference genome. 
+						</td> 
+					</tr>
+					<tr> <td> ERROR_OUT_OF_EXON </td> <td> Exonic information not matching the coordinates. Indicates a problem (or even a bug?) in the database </td> </tr>
+					<tr> <td> ERROR_MISSING_CDS_SEQUENCE </td> <td> Transcript has no CDS info. Indicates a problem (or even a bug?) in the database </td> </tr>
+				</table>
+
+				<table class="table table-striped">
+					<tr> <th>  Warning </th> <th>  Meaning and possible solutions</th> </tr>
+					<tr> <td> WARNING_REF_DOES_NOT_MATCH_GENOME </td> 
+						<td> 
+						This means that the REF field does not match the reference genome.
+						<br> 
+						<br> 
+						<i class="icon-warning-sign"></i> This warning probably indicated there is something really wrong with your data!
+						<br> 
+						<br> 
+						This happens when your data was aligned to a different reference genome than the one used to create SnpEff's database.
+						If there are many of these warnings, it's a strong indicator that the data doesn't match and all the annotations will be garbage (because you are using the wrong database).
+						<br> 
+						<br> 
+						<b>Solution:</b> Use the right database to annotate!
+						<br> 
+						<br> 
+						<i class="icon-hand-right"></i> Due to performance and memory optimizations, SnpEff only checks reference sequence on Exons.
+						</td> 
+					</tr>
+					<tr> <td> WARNING_SEQUENCE_NOT_AVAILABLE </td> <td> For some reason the exon sequence is not available, so we cannot calculate effects.</td> </tr>
+				</table>
+				</center>
+				</p>
+				
 				<p><b>VCF Header lines </b>
 				<br>
 				<br>

@@ -60,7 +60,7 @@ public class ChrPosStats {
 	public void sample(int position) {
 		// Ignore counts for zero or one-length chromosomes
 		if (chrLength <= 1) {
-			Gpr.debug("Warning: Chromosome '" + chrName + "' has length " + chrLength);
+			// Gpr.debug("Warning: Chromosome '" + chrName + "' has length " + chrLength);
 			return;
 		}
 

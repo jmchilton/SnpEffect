@@ -44,6 +44,7 @@ import ca.mcgill.mcb.pcingola.snpEffect.Config;
 import ca.mcgill.mcb.pcingola.snpEffect.SnpEffectPredictor;
 import ca.mcgill.mcb.pcingola.snpEffect.commandLine.eff.MasterEff;
 import ca.mcgill.mcb.pcingola.stats.ChangeEffectResutStats;
+import ca.mcgill.mcb.pcingola.stats.CountByType;
 import ca.mcgill.mcb.pcingola.stats.SeqChangeStats;
 import ca.mcgill.mcb.pcingola.stats.VcfStats;
 import ca.mcgill.mcb.pcingola.util.Gpr;
@@ -241,6 +242,9 @@ public class SnpEffCmdEff extends SnpEff {
 	 * Iterate on all inputs (VCF) and calculate effects.
 	 * Note: This is used only on input format VCF, which has a different iteration modality
 	 * 
+	 * TODO: Effect analysis should be in a spearate class, so we can easily reuse it for single or mutli-threaded modes.
+	 *       SnpEffCmdEff should only parse command line, and then invoke the other class (now everything is here, it's a mess)
+	 * 
 	 * @param outputFormatter
 	 */
 	void iterateVcf(OutputFormatter outputFormatter) {
@@ -252,6 +256,7 @@ public class SnpEffCmdEff extends SnpEff {
 
 		boolean anyCancerSample = false;
 		List<PedigreeEnrty> pedigree = null;
+		CountByType errByType = new CountByType(), warnByType = new CountByType();
 
 		for (VcfEntry vcfEntry : vcfFile) {
 			try {
@@ -304,6 +309,10 @@ public class SnpEffCmdEff extends SnpEff {
 						// Show results
 						for (ChangeEffect changeEffect : changeEffects) {
 							if (createSummary) changeEffectResutStats.sample(changeEffect); // Perform basic statistics about this result
+
+							// Any errors or warnings?
+							if (changeEffect.hasError()) errByType.inc(changeEffect.getError());
+							if (changeEffect.hasWarning()) warnByType.inc(changeEffect.getWarning());
 
 							// Does this entry have an impact (other than MODIFIER)?
 							impact |= (changeEffect.getEffectImpact() != EffectImpact.MODIFIER);
@@ -361,6 +370,10 @@ public class SnpEffCmdEff extends SnpEff {
 
 		// Close file iterator (not really needed, but just in case)
 		vcfFile.close();
+
+		// Show errors and warnings
+		if (!errByType.isEmpty()) System.err.println("ERRORS: Some errors were detected\nError type\tNumber of errors\n" + errByType);
+		if (!warnByType.isEmpty()) System.err.println("WARNINGS: Some warning were detected\nWarning type\tNumber of warnings\n" + warnByType);
 	}
 
 	/**
@@ -579,6 +592,8 @@ public class SnpEffCmdEff extends SnpEff {
 		if (multiThreaded && (outputFormat != OutputFormat.VCF)) usage("Multi-threaded option is only supported when when output is in VCF format");
 		if (multiThreaded && createSummary) usage("Multi-threaded option should be used with 'noStats'.");
 		if (lossOfFunction && (outputFormat != OutputFormat.VCF)) usage("Loss of function annotation is only supported when when output is in VCF format");
+		if (cancer && (outputFormat != OutputFormat.VCF)) usage("Canccer annotation is only supported when when output is in VCF format");
+		if (cancer && (numWorkers > 1)) usage("Canccer analysis is currently not supported in multi-threaded mode.");
 	}
 
 	/**

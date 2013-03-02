@@ -129,6 +129,13 @@ public class CountByType implements Serializable {
 		inc(countByType, type, increment);
 	}
 
+	/**
+	 * Is this empty
+	 */
+	public boolean isEmpty() {
+		return countByType.isEmpty();
+	}
+
 	public Set<String> keySet() {
 		return countByType.keySet();
 	}

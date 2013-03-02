@@ -667,9 +667,12 @@ public class ChangeEffect implements Cloneable, Comparable<ChangeEffect> {
 		return warning;
 	}
 
-	public boolean hasErrorOrWarning() {
-		return (error != null) && (!error.isEmpty()) //
-				|| ((warning != null) && (!warning.isEmpty()));
+	public boolean hasError() {
+		return (error != null) && (!error.isEmpty());
+	}
+
+	public boolean hasWarning() {
+		return (warning != null) && (!warning.isEmpty());
 	}
 
 	/**
