@@ -132,15 +132,17 @@ public class SnpEffCmdEff extends SnpEff {
 				VcfGenotype genOri = vcfEntry.getVcfGenotype(pe.getOriginalNum());
 				VcfGenotype genDer = vcfEntry.getVcfGenotype(pe.getDerivedNum());
 
-				int gd[] = genDer.getGenotype();
-				int go[] = genOri.getGenotype();
+				int gd[] = genDer.getGenotype(); // Derived genotype
+				int go[] = genOri.getGenotype(); // Original genotype
 
 				if (genOri.isPhased() && genDer.isPhased()) {
 					// Phased, we only have two possible comparissons
 					// TODO: Check if this is correct for phased genotypes!
 					for (int i = 0; i < 2; i++) {
 						// Add comparissons
-						if ((go[i] >= 0) && (gd[i] >= 0) // Both genotypes are non-missing?
+						// TODO: Decide if we want to keep "back to reference" analysis (i.e. gd[d] == 0)
+						// if ((go[i] >= 0) && (gd[i] >= 0) // Both genotypes are non-missing?
+						if ((go[i] > 0) && (gd[i] > 0) // Both genotypes are non-missing?
 								&& (go[i] != 0) // Origin genotype is non-reference? (this is always analyzed in the default mode)
 								&& (gd[i] != go[i]) // Both genotypes are different?
 						) {
@@ -153,7 +155,9 @@ public class SnpEffCmdEff extends SnpEff {
 					for (int d = 0; d < gd.length; d++)
 						for (int o = 0; o < go.length; o++) {
 							// Add comparissons 
-							if ((go[o] >= 0) && (gd[d] >= 0) // Both genotypes are non-missing?
+							// TODO: Decide if we want to keep "back to reference" analysis (i.e. gd[d] == 0)
+							// if ((go[o] >= 0) && (gd[d] >= 0) // Both genotypes are non-missing?
+							if ((go[o] > 0) && (gd[d] > 0) // Both genotypes are non-missing?
 									&& (go[o] != 0) // Origin genotype is non-reference? (this is always analyzed in the default mode)
 									&& (gd[d] != go[o]) // Both genotypes are different?
 							) {
@@ -242,7 +246,7 @@ public class SnpEffCmdEff extends SnpEff {
 	 * Iterate on all inputs (VCF) and calculate effects.
 	 * Note: This is used only on input format VCF, which has a different iteration modality
 	 * 
-	 * TODO: Effect analysis should be in a spearate class, so we can easily reuse it for single or mutli-threaded modes.
+	 * TODO: Effect analysis should be in a separate class, so we can easily reuse it for single or mutli-threaded modes.
 	 *       SnpEffCmdEff should only parse command line, and then invoke the other class (now everything is here, it's a mess)
 	 * 
 	 * @param outputFormatter
@@ -593,7 +597,7 @@ public class SnpEffCmdEff extends SnpEff {
 		if (multiThreaded && createSummary) usage("Multi-threaded option should be used with 'noStats'.");
 		if (lossOfFunction && (outputFormat != OutputFormat.VCF)) usage("Loss of function annotation is only supported when when output is in VCF format");
 		if (cancer && (outputFormat != OutputFormat.VCF)) usage("Canccer annotation is only supported when when output is in VCF format");
-		if (cancer && (numWorkers > 1)) usage("Canccer analysis is currently not supported in multi-threaded mode.");
+		if (cancer && multiThreaded) usage("Cancer analysis is currently not supported in multi-threaded mode.");
 	}
 
 	/**
@@ -869,7 +873,7 @@ public class SnpEffCmdEff extends SnpEff {
 		outputFormatter.setOutOffset(outOffset);
 		outputFormatter.setChrStr(chrStr);
 		outputFormatter.setUseSequenceOntolgy(useSequenceOntolgy);
-		outputFormatter.setUseSequenceOntolgy(useOicr);
+		outputFormatter.setUseOicr(useOicr);
 		outputFormatter.setUseHgvs(useHgvs);
 
 		//---
