@@ -81,6 +81,7 @@ public class SnpEffCmdEff extends SnpEff {
 	boolean chromoPlots = true; // Create methylation by chromosome plots?
 	boolean onlyRegulation = false; // Only build regulation tracks
 	boolean lossOfFunction = false; // Create loss of function LOF tag?
+	boolean useGeneId = false; // Use gene ID instead of gene name (VCF output)
 	int upDownStreamLength = SnpEffectPredictor.DEFAULT_UP_DOWN_LENGTH; // Upstream & downstream interval length
 	int spliceSiteSize = SpliceSite.CORE_SPLICE_SITE_SIZE; // Splice site size default: 2 bases (canonical splice site)
 	int totalErrs = 0;
@@ -498,6 +499,7 @@ public class SnpEffCmdEff extends SnpEff {
 				else if (args[i].equalsIgnoreCase("-canon")) canonical = true; // Use canonical transcripts
 				else if (args[i].equalsIgnoreCase("-lof")) lossOfFunction = true; // Add LOF tag
 				else if (args[i].equalsIgnoreCase("-hgvs")) useHgvs = true; // Use HGVS notation
+				else if (args[i].equalsIgnoreCase("-geneId")) useGeneId = true; // Use gene ID instead of gene name
 				else if (args[i].equalsIgnoreCase("-sequenceOntolgy")) useSequenceOntolgy = true; // Use SO temrs
 				else if (args[i].equalsIgnoreCase("-oicr")) useOicr = true; // Use OICR tag
 				else if (args[i].equalsIgnoreCase("-onlyTr")) {
@@ -875,6 +877,7 @@ public class SnpEffCmdEff extends SnpEff {
 		outputFormatter.setUseSequenceOntolgy(useSequenceOntolgy);
 		outputFormatter.setUseOicr(useOicr);
 		outputFormatter.setUseHgvs(useHgvs);
+		outputFormatter.setUseGeneId(useGeneId);
 
 		//---
 		// Iterate over all changes
@@ -1008,6 +1011,7 @@ public class SnpEffCmdEff extends SnpEff {
 		System.err.println("\nAnnotations options:");
 		System.err.println("\t-cancer                         : Perform 'cancer' comparissons (Somatic vs Germline). Default: " + cancer);
 		System.err.println("\t-canon                          : Only use canonical transcripts.");
+		System.err.println("\t-geneId                         : Use gene ID instead of gene name (VCF output). Default: " + useGeneId);
 		System.err.println("\t-hgvs                           : Use HGVS annotations for amino acid sub-field. Default: " + useHgvs);
 		System.err.println("\t-lof                            : Add loss of function (LOF) and Nonsense mediated decay (NMD) tags.");
 		System.err.println("\t-reg <name>                     : Regulation track to use (this option can be used add several times).");

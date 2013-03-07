@@ -19,6 +19,7 @@ public abstract class OutputFormatter {
 
 	boolean supressOutput; // Do not print anything
 	boolean useHgvs; // Use HGVS notation
+	boolean useGeneId; // Use Gene ID instead of gene name
 	boolean useSequenceOntolgy; // Use Sequence Ontolgy terms
 	boolean useOicr; // Use OICR tag
 	boolean showHeader = true; // Show header information
@@ -126,6 +127,10 @@ public abstract class OutputFormatter {
 
 	public void setSupressOutput(boolean supressOutput) {
 		this.supressOutput = supressOutput;
+	}
+
+	public void setUseGeneId(boolean useGeneId) {
+		this.useGeneId = useGeneId;
 	}
 
 	public void setUseHgvs(boolean useHgvs) {

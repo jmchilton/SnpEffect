@@ -133,7 +133,7 @@ public class VcfOutputFormatter extends OutputFormatter {
 				Transcript tr = changeEffect.getTranscript();
 				if (gene != null) {
 					// Gene name
-					effBuff.append(vcfInfoSafeString(gene.getGeneName()));
+					effBuff.append(vcfInfoSafeString(useGeneId ? gene.getId() : gene.getGeneName()));
 					effBuff.append("|");
 
 					// Transcript ID
