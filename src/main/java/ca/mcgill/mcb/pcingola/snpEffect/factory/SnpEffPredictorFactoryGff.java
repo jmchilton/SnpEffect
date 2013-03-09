@@ -241,6 +241,6 @@ public abstract class SnpEffPredictorFactoryGff extends SnpEffPredictorFactory {
 		}
 
 		reader.close();
-		System.out.println((count > 0 ? "\n" : "") + "\tTotal: " + count + " " + typeToRead + "s added.");
+		if (verbose) System.out.println((count > 0 ? "\n" : "") + "\tTotal: " + count + " " + typeToRead + "s added.");
 	}
 }

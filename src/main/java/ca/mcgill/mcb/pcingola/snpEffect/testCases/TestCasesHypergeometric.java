@@ -3,8 +3,8 @@ package ca.mcgill.mcb.pcingola.snpEffect.testCases;
 import java.util.Random;
 
 import junit.framework.TestCase;
-import ca.mcgill.mcb.pcingola.stats.FisherExactTest;
-import ca.mcgill.mcb.pcingola.stats.Hypergeometric;
+import ca.mcgill.mcb.pcingola.probablility.FisherExactTest;
+import ca.mcgill.mcb.pcingola.probablility.Hypergeometric;
 import ca.mcgill.mcb.pcingola.util.Gpr;
 
 /**
@@ -40,7 +40,7 @@ public class TestCasesHypergeometric extends TestCase {
 		double abs = Math.abs(p - result);
 		double diff = abs / Math.min(p, result);
 
-		if( (abs > 1E-300) && (diff > 0.00001) ) {
+		if ((abs > 1E-300) && (diff > 0.00001)) {
 			String err = "Difference:" + diff //
 					+ "\n\t\tpValue:\t" + p //
 					+ "\n\tExpected:\t" + result //
@@ -63,7 +63,7 @@ public class TestCasesHypergeometric extends TestCase {
 
 		double abs = Math.abs(p - result);
 		double diff = abs / Math.min(p, result);
-		if( (abs > 1E-300) && (diff > 0.00001) ) {
+		if ((abs > 1E-300) && (diff > 0.00001)) {
 			String err = "Difference:" + diff //
 					+ "\n\t\tpValue:\t" + p //
 					+ "\n\tExpected:\t" + result //
@@ -78,7 +78,7 @@ public class TestCasesHypergeometric extends TestCase {
 
 		double abs = Math.abs(p - result);
 		double diff = abs / Math.min(p, result);
-		if( (abs > 1E-300) && (diff > 0.00001) ) throw new RuntimeException("Difference:" + diff + "\t\t" + p + " != " + result);
+		if ((abs > 1E-300) && (diff > 0.00001)) throw new RuntimeException("Difference:" + diff + "\t\t" + p + " != " + result);
 	}
 
 	/**
@@ -86,16 +86,16 @@ public class TestCasesHypergeometric extends TestCase {
 	 */
 	public void generate_test() {
 		boolean lowerTail = true;
-		for( int i = 0; i < numTests; ) {
+		for (int i = 0; i < numTests;) {
 			int N = rand.nextInt(MAX) + 1;
 			int D = rand.nextInt(N) + 1;
 			int n = rand.nextInt(N) + 1;
 			int k = Math.max(rand.nextInt(Math.min(n, D)), 1);
 
-			if( Hypergeometric.get().checkHypergeometricParams(k, N, D, n) ) {
+			if (Hypergeometric.get().checkHypergeometricParams(k, N, D, n)) {
 				double p = FisherExactTest.get().pValueDown(k, N, D, n, threshold);
 
-				if( p < threshold ) {
+				if (p < threshold) {
 					System.out.print("\t print ( paste( 'compareFisher( " + k + ", " + N + ", " + D + ", " + n + ", ' , " + FisherExactTest.get().toR(k, N, D, n, lowerTail) + " , ');' ) );");
 					System.out.println("");
 					i++;
