@@ -2,7 +2,6 @@ package ca.mcgill.mcb.pcingola.outputFormatter;
 
 import java.util.HashSet;
 
-import ca.mcgill.mcb.pcingola.interval.Gene;
 import ca.mcgill.mcb.pcingola.interval.Marker;
 import ca.mcgill.mcb.pcingola.interval.SeqChange;
 import ca.mcgill.mcb.pcingola.snpEffect.ChangeEffect;
@@ -54,13 +53,15 @@ public class BedOutputFormatter extends OutputFormatter {
 				StringBuffer sb = new StringBuffer();
 				sb.append(changeEffect.effect(true, false, false, useSequenceOntolgy));
 
-				Gene gene = changeEffect.getGene();
-				if (gene != null) sb.append( //
-						"|" + (useGeneId ? gene.getId() : gene.getGeneName()) // Gene name (or ID)
-								+ "|" + gene.getBioType() // Gene biotype
-						); // Always show gene, add BioType
+				Marker m = changeEffect.getMarker();
 
-				chEffs.add(sb.toString());
+				//				Gene gene = changeEffect.getGene();
+				//				if (gene != null) sb.append( //
+				//						"|" + (useGeneId ? gene.getId() : gene.getGeneName()) // Gene name (or ID)
+				//								+ "|" + gene.getBioType() // Gene biotype
+				//						); // Always show gene, add BioType
+
+				chEffs.add(OutputFormatter.idChain(m, "|", useGeneId));
 			}
 
 		}

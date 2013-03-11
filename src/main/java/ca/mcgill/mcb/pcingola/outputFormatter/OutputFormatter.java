@@ -38,43 +38,45 @@ public abstract class OutputFormatter {
 	ChangeEffectFilter changeEffectResutFilter = null; // Filter prediction results
 	ArrayList<ChangeEffect> changeEffects;
 
+	public static String idChain(Marker marker) {
+		return idChain(marker, ";", true);
+	}
+
 	/**
 	 * A list of all IDs and parent IDs until chromosome
 	 * @param m
 	 * @return
 	 */
-	public static String idChain(Marker marker, boolean useGeneId) {
+	public static String idChain(Marker marker, String separator, boolean useGeneId) {
+		if (marker == null) return "";
+
 		StringBuilder sb = new StringBuilder();
 
 		for (Marker m = marker; (m != null) && !(m instanceof Chromosome) && !(m instanceof Genome); m = m.getParent()) {
+			if (sb.length() > 0) sb.append(separator);
 			switch (m.getType()) {
 			case EXON:
-				if (sb.length() > 0) sb.append(";");
 				Transcript tr = (Transcript) m.getParent();
 				sb.append("exon_" + ((Exon) m).getRank() + "_" + tr.numChilds());
 				break;
 
 			case INTRON:
-				if (sb.length() > 0) sb.append(";");
 				sb.append("intron_" + ((Intron) m).getRank());
 				break;
 
 			case GENE:
-				if (sb.length() > 0) sb.append(";");
 				Gene g = (Gene) m;
 				sb.append(useGeneId ? m.getId() : g.getGeneName());
-				sb.append(";" + g.getBioType());
+				sb.append(separator + g.getBioType());
 				break;
 
 			case TRANSCRIPT:
-				if (sb.length() > 0) sb.append(";");
 				sb.append(m.getId());
-				sb.append(";" + ((Transcript) m).getBioType());
+				sb.append(separator + ((Transcript) m).getBioType());
 				break;
 
 			case CHROMOSOME:
 			case INTERGENIC:
-				if (sb.length() > 0) sb.append(";");
 				sb.append(m.getId());
 				break;
 
@@ -87,7 +89,7 @@ public abstract class OutputFormatter {
 		if (sb.length() <= 0) sb.append(marker.getId());
 
 		// Prepend type
-		sb.insert(0, marker.getClass().getSimpleName() + "\t");
+		sb.insert(0, marker.getClass().getSimpleName() + separator);
 
 		return sb.toString();
 	}

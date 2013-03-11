@@ -143,7 +143,7 @@ public class CountReadsOnMarkers {
 			System.out.print(key.getChromosomeName() //
 					+ "\t" + (key.getStart() + 1) //
 					+ "\t" + (key.getEnd() + 1) //
-					+ "\t" + OutputFormatter.idChain(key, false) //
+					+ "\t" + OutputFormatter.idChain(key) //
 			);
 
 			// Show counter data
