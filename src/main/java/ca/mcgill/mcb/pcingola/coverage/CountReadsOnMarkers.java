@@ -11,11 +11,9 @@ import net.sf.samtools.SAMFileReader;
 import net.sf.samtools.SAMFileReader.ValidationStringency;
 import net.sf.samtools.SAMRecord;
 import ca.mcgill.mcb.pcingola.interval.Chromosome;
-import ca.mcgill.mcb.pcingola.interval.Exon;
 import ca.mcgill.mcb.pcingola.interval.Genome;
-import ca.mcgill.mcb.pcingola.interval.Intron;
 import ca.mcgill.mcb.pcingola.interval.Marker;
-import ca.mcgill.mcb.pcingola.interval.Transcript;
+import ca.mcgill.mcb.pcingola.outputFormatter.OutputFormatter;
 import ca.mcgill.mcb.pcingola.snpEffect.SnpEffectPredictor;
 import ca.mcgill.mcb.pcingola.stats.CountByKey;
 import ca.mcgill.mcb.pcingola.util.Gpr;
@@ -114,49 +112,6 @@ public class CountReadsOnMarkers {
 		if (verbose) Timer.showStdErr("Done.");
 	}
 
-	/**
-	 * A list of all IDs and parent IDs until chromosome
-	 * @param m
-	 * @return
-	 */
-	String idChain(Marker marker) {
-		StringBuilder sb = new StringBuilder();
-
-		for (Marker m = marker; (m != null) && !(m instanceof Chromosome) && !(m instanceof Genome); m = m.getParent()) {
-			switch (m.getType()) {
-			case EXON:
-				if (sb.length() > 0) sb.append(";");
-				Transcript tr = (Transcript) m.getParent();
-				sb.append("exon_" + ((Exon) m).getRank() + "_" + tr.numChilds());
-				break;
-
-			case INTRON:
-				if (sb.length() > 0) sb.append(";");
-				sb.append("intron_" + ((Intron) m).getRank());
-				break;
-
-			case CHROMOSOME:
-			case INTERGENIC:
-			case GENE:
-			case TRANSCRIPT:
-				if (sb.length() > 0) sb.append(";");
-				sb.append(m.getId());
-				break;
-
-			default:
-				break;
-			}
-		}
-
-		// Empty? Add ID
-		if (sb.length() <= 0) sb.append(marker.getId());
-
-		// Prepend type
-		sb.insert(0, marker.getClass().getSimpleName() + "\t");
-
-		return sb.toString();
-	}
-
 	void init(SnpEffectPredictor snpEffectPredictor) {
 		samFileNames = new ArrayList<String>();
 		countReadsByFile = new ArrayList<CountByKey<Marker>>();
@@ -188,7 +143,7 @@ public class CountReadsOnMarkers {
 			System.out.print(key.getChromosomeName() //
 					+ "\t" + (key.getStart() + 1) //
 					+ "\t" + (key.getEnd() + 1) //
-					+ "\t" + idChain(key) //
+					+ "\t" + OutputFormatter.idChain(key, false) //
 			);
 
 			// Show counter data

@@ -6,6 +6,7 @@ public class Timer {
 
 	private static Timer timer = new Timer(); // Keep track of time (since first class instantiation)
 
+	boolean useMiliSecs = false;
 	Date start;
 	Date end;
 
@@ -30,13 +31,17 @@ public class Timer {
 	}
 
 	public long elapsed() {
-		if( end != null ) return end.getTime() - start.getTime();
+		if (end != null) return end.getTime() - start.getTime();
 		Date now = new Date();
 		return now.getTime() - start.getTime();
 	}
 
 	public void end() {
 		end = new Date();
+	}
+
+	public void setUseMiliSecs(boolean useMiliSecs) {
+		this.useMiliSecs = useMiliSecs;
 	}
 
 	public void start() {
@@ -53,7 +58,10 @@ public class Timer {
 		long secs = (delta % (60 * 1000)) / (1000);
 		long ms = (delta % 1000);
 
-		if( days > 0 ) return String.format("%d days %02d:%02d:%02d.%03d", days, hours, mins, secs, ms);
+		if (days > 0) {
+			if (useMiliSecs) return String.format("%d days %02d:%02d:%02d.%03d", days, hours, mins, secs, ms);
+			return String.format("%d days %02d:%02d:%02d", days, hours, mins, secs);
+		}
 		return String.format("%02d:%02d:%02d.%03d", hours, mins, secs, ms);
 	}
 }

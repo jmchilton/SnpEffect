@@ -9,7 +9,9 @@ import ca.mcgill.mcb.pcingola.interval.SeqChange;
 import ca.mcgill.mcb.pcingola.snpEffect.ChangeEffect;
 
 /**
- * Formats output as BED annotation file: The output are annotations (instead of variants)
+ * Formats: Show all annotations that intersect the BED input file.
+ * 
+ * WARNING: In this format, the output are annotations (instead of input intervals)
  * 
  * @author pcingola
  */
@@ -40,7 +42,7 @@ public class BedAnnotationOutputFormatter extends BedOutputFormatter {
 					// Get gene name (if any)
 					String geneName = null;
 					Gene gene = changeEffect.getGene();
-					if (gene != null) geneName = gene.getGeneName();
+					if (gene != null) geneName = (useGeneId ? gene.getId() : gene.getGeneName());
 
 					// Get annotation type
 					String type = m.getType().toString();

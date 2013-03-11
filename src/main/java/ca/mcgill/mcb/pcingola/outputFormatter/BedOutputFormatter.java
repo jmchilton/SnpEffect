@@ -55,7 +55,10 @@ public class BedOutputFormatter extends OutputFormatter {
 				sb.append(changeEffect.effect(true, false, false, useSequenceOntolgy));
 
 				Gene gene = changeEffect.getGene();
-				if (gene != null) sb.append("|" + gene.getGeneName() + "|" + gene.getBioType()); // Always show gene, add BioType
+				if (gene != null) sb.append( //
+						"|" + (useGeneId ? gene.getId() : gene.getGeneName()) // Gene name (or ID)
+								+ "|" + gene.getBioType() // Gene biotype
+						); // Always show gene, add BioType
 
 				chEffs.add(sb.toString());
 			}

@@ -3,7 +3,13 @@ package ca.mcgill.mcb.pcingola.outputFormatter;
 import java.util.ArrayList;
 
 import ca.mcgill.mcb.pcingola.filter.ChangeEffectFilter;
+import ca.mcgill.mcb.pcingola.interval.Chromosome;
+import ca.mcgill.mcb.pcingola.interval.Exon;
+import ca.mcgill.mcb.pcingola.interval.Gene;
+import ca.mcgill.mcb.pcingola.interval.Genome;
+import ca.mcgill.mcb.pcingola.interval.Intron;
 import ca.mcgill.mcb.pcingola.interval.Marker;
+import ca.mcgill.mcb.pcingola.interval.Transcript;
 import ca.mcgill.mcb.pcingola.snpEffect.ChangeEffect;
 
 /**
@@ -31,6 +37,60 @@ public abstract class OutputFormatter {
 	Marker section;
 	ChangeEffectFilter changeEffectResutFilter = null; // Filter prediction results
 	ArrayList<ChangeEffect> changeEffects;
+
+	/**
+	 * A list of all IDs and parent IDs until chromosome
+	 * @param m
+	 * @return
+	 */
+	public static String idChain(Marker marker, boolean useGeneId) {
+		StringBuilder sb = new StringBuilder();
+
+		for (Marker m = marker; (m != null) && !(m instanceof Chromosome) && !(m instanceof Genome); m = m.getParent()) {
+			switch (m.getType()) {
+			case EXON:
+				if (sb.length() > 0) sb.append(";");
+				Transcript tr = (Transcript) m.getParent();
+				sb.append("exon_" + ((Exon) m).getRank() + "_" + tr.numChilds());
+				break;
+
+			case INTRON:
+				if (sb.length() > 0) sb.append(";");
+				sb.append("intron_" + ((Intron) m).getRank());
+				break;
+
+			case GENE:
+				if (sb.length() > 0) sb.append(";");
+				Gene g = (Gene) m;
+				sb.append(useGeneId ? m.getId() : g.getGeneName());
+				sb.append(";" + g.getBioType());
+				break;
+
+			case TRANSCRIPT:
+				if (sb.length() > 0) sb.append(";");
+				sb.append(m.getId());
+				sb.append(";" + ((Transcript) m).getBioType());
+				break;
+
+			case CHROMOSOME:
+			case INTERGENIC:
+				if (sb.length() > 0) sb.append(";");
+				sb.append(m.getId());
+				break;
+
+			default:
+				break;
+			}
+		}
+
+		// Empty? Add ID
+		if (sb.length() <= 0) sb.append(marker.getId());
+
+		// Prepend type
+		sb.insert(0, marker.getClass().getSimpleName() + "\t");
+
+		return sb.toString();
+	}
 
 	public OutputFormatter() {
 		changeEffects = new ArrayList<ChangeEffect>();
