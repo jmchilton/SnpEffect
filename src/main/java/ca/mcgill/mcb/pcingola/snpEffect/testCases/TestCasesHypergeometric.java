@@ -40,7 +40,7 @@ public class TestCasesHypergeometric extends TestCase {
 		double abs = Math.abs(p - result);
 		double diff = abs / Math.min(p, result);
 
-		if ((abs > 1E-300) && (diff > 0.00001)) {
+		if ((abs > 1E-300) && (diff > 0.00000000001)) {
 			String err = "Difference:" + diff //
 					+ "\n\t\tpValue:\t" + p //
 					+ "\n\tExpected:\t" + result //
@@ -63,7 +63,7 @@ public class TestCasesHypergeometric extends TestCase {
 
 		double abs = Math.abs(p - result);
 		double diff = abs / Math.min(p, result);
-		if ((abs > 1E-300) && (diff > 0.00001)) {
+		if ((abs > 1E-300) && (diff > 0.00000000001)) {
 			String err = "Difference:" + diff //
 					+ "\n\t\tpValue:\t" + p //
 					+ "\n\tExpected:\t" + result //

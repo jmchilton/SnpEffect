@@ -8,7 +8,7 @@ import flanagan.analysis.Stat;
  * 
  * Reference: http://en.wikipedia.org/wiki/Cochran-Armitage_test_for_trend
  * 
- * The trend test is applied when the data take the form of a 2 × k contingency 
+ * The trend test is applied when the data take the form of a 2 x k contingency 
  * table. For example, if k = 3 we have
  * 
  * 			    B=1		B=2		B=3
@@ -39,11 +39,12 @@ public class CochranArmitageTest {
 		return cochranArmitageTest;
 	}
 
-	private CochranArmitageTest() {}
+	private CochranArmitageTest() {
+	}
 
 	public double p(int N1[], int N2[], double weight[]) {
 		double t = test(N1, N2, weight);
-		if( t > 0 ) t = -t; // FIXME Is thi really OK? Should we be using a two tail CDF?
+		if (t > 0) t = -t; // FIXME Is thi really OK? Should we be using a two tail CDF?
 		double p = Stat.normalCDF(0, 1, t);
 		return p;
 	}
@@ -59,13 +60,13 @@ public class CochranArmitageTest {
 		int R1 = 0, R2 = 0;
 		int k = N1.length;
 
-		for( int i = 0; i < k; i++ ) {
+		for (int i = 0; i < k; i++) {
 			R1 += N1[i];
 			R2 += N2[i];
 		}
 
 		double t = 0;
-		for( int i = 0; i < N1.length; i++ )
+		for (int i = 0; i < N1.length; i++)
 			t += weight[i] * ((N1[i] * R2) - (N2[i] * R1));
 
 		return t;
@@ -88,8 +89,8 @@ public class CochranArmitageTest {
 	 */
 	public double test(int N1[], int N2[], double weight[]) {
 		// Sanity checks
-		if( N1.length != N2.length ) throw new RuntimeException("Row length do not match: " + N1.length + " != " + N2.length);
-		if( N1.length != weight.length ) throw new RuntimeException("Weight length does not match data rows length: " + N1.length + " != " + weight.length);
+		if (N1.length != N2.length) throw new RuntimeException("Row length do not match: " + N1.length + " != " + N2.length);
+		if (N1.length != weight.length) throw new RuntimeException("Weight length does not match data rows length: " + N1.length + " != " + weight.length);
 
 		// Calculate T value
 		double t = t(N1, N2, weight);
@@ -110,7 +111,7 @@ public class CochranArmitageTest {
 
 		// Calculate R1 and R2
 		int R1 = 0, R2 = 0;
-		for( int i = 0; i < k; i++ ) {
+		for (int i = 0; i < k; i++) {
 			R1 += N1[i];
 			R2 += N2[i];
 		}
@@ -120,16 +121,16 @@ public class CochranArmitageTest {
 
 		// Calculate first sum (see reference)
 		double sum1 = 0;
-		for( int i = 0; i < k; i++ ) {
+		for (int i = 0; i < k; i++) {
 			int Ci = N1[i] + N2[i];
 			sum1 += (weight[i] * weight[i]) * Ci * (N - Ci);
 		}
 
 		// Calculate second sum
 		double sum2 = 0;
-		for( int i = 0; i < (k - 1); i++ ) {
+		for (int i = 0; i < (k - 1); i++) {
 			int Ci = N1[i] + N2[i];
-			for( int j = i + 1; j < k; j++ ) {
+			for (int j = i + 1; j < k; j++) {
 				int Cj = N1[j] + N2[j];
 				sum2 += weight[i] * weight[j] * Ci * Cj;
 			}
