@@ -1584,6 +1584,19 @@ $ java -Xmx4g -jar snpEff.jar eff -interval my_annotations.bed GRCh37.66 test.vc
 				Notice that the variant was annotated using "MY_ANNOTATION" in the EFF field.
 				</p>
 
+				<h3>Gene ID instead of gene names</h3>
+				<p>
+				<br>
+				You can obtain gene IDs instead of gene names by using the command line option <code>-geneId</code>.
+				<br>
+				Example:
+<pre>
+$ java -Xmx4g -jar snpEff.jar -geneId GRCh37.66 test.vcf 
+1  902128  3617  C  T  .  PASS  AC=80;EFF=NON_SYNONYMOUS_CODING(MODERATE|MISSENSE|gCt/gTt|A43V|576|ENSG00000187583|protein_coding|CODING|ENST00000379407|2|1),...
+</pre>
+				Note: The gene 'PLEKHN1' was annotated as 'ENSG00000187583'.
+
+				</p>
 				<h3>Chromosome names</h3>
 				<p>
 				<i class="icon-warning-sign"></i> This is only used in TXT output format, which is deprecated.
