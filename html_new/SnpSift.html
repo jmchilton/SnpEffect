@@ -218,7 +218,12 @@ rs71262673</pre>
 
 					<li> <b>INFO field</b> names in the INFO field. E.g. if the info field has "DP=48;AF1=0;..." you can use something like
 						<pre> ( DP > 10 ) & ( AF1 = 0 )</pre>
+				</ul>
 
+				<h3>Multiple valued fields and variables</h3> 
+				When variables have multiple values, you can access individual values as if it was an array.
+
+				<ul>
 					<li> <b>Multiple value</b> info fields (comma separated) can be accessed using an index. E.g. If the INFO field has "CI95=0.04167,0.5417" you can use an expression such as 
 						<pre> "( CI95[0] > 0.1 ) & (CI95[1] <= 0.3)" </pre>
 
@@ -237,7 +242,12 @@ rs71262673</pre>
 						<pre> "( CI95[?] > 0.1 )" </pre>
 						are equivalent to (in this case, there are only two values in the array)
 						<pre> "( CI95[0] > 0.1 ) & ( CI95[1] > 0.1 )" </pre>
+				</ul>
 
+				<h3> Genotype fields </h3>
+				Vcf genotype fields can be accessed individually using array notation.
+				<br>
+				<ul>
 					<li> <b>Genotype fields</b> are accessed using an index (sample number) followed by a variable name. E.g. If the genotypes are "GT:PL:GQ    1/1:255,66,0:63    0/1:245,0,255:99"
 						You can write something like
 						<pre>"( GEN[0].GQ > 60 ) & ( GEN[1].GQ > 90 )" </pre>
@@ -254,39 +264,63 @@ rs71262673</pre>
 
 						...or even 
 						<pre>"( GEN[*].PL[*] = 0 )" </pre>
-
-					<li> <b>Sets</b> are defined by the '-s' (or '--set') command line option. Each file must have one string per line. They are named based on the order used in the command line (e.g. the first one is 'SET[0]', the second one is 'SET[1]', etc.)
-						You can write something like (assuming your command line was "-s set1.txt -s set2.txt -s set3.txt"):
-						<pre>"( ID in SET[2] )" </pre>
-
-					<li> <b>Effect fields (from SnpEff)</b> are accessed using an index (effect number) followed by a sub-field name. <br>
-					Available sub-field are:  
-						<ul>
-							<li> EFFECT: Effect (e.g. SYNONYMOUS_CODING, NON_SYNONYMOUS_CODING, FRAME_SHIFT, etc.)
-							<li> IMPACT: { HIGH, MODERATE, LOW, MODIFIER }
-							<li> FUNCLASS: { NONE, SILENT, MISSENSE, NONSENSE }
-							<li> CODON: Codon change (e.g. 'ggT/ggG')
-							<li> AA: Amino acid change (e.g. 'G156')
-							<li> GENE: Gene name (e.g. 'PSD3')
-							<li> BIOTYPE: Gene biotype, as described by the annotations (e.g. 'protein_coding')
-							<li> CODING: Gene is { CODING, NON_CODING } 
-							<li> TRID: Transcript ID
-							<li> EXID: Exon ID
-						</ul>
-
-					For example, you may want only the lines where the first effect is a NON_SYNONYMOUS variants:
-						<pre>"( EFF[0].EFFECT = 'NON_SYNONYMOUS_CODING' )" </pre>
-
-					...but this probably doesn't make much sense. What you may really want are lines where ANY effect is NON_SYNONYMOUS:
-						<pre>"( EFF[*].EFFECT = 'NON_SYNONYMOUS_CODING' )" </pre>
-
-					May be you want only the ones that affect gene 'TCF7L2'
-						<pre>"( EFF[*].EFFECT = 'NON_SYNONYMOUS_CODING' ) &  ( EFF[*].GENE = 'TCF7L2' )" </pre>
-					
-
 				</ul>
 
-				<b> Available operands and functions </b><p>
+				<h3> Sets </h3>
+					Sets are defined by the '-s' (or '--set') command line option. Each file must have one string per line. They are named based on the order used in the command line (e.g. the first one is 'SET[0]', the second one is 'SET[1]', etc.)
+					<br>
+					<br>
+					Example: You can write something like (assuming your command line was "-s set1.txt -s set2.txt -s set3.txt"):
+						<pre>"( ID in SET[2] )" </pre>
+
+				<h3> SnpEff 'EFF' fields </h3>
+				SnpEff annotations are parsed, so you can access individual sub-fields:
+				<br>
+				Effect fields (from SnpEff) are accessed using an index (effect number) followed by a sub-field name. 
+				<br>
+				Available <code>EFF</code> sub-fields are:  
+				<ul>
+					<li> EFFECT: Effect (e.g. SYNONYMOUS_CODING, NON_SYNONYMOUS_CODING, FRAME_SHIFT, etc.)
+					<li> IMPACT: { HIGH, MODERATE, LOW, MODIFIER }
+					<li> FUNCLASS: { NONE, SILENT, MISSENSE, NONSENSE }
+					<li> CODON: Codon change (e.g. 'ggT/ggG')
+					<li> AA: Amino acid change (e.g. 'G156')
+					<li> GENE: Gene name (e.g. 'PSD3')
+					<li> BIOTYPE: Gene biotype, as described by the annotations (e.g. 'protein_coding')
+					<li> CODING: Gene is { CODING, NON_CODING } 
+					<li> TRID: Transcript ID
+					<li> EXID: Exon ID
+				</ul>
+
+				For example, you may want only the lines where the first effect is a NON_SYNONYMOUS variants:
+				<pre>"( EFF[0].EFFECT = 'NON_SYNONYMOUS_CODING' )" </pre>
+
+				...but this probably doesn't make much sense. What you may really want are lines where ANY effect is NON_SYNONYMOUS:
+				<pre>"( EFF[*].EFFECT = 'NON_SYNONYMOUS_CODING' )" </pre>
+
+				May be you want only the ones that affect gene 'TCF7L2'
+				<pre>"( EFF[*].EFFECT = 'NON_SYNONYMOUS_CODING' ) &  ( EFF[*].GENE = 'TCF7L2' )" </pre>
+
+				<h3> SnpEff 'LOF' and 'NMD' fields </h3>
+				Similarly <code>LOF</code> and <code>NMD</code> sub-fields are available:
+				<ul>
+					<li> LOF.GENE and NMD.GENE
+					<li> LOF.GENEID and NMD.GENEID
+					<li> LOF.NUMTR and NMD.NUMTR
+					<li> LOF.PERC and NMD.PERC
+				</ul>
+
+				For instance, if we want to obtain genes having a Loss of Function effect in more than 90% of the transcripts, you can do this:
+<pre>
+$cat test.snpeff.vcf | java -Xmx1G -jar SnpSift.jar filter "(exists LOF[*].PERC) & (LOF[*].PERC > 0.9)" 
+</pre>
+				<i class="icon-warning-sign"></i> We assume that 'test.snpeff.vcf' was annotated with SnpEff using '-lof' command line option.
+
+				
+				<h3> Available operands and functions </h3>
+				<p>
+				The following operators and functions are interprested by <code>SnpSift filter</code>:
+				</p>
 				<center>
 				<table class="table table-striped">
 					<tr> <th> Operand </th> <th> Description </th> <th> Data type </th> <th> Example </th> </tr>
