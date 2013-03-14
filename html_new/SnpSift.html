@@ -289,7 +289,7 @@ rs71262673</pre>
 					<li> BIOTYPE: Gene biotype, as described by the annotations (e.g. 'protein_coding')
 					<li> CODING: Gene is { CODING, NON_CODING } 
 					<li> TRID: Transcript ID
-					<li> EXID: Exon ID
+					<li> RANK: Exon or Intron rank (i.e. exon number in a transcript)
 				</ul>
 
 				For example, you may want only the lines where the first effect is a NON_SYNONYMOUS variants:
@@ -778,7 +778,7 @@ Ts/Tv         :	2.123	2.139	2.154	2.163	2.159	2.106	2.114	2.158	2.145	2.153	2.15
 							<li> EFF[*].BIOTYPE
 							<li> EFF[*].CODING
 							<li> EFF[*].TRID
-							<li> EFF[*].EXID
+							<li> EFF[*].RANK
 						</ul>
 						<i class="icon-hand-right"></i> You can combine <code>vcfEffOnePerLine.pl</code> script with <code>SnpSift extractFields</code> if you want to have each effect in a seprarate line.
 					<li> SnpEff 'LOF' fields: 

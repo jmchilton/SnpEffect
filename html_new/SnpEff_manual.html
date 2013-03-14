@@ -617,7 +617,7 @@ java -Xmx4g -jar snpEff.jar -vcf4 dm5.34 s.vcf > s_snpeff.txt
 
 				There can be multiple effects separated by comma. The format for each effect is:
 				<br>
-				Effect ( Effefct_Impact | Codon_Change | Amino_Acid_change | Gene_Name | Gene_BioType | Coding | Transcript | Exon [ | ERRORS | WARNINGS ] )
+				Effect ( Effefct_Impact | Codon_Change | Amino_Acid_change | Gene_Name | Gene_BioType | Coding | Transcript | Rank [ | ERRORS | WARNINGS ] )
 				<br>
 				
 				<center>
@@ -633,8 +633,8 @@ java -Xmx4g -jar snpEff.jar -vcf4 dm5.34 s.vcf > s_snpeff.txt
 					<tr> <td>  Transcript_bioType </td> <td>  Transcript bioType, if available. </td> </tr>
 					<tr> <td>  Gene_Coding </td> <td>  [CODING | NON_CODING]. This field is 'CODING' if any transcript of the gene is marked as protein coding. </td> </tr>
 					<tr> <td>  Trancript </td> <td>  Transcript ID (usually ENSEMBL IDs) </td> </tr>
-					<tr> <td>  Exon </td> <td>  Exon ID (usually ENSEMBL IDs) </td> </tr>
-					<tr> <td>  Genotype </td> <td>  Genotype number corresponding to this effect </td> </tr>
+					<tr> <td>  Exon/Intron Rank </td> <td>  Exon rank or Intron rank (e.g. '1' for the first exon, '2' for the second exon, etc.) </td> </tr>
+					<tr> <td>  Genotype </td> <td>  Genotype number corresponding to this effect (e.g. '2' if the effect corresponds to the second ALT) </td> </tr>
 					<tr> <td>  Warnings / Errors </td> <td>  Any warnings or errors (not shown if empty). </td> </tr>
 				</table>
 				</center>

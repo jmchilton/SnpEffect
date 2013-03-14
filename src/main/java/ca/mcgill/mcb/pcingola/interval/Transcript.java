@@ -970,7 +970,9 @@ public class Transcript extends IntervalAndSubIntervals<Exon> {
 				ChangeEffect cheff = changeEffect.clone();
 				cheff.set(intron, EffectType.INTRON, "");
 				changeEffectList.add(cheff);
+				included |= intron.includes(seqChange); // Is this seqChange fully included in this intron?
 			}
+		if (included) return changeEffectList; // SeqChange fully included? => We are done.
 
 		//---
 		// Analyze non-coding transcripts (or 'interval' seqChanges)

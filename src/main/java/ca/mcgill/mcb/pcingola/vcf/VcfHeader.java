@@ -262,6 +262,7 @@ public class VcfHeader {
 			vcfInfoById.put("EFF.BIOTYPE", new VcfInfo("EFF.BIOTYPE", VcfInfoType.String, ".", "SnpEff gene bio-type"));
 			vcfInfoById.put("EFF.CODING", new VcfInfo("EFF.CODING", VcfInfoType.String, ".", "SnpEff gene coding (CODING, NON_CODING)"));
 			vcfInfoById.put("EFF.TRID", new VcfInfo("EFF.TRID", VcfInfoType.String, ".", "SnpEff transcript ID"));
+			vcfInfoById.put("EFF.RANK", new VcfInfo("EFF.RANK", VcfInfoType.String, ".", "SnpEff exon/intron rank"));
 			vcfInfoById.put("EFF.EXID", new VcfInfo("EFF.EXID", VcfInfoType.String, ".", "SnpEff exon ID"));
 
 			// Add SnpEff 'LOF' fields

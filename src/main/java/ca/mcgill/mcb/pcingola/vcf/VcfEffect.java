@@ -75,7 +75,7 @@ public class VcfEffect {
 		if (name.equals("EFF.TRID")) return fieldNum;
 		fieldNum++;
 
-		if (name.equals("EFF.EXID")) return fieldNum;
+		if (name.equals("EFF.RANK") || name.equals("EFF.EXID")) return fieldNum; // This one used to be called exonID, now it is used for exon OR intron rank 
 		fieldNum++;
 
 		if (formatVersion == FormatVersion.FORMAT_SNPEFF_4) {

@@ -200,15 +200,14 @@ public class ChangeEffect implements Cloneable, Comparable<ChangeEffect> {
 	EffectType effectType = EffectType.NONE;
 	EffectImpact effectImpact = null;
 	Marker marker = null;
-	//	Exon exon = null;
 	String error = "", warning = "", message = ""; // Any message, warning or error?
 	String codonsOld = "", codonsNew = ""; // Codon change information
-	String codonsAroundOld = "", codonsAroundNew = ""; // Codons arround
+	String codonsAroundOld = "", codonsAroundNew = ""; // Codons around
 	int codonNum = -1; // Codon number (negative number mens 'information not available')
 	int codonIndex = -1; // Index within a codon (negative number mens 'information not available')
 	int codonDegeneracy = -1; // Codon degeneracy (negative number mens 'information not available')
 	String aaOld = "", aaNew = ""; // Amino acid changes
-	String aasAroundOld = "", aasAroundNew = ""; // Amino acids arround
+	String aasAroundOld = "", aasAroundNew = ""; // Amino acids around
 
 	/**
 	 *  An empty list of results;
@@ -595,9 +594,19 @@ public class ChangeEffect implements Cloneable, Comparable<ChangeEffect> {
 	public String getHgvs() {
 		if (aaOld.isEmpty() && aaNew.isEmpty()) {
 			if (codonNum >= 0) return "" + (codonNum + 1);
-			return "";
+			return getHgvsNonCoding();
 		}
 
+		return getHgvsCoding();
+	}
+
+	/**
+	 * Coding change in HGVS notation (amino acid changes)
+	 * References: http://www.hgvs.org/mutnomen/recs.html
+	 * 
+	 * @return
+	 */
+	protected String getHgvsCoding() {
 		// Codon numbering
 		// HGVS: the translation initiator Methionine is numbered as +1
 		int pos = codonNum + 1;
@@ -633,6 +642,16 @@ public class ChangeEffect implements Cloneable, Comparable<ChangeEffect> {
 		}
 
 		return "p." + aaOld3 + pos + aaNew3;
+	}
+
+	/**
+	 * Coding change in HGVS notation (DNA changes)
+	 * References: http://www.hgvs.org/mutnomen/recs.html
+	 * 
+	 * @return
+	 */
+	protected String getHgvsNonCoding() {
+		return "";
 	}
 
 	/**
