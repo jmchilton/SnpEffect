@@ -525,6 +525,65 @@ $  java -jar SnpSift.jar caseControl -name "_MY_GROUP" "++++0-----" cc.vcf \
 1       69496  .   G    A    .     PASS    AF=0.01;Cases_MY_GROUP=1,2,4;Controls_MY_GROUP=2,2,6;Cases_ANOTHER_GROUP=1,3,5;Controls_ANOTHER_GROUP=2,1,5  GT      0/1        1/1        1/0        0/0        0/0        0/1        1/1        1/1        1/0        0/0
 </pre>
 
+				<h3> p-values </h3>
+				SnpSift caseControl calculates the p-value using different models: dominant, recessive, allelic and co-dominant.
+				
+				<br>
+				<br>
+				<i class="icon-hand-right"></i> When we say we use Fisher exact test, it means that we use the real Fisher exact test calculation, not approximations (like Chi-Square approximations). 
+				So the p-values should be correct even for low counts on any of the values in the contingency tables.
+				Approximations tend to be wrong when any count in a contingency table is below 5.
+				You should not see that problem here.
+				<br>
+				<br>
+				
+				Models:
+				<ul>
+					<li> Dominant model (<code>CC_DOM</code>): A 2 by 2 contingency table is created
+					<table class="table table-striped">
+						<tr> <th> </th>    <th> Alt (A/a + a/a) </th>  <th> Ref (A/A)</th> </tr>
+						<tr> <th> Cases    </th> <td> N11</td>         <td> N12 </td> </tr>
+						<tr> <th> Controls </th> <td> N21</td>         <td> N22 </td> </tr>
+					</table>
+					This means that the first column are the number of samples that have ANY non-reference: either 1 (heterozygous) or 2 (homozygous).
+					Fisher exact test is used to calculate the p-value.
+					<br>
+					<br>
+					<li> Recessive model (<code>CC_REC</code>): A 2 by 2 contingency table is created
+					<table class="table table-striped">
+						<tr> <th> </th>    <th> Alt (a/a) </th>  <th> Ref + Het (A/A + A/a)</th> </tr>
+						<tr> <th> Cases    </th> <td> N11</td>         <td> N12 </td> </tr>
+						<tr> <th> Controls </th> <td> N21</td>         <td> N22 </td> </tr>
+					</table>
+					This means that the first column are the number of samples that have both non-reference chromosomes: homozygous ALT.
+					Fisher exact test is used to calculate the p-value.
+					<br>
+					<br>
+					<li> Allelic model (<code>CC_ALL</code>): A 2 by 2 contingency table is created
+					<table class="table table-striped">
+						<tr> <th> </th>    <th> Variants </th>  <th> References </th> </tr>
+						<tr> <th> Cases    </th> <td> N11</td>         <td> N12 </td> </tr>
+						<tr> <th> Controls </th> <td> N21</td>         <td> N22 </td> </tr>
+					</table>
+					This means that the first column are the number of non-reference genotypes. 
+					For instance homozygous reference samples count as 0, heterozygous count as 1 and homozygous non-reference count as 2.
+					Fisher exact test is used to calculate the p-value.
+					<br>
+					<br>
+					<li> Genotipic / Codominant model (<code>CC_GENO</code>): A 2 by 3 contingency table is created
+					<table class="table table-striped">
+						<tr> <th> </th>          <th> A/A </th>  <th> a/A </th>  <th> a/a </th> </tr>
+						<tr> <th> Cases    </th> <td> N11 </td>  <td> N12 </td>  <td> N13 </td> </tr>
+						<tr> <th> Controls </th> <td> N21 </td>  <td> N22 </td>  <td> N23 </td> </tr>
+						<tr> <th> Weight   </th> <td> 0.0 </td>  <td> 1.0 </td>  <td> 2.0 </td> </tr>
+					</table>
+					This means that the first column are the number of homozygous reference genotypes.
+					The second column is the number of heterozygous.
+					And the third column is the number of homozygous non-reference. 
+					Cochran-Armitage test is used to calculate the p-value, using the weights shown in the last row.
+				</ul>
+
+
         </section>
 
 
