@@ -95,11 +95,33 @@ cd download
 # 	echo
 # done
 
+#---
+# ENSEMBL is files in a way that is not fully compatible with Java's gzip library
+#---
+
+rm -vf queue_gunzip.txt queue_gunzip.txt
+for g in `find . -iname "*.gz"`
+do
+	f=`dirname $g`/`basename $g .gz`
+	echo "Un-compress / compress: $g"
+	echo "gunzip -v $g" >> queue_gunzip.txt
+	echo "gzip -v $f" >> queue_gzip.txt
+done
+
+# Uncompress all files
+../scripts/queue.pl 22 22 1 queue_gunzip.txt
+
+# Compress all files
+../scripts/queue.pl 22 22 1 queue_gzip.txt
+
+#---
 # Back to parent dir
+#---
 cd - > /dev/null
 
 #---
 # Move data dir to 'real' data dir
 #---
+# mv download/data/genomes/* data/genomes/
 # mv download/data/* data/
 
