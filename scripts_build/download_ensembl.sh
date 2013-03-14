@@ -1,6 +1,6 @@
 #!/bin/sh -e
 
-RELEASE=69
+source `dirname $0`/config.sh
 
 #mkdir download
 cd download
@@ -10,16 +10,16 @@ cd download
 #---
 
 # # Download GTF files (annotations)
-# wget -r -A "*gtf.gz" "ftp://ftp.ensembl.org/pub/release-$RELEASE/gtf/"
+# wget -r -A "*gtf.gz" "ftp://ftp.ensembl.org/pub/release-$ENSEMBL_RELEASE/gtf/"
 # 
 # # Download FASTA files (reference genomes)
-# wget -r -A "*dna.toplevel.fa.gz" "ftp://ftp.ensembl.org/pub/release-$RELEASE/fasta/"
+# wget -r -A "*dna.toplevel.fa.gz" "ftp://ftp.ensembl.org/pub/release-$ENSEMBL_RELEASE/fasta/"
 # 
 # # Download CDS sequences
-# wget -r -A "*cdna.all.fa.gz" "ftp://ftp.ensembl.org/pub/release-$RELEASE/fasta/"
+# wget -r -A "*cdna.all.fa.gz" "ftp://ftp.ensembl.org/pub/release-$ENSEMBL_RELEASE/fasta/"
 # 
 # # Download PROTEIN sequences
-# wget -r -A "*.pep.all.fa.gz" "ftp://ftp.ensembl.org/pub/release-$RELEASE/fasta/"
+# wget -r -A "*.pep.all.fa.gz" "ftp://ftp.ensembl.org/pub/release-$ENSEMBL_RELEASE/fasta/"
 
 #---
 # Create directory structure
@@ -78,55 +78,10 @@ cd download
 # 
 # 	# Individual genome entry
 # 	echo -e "$short.genome : $genome"
-# 	echo -e "$short.reference : ftp://ftp.ensembl.org/pub/release-$RELEASE/gtf/"
+# 	echo -e "$short.reference : ftp://ftp.ensembl.org/pub/release-$ENSEMBL_RELEASE/gtf/"
 # 	echo
 # done
 
 # Back to parent dir
 cd - > /dev/null
 
-#---
-# Create build queue entries
-#---
-
-echo Creating build queue 'queue_build.txt' file
-rm -vf queue_build.txt
-
-# Build from refseq files
-echo "java -Xmx10G -jar snpEff.jar build -v -refseq hg19" >> queue_build.txt
-echo "java -Xmx10G -jar snpEff.jar build -v -refseq hg19" >> queue_build.txt
-
-# Build from TXT files
-for genes in `ls data/*/genes.txt* | grep -v hg19`
-do
-	dir=`dirname $genes`
-	genomeName=`basename $dir`
-	echo "java -Xmx10G -jar snpEff.jar build -v -txt $genomeName"
-done | sort >> queue_build.txt
-
-# Build from GFF2 files
-echo "java -Xmx10G -jar snpEff.jar build -v -gff2 amel2" >> queue_build.txt
-
-# Build from GFF3 files
-for genes in `ls data/*/genes.gff* | grep -v amel2`
-do
-	dir=`dirname $genes`
-	genomeName=`basename $dir`
-	echo "java -Xmx10G -jar snpEff.jar build -v -gff3 $genomeName"
-done | sort >> queue_build.txt
-
-# Build from GTF22 files
-for genes in data/*/genes.gtf*
-do
-	dir=`dirname $genes`
-	genomeName=`basename $dir`
-	echo "java -Xmx10G -jar snpEff.jar build -v -gtf22 $genomeName"
-done | sort >> queue_build.txt
-
-# Build from GenBank files
-for genes in data/*/genes.gb*
-do
-	dir=`dirname $genes`
-	genomeName=`basename $dir`
-	echo "java -Xmx10G -jar snpEff.jar build -v -genbank $genomeName"
-done | sort >> queue_build.txt

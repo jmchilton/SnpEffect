@@ -19,6 +19,5 @@ echo $SNPEFF "http://sourceforge.net/projects/snpeff/files/snpEff_latest_core.zi
 echo $SNPSIFT "http://sourceforge.net/projects/snpeff/files/snpEff_latest_core.zip"
 ) | tr " " "\t"  > $VER
 
-
 # Show file
 cat $VER

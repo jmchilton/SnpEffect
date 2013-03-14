@@ -7,9 +7,9 @@
 #                                      Pablo Cingolani 2010
 #------------------------------------------------------------------------------
 
-VERSION="3_1"
-VERSION_REV=$VERSION""
-DIR=snpEff_$VERSION_REV
+source `dirname $0`/config.sh
+
+DIR=snpEff_$SNPEFF_VERSION_REV
 rm -rvf $DIR
 mkdir $DIR
 
@@ -26,18 +26,18 @@ cd -
 mv $DIR snpEff
 
 # Create 'core' zip file
-ZIP="snpEff_v"$VERSION_REV"_core.zip"
+ZIP="snpEff_v"$SNPEFF_VERSION_REV"_core.zip"
 rm -f $ZIP 2> /dev/null
 zip -r $ZIP snpEff
 
 # Create ZIP file for each database
-for d in `ls data/ZZZgrai*/snpEffectPredictor.bin`
+for d in `ls data/*/snpEffectPredictor.bin`
 do
 	DIR=`dirname $d`
 	GEN=`basename $DIR`
 	
 	echo $GEN
-	ZIP="snpEff_v"$VERSION"_"$GEN".zip"
+	ZIP="snpEff_v"$SNPEFF_VERSION"_"$GEN".zip"
 	zip -r $ZIP data/$GEN/*.bin
 done
 

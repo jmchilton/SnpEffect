@@ -1,8 +1,6 @@
 #!/bin/sh
 
-VERSION_SNPEFF=3.1
-VERSION_SNPSIFT=1.7
-VERSION_SNPSQL=0.2
+source `dirname $0`/config.sh
 
 #---
 # Build SnpEff
