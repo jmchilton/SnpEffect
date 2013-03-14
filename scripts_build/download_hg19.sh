@@ -96,8 +96,8 @@ cd data/$REF/
 
 # Protein fasta
 zcat human.protein.faa.gz \
-	| ../../scripts/hg19_proteinFasta2NM.pl refLink.txt \
-	| ../../scripts/hg19_proteinFastaReplaceName.pl genes.txt.gz \
+	| ../../scripts_build/hg19_proteinFasta2NM.pl refLink.txt \
+	| ../../scripts_build/hg19_proteinFastaReplaceName.pl genes.txt.gz \
 	> protein.fa
 gzip protein.fa
 
