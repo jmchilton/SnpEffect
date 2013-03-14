@@ -21,6 +21,10 @@ cd download
 # # Download PROTEIN sequences
 # wget -r -A "*.pep.all.fa.gz" "ftp://ftp.ensembl.org/pub/release-$ENSEMBL_RELEASE/fasta/"
 
+# Download regulation tracks
+#wget -r -A "*AnnotatedFeatures.gff.gz" "ftp://ftp.ensembl.org/pub/release-$ENSEMBL_RELEASE/regulation/"
+#wget -r -A "*MotifFeatures.gff.gz" "ftp://ftp.ensembl.org/pub/release-$ENSEMBL_RELEASE/regulation/"
+
 #---
 # Create directory structure
 #---
@@ -66,6 +70,15 @@ cd download
 # 	mkdir -p data/$short
 # 	cp $pep data/$short/protein.fa.gz
 # done
+#
+# # Regunation tracks
+# mkdir -p data/GRCh37.$ENSEMBL_RELEASE/
+# mv ftp.ensembl.org/pub/release-$ENSEMBL_RELEASE/regulation/homo_sapiens/AnnotatedFeatures.gff.gz data/GRCh37.$ENSEMBL_RELEASE/regulation.gff.gz
+# mv ftp.ensembl.org/pub/release-$ENSEMBL_RELEASE/regulation/homo_sapiens/MotifFeatures.gff.gz data/GRCh37.$ENSEMBL_RELEASE/motif.gff.gz
+# 
+# mkdir -p data/GRCm38.$ENSEMBL_RELEASE/
+# mv ftp.ensembl.org/pub/release-$ENSEMBL_RELEASE/regulation/mus_musculus/AnnotatedFeatures.gff.gz data/GRCm38.$ENSEMBL_RELEASE/regulation.gff.gz
+# mv ftp.ensembl.org/pub/release-$ENSEMBL_RELEASE/regulation/mus_musculus/MotifFeatures.gff.gz data/GRCm38.$ENSEMBL_RELEASE/motif.gff.gz
 
 #---
 # Config file entries
@@ -84,4 +97,9 @@ cd download
 
 # Back to parent dir
 cd - > /dev/null
+
+#---
+# Move data dir to 'real' data dir
+#---
+# mv download/data/* data/
 
