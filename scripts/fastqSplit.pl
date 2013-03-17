@@ -11,7 +11,7 @@
 
 use strict;
 
-die "Usage: fastqSplit.pl numSequences file.fastq prefix" if $#ARGV != 2;
+die "Usage: fastqSplit.pl numSequences file.fastq prefix\n" if $#ARGV != 2;
 
 my($numSeqs) = $ARGV[0];		# Number of sequences per file
 my($fastq) = $ARGV[1];			# Original files name
@@ -23,7 +23,7 @@ my($outPrefix) = $ARGV[2];		# Output file names prefix
 
 # Open file
 if( $fastq =~ /\.gz$/ )	{ open FQ, "gunzip -c $fastq |" or die "Cannot open input file '$fastq'\n"; }
-else 					{ open FQ, "$fastq" or die "Cannot open input file '$fastq'\n";; }
+else 					{ open FQ, "$fastq" or die "Cannot open input file '$fastq'\n"; }
 
 # Read sequences
 my($seqName, $seq, $seqName2, $qual, $outFq, $l);
@@ -34,8 +34,8 @@ for($seqNum=1 ; $seqName = <FQ> ; $seqNum++ ) {
 	$qual = <FQ>;
 
 	# Sanity check
-	die "Error parsing sequence number $seqNum (line $lineNum): Sequence name does not start with '\@'" if( $seqName !~ /^\@/ );
-	die "Error parsing sequence number $seqNum (line $lineNum): Sequence name does not start with '+'" if( $seqName2 !~ /^\+/ );
+	die "Error parsing sequence number $seqNum (line $lineNum): Sequence name does not start with '\@'\n" if( $seqName !~ /^\@/ );
+	die "Error parsing sequence number $seqNum (line $lineNum): Sequence quality name does not start with '+'\n" if( $seqName2 !~ /^\+/ );
 
 	# Open a new output file?
 	if(($outFq eq '') || ($outSeqNum > $numSeqs)) {
@@ -47,7 +47,7 @@ for($seqNum=1 ; $seqName = <FQ> ; $seqNum++ ) {
 
 		# Open new file (close old one)
 		close OUT if $outFq ne '';
-		open OUT,"> $outFq" or die "Cannot open output file '$outFq'";
+		open OUT,"> $outFq" or die "Cannot open output file '$outFq'\n";
 	}
 
 	# Output to file
