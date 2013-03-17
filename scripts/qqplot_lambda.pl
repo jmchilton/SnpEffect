@@ -15,7 +15,9 @@
 
 # Parse command line option (file base name)
 $base = 'QQ-plot';
+$plot = 1;
 if( $ARGV[0] ne '' )	{ $base = $ARGV[0]; }
+if( $ARGV[1] eq '-noPlot' )	{ $plot = 0; }
 
 $pngFile = "$base.png";
 $txtFile = "$base.txt";
@@ -44,6 +46,8 @@ qqplot <- function( x, title ) {
 	keep <- (x > 0) & (x <= 1) & ( ! is.na(x) );
 	x <- x[keep]
 	l <- estlambda(x, plot = F)
+	cat('\nTitle:\t', title, '\tLambda:\t', l\$estimate, '\n');
+
 	title <- paste( title , " lambda=", l\$estimate)
 	estlambda(x, plot = TRUE, main=title)
 }
@@ -63,8 +67,10 @@ close R;
 # Show figure
 #---
 
-$os = `uname`;
-$show = "eog"; 
-if( $os =~ "Darwin" )	{ $show = "open"; }
-`$show $pngFile &`;
+if( $plot ) {
+	$os = `uname`;
+	$show = "eog"; 
+	if( $os =~ "Darwin" )	{ $show = "open"; }
+	`$show $pngFile &`;
+}
 
