@@ -1179,12 +1179,19 @@ chr  pos     ref  alt  change_0_0  change_0_1  change_0_2  change_1_0  change_1_
 				</ul>
 				<br>
 				<br>
-				The end of the file shows the number of possible errors (or mismatches):
+				The end of the file, a footer shows the total for each column followed by number of possible errors (or mismatches):
 <pre>
+$ tail concordance.txt 
+...
+# Total				2981841	1599	0	3183	446582	868	390	2463	267892	846	46760
+# Errors:
+#	ALT field does not match	19
 </pre>
-
-
-				
+				In this case the were 19 ALT fields that did not match between 'genotype.vcf' and 'sequencing.vcf'. 
+				This can happen, for instance, when there are INDELs, which cannot be detected by genotyping arrays.
+				<br>
+				<br>
+				<i class="icon-hand-right"></i> Errors or mismatches are shown to STDERR if you use verbose mode (command line option <code>-v</code>).
 				</p>
         </section>
 
