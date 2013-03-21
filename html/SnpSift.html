@@ -88,6 +88,7 @@
           <li><a href="#dbNSFP"> <i class="icon-chevron-right"></i>  SnpSift dbNSFP </a></li>
           <li><a href="#Split"> <i class="icon-chevron-right"></i>  SnpSift Split</a></li>
           <li><a href="#phastCons"> <i class="icon-chevron-right"></i>  SnpSift PhastCons</a></li>
+          <li><a href="#concordance"> <i class="icon-chevron-right"></i>  SnpSift Concordance</a></li>
         </ul>
       </div>
       <div class="span9">
@@ -1070,6 +1071,113 @@ cp path/to/genome/hg19.fa.gz.fai ./genome.fai
 # Now we are ready to annotate
 java -Xmx4g -jar SnpSift.jar ~/snpEff/db/phastCons file.vcf > file.phastCons.vcf
 </pre>
+				</p>
+        </section>
+
+        <!-- Concordance
+        ================================================== -->
+        <section id="concordance">
+          <div class="page-header">
+            <h1>16. SnpSift Concordance </h1>
+          </div>
+				<p class="lead">
+				Calculate concordance between two VCF files.
+				</p>
+				<p>
+				This is typically used when you want to calculate conrodance between a genotyping exepriment and a sequencing experiment.
+				<br>
+				For instance, you sequenced several samples and, as part of a related experiment or just as quality control, you also genotype the same samepls using a genotyping array.
+				Now you want to compare the two experiments. 
+				Ideally there would be no difference between the variants from genotyping and sequencing, but this is hardly the case in real world.
+				<br>
+				You can use <code>SnpSift concordance</code> to measure the differences between the two experiments.
+				<br>
+				<br>
+				<i class="icon-warning-sign"></i> It is assumed that both VCF files are sorted by chromosome and position.
+				<br>
+				<br>
+				<i class="icon-warning-sign"></i>Sample names are defined in '#CHROM' line of the header section. 
+				Concordance is calculated only if sample label matches in both files.
+				<br>
+				Example: 
+<pre>
+$ java -Xmx1g -jar SnpSift.jar concordance -v genotype.vcf sequencing.vcf > concordance.txt
+00:00:00.000	Indexing file '/home/pcingola/t2d2/ExomeChip/niddk.clean.all.vcf'
+	index:	MT	460030998
+	index:	1	19705
+		1 / 2	45170805 / 45174315
+		2 / 3	77052081 / 77055591
+		3 / 4	104065531 / 104069041
+		4 / 5	124098372 / 124101881
+		5 / 6	146535292 / 146538802
+		6 / 7	184793526 / 184797035
+		7 / 8	206156508 / 206160018
+		8 / 9	223072816 / 223076326
+		9 / 10	242315995 / 242319505
+		10 / 11	261053789 / 261057299
+		11 / 12	290190553 / 290194063
+		12 / 13	312869636 / 312873146
+		13 / 14	321966539 / 321970049
+		14 / 15	336131317 / 336134827
+		15 / 16	350871669 / 350875179
+		16 / 17	368900523 / 368904032
+		17 / 18	391305860 / 391309369
+		18 / 19	398932237 / 398935747
+		19 / 20	425219198 / 425222708
+		20 / 21	437022008 / 437025517
+		21 / 22	442563678 / 442567188
+		22 / X	451783418 / 451786927
+		X / Y	459553691 / 459557200
+		Y / MT	459588787 / 459592296
+00:00:01.137	Open VCF file 'genotype.vcf'
+00:00:01.141	Open VCF file 'sequencing.vcf'
+00:00:01.176	Chromosome: '1'
+00:00:02.127		1:1550992	1:1528859
+00:00:02.739		1:2426313	1:2389636
+...
+00:02:13.780		1:248487058	1:248471945
+</pre>
+				</p>
+
+				<h3>Output file</h3>
+				<p>
+				Output file has the following format:
+<pre>
+$ head concordance.txt 
+# Number of samples:
+#    929    File genotype.vcf
+#    583    File sequencing.vcf
+#    514    Both files
+chr  pos     ref  alt  change_0_0  change_0_1  change_0_2  change_1_0  change_1_1  change_1_2  change_2_0  change_2_1  change_2_2  missing_genotype_genotype  missing_genotype_sequencing
+1    865584  G    A        508         0           0           0           2           0           0           0           0           0                                 5
+1    865625  G    A        512         0           0           0           1           0           0           0           0           0                                 1
+1    865628  G    A        511         0           0           0           2           0           0           0           0           0                                 1
+1    865665  G    A        495         0           0           0           4           0           0           0           0           0                                17
+1    865694  C    T        428         0           0           0          82           0           0           0           4           0                                 0
+</pre>
+				The header indicates that one file ('genotype.vcf') has 929 samples, the other file has 583 and there are 514 matching sample IDs in both files.
+				<br>
+				After that we have table showing details for every entry (chr:position) that both files have in common.
+				<br>
+				Each genotype is coded according to the number of ALT variants. i.e.:
+				<ul>
+					<li> '0/0' (homozygous reference) is coded as '0'
+					<li> '0/1' or '1/0' (heterozygous ALT) coded as '1'
+					<li> '1/1' (homozygous ALT) is coded as '1'
+				</ul>
+				So the column "change_X_Y" on the table shows how many genotypes coded 'X' in the first VCF, changed to 'Y' in the second VCF.
+				For example, 'change_0_1' counts the number of "homozygous reference in genotype.vcf" that changed to "heterozygous ALT in sequencing.vcf".
+				Or 'change_2_2' counts the number of "homozygous ALT" that did not change (in both files they are '2').
+				<br>
+				<br>
+				A few rules apply:
+				<ul>
+					<li> If a VCF entry (chr:pos) is present in only one of the files, obviously we cannot calculate concordance, so it is ignored.
+					<li> If a VCF entry (chr:pos) has more than one ALT it is ignored. This means that non-biallelic variants are ignored.
+					<li> If, for the same chr:pos, REF field is different between the two files, then the entry is ignored.
+					<li> If, for the same chr:pos, ALT field is different between the two files, then the entry is ignored.
+				</ul>
+
 				</p>
         </section>
 
