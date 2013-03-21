@@ -436,6 +436,8 @@ public class FileIndexChrPos {
 	 * Index chromosomes in the whole file 
 	 */
 	public void index() {
+		if (file == null) throw new RuntimeException("File error (forgot to open the file?).");
+
 		// Last line (minus '\n' character, minus one)
 		long end = size() - 1;
 		String lineEnd = getLine(end).line;
