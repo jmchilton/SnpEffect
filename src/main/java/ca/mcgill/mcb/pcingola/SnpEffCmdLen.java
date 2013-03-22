@@ -87,9 +87,11 @@ public class SnpEffCmdLen extends SnpEff {
 			len(chr);
 
 		// For all Genes and sub intervals
-		for (Gene gene : snpEffectPredictor.getGenome().getGenes())
+		for (Gene gene : snpEffectPredictor.getGenome().getGenes()) {
+			len(gene);
 			for (Marker m : gene.markers())
 				len(m);
+		}
 
 		// All other intervals
 		for (Marker m : snpEffectPredictor.getMarkers())

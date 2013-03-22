@@ -882,6 +882,7 @@ public class Transcript extends IntervalAndSubIntervals<Exon> {
 		markers.addAll(cdss);
 		markers.add(upstream);
 		markers.add(downstream);
+		markers.addAll(introns());
 		return markers;
 	}
 
