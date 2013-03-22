@@ -1141,13 +1141,31 @@ $ java -Xmx1g -jar SnpSift.jar concordance -v genotype.vcf sequencing.vcf > conc
 
 				<h3>Output</h3>
 				<p>
-				SnpSif's concordance output (by default written to STDOUT) has the following format:
+				SnpSif's concordance output (by default written to STDOUT) and it is divided into the following sections:
+				<ul>
+					<li> Header: General information about the two VCF files
+					<li> Concordance by variant
+					<li> Concordance by sample
+					<li> Footer: Errors or mismatches between the two VCF files
+				</ul>
+				</p>
+				<p>
+				<b>Header</b>
+				Here is an example of the header section:
 <pre>
 $ head concordance.txt 
 # Number of samples:
 #    929    File genotype.vcf
 #    583    File sequencing.vcf
 #    514    Both files
+</pre>
+				The header indicates that one file ('genotype.vcf') has 929 samples, the other file has 583 and there are 514 matching sample IDs in both files.
+				</p>
+				<b>Concordance by variant</b>
+				<p>
+				This sections is a table showing concordance details for every entry (chr:position) that both files have in common.
+				E.g.:
+<pre>
 chr  pos     ref  alt  change_0_0  change_0_1  change_0_2  change_1_0  change_1_1  change_1_2  change_2_0  change_2_1  change_2_2  missing_genotype_genotype  missing_genotype_sequencing
 1    865584  G    A        508         0           0           0           2           0           0           0           0           0                                 5
 1    865625  G    A        512         0           0           0           1           0           0           0           0           0                                 1
@@ -1155,9 +1173,7 @@ chr  pos     ref  alt  change_0_0  change_0_1  change_0_2  change_1_0  change_1_
 1    865665  G    A        495         0           0           0           4           0           0           0           0           0                                17
 1    865694  C    T        428         0           0           0          82           0           0           0           4           0                                 0
 </pre>
-				The header indicates that one file ('genotype.vcf') has 929 samples, the other file has 583 and there are 514 matching sample IDs in both files.
 				<br>
-				After that we have table showing details for every entry (chr:position) that both files have in common.
 				<br>
 				Each genotype is coded according to the number of ALT variants. i.e.:
 				<ul>
@@ -1177,9 +1193,30 @@ chr  pos     ref  alt  change_0_0  change_0_1  change_0_2  change_1_0  change_1_
 					<li> If, for the same chr:pos, REF field is different between the two files, then the entry is ignored.
 					<li> If, for the same chr:pos, ALT field is different between the two files, then the entry is ignored.
 				</ul>
-				<br>
-				<br>
-				The end of the file, a footer shows the total for each column followed by number of possible errors (or mismatches):
+				</p>
+				<b>Concordance by sample</b>
+				<p>
+				This section shows details in the same format as the previous section.
+				Here, concordace metrics are shown aggregated for each sample.
+				E.g.:
+<pre>
+# Totals by sample
+sample  change_0_0  change_0_1  change_0_2  change_1_0  change_1_1  change_1_2  change_2_0  change_2_1  change_2_2  missing_genotype_genotype  missing_genotype_sequencing
+ID_003  79          0           0           1           8           0           0           0           2           1                          1
+ID_004  83          0           0           1           2           0           0           0           5           0                          1
+ID_005  80          0           0           0           7           0           0           0           4           1                          0
+ID_006  79          0           0           0           5           0           0           0           6           0                          2
+ID_008  81          0           0           0           4           0           0           0           4           0                          3
+ID_009  80          0           0           0           7           0           0           0           3           0                          2
+ID_012  74          0           0           0           10          0           0           0           1           0                          7
+ID_013  79          1           0           0           4           0           0           0           5           0                          3
+ID_018  84          0           0           0           5           0           0           0           3           0                          0
+...
+</pre>
+				</p>
+				<b>Footer</b>
+				<p>
+				At the end of the file, a footer shows the total for each column followed by number of possible errors (or mismatches):
 <pre>
 $ tail concordance.txt 
 ...
