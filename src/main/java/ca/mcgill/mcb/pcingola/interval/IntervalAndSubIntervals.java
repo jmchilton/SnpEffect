@@ -90,6 +90,16 @@ public class IntervalAndSubIntervals<T extends Marker> extends Marker implements
 		return subIntervals.values().iterator();
 	}
 
+	/**
+	 * A list of all markers in this transcript
+	 * @return
+	 */
+	public Markers markers() {
+		Markers markers = new Markers();
+		markers.addAll(subIntervals.values());
+		return markers;
+	}
+
 	public int numChilds() {
 		return (subIntervals != null ? subIntervals.size() : 0);
 	}

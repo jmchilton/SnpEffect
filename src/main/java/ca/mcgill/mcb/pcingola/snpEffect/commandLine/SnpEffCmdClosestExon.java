@@ -33,19 +33,17 @@ public class SnpEffCmdClosestExon extends SnpEff {
 	public static final String CLOSEST_EXON = "CLOSEST_EXON";
 	public static final String INFO_LINE = "##INFO=<ID=" + CLOSEST_EXON + ",Number=4,Type=String,Description=\"Closest exon: Distance (bases), exons Id, transcript Id, gene name\">";
 
-	boolean verbose = false;
 	boolean bedFormat = false;
-	String configFile = Config.DEFAULT_CONFIG_FILE;
-	String genomeVer = "";
 	String inFile = "";
-	Config config;
 	IntervalForest intervalForest;
 
 	public SnpEffCmdClosestExon() {
+		super();
 		command = "closestExon";
 	}
 
 	public SnpEffCmdClosestExon(Config config) {
+		super();
 		command = "closestExon";
 		this.config = config;
 		inFile = config.getFileNameProteins();

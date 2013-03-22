@@ -797,7 +797,7 @@ public class SnpEffCmdEff extends SnpEff {
 			if (verbose) Timer.showStdErr("done.");
 		}
 
-		// Filter canonical transcripts
+		// Use transcripts set form input file
 		if (onlyTranscriptsFile != null) {
 			// Load file
 			String onlyTr = Gpr.readFile(onlyTranscriptsFile);

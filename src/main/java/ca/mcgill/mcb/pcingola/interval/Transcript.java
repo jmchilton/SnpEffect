@@ -870,6 +870,22 @@ public class Transcript extends IntervalAndSubIntervals<Exon> {
 	}
 
 	/**
+	 * A list of all markers in this transcript
+	 * @return
+	 */
+	@Override
+	public Markers markers() {
+		Markers markers = new Markers();
+		markers.addAll(subIntervals.values());
+		markers.addAll(spliceBranchSites);
+		markers.addAll(utrs);
+		markers.addAll(cdss);
+		markers.add(upstream);
+		markers.add(downstream);
+		return markers;
+	}
+
+	/**
 	 * Retrieve coding sequence AND the UTRs (mRNA = 5'UTR + CDS + 3'UTR)
 	 * I.e. Concatenate all exon sequences
 	 */

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import ca.mcgill.mcb.pcingola.Pcingola;
+import ca.mcgill.mcb.pcingola.SnpEffCmdLen;
 import ca.mcgill.mcb.pcingola.logStatsServer.LogStats;
 import ca.mcgill.mcb.pcingola.logStatsServer.VersionCheck;
 import ca.mcgill.mcb.pcingola.snpEffect.Config;
@@ -177,6 +178,7 @@ public class SnpEff implements CommandLine {
 				|| args[0].equalsIgnoreCase("spliceAnalysis") //
 				|| args[0].equalsIgnoreCase("countReads") //
 				|| args[0].equalsIgnoreCase("genes2bed") //
+				|| args[0].equalsIgnoreCase("len") //
 		) {
 			command = args[argNum++].toLowerCase();
 		} else {
@@ -226,68 +228,20 @@ public class SnpEff implements CommandLine {
 
 		// All commands are lowercase
 		command = command.toLowerCase();
-
-		if (command.equalsIgnoreCase("build")) {
-			//---
-			// Build database
-			//---
-			snpEff = new SnpEffCmdBuild();
-		} else if (command.equalsIgnoreCase("dump")) {
-			//---
-			// Dump database
-			//---
-			snpEff = new SnpEffCmdDump();
-		} else if (command.equalsIgnoreCase("download")) {
-			//---
-			// Download database
-			//---
-			snpEff = new SnpEffCmdDownload();
-		} else if (command.equalsIgnoreCase("cds")) {
-			//---
-			// CDS test
-			//---
-			snpEff = new SnpEffCmdCds();
-		} else if (command.equalsIgnoreCase("eff")) {
-			//---
-			// Align to reference genome
-			//---
-			snpEff = new SnpEffCmdEff();
-		} else if (command.equalsIgnoreCase("protein")) {
-			//---
-			// Protein test
-			//---
-			snpEff = new SnpEffCmdProtein();
-		} else if (command.equalsIgnoreCase("closestexon")) {
-			//---
-			// Find closest exon
-			//---
-			snpEff = new SnpEffCmdClosestExon();
-		} else if (command.equalsIgnoreCase("databases")) {
-			//---
-			// Create download table and galaxy list from config file
-			//---
-			snpEff = new SnpEffCmdDatabases();
-		} else if (command.equalsIgnoreCase("genes2bed")) {
-			//---
-			// Create a bed file from a gene list
-			//---
-			snpEff = new SnpEffCmdGenes2Bed();
-		} else if (command.equalsIgnoreCase("spliceanalysis")) {
-			//---
-			// Splice site analysis
-			//---
-			snpEff = new SpliceAnalysis();
-		} else if (command.equalsIgnoreCase("countreads")) {
-			//---
-			// Count reads site analysis
-			//---
-			snpEff = new SnpEffCmdCountReads();
-		} else if (command.equalsIgnoreCase("test")) {
-			//---
-			// Test command (only for testing weird stuff)
-			//---
-			snpEff = new SnpEffCmdTest();
-		} else throw new RuntimeException("Unknown command '" + command + "'");
+		if (command.equalsIgnoreCase("build")) snpEff = new SnpEffCmdBuild();
+		else if (command.equalsIgnoreCase("dump")) snpEff = new SnpEffCmdDump();
+		else if (command.equalsIgnoreCase("download")) snpEff = new SnpEffCmdDownload();
+		else if (command.equalsIgnoreCase("cds")) snpEff = new SnpEffCmdCds();
+		else if (command.equalsIgnoreCase("eff")) snpEff = new SnpEffCmdEff();
+		else if (command.equalsIgnoreCase("protein")) snpEff = new SnpEffCmdProtein();
+		else if (command.equalsIgnoreCase("closestexon")) snpEff = new SnpEffCmdClosestExon();
+		else if (command.equalsIgnoreCase("databases")) snpEff = new SnpEffCmdDatabases();
+		else if (command.equalsIgnoreCase("genes2bed")) snpEff = new SnpEffCmdGenes2Bed();
+		else if (command.equalsIgnoreCase("spliceanalysis")) snpEff = new SpliceAnalysis();
+		else if (command.equalsIgnoreCase("countreads")) snpEff = new SnpEffCmdCountReads();
+		else if (command.equalsIgnoreCase("len")) snpEff = new SnpEffCmdLen();
+		else if (command.equalsIgnoreCase("test")) snpEff = new SnpEffCmdTest();
+		else throw new RuntimeException("Unknown command '" + command + "'");
 
 		//---
 		// Run

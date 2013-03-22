@@ -1141,25 +1141,13 @@ $ java -Xmx1g -jar SnpSift.jar concordance -v genotype.vcf sequencing.vcf > conc
 
 				<h3>Output</h3>
 				<p>
-				SnpSif's concordance output (by default written to STDOUT) and it is divided into the following sections:
+				SnpSif's concordance output is written to STDOUT and two files.
+				For instance the command <code>java -jar SnpSift.jar concordance -v genotype.vcf sequencing.vcf</code> will write:
 				<ul>
-					<li> Header: General information about the two VCF files
-					<li> Concordance by variant
-					<li> Concordance by sample
-					<li> Footer: Errors or mismatches between the two VCF files
+					<li> Concordance by variant: Written to STDOUT
+					<li> Concordance by sample: Written to <code>concordance_genotyping_sequencing.by_sample.txt</code>
+					<li> Summary:  Written to <code>concordance_genotyping_sequencing.summary.txt</code>
 				</ul>
-				</p>
-				<p>
-				<b>Header</b>
-				Here is an example of the header section:
-<pre>
-$ head concordance.txt 
-# Number of samples:
-#    929    File genotype.vcf
-#    583    File sequencing.vcf
-#    514    Both files
-</pre>
-				The header indicates that one file ('genotype.vcf') has 929 samples, the other file has 583 and there are 514 matching sample IDs in both files.
 				</p>
 				<b>Concordance by variant</b>
 				<p>
@@ -1214,21 +1202,27 @@ ID_018  84          0           0           0           5           0           
 ...
 </pre>
 				</p>
-				<b>Footer</b>
+				<b>Summary</b>
 				<p>
-				At the end of the file, a footer shows the total for each column followed by number of possible errors (or mismatches):
+				Summary file contains overall information and errors.
+				Here is an example of a summary file:
 <pre>
-$ tail concordance.txt 
-...
-# Total				2981841	1599	0	3183	446582	868	390	2463	267892	846	46760
-# Errors:
-#	ALT field does not match	19
+$ cat concordance_genotyping_sequencing.summary.txt
+Number of samples:
+    929    File genotype.vcf
+    583    File sequencing.vcf
+    514    Both files
+Errors:
+	ALT field does not match	19
 </pre>
+				The header indicates that one file ('genotype.vcf') has 929 samples, the other file has 583 and there are 514 matching sample IDs in both files.
+				<br>
+				At the end of the file, a footer shows the total for each column followed by number of possible errors (or mismatches).
 				In this case the were 19 ALT fields that did not match between 'genotype.vcf' and 'sequencing.vcf'. 
 				This can happen, for instance, when there are INDELs, which cannot be detected by genotyping arrays.
 				<br>
 				<br>
-				<i class="icon-hand-right"></i> Errors or mismatches are shown to STDERR if you use verbose mode (command line option <code>-v</code>).
+				<i class="icon-hand-right"></i> Summary messages are shown to STDERR if you use verbose mode (command line option <code>-v</code>).
 				</p>
         </section>
 

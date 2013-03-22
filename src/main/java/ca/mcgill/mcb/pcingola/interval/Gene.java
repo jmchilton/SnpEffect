@@ -182,6 +182,16 @@ public class Gene extends IntervalAndSubIntervals<Transcript> implements Seriali
 		return toDelete.size();
 	}
 
+	@Override
+	public Markers markers() {
+		Markers markers = new Markers();
+		for (Transcript tr : this) {
+			markers.add(tr);
+			markers.add(tr.markers());
+		}
+		return markers;
+	}
+
 	/**
 	 * Remove all non-canonical transcripts
 	 */

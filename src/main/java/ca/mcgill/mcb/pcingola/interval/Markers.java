@@ -52,10 +52,10 @@ public class Markers implements Iterable<Marker>, Serializable {
 
 	/**
 	 * Add all intervals
-	 * @param intervalsMarkerIntervaloAdd
+	 * @param markersToAdd
 	 */
-	public Markers add(Markers intervalsMarkerIntervaloAdd) {
-		markers.addAll(intervalsMarkerIntervaloAdd.markers);
+	public Markers add(Markers markersToAdd) {
+		markers.addAll(markersToAdd.markers);
 		return this;
 	}
 

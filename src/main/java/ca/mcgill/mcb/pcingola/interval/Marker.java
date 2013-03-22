@@ -484,6 +484,14 @@ public class Marker extends Interval {
 		;
 	}
 
+	/**
+	 * To string as a simple "chr:start-end" format
+	 * @return
+	 */
+	public String toStr() {
+		return getClass().getSimpleName() + "_" + getChromosomeName() + ":" + (start + 1) + "-" + (end + 1);
+	}
+
 	@Override
 	public String toString() {
 		return getChromosomeName() + "\t" + start + "-" + end //
