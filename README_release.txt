@@ -18,11 +18,14 @@
 	cd ~/snpEff
 	./scripts_build/build.sh 
 
-5) Update Galaxy's snpEff.xml
+5) Upload files to sourceForge
+   
+
+6) Update Galaxy's snpEff.xml
 		# Create galaxy menu (add output to galaxy/snpEff.xml)
 		java -jar snpEff.jar cfg2table galaxy 
 
-6) Upload to Galaxy ToolShed: http://toolshed.g2.bx.psu.edu/
+7) Upload to Galaxy ToolShed: http://toolshed.g2.bx.psu.edu/
 		Reference: http://wiki.g2.bx.psu.edu/Tool%20Shed
 
 -------------------------------------------------------------------------------		
