@@ -2,6 +2,7 @@ package ca.mcgill.mcb.pcingola;
 
 import java.util.HashSet;
 
+import ca.mcgill.mcb.pcingola.interval.Chromosome;
 import ca.mcgill.mcb.pcingola.interval.Gene;
 import ca.mcgill.mcb.pcingola.interval.Marker;
 import ca.mcgill.mcb.pcingola.interval.Markers;
@@ -77,6 +78,41 @@ public class SnpEffCmdLen extends SnpEff {
 	}
 
 	/**
+	 * Calculate length for all markers
+	 * @param m
+	 */
+	void len() {
+		// For all Genes and sub intervals
+		for (Chromosome chr : snpEffectPredictor.getGenome())
+			len(chr);
+
+		// For all Genes and sub intervals
+		for (Gene gene : snpEffectPredictor.getGenome().getGenes())
+			for (Marker m : gene.markers())
+				len(m);
+
+		// All other intervals
+		for (Marker m : snpEffectPredictor.getMarkers())
+			len(m);
+
+	}
+
+	/**
+	 * Calculate length for a marker
+	 * @param m
+	 */
+	void len(Marker m) {
+		if (!done.contains(m)) {
+			if (debug) System.out.println(m.toStr());
+			Marker maxm = max(m);
+			if (debug && (m.size() != maxm.size())) System.out.println("\t" + m.size() + "\t" + maxm.size() + "\t" + maxm.toStr());
+
+			done.add(m); // Make sure we don't use this marker again
+			add(m);
+		}
+	}
+
+	/**
 	 * Get a marker representing the maximum intercept of this marker
 	 * @param m
 	 * @return
@@ -140,33 +176,8 @@ public class SnpEffCmdLen extends SnpEff {
 		Timer.showStdErr("Building interval forest");
 		snpEffectPredictor.buildForest();
 
-		Timer.showStdErr("Calculating interval sizes");
-
-		// For all Genes and sub intervals
-		for (Gene gene : snpEffectPredictor.getGenome().getGenes()) {
-			for (Marker m : gene.markers()) {
-				if (!done.contains(m)) {
-					if (debug) System.out.println(m.toStr());
-					Marker maxm = max(m);
-					if (debug && (m.size() != maxm.size())) System.out.println("\t" + m.size() + "\t" + maxm.size() + "\t" + maxm.toStr());
-
-					done.add(m); // Make sure we don't use this marker again
-					add(m);
-				}
-			}
-		}
-
-		// All other intervals
-		for (Marker m : snpEffectPredictor.getMarkers()) {
-			if (!done.contains(m)) {
-				if (debug) System.out.println(m.toStr());
-				Marker maxm = max(m);
-				if (debug && (m.size() != maxm.size())) System.out.println("\t" + m.size() + "\t" + maxm.size() + "\t" + maxm.toStr());
-
-				done.add(m); // Make sure we don't use this marker again
-				add(m);
-			}
-		}
+		Timer.showStdErr("Calculating (max intersection) interval length");
+		len();
 
 		// Show totals
 		System.out.println("\nTotals:\n\tcount\tsize\ttype");
