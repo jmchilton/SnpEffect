@@ -23,7 +23,7 @@ import ca.mcgill.mcb.pcingola.util.Tuple;
  */
 public class SnpEffCmdLen extends SnpEff {
 
-	int readLength;
+	int readLength, numIterations, numReads;
 	CountByType markerType;
 	SnpEffectPredictor snpEffectPredictor;
 
@@ -132,6 +132,16 @@ public class SnpEffCmdLen extends SnpEff {
 			if (args[i].equals("-r")) {
 				if ((i + 1) < args.length) readLength = Gpr.parseIntSafe(args[++i]);
 				else usage("Missing value for parameter '-r'");
+			} else if (args[i].equals("-iter")) {
+				if ((i + 1) < args.length) numIterations = Gpr.parseIntSafe(args[++i]);
+				else usage("Missing value for parameter '-iter'");
+			} else if (args[i].equals("-reads")) {
+				if ((i + 1) < args.length) numReads = Gpr.parseIntSafe(args[++i]);
+				else usage("Missing value for parameter '-reads'");
+			} else if (args[i].equals("-r")) {
+				if ((i + 1) < args.length) readLength = Gpr.parseIntSafe(args[++i]);
+				else usage("Missing value for parameter '-r'");
+
 			} else if (genomeVer.isEmpty()) genomeVer = args[i];
 			else usage("Unknow parameter '" + args[i] + "'");
 		}
@@ -142,40 +152,10 @@ public class SnpEffCmdLen extends SnpEff {
 	}
 
 	/**
-	 * Run
-	 * @return 
-	 */
-	@Override
-	public boolean run() {
-		if (verbose) Timer.showStdErr("Loading config");
-		Config config = new Config(genomeVer);
-
-		if (verbose) Timer.showStdErr("Loading predictor");
-		snpEffectPredictor = config.loadSnpEffectPredictor();
-
-		if (verbose) Timer.showStdErr("Building interval forest");
-		snpEffectPredictor.buildForest();
-
-		if (verbose) Timer.showStdErr("Counting bases");
-		countBases();
-
-		if (readLength > 0) {
-			// Perform some random sampling
-			int numIterations = 10000;
-			sample(numIterations, readLength, 1000);
-			//			sample(numIterations, readLength, 10000);
-			//			sample(numIterations, readLength, 100000);
-			//			sample(numIterations, readLength, 1000000);
-		}
-
-		return true;
-	}
-
-	/**
 	 * Sample and calculate the probability of hitting a 'clazz' marker when  'numReads' reads of size 'readLen'
 	 * @param readLen
 	 */
-	CountByType sample(int readLen, int numReads) {
+	CountByType randomSampling(int readLen, int numReads) {
 		CountByType countReads = new CountByType();
 		RandMarker randMarker = new RandMarker(snpEffectPredictor.getGenome());
 
@@ -203,20 +183,44 @@ public class SnpEffCmdLen extends SnpEff {
 	 * 
 	 * @param countByType
 	 */
-	void sample(int iterations, int readLen, int numReads) {
+	void randomSampling(int iterations, int readLen, int numReads) {
 		System.out.print("Iteration");
 		for (String type : markerType.keysSorted())
 			System.out.print("\t" + type);
 		System.out.println("");
 
 		for (int it = 0; it < iterations; it++) {
-			CountByType count = sample(readLen, numReads);
+			CountByType count = randomSampling(readLen, numReads);
 			System.out.print(it);
 			for (String type : markerType.keysSorted())
 				System.out.print("\t" + count.get(type));
 			System.out.println("");
 		}
 
+	}
+
+	/**
+	 * Run
+	 * @return 
+	 */
+	@Override
+	public boolean run() {
+		if (verbose) Timer.showStdErr("Loading config");
+		Config config = new Config(genomeVer);
+
+		if (verbose) Timer.showStdErr("Loading predictor");
+		snpEffectPredictor = config.loadSnpEffectPredictor();
+
+		if (verbose) Timer.showStdErr("Building interval forest");
+		snpEffectPredictor.buildForest();
+
+		if (verbose) Timer.showStdErr("Counting bases");
+		countBases();
+
+		// Perform some random sampling
+		if ((numIterations > 0) && (readLength > 0)) randomSampling(numIterations, readLength, numReads);
+
+		return true;
 	}
 
 	/**
@@ -228,7 +232,9 @@ public class SnpEffCmdLen extends SnpEff {
 		System.err.println("snpEff version " + SnpEff.VERSION);
 		System.err.println("Usage: snpEff len [options] genome_version");
 		System.err.println("Options:");
-		System.err.println("\t-r <num> : Assume a read size of 'num' bases.");
+		System.err.println("\t-r     <num> : Assume a read size of 'num' bases.");
+		System.err.println("\t-iter  <num> : Perform 'num' iterations of random sampling.");
+		System.err.println("\t-reads <num> : Each random sampling iteration has 'num' reads.");
 		System.exit(-1);
 	}
 
