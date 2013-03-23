@@ -91,16 +91,6 @@ public class CountByType implements Serializable {
 		return score != null ? score : 0.0;
 	}
 
-	/**
-	 * List all types (alphabetically sorted)
-	 */
-	public List<String> getTypeList() {
-		ArrayList<String> list = new ArrayList<String>();
-		list.addAll(countByType.keySet());
-		Collections.sort(list);
-		return list;
-	}
-
 	public boolean hasData() {
 		return !countByType.isEmpty();
 	}
@@ -138,6 +128,16 @@ public class CountByType implements Serializable {
 
 	public Set<String> keySet() {
 		return countByType.keySet();
+	}
+
+	/**
+	 * List all types (alphabetically sorted)
+	 */
+	public List<String> keysSorted() {
+		ArrayList<String> list = new ArrayList<String>();
+		list.addAll(countByType.keySet());
+		Collections.sort(list);
+		return list;
 	}
 
 	/**
@@ -187,7 +187,7 @@ public class CountByType implements Serializable {
 	@Override
 	public String toString() {
 		StringBuffer out = new StringBuffer();
-		for (String type : getTypeList())
+		for (String type : keysSorted())
 			out.append(type + "\t" + get(type) + "\n");
 
 		return out.toString();
@@ -195,7 +195,7 @@ public class CountByType implements Serializable {
 
 	public String toStringLine() {
 		StringBuffer out = new StringBuffer();
-		for (String type : getTypeList())
+		for (String type : keysSorted())
 			out.append(type + ":" + get(type) + "\t");
 
 		return out.toString();

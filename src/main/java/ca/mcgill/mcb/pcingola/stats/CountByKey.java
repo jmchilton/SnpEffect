@@ -5,7 +5,8 @@ import java.util.HashMap;
 import java.util.Set;
 
 /**
- * Counters indexed by key
+ * Counters indexed by key.
+ * It's a generic version of CountByType
  * 
  * @author pcingola
  */

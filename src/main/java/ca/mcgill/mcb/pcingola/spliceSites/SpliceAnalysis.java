@@ -126,7 +126,7 @@ public class SpliceAnalysis extends SnpEff {
 		String pExonTypes() {
 			StringBuilder out = new StringBuilder();
 
-			for (String type : countExonTypes.getTypeList())
+			for (String type : countExonTypes.keysSorted())
 				out.append(pExonTypes(type));
 
 			return out.toString();
@@ -134,7 +134,7 @@ public class SpliceAnalysis extends SnpEff {
 
 		String pExonTypes(String category) {
 			int countBlackDrawn = 0;
-			for (String type : countExonTypes.getTypeList())
+			for (String type : countExonTypes.keysSorted())
 				if (!type.equals(category)) countBlackDrawn += countExonTypes.get(type);
 			int countWhiteDrawn = (int) countExonTypes.get(category);
 
@@ -142,7 +142,7 @@ public class SpliceAnalysis extends SnpEff {
 			PwmSet pwmSet = getPwmSet(" ALL");
 			CountByType countExonTypesAll = pwmSet.countExonTypes;
 			int countBlack = 0;
-			for (String type : countExonTypesAll.getTypeList())
+			for (String type : countExonTypesAll.keysSorted())
 				if (!type.equals(category)) countBlack += countExonTypesAll.get(type);
 			int countWhite = (int) countExonTypesAll.get(category);
 

@@ -16,6 +16,7 @@ import ca.mcgill.mcb.pcingola.interval.Marker;
 import ca.mcgill.mcb.pcingola.outputFormatter.OutputFormatter;
 import ca.mcgill.mcb.pcingola.snpEffect.SnpEffectPredictor;
 import ca.mcgill.mcb.pcingola.stats.CountByKey;
+import ca.mcgill.mcb.pcingola.stats.CountByType;
 import ca.mcgill.mcb.pcingola.util.Gpr;
 import ca.mcgill.mcb.pcingola.util.Timer;
 
@@ -32,6 +33,7 @@ public class CountReadsOnMarkers {
 	List<String> samFileNames;
 	ArrayList<CountByKey<Marker>> countReadsByFile;
 	ArrayList<CountByKey<Marker>> countBasesByFile;
+	ArrayList<CountByKey<String>> countTypesByFile;
 	SnpEffectPredictor snpEffectPredictor;
 
 	public CountReadsOnMarkers() {
@@ -53,9 +55,6 @@ public class CountReadsOnMarkers {
 	/**
 	 * Count reads onto intervals
 	 */
-	/**
-	 * Count reads onto intervals
-	 */
 	public void count() {
 		Genome genome = snpEffectPredictor.getGenome();
 
@@ -64,6 +63,7 @@ public class CountReadsOnMarkers {
 			try {
 				if (verbose) Timer.showStdErr("Reading reads file '" + samFileName + "'");
 				CountByKey<Marker> countReads = new CountByKey<Marker>();
+				CountByKey<String> countTypes = new CountByKey<String>();
 				CountByKey<Marker> countBases = new CountByKey<Marker>();
 
 				// Open file
@@ -76,14 +76,22 @@ public class CountReadsOnMarkers {
 						if (!samRecord.getReadUnmappedFlag()) { // Mapped?
 							Chromosome chr = genome.getOrCreateChromosome(samRecord.getReferenceName());
 							if (chr != null) {
-								// Create a marker
+								// Create a marker from read
 								Marker read = new Marker(chr, samRecord.getAlignmentStart(), samRecord.getAlignmentEnd(), 1, "");
 
 								// Find all intersects
 								Set<Marker> regions = snpEffectPredictor.regionsMarkers(read);
+								HashSet<String> doneClass = new HashSet<String>();
 								for (Marker m : regions) {
 									countReads.inc(m); // Count reads
 									countBases.inc(m, m.intersectSize(read)); // Count number bases that intersect
+
+									// Count by marker type (make sure we only count once per read)
+									String clazz = m.getClass().getSimpleName();
+									if (!doneClass.contains(clazz)) {
+										countTypes.inc(clazz); // Count reads
+										doneClass.add(clazz); // Do not count twice
+									}
 								}
 							}
 						}
@@ -100,6 +108,7 @@ public class CountReadsOnMarkers {
 				// Add count to list
 				countReadsByFile.add(countReads);
 				countBasesByFile.add(countBases);
+				countTypesByFile.add(countTypes);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -112,21 +121,32 @@ public class CountReadsOnMarkers {
 		if (verbose) Timer.showStdErr("Done.");
 	}
 
+	/**
+	 * Initialize
+	 * @param snpEffectPredictor
+	 */
 	void init(SnpEffectPredictor snpEffectPredictor) {
 		samFileNames = new ArrayList<String>();
 		countReadsByFile = new ArrayList<CountByKey<Marker>>();
 		countBasesByFile = new ArrayList<CountByKey<Marker>>();
+		countTypesByFile = new ArrayList<CountByKey<String>>();
 
 		if (snpEffectPredictor != null) this.snpEffectPredictor = snpEffectPredictor;
 		else this.snpEffectPredictor = new SnpEffectPredictor(new Genome());
 	}
 
 	public void print() {
+		CountByType types = new CountByType();
+
 		// Show title
 		System.out.print("chr\tstart\tend\ttype\tIDs");
 		for (int j = 0; j < countReadsByFile.size(); j++)
 			System.out.print("\tReads:" + samFileNames.get(j) + "\tBases:" + samFileNames.get(j));
 		System.out.print("\n");
+
+		//---
+		// Show counts by marker
+		//---
 
 		// Retrieve all possible keys, sort them
 		HashSet<Marker> keys = new HashSet<Marker>();
@@ -137,7 +157,7 @@ public class CountReadsOnMarkers {
 		keysSorted.addAll(keys);
 		Collections.sort(keysSorted);
 
-		// Show results
+		// Show counts for each marker
 		for (Marker key : keysSorted) {
 			// Show 'key' information in first columns
 			System.out.print(key.getChromosomeName() //
@@ -146,11 +166,27 @@ public class CountReadsOnMarkers {
 					+ "\t" + OutputFormatter.idChain(key) //
 			);
 
-			// Show counter data
+			// Show counts for each file
 			for (int idx = 0; idx < countReadsByFile.size(); idx++)
 				System.out.print("\t" + countReadsByFile.get(idx).get(key) + "\t" + countBasesByFile.get(idx).get(key));
 			System.out.print("\n");
+
+			// Add type
+			types.inc(key.getClass().getSimpleName());
 		}
+
+		//---
+		// Show counts by type
+		//---
+		for (String type : types.keysSorted()) {
+			System.out.print("total_unique\t0\t0\t" + type); // Show 'type' information in first columns
+
+			// Show counts for each file
+			for (int idx = 0; idx < countReadsByFile.size(); idx++)
+				System.out.print("\t" + countTypesByFile.get(idx).get(type) + "\t" /* No bases count */);
+			System.out.print("\n");
+		}
+
 		System.out.print("\n");
 	}
 
