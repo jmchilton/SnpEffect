@@ -23,42 +23,14 @@ import ca.mcgill.mcb.pcingola.util.Tuple;
  */
 public class SnpEffCmdLen extends SnpEff {
 
-	SnpEffectPredictor snpEffectPredictor;
-	//	HashSet<String> done;
-	//	CountByType count, size, rawCount, rawSize;
-	//	Markers maxMarkers;
 	int readLength;
-
-	//	HashSet<String> add = new HashSet<String>(); // TODO : Remove this!
+	CountByType markerType;
+	SnpEffectPredictor snpEffectPredictor;
 
 	public SnpEffCmdLen() {
 		super();
-		//		done = new HashSet<String>();
-		//		count = new CountByType();
-		//		size = new CountByType();
-		//		rawCount = new CountByType();
-		//		rawSize = new CountByType();
-		//		maxMarkers = new Markers();
+		markerType = new CountByType();
 	}
-
-	//	/**
-	//	 * Add this marker to the final list of markers
-	//	 * @param maxMarker
-	//	 */
-	//	void add(Marker maxMarker) {
-	//		if (!isDone(maxMarker)) {
-	//			maxMarkers.add(maxMarker); // Add
-	//
-	//			String clazz = maxMarker.getClass().getSimpleName(); // Some stats
-	//			count.inc(clazz);
-	//			size.inc(clazz, maxMarker.size());
-	//
-	//			// Show
-	//			if (verbose) System.out.println(clazz + "\t" + maxMarker.getChromosomeName() + "\t" + (maxMarker.getStart() + 1) + "\t" + (maxMarker.getEnd() + 1));
-	//
-	//			done(maxMarker);
-	//		}
-	//	}
 
 	/**
 	 * Count bases ocupied for each marker type
@@ -75,14 +47,13 @@ public class SnpEffCmdLen extends SnpEff {
 		}
 
 		// Add all marker types
-		HashSet<String> markerType = new HashSet<String>();
 		for (Marker m : markers)
-			markerType.add(m.getClass().getSimpleName());
+			markerType.inc(m.getClass().getSimpleName());
 		markerType.remove(Chromosome.class.getSimpleName()); // We don't need chromosomes
 
 		// Count number of bases for each marker type
 		System.out.println("count\tsize\ttype");
-		for (String mtype : markerType) {
+		for (String mtype : markerType.keysSorted()) {
 			if (verbose) System.err.println(mtype);
 
 			long countBases = 0, countMarkers = 0;
@@ -152,155 +123,6 @@ public class SnpEffCmdLen extends SnpEff {
 		return new Tuple<Long, Long>(countBases, countMarkers);
 	}
 
-	//	void done(Marker m) {
-	//		done.add(m.toStr());
-	//	}
-	//
-	//	void done(Marker mori, Marker m) {
-	//		String key = m.toStr();
-	//		if (mori.toStr().equals(key)) return; // Don't add same marker
-	//		done.add(m.toStr());
-	//	}
-	//
-	//	/**
-	//	 * Expand marker by 'readLength' bases on each size
-	//	 * @param m
-	//	 * @param readLength
-	//	 * @return
-	//	 */
-	//	Marker expand(Marker m, int readLength) {
-	//		if (readLength == 0) return m;
-	//		return expand(m, m.getStart(), m.getEnd(), readLength);
-	//	}
-	//
-	//	/**
-	//	 * Expand marker by 'readLength' bases on each size
-	//	 * @param m
-	//	 * @param readLength
-	//	 * @return
-	//	 */
-	//	Marker expand(Marker m, int start, int end, int readLength) {
-	//		Marker mexp = m.clone();
-	//
-	//		start = Math.max(start - readLength, 0);
-	//		mexp.setStart(start);
-	//
-	//		end = end + readLength;
-	//		mexp.setEnd(end);
-	//
-	//		return mexp;
-	//	}
-	//
-	//	boolean isDone(Marker m) {
-	//		return done.contains(m.toStr());
-	//	}
-	//
-	//	/**
-	//	 * Calculate length for all markers
-	//	 * @param m
-	//	 */
-	//	void len() {
-	//		// For all Genes and sub intervals
-	//		for (Chromosome chr : snpEffectPredictor.getGenome())
-	//			add(chr); // Add to set
-	//
-	//		// For all Genes and sub intervals
-	//		for (Gene gene : snpEffectPredictor.getGenome().getGenes()) {
-	//			len(gene);
-	//			for (Marker m : gene.markers())
-	//				len(m);
-	//		}
-	//
-	//		// All other intervals
-	//		for (Marker m : snpEffectPredictor.getMarkers())
-	//			len(m);
-	//
-	//	}
-	//
-	//	/**
-	//	 * Calculate length for a marker
-	//	 * @param m
-	//	 */
-	//	void len(Marker m) {
-	//		String clazz = m.getClass().getSimpleName();
-	//		rawSize.inc(clazz, m.size());
-	//		rawCount.inc(clazz);
-	//
-	//		if (!isDone(m)) {
-	//			if (debug) System.out.println(m.toStr());
-	//			Marker maxm = maxIntersect(m);
-	//			add(maxm); // Add to set
-	//			done(m); // Make sure we don't use this marker again
-	//		}
-	//	}
-	//
-	//	/**
-	//	 * Get a marker representing the maximum intercept of this marker
-	//	 * @param mori
-	//	 * @return
-	//	 */
-	//	Marker maxIntersect(Marker mori) {
-	//		Marker mexp = expand(mori, readLength); // Expand by readLength
-	//
-	//		Markers markers = snpEffectPredictor.intersects(mexp); // Get markers intersecting expanded marker
-	//
-	//		// Iterate until there is no size change 
-	//		Marker mprev = mori, mnew = null;
-	//		while (true) {
-	//			mnew = maxIntersect(mprev, mexp, markers);
-	//			if (mnew.size() < mprev.size()) throw new RuntimeException("This should never happen!");
-	//			if (mnew.size() == mprev.size()) return mnew;
-	//			if (debug) Gpr.debug("\tPrevious size: " + mprev.size() + "\tnew size: " + mnew.size());
-	//			mprev = mnew;
-	//		}
-	//	}
-	//
-	//	/**
-	//	 * Get a marker representing the maximum of Markers (same class a 'm')
-	//	 * @param m
-	//	 * @return
-	//	 */
-	//	Marker maxIntersect(Marker mori, Marker mexp, Markers markers) {
-	//		int start = mori.getStart(), end = mori.getEnd();
-	//		boolean update = false;
-	//
-	//		for (Marker m : markers) {
-	//			if (m.getClass() == mori.getClass() && (m.intersects(mexp))) {
-	//				if (debug) Gpr.debug("\tMerge:" + mori.toStr() + "\t" + m.toStr());
-	//				start = Math.min(start, m.getStart());
-	//				end = Math.max(end, m.getEnd());
-	//				update = true;
-	//				mexp = expand(mori, start, end, readLength); // Update expanded marker
-	//				done(mori, m);// Make sure we don't use the same marker again
-	//			} else if (m instanceof Gene) {
-	//				// Intersects a gene? Look for all sub-markers
-	//				Markers markersGene = ((Gene) m).markers();
-	//
-	//				for (Marker mm : markersGene) {
-	//					// Same class? Intersects expanded marker? => Add
-	//					if ((mm.getClass() == mori.getClass()) && (mexp.intersects(mm))) {
-	//						if (debug) Gpr.debug("\tMerge:" + mori.toStr() + "\t" + mm.toStr());
-	//						start = Math.min(start, mm.getStart());
-	//						end = Math.max(end, mm.getEnd());
-	//						update = true;
-	//						mexp = expand(mori, start, end, readLength); // Update expanded marker
-	//						done(mori, mm);// Make sure we don't use the same marker again
-	//					}
-	//				}
-	//			}
-	//		}
-	//
-	//		// Updated? Create new marker using new coordinates
-	//		if (update) {
-	//			Marker mnew = mori.clone();
-	//			mnew.setStart(start);
-	//			mnew.setEnd(end);
-	//			return mnew;
-	//		}
-	//
-	//		return mori; // No update, return original marker
-	//	}
-
 	@Override
 	public void parseArgs(String[] args) {
 		this.args = args;
@@ -334,44 +156,19 @@ public class SnpEffCmdLen extends SnpEff {
 		if (verbose) Timer.showStdErr("Building interval forest");
 		snpEffectPredictor.buildForest();
 
-		//		Timer.showStdErr("Calculating (max intersection) interval length");
-		//		len();
-		//
-		//		// Show totals
-		//		System.out.println("\nTotals:\n\traw_count\traw_size\tcount\tsize\ttype");
-		//		for (String clazz : count.keySet())
-		//			System.out.println("\t" + rawCount.get(clazz) + "\t" + rawSize.get(clazz) + "\t" + count.get(clazz) + "\t" + size.get(clazz) + "\t" + clazz);
-
 		if (verbose) Timer.showStdErr("Counting bases");
 		countBases();
 
-		// Perform some random sampling
-		//sample(count, 10000, 100, 1000);
-		// sample(count, 10000, 100, 10000);
-		// sample(count, 10000, 100, 100000);
-
-		return true;
-	}
-
-	/**
-	 * Sampling random reads.
-	 * 
-	 * @param countByType
-	 */
-	void sample(CountByType countByType, int iterations, int readLen, int numReads) {
-		System.out.print("Iteration");
-		for (String type : countByType.keysSorted())
-			System.out.print("\t" + type);
-		System.out.println("");
-
-		for (int it = 0; it < iterations; it++) {
-			CountByType count = sample(readLen, numReads);
-			System.out.print(it);
-			for (String type : countByType.keysSorted())
-				System.out.print("\t" + count.get(type));
-			System.out.println("");
+		if (readLength > 0) {
+			// Perform some random sampling
+			int numIterations = 10000;
+			sample(numIterations, readLength, 1000);
+			//			sample(numIterations, readLength, 10000);
+			//			sample(numIterations, readLength, 100000);
+			//			sample(numIterations, readLength, 1000000);
 		}
 
+		return true;
 	}
 
 	/**
@@ -399,6 +196,27 @@ public class SnpEffCmdLen extends SnpEff {
 		}
 
 		return countReads;
+	}
+
+	/**
+	 * Sampling random reads.
+	 * 
+	 * @param countByType
+	 */
+	void sample(int iterations, int readLen, int numReads) {
+		System.out.print("Iteration");
+		for (String type : markerType.keysSorted())
+			System.out.print("\t" + type);
+		System.out.println("");
+
+		for (int it = 0; it < iterations; it++) {
+			CountByType count = sample(readLen, numReads);
+			System.out.print(it);
+			for (String type : markerType.keysSorted())
+				System.out.print("\t" + count.get(type));
+			System.out.println("");
+		}
+
 	}
 
 	/**

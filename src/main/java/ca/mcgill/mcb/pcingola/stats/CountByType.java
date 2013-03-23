@@ -171,6 +171,15 @@ public class CountByType implements Serializable {
 	}
 
 	/**
+	 * Remove this entry type
+	 * @param type
+	 */
+	public void remove(String type) {
+		countByType.remove(type);
+		scoreByType.remove(type);
+	}
+
+	/**
 	 * Sum all counts.
 	 * @return
 	 */
