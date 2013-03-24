@@ -12,6 +12,7 @@ import ca.mcgill.mcb.pcingola.fileIterator.SeqChangeBedFileIterator;
 import ca.mcgill.mcb.pcingola.interval.SeqChange;
 import ca.mcgill.mcb.pcingola.snpEffect.Config;
 import ca.mcgill.mcb.pcingola.snpEffect.SnpEffectPredictor;
+import ca.mcgill.mcb.pcingola.stats.ReadsOnMarkersModel;
 import ca.mcgill.mcb.pcingola.util.Gpr;
 import ca.mcgill.mcb.pcingola.util.Timer;
 
@@ -25,6 +26,7 @@ public class SnpEffCmdCountReads extends SnpEff {
 	public static boolean debug = true;
 
 	CountReadsOnMarkers countReadsOnMarkers;
+	ReadsOnMarkersModel readsOnMarkersModel;
 	SnpEffectPredictor snpEffectPredictor;
 	List<String> samFileNames; // SAM or BAM files 
 	List<String> bedFileNames; // BED files for custom intervals
@@ -83,8 +85,15 @@ public class SnpEffCmdCountReads extends SnpEff {
 	 * Calculate pvalues for 
 	 */
 	void pvalues() {
+		readsOnMarkersModel = new ReadsOnMarkersModel(snpEffectPredictor);
+		int readLength = countReadsOnMarkers.getReadLengthAvg();
+		if (verbose) Timer.showStdErr("Calculating probability model for read length " + readLength);
+		readsOnMarkersModel.setReadLength(readLength);
+		readsOnMarkersModel.setVerbose(verbose);
 
-		System.err.println(countReadsOnMarkers.toString());
+		// Run model
+		readsOnMarkersModel.run();
+		System.err.println(countReadsOnMarkers.probabilityTable(readsOnMarkersModel.getProb()));
 	}
 
 	/**
@@ -120,7 +129,7 @@ public class SnpEffCmdCountReads extends SnpEff {
 		if (verbose) Timer.showStdErr("done");
 
 		// Count reads
-		CountReadsOnMarkers countReadsOnMarkers = new CountReadsOnMarkers(snpEffectPredictor);
+		countReadsOnMarkers = new CountReadsOnMarkers(snpEffectPredictor);
 		countReadsOnMarkers.setVerbose(verbose);
 		for (String file : samFileNames)
 			countReadsOnMarkers.addFile(file);

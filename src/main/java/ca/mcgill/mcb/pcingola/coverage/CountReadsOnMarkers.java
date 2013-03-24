@@ -15,6 +15,7 @@ import ca.mcgill.mcb.pcingola.interval.Chromosome;
 import ca.mcgill.mcb.pcingola.interval.Genome;
 import ca.mcgill.mcb.pcingola.interval.Marker;
 import ca.mcgill.mcb.pcingola.outputFormatter.OutputFormatter;
+import ca.mcgill.mcb.pcingola.probablility.Binomial;
 import ca.mcgill.mcb.pcingola.snpEffect.SnpEffectPredictor;
 import ca.mcgill.mcb.pcingola.stats.CountByKey;
 import ca.mcgill.mcb.pcingola.stats.CountByType;
@@ -31,11 +32,13 @@ public class CountReadsOnMarkers {
 	public static boolean debug = true;
 
 	boolean verbose = false; // Be verbose
+	long readLengthSum;
+	int readLengthCount;
 	List<String> samFileNames;
 	List<String> names;
 	ArrayList<CountByKey<Marker>> countReadsByFile;
 	ArrayList<CountByKey<Marker>> countBasesByFile;
-	ArrayList<CountByKey<String>> countTypesByFile;
+	ArrayList<CountByType> countTypesByFile;
 	SnpEffectPredictor snpEffectPredictor;
 
 	public CountReadsOnMarkers() {
@@ -77,13 +80,16 @@ public class CountReadsOnMarkers {
 	public void count() {
 		Genome genome = snpEffectPredictor.getGenome();
 
+		readLengthSum = 0;
+		readLengthCount = 0;
+
 		// Iterate over all BAM/SAM files
 		for (String samFileName : samFileNames) {
 			try {
 				if (verbose) Timer.showStdErr("Reading reads file '" + samFileName + "'");
 				CountByKey<Marker> countReads = new CountByKey<Marker>();
-				CountByKey<String> countTypes = new CountByKey<String>();
 				CountByKey<Marker> countBases = new CountByKey<Marker>();
+				CountByType countTypes = new CountByType();
 
 				// Open file
 				int readNum = 1;
@@ -97,6 +103,8 @@ public class CountReadsOnMarkers {
 							if (chr != null) {
 								// Create a marker from read
 								Marker read = new Marker(chr, samRecord.getAlignmentStart(), samRecord.getAlignmentEnd(), 1, "");
+								readLengthCount++;
+								readLengthSum += read.size();
 
 								// Find all intersects
 								Set<Marker> regions = snpEffectPredictor.regionsMarkers(read);
@@ -152,6 +160,16 @@ public class CountReadsOnMarkers {
 	}
 
 	/**
+	 * Average read length
+	 * @return
+	 */
+	public int getReadLengthAvg() {
+		if (readLengthCount <= 0) return 0;
+		double rl = ((double) readLengthSum) / readLengthCount;
+		return (int) Math.round(rl);
+	}
+
+	/**
 	 * Initialize
 	 * @param snpEffectPredictor
 	 */
@@ -160,7 +178,7 @@ public class CountReadsOnMarkers {
 		names = new ArrayList<String>();
 		countReadsByFile = new ArrayList<CountByKey<Marker>>();
 		countBasesByFile = new ArrayList<CountByKey<Marker>>();
-		countTypesByFile = new ArrayList<CountByKey<String>>();
+		countTypesByFile = new ArrayList<CountByType>();
 
 		if (snpEffectPredictor != null) this.snpEffectPredictor = snpEffectPredictor;
 		else this.snpEffectPredictor = new SnpEffectPredictor(new Genome());
@@ -196,19 +214,23 @@ public class CountReadsOnMarkers {
 		System.out.print("\n");
 	}
 
-	public void setVerbose(boolean verbose) {
-		this.verbose = verbose;
-	}
-
-	@Override
-	public String toString() {
+	/**
+	 * Show probabilities
+	 * 
+	 * @param prob : Probabilities for each 
+	 * 
+	 * @return A string showing a tab delimited table
+	 */
+	public String probabilityTable(CountByType prob) {
 		StringBuilder sb = new StringBuilder();
 
 		// Create title line
 		sb.append("type"); // Show 'type' information in first columns
 		for (int j = 0; j < countReadsByFile.size(); j++)
-			sb.append("\treads." + names.get(j));
+			sb.append("\treads." + names.get(j) + "\texpected." + names.get(j) + "\tpvalue." + names.get(j));
 		sb.append("\n");
+
+		String chrType = Chromosome.class.getSimpleName();
 
 		// Show counts by type
 		CountByType countByType = countMarkerTypes(allMarkers());
@@ -216,12 +238,31 @@ public class CountReadsOnMarkers {
 			sb.append(type); // Show 'type' information in first columns
 
 			// Show counts for each file
-			for (int idx = 0; idx < countReadsByFile.size(); idx++)
-				sb.append("\t" + countTypesByFile.get(idx).get(type) + "\t" /* No bases count */);
+			for (int idx = 0; idx < countReadsByFile.size(); idx++) {
+				CountByType count = countTypesByFile.get(idx);
+
+				// Stats
+				int n = (int) count.get(chrType); // Number of reads in the file
+				int k = (int) count.get(type); // Number of reads hitting this marker type
+				double p = prob.getScore(type); // Binomial probability model
+
+				long expected = Math.round(count.get(chrType) * p);
+				double pvalue = Binomial.get().cdfUpperTail(p, n, k);
+
+				sb.append( //
+				"\t" + countTypesByFile.get(idx).get(type) // Observed
+						+ "\t" + expected //
+						+ "\t" + pvalue //
+				);
+			}
 			sb.append("\n");
 		}
 
 		return sb.toString();
+	}
+
+	public void setVerbose(boolean verbose) {
+		this.verbose = verbose;
 	}
 
 }

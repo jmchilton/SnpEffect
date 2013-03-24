@@ -18,6 +18,7 @@ public class TestSuiteAll {
 		TestSuite suite = new TestSuite();
 
 		// Stats
+		suite.addTestSuite(TestCasesBinomial.class);
 		suite.addTestSuite(TestCasesHypergeometric.class);
 		suite.addTestSuite(TestCasesIntStats.class);
 		suite.addTestSuite(TestCochranArmitage.class);
