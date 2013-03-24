@@ -50,16 +50,24 @@ public class ReadsOnMarkersModel {
 			markers.add(gene);
 			markers.add(gene.markers());
 		}
+		for (Chromosome chr : snpEffectPredictor.getGenome())
+			markers.add(chr);
 
-		// Add all markers (raw counts)
+		//---
+		// Calculate raw counts
+		//---
 		for (Marker m : markers) {
 			String mtype = m.getClass().getSimpleName();
 			rawCountMarkers.inc(mtype);
 			rawCountBases.inc(mtype, m.size());
 		}
 
-		// Count number of bases for each marker type
+		//---
+		// Count number of bases for each marker type (overlap and join)
+		//---
 		for (String mtype : rawCountMarkers.keysSorted()) {
+			if (mtype.equals(Chromosome.class.getSimpleName())) continue; // We calculate chromosomes later (it's faster) 
+
 			if (verbose) System.err.print(mtype + ":");
 
 			for (Chromosome chr : snpEffectPredictor.getGenome())
