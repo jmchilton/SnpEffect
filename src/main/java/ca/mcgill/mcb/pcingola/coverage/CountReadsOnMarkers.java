@@ -2,6 +2,7 @@ package ca.mcgill.mcb.pcingola.coverage;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -31,6 +32,7 @@ public class CountReadsOnMarkers {
 
 	boolean verbose = false; // Be verbose
 	List<String> samFileNames;
+	List<String> names;
 	ArrayList<CountByKey<Marker>> countReadsByFile;
 	ArrayList<CountByKey<Marker>> countBasesByFile;
 	ArrayList<CountByKey<String>> countTypesByFile;
@@ -50,6 +52,23 @@ public class CountReadsOnMarkers {
 	 */
 	public void addFile(String samFileName) {
 		samFileNames.add(samFileName);
+		names.add(Gpr.removeExt(Gpr.baseName(samFileName)));
+	}
+
+	/**
+	 * Create a collection of all markers
+	 * @return
+	 */
+	List<Marker> allMarkers() {
+		// Retrieve all possible keys, sort them
+		HashSet<Marker> keys = new HashSet<Marker>();
+		for (CountByKey<Marker> cbt : countReadsByFile)
+			keys.addAll(cbt.keySet());
+
+		ArrayList<Marker> keysSorted = new ArrayList<Marker>(keys.size());
+		keysSorted.addAll(keys);
+		Collections.sort(keysSorted);
+		return keysSorted;
 	}
 
 	/**
@@ -122,11 +141,23 @@ public class CountReadsOnMarkers {
 	}
 
 	/**
+	 * Count how many of each marker type are there
+	 * @return
+	 */
+	CountByType countMarkerTypes(Collection<Marker> markersToCount) {
+		CountByType countByMarkerType = new CountByType();
+		for (Marker key : markersToCount)
+			countByMarkerType.inc(key.getClass().getSimpleName());
+		return countByMarkerType;
+	}
+
+	/**
 	 * Initialize
 	 * @param snpEffectPredictor
 	 */
 	void init(SnpEffectPredictor snpEffectPredictor) {
 		samFileNames = new ArrayList<String>();
+		names = new ArrayList<String>();
 		countReadsByFile = new ArrayList<CountByKey<Marker>>();
 		countBasesByFile = new ArrayList<CountByKey<Marker>>();
 		countTypesByFile = new ArrayList<CountByKey<String>>();
@@ -135,30 +166,21 @@ public class CountReadsOnMarkers {
 		else this.snpEffectPredictor = new SnpEffectPredictor(new Genome());
 	}
 
+	/**
+	 * Print table to STDOUT
+	 */
 	public void print() {
-		CountByType types = new CountByType();
-
 		// Show title
 		System.out.print("chr\tstart\tend\ttype\tIDs");
 		for (int j = 0; j < countReadsByFile.size(); j++)
-			System.out.print("\tReads:" + samFileNames.get(j) + "\tBases:" + samFileNames.get(j));
+			System.out.print("\tReads:" + names.get(j) + "\tBases:" + names.get(j));
 		System.out.print("\n");
 
 		//---
 		// Show counts by marker
 		//---
-
-		// Retrieve all possible keys, sort them
-		HashSet<Marker> keys = new HashSet<Marker>();
-		for (CountByKey<Marker> cbt : countReadsByFile)
-			keys.addAll(cbt.keySet());
-
-		ArrayList<Marker> keysSorted = new ArrayList<Marker>(keys.size());
-		keysSorted.addAll(keys);
-		Collections.sort(keysSorted);
-
 		// Show counts for each marker
-		for (Marker key : keysSorted) {
+		for (Marker key : allMarkers()) {
 			// Show 'key' information in first columns
 			System.out.print(key.getChromosomeName() //
 					+ "\t" + (key.getStart() + 1) //
@@ -170,28 +192,36 @@ public class CountReadsOnMarkers {
 			for (int idx = 0; idx < countReadsByFile.size(); idx++)
 				System.out.print("\t" + countReadsByFile.get(idx).get(key) + "\t" + countBasesByFile.get(idx).get(key));
 			System.out.print("\n");
-
-			// Add type
-			types.inc(key.getClass().getSimpleName());
 		}
-
-		//---
-		// Show counts by type
-		//---
-		for (String type : types.keysSorted()) {
-			System.out.print("total_unique\t0\t0\t" + type); // Show 'type' information in first columns
-
-			// Show counts for each file
-			for (int idx = 0; idx < countReadsByFile.size(); idx++)
-				System.out.print("\t" + countTypesByFile.get(idx).get(type) + "\t" /* No bases count */);
-			System.out.print("\n");
-		}
-
 		System.out.print("\n");
 	}
 
 	public void setVerbose(boolean verbose) {
 		this.verbose = verbose;
+	}
+
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+
+		// Create title line
+		sb.append("type"); // Show 'type' information in first columns
+		for (int j = 0; j < countReadsByFile.size(); j++)
+			sb.append("\treads." + names.get(j));
+		sb.append("\n");
+
+		// Show counts by type
+		CountByType countByType = countMarkerTypes(allMarkers());
+		for (String type : countByType.keysSorted()) {
+			sb.append(type); // Show 'type' information in first columns
+
+			// Show counts for each file
+			for (int idx = 0; idx < countReadsByFile.size(); idx++)
+				sb.append("\t" + countTypesByFile.get(idx).get(type) + "\t" /* No bases count */);
+			sb.append("\n");
+		}
+
+		return sb.toString();
 	}
 
 }

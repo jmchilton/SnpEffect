@@ -12,6 +12,7 @@ import ca.mcgill.mcb.pcingola.fileIterator.SeqChangeBedFileIterator;
 import ca.mcgill.mcb.pcingola.interval.SeqChange;
 import ca.mcgill.mcb.pcingola.snpEffect.Config;
 import ca.mcgill.mcb.pcingola.snpEffect.SnpEffectPredictor;
+import ca.mcgill.mcb.pcingola.util.Gpr;
 import ca.mcgill.mcb.pcingola.util.Timer;
 
 /**
@@ -79,6 +80,14 @@ public class SnpEffCmdCountReads extends SnpEff {
 	}
 
 	/**
+	 * Calculate pvalues for 
+	 */
+	void pvalues() {
+
+		System.err.println(countReadsOnMarkers.toString());
+	}
+
+	/**
 	 * Run
 	 */
 	@Override
@@ -116,7 +125,12 @@ public class SnpEffCmdCountReads extends SnpEff {
 		for (String file : samFileNames)
 			countReadsOnMarkers.addFile(file);
 		countReadsOnMarkers.count();
-		countReadsOnMarkers.print();
+
+		if (!quiet) {
+			Gpr.debug("UNCOMMENT THIS LINE!!!!!");
+			// countReadsOnMarkers.print();
+			pvalues();
+		}
 
 		return true;
 	}
