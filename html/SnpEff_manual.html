@@ -2338,7 +2338,7 @@ Finishing up
 				Example:
 <pre>
 $ java -Xmx4g -jar snpEff.jar closestExon GRCh37.66 test.vcf
-##INFO=<ID=CLOSEST_EXON,Number=4,Type=String,Description="Closest exon: Distance (bases), exons Id, transcript Id, gene name">
+##INFO=&lt;ID=CLOSEST_EXON,Number=4,Type=String,Description="Closest exon: Distance (bases), exons Id, transcript Id, gene name">
 1       12078   .       G       A       25.69   PASS    AC=2;AF=0.048;CLOSEST_EXON=0,exon_1_11869_12227,ENST00000456328,DDX11L1
 1       16097   .       T       G       42.42   PASS    AC=9;AF=0.0113;CLOSEST_EXON=150,exon_1_15796_15947,ENST00000423562,WASH7P
 1       40261   .       C       A       366.26  PASS    AC=30;AF=0.484;CLOSEST_EXON=4180,exon_1_35721_36081,ENST00000417324,FAM138A
@@ -2361,6 +2361,7 @@ $ snpeff closestExon -bed GRCh37.66 test.bed
 				</p>
 
 				<h3> SnpEff countReads </h3>
+				<p>
 				As the name suggests, <code>snpEff countReads</code> command counts how many reads and bases from a BAM file hit a gene, transcript, exon, intron, etc.
 				<br>
 				If you need to count how many reads (and bases) from a BAM file hit each genomic region, you can use 'countReads' utility.<br>
@@ -2368,9 +2369,10 @@ $ snpeff closestExon -bed GRCh37.66 test.bed
 <pre>
 java -Xmx4g -jar snpEff.jar countReads GRCh37.68 readsFile_1.bam readsFile_2.bam ...  readsFile_N.bam > countReads.txt 
 </pre>
-				<p>
+				<br>
+				<br>
 				The output is a TXT (tab-separated) file, that looks like this:
-				<p>
+				<br>
 <pre>
 chr  start  end       type                IDs                         Reads:readsFile_1.bam  Bases:readsFile_1.bam  Reads:readsFile_2.bam  Bases:readsFile_2.bam ...
 1    1      11873     Intergenic          DDX11L1                     130                    6631                   50                     2544
@@ -2393,7 +2395,6 @@ chr  start  end       type                IDs                         Reads:read
 1    14362  29370     Gene                WASH7P                      704                    37262                  524                    34377
 1    14409  19408     Downstream          NR_046018;DDX11L1           122                    7633                   39                     4254
 </pre>
-
 				The columns are:
 				<ul>
 					<li> Column 1: Chromosome name
@@ -2406,7 +2407,45 @@ chr  start  end       type                IDs                         Reads:read
 					<li> Column ...:  (repeat count reads and bases for each BAM file provided)
 				</ul>
 				<br>
-				<i class="icon-hand-right"></i> You can add user defined intervals using <code>-i file.bed</code> command line option.
+				<b>Totals and Binomial model</b>
+				<br>
+				The command prints totals and p-values (based on a Binomial model) to STDER. 
+				For example (output edited for the sake of brevity):
+<pre>
+$ java -Xmx4g -jar snpEff.jar countReads -v BDGP5.69 fly.bam > countReads.txt
+00:00:00.000	Reading configuration file 'snpEff.config'
+...
+00:00:12.148	Calculating probability model for read length 50
+...
+type               p.binomial             reads.fly  expected.fly  pvalue.fly
+Chromosome         1.0                    205215     205215        1.0
+Downstream         0.29531659795589793    59082      60603         1.0
+Exon               0.2030262729897713     53461      41664         0.0
+Gene               0.49282883664487515    110475     101136        0.0
+Intergenic         0.33995644860241336    54081      69764         0.9999999963234701
+Intron             0.3431415343615103     72308      70418         9.06236369003514E-19
+RareAminoAcid      9.245222303207472E-7   3          0             9.879186871519377E-4
+SpliceSiteAcceptor 0.014623209601955131   3142       3001          0.005099810118785825
+SpliceSiteDonor    0.015279075154423956   2998       3135          0.9937690786738507
+Transcript         0.49282883664487515    110475     101136        0.0
+Upstream           0.31499087549896493    64181      64641         0.9856950416729887
+Utr3prime          0.03495370828296416    8850       7173          1.1734134297889064E-84
+Utr5prime          0.02765432673262785    8146       5675          7.908406840800345E-215
+</pre>
+				<br>
+				The columns in for this table are (in the previous example the input file was 'fly.bam' so fileName is 'fly'):
+				<ul>
+					<li> type : Type of interval
+					<li> p.binomial : Probability that a random read hits this 'type' of interval (in binomial model)
+					<li> reads.fileName : Total number of reads in 'fileName' (user probided BAM/SAM file)
+					<li> expected.fileName : Expected number of reads hitting this 'type' of interval (for user probided BAM/SAM file)
+					<li> pvalue.fileName : p-value that 'reads.fileName' reads or more hit this 'type' of interval (for user probided BAM/SAM file)
+					<li> Column ...:  (repeat last three column for each BAM/SAM file provided by the user)
+				</ul>
+				<br>
+				<b>User defined intervals </b>
+				<br>
+				You can add user defined intervals using <code>-i file.bed</code> command line option.
 				The option can be used muiple times, thus allowing mutiple BED files to be added.
 				<br>
 				Example : You want to know how many reads intersect each peak from a peak detection algorithm:
