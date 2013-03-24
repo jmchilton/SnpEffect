@@ -2579,6 +2579,7 @@ $ java -Xmx4g -jar snpEff.jar genes2bed GRCh37.66 DDX11L1 WASH7P
 1	11868	14411	DDX11L1;ENSG00000223972
 1	14362	29805	WASH7P;ENSG00000227232
 </pre>
+				</p>
 
 				<h3> SnpEff cds &amp; SnpEff protein </h3>
 				<p>
@@ -2587,6 +2588,44 @@ $ java -Xmx4g -jar snpEff.jar genes2bed GRCh37.66 DDX11L1 WASH7P
 				<br>
 				The commands are invoked automatically when building databases, so there is no need for the user to invoke them manually.
 				</p>
+
+				<h3> SnpEff len </h3>
+				<p>
+				Calculates the genomic length of every type of marker (Gene, Exon, Utr, etc.).
+				Length is calculated by overlapping all markers and counting the number of bases (e.g. a base is counted as 'Exon' if any exon falls onto that base).
+				This command also reports the probability of a Binomial model.
+				<br>
+				<br>
+				<i class="icon-hand-right"></i> Parameter <code>-r num</code> adjusts the model for a read length of 'num' bases. That is, if two markers of the same type are closer than 'num' bases, it joins them by incliding the bases separating them.
+				<br>
+				<br>
+				E.g.:
+<pre>
+$ java -Xmx1g -jar snpEff.jar len -r 100 BDGP5.69
+marker                   size    count     raw_size raw_count    binomial_p
+Cds                  22767006    56955     45406378    122117    0.13492635563570918
+Chromosome          168736537       15    168736537        15    1.0
+Downstream           49570138     5373    254095562     50830    0.29377240330587084
+Exon                 31275946    61419     63230008    138474    0.18535372691689175
+Gene                 82599213    11659     87017182     15222    0.4895158717166277
+Intergenic           56792611    11637     56792611     11650    0.3365756581812509
+Intron               55813748    42701    168836797    113059    0.33077452573297744
+SpliceSiteAcceptor      97977    48983       226118    113059    5.806507691929223E-4
+SpliceSiteDonor        101996    50981       226118    113059    6.044689657225808E-4
+Transcript           82599213    11659    232066805     25415    0.4895158717166277
+Upstream             52874082     5658    254044876     50830    0.3133528928592389
+Utr3prime             5264120    13087     10828991     24324    0.031197274126824114
+Utr5prime             3729197    19324      6368070     33755    0.02210070839607192
+</pre>
+				</p>
+				Column meaning:
+				<ul>
+					<li> marker : Type of marker interval
+					<li> size : Size of all intervals in the genome, after overlap and join.
+					<li> count : Number of intervals in the genome, after overlap and join.
+					<li> raw_size : Size of all intervals in the genome. Note that this could be larger than the genome.
+					<li> raw_count : Number of intervals in the genome.
+				</ul>
 
 				<h3> Scripts </h3>
 				<p>
