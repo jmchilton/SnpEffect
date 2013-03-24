@@ -63,7 +63,7 @@ public class TestCasesBinomial extends TestCase {
 	 * @param result
 	 */
 	void compareCdfUp(double p, int k, int n, double result) {
-		double prob = Binomial.get().cdfUpperTail(p, k, n);
+		double prob = Binomial.get().cdfUp(p, k, n);
 
 		double abs = Math.abs(prob - result);
 		double diff = abs / Math.min(prob, result);

@@ -1,6 +1,5 @@
 package ca.mcgill.mcb.pcingola.probablility;
 
-
 /**
  * 
  * Calculate binomial distribution 
@@ -47,6 +46,7 @@ public class Binomial {
 		for (int i = 0; i <= k; i++)
 			cdf += pdf(p, i, n);
 
+		cdf = Math.min(1.0, cdf);
 		return cdf;
 	}
 
@@ -60,15 +60,35 @@ public class Binomial {
 	 * @param n : Number of trials
 	 * @return
 	 */
-	public double cdfUpperTail(double p, int k, int n) {
+	public double cdfUp(double p, int k, int n) {
 		if (k < 0) return 1.0;
-		if (k > n) return 0;
+		if (k >= n) return 0;
 
 		double cdf = 0;
 		// Sum smaller numbers first
 		for (int i = n; i > k; i--)
 			cdf += pdf(p, i, n);
 
+		cdf = Math.min(1.0, cdf);
+		return cdf;
+	}
+
+	/**
+	 * Cumulative probability function, upper tail
+	 * 
+	 * P( K >= k )
+	 * 
+	 * @param p : probability of a success in a single Bernoulli trial
+	 * @param k : Number of successes
+	 * @param n : Number of trials
+	 * @return
+	 */
+	public double cdfUpEq(double p, int k, int n) {
+		if (k < 0) return 1.0;
+		if (k > n) return 0;
+
+		double cdf = cdfUp(p, k, n) + pdf(p, k, n);
+		cdf = Math.min(1.0, cdf);
 		return cdf;
 	}
 
@@ -107,6 +127,7 @@ public class Binomial {
 
 	public double pdfLog(double p, int k, int n) {
 		if ((k < 0) || (k > n)) return 0;
+		if (k == n) return k * Math.log(p);
 		return sumLog(n) - (sumLog(k) + sumLog(n - k)) + k * Math.log(p) + (n - k) * Math.log(1 - p);
 	}
 

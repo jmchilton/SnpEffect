@@ -13,7 +13,6 @@ import ca.mcgill.mcb.pcingola.interval.SeqChange;
 import ca.mcgill.mcb.pcingola.snpEffect.Config;
 import ca.mcgill.mcb.pcingola.snpEffect.SnpEffectPredictor;
 import ca.mcgill.mcb.pcingola.stats.ReadsOnMarkersModel;
-import ca.mcgill.mcb.pcingola.util.Gpr;
 import ca.mcgill.mcb.pcingola.util.Timer;
 
 /**
@@ -136,9 +135,8 @@ public class SnpEffCmdCountReads extends SnpEff {
 		countReadsOnMarkers.count();
 
 		if (!quiet) {
-			Gpr.debug("UNCOMMENT THIS LINE!!!!!");
-			// countReadsOnMarkers.print();
-			pvalues();
+			countReadsOnMarkers.print();
+			pvalues(); // Calculate (and show) pvalues
 		}
 
 		return true;

@@ -225,7 +225,7 @@ public class CountReadsOnMarkers {
 		StringBuilder sb = new StringBuilder();
 
 		// Create title line
-		sb.append("type"); // Show 'type' information in first columns
+		sb.append("type\tp.binomial"); // Show 'type' information in first columns
 		for (int j = 0; j < countReadsByFile.size(); j++)
 			sb.append("\treads." + names.get(j) + "\texpected." + names.get(j) + "\tpvalue." + names.get(j));
 		sb.append("\n");
@@ -237,6 +237,10 @@ public class CountReadsOnMarkers {
 		for (String type : countByType.keysSorted()) {
 			sb.append(type); // Show 'type' information in first columns
 
+			// Binomial probability model
+			double p = prob.getScore(type);
+			sb.append("\t" + p);
+
 			// Show counts for each file
 			for (int idx = 0; idx < countReadsByFile.size(); idx++) {
 				CountByType count = countTypesByFile.get(idx);
@@ -244,10 +248,9 @@ public class CountReadsOnMarkers {
 				// Stats
 				int n = (int) count.get(chrType); // Number of reads in the file
 				int k = (int) count.get(type); // Number of reads hitting this marker type
-				double p = prob.getScore(type); // Binomial probability model
 
 				long expected = Math.round(count.get(chrType) * p);
-				double pvalue = Binomial.get().cdfUpperTail(p, n, k);
+				double pvalue = Binomial.get().cdfUpEq(p, k, n);
 
 				sb.append( //
 				"\t" + countTypesByFile.get(idx).get(type) // Observed
