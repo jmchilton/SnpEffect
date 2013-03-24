@@ -13,7 +13,6 @@ import ca.mcgill.mcb.pcingola.snpEffect.SnpEffectPredictor;
 import ca.mcgill.mcb.pcingola.stats.CountByType;
 import ca.mcgill.mcb.pcingola.util.Gpr;
 import ca.mcgill.mcb.pcingola.util.Timer;
-import ca.mcgill.mcb.pcingola.util.Tuple;
 
 /**
  * Calculate the maximum interval length by type, for all markers in a genome
@@ -24,16 +23,24 @@ import ca.mcgill.mcb.pcingola.util.Tuple;
 public class SnpEffCmdLen extends SnpEff {
 
 	int readLength, numIterations, numReads;
-	CountByType markerType;
+	CountByType countBases; // Number of bases covered by each marker type
+	CountByType countMarkers; // Number of markers (for each marker type)
+	CountByType rawCountMarkers; // Number of markers (before join or overlap)
+	CountByType rawCountBases; // Number of bases covered by each marker type (befoew join or overlap)
+	CountByType prob; // Binomial probability (for each marker type)
 	SnpEffectPredictor snpEffectPredictor;
 
 	public SnpEffCmdLen() {
 		super();
-		markerType = new CountByType();
+		countBases = new CountByType();
+		countMarkers = new CountByType();
+		rawCountMarkers = new CountByType();
+		rawCountBases = new CountByType();
+		prob = new CountByType();
 	}
 
 	/**
-	 * Count bases ocupied for each marker type
+	 * Count bases covered for each marker type
 	 */
 	void countBases() {
 		//---
@@ -46,33 +53,29 @@ public class SnpEffCmdLen extends SnpEff {
 			markers.add(gene.markers());
 		}
 
-		// Add all marker types
-		for (Marker m : markers)
-			markerType.inc(m.getClass().getSimpleName());
+		// Add all markers (raw counts)
+		for (Marker m : markers) {
+			String mtype = m.getClass().getSimpleName();
+			rawCountMarkers.inc(mtype);
+			rawCountBases.inc(mtype, m.size());
+		}
 
 		// Count number of bases for each marker type
-		System.out.println("count\tsize\ttype");
-		for (String mtype : markerType.keysSorted()) {
-			if (verbose) System.err.println(mtype);
+		for (String mtype : rawCountMarkers.keysSorted()) {
+			if (verbose) System.err.print(mtype + ":");
 
-			long countBases = 0, countMarkers = 0;
-			for (Chromosome chr : snpEffectPredictor.getGenome()) {
-				Tuple<Long, Long> counters = countBases(mtype, chr, markers);
-				countBases += counters.first;
-				countMarkers += counters.second;
-			}
+			for (Chromosome chr : snpEffectPredictor.getGenome())
+				countBases(mtype, chr, markers);
 
-			System.out.println(countMarkers + "\t" + countBases + "\t" + mtype);
+			if (verbose) System.err.println("");
 		}
 
 		// Show chromosomes length
-		long countBases = 0, countMarkers = 0;
+		String mtype = Chromosome.class.getSimpleName();
 		for (Chromosome chr : snpEffectPredictor.getGenome()) {
-			countBases += chr.size();
-			countMarkers++;
+			countBases.inc(mtype, chr.size());
+			countMarkers.inc(mtype);
 		}
-		System.out.println(countMarkers + "\t" + countBases + "\t" + Chromosome.class.getSimpleName());
-		markerType.inc(Chromosome.class.getSimpleName());
 	}
 
 	/**
@@ -82,11 +85,9 @@ public class SnpEffCmdLen extends SnpEff {
 	 * @param markers
 	 * @return
 	 */
-	Tuple<Long, Long> countBases(String mtype, Chromosome chr, Markers markers) {
-		long countBases = 0, countMarkers = 0;
-
+	void countBases(String mtype, Chromosome chr, Markers markers) {
 		String chrName = chr.getChromosomeName();
-		if (verbose) System.err.println("\tChromosome " + chrName);
+		if (verbose) System.err.print(" " + chrName);
 
 		// Initialize
 		byte busy[] = new byte[chr.size()];
@@ -105,22 +106,16 @@ public class SnpEffCmdLen extends SnpEff {
 		for (int i = 0; i < busy.length; i++) {
 			// Transition? Count another marker
 			if ((i > 0) && (busy[i] != 0) && (busy[i - 1] == 0)) {
-				if ((i - latest) <= readLength) {
-					// Intervals are less than one read away? Unify them
-					//Gpr.debug("CLOSE: " + mtype + "\t" + (i - latest));
-					countBases += (i - latest);
-				} else countMarkers++;
+				if ((i - latest) <= readLength) countBases.inc(mtype, i - latest); // Intervals are less than one read away? Unify them
+				else countMarkers.inc(mtype);
 			}
 
 			// Base busy? Count another base
 			if (busy[i] != 0) {
-				countBases++;
+				countBases.inc(mtype);
 				latest = i;
 			}
-
 		}
-
-		return new Tuple<Long, Long>(countBases, countMarkers);
 	}
 
 	@Override
@@ -152,8 +147,40 @@ public class SnpEffCmdLen extends SnpEff {
 	}
 
 	/**
-	 * Sample and calculate the probability of hitting a 'clazz' marker when  'numReads' reads of size 'readLen'
-	 * @param readLen
+	 * Calculate probabilities
+	 */
+	void probabilities() {
+		// Get total length and count for chromosomes (chromosome size is total genome length)
+		String chrType = Chromosome.class.getSimpleName();
+		long chrSize = countBases.get(chrType);
+		long chrCount = countMarkers.get(chrType);
+		if (chrCount <= 0) return; // Zero length genome? Forgot to count bases?
+
+		// Correct readLength 
+		int readLength = this.readLength;
+		if (readLength < 1) readLength = 1;
+
+		// Probabilities for each marker
+		prob = new CountByType();
+		for (String mtype : countMarkers.keysSorted()) {
+			long size = countBases.get(mtype);
+			long count = countMarkers.get(mtype);
+
+			// Calculate and cap probability value
+			double p = ((double) (size + (readLength - 1) * count)) / ((double) (chrSize - (readLength - 1) * chrCount));
+			p = Math.min(1.0, p);
+			p = Math.max(0.0, p);
+
+			prob.addScore(mtype, p);
+		}
+
+	}
+
+	/**
+	 * Sample and calculate the probability of hitting each type 
+	 * of marker (marker.class). Creates 'numReads' reads of 
+	 * size 'readLen' and count how many of them hit each marker 
+	 * type.
 	 */
 	CountByType randomSampling(int readLen, int numReads) {
 		CountByType countReads = new CountByType();
@@ -179,20 +206,21 @@ public class SnpEffCmdLen extends SnpEff {
 	}
 
 	/**
-	 * Sampling random reads.
-	 * 
-	 * @param countByType
+	 * Sample and calculate the probability of hitting each type 
+	 * of marker (marker.class). Creates 'numReads' reads of 
+	 * size 'readLen' and count how many of them hit each marker 
+	 * type. Iterate 'iterations' times to obtain a distribution.
 	 */
 	void randomSampling(int iterations, int readLen, int numReads) {
 		System.out.print("Iteration");
-		for (String type : markerType.keysSorted())
+		for (String type : rawCountMarkers.keysSorted())
 			System.out.print("\t" + type);
 		System.out.println("");
 
 		for (int it = 0; it < iterations; it++) {
 			CountByType count = randomSampling(readLen, numReads);
 			System.out.print(it);
-			for (String type : markerType.keysSorted())
+			for (String type : rawCountMarkers.keysSorted())
 				System.out.print("\t" + count.get(type));
 			System.out.println("");
 		}
@@ -214,12 +242,26 @@ public class SnpEffCmdLen extends SnpEff {
 		snpEffectPredictor.buildForest();
 
 		if (verbose) Timer.showStdErr("Counting bases");
-		countBases();
+		countBases(); // Count 
+		probabilities(); // Calculate probabilities
+		System.out.println(this);
 
 		// Perform some random sampling
 		if ((numIterations > 0) && (readLength > 0)) randomSampling(numIterations, readLength, numReads);
 
 		return true;
+	}
+
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("marker\tsize\tcount\traw_size\traw_count\tbinomial_p\n");
+
+		probabilities();
+		for (String mtype : countMarkers.keysSorted())
+			sb.append(mtype + "\t" + countBases.get(mtype) + "\t" + countMarkers.get(mtype) + "\t" + rawCountBases.get(mtype) + "\t" + rawCountMarkers.get(mtype) + "\t" + prob.getScore(mtype) + "\n");
+
+		return sb.toString();
 	}
 
 	/**

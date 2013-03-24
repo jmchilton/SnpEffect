@@ -37,7 +37,7 @@ histDens <- function( x, title, q=1.0, breaks = 50 ) {
 #-------------------------------------------------------------------------------
 
 readSize <- 100
-save <- TRUE
+save <- FALSE
 
 if( save )	png( width=1536, height=1024 );
 
@@ -58,7 +58,7 @@ for( sampleFile in sampleFiles ) {
 	# of the binomial distribution if n is at least 20 and p is smaller than or equal to 0.05, and 
 	# an excellent approximation if n ≥ 100 and np ≤ 10
 	chrMarker <- markers[ markers$type=='Chromosome',]	# Genome total size
-	markers$p <- (markers$size + (readSize) * markers$count) / (chrMarker$size - readSize * chrMarker$count );	# Probability of a single Bernoulli trial
+	markers$p <- (markers$size + (readSize - 1) * markers$count) / (chrMarker$size - (readSize -1) * chrMarker$count );	# Probability of a single Bernoulli trial
 	markers$lambda <- markers$p * reads;		# Poisson's Lambda
 	markers$poisson <- markers$lambda < 10		# Can we use Poisson's model?
 
