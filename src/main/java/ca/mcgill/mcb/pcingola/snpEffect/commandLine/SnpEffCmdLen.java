@@ -118,6 +118,26 @@ public class SnpEffCmdLen extends SnpEff {
 		}
 	}
 
+	public CountByType getCountBases() {
+		return countBases;
+	}
+
+	public CountByType getCountMarkers() {
+		return countMarkers;
+	}
+
+	public CountByType getProb() {
+		return prob;
+	}
+
+	public CountByType getRawCountBases() {
+		return rawCountBases;
+	}
+
+	public CountByType getRawCountMarkers() {
+		return rawCountMarkers;
+	}
+
 	@Override
 	public void parseArgs(String[] args) {
 		this.args = args;
@@ -232,24 +252,42 @@ public class SnpEffCmdLen extends SnpEff {
 	 */
 	@Override
 	public boolean run() {
-		if (verbose) Timer.showStdErr("Loading config");
-		Config config = new Config(genomeVer);
+		if (snpEffectPredictor == null) {
+			if (verbose) Timer.showStdErr("Loading config");
+			Config config = new Config(genomeVer);
 
-		if (verbose) Timer.showStdErr("Loading predictor");
-		snpEffectPredictor = config.loadSnpEffectPredictor();
+			if (verbose) Timer.showStdErr("Loading predictor");
+			snpEffectPredictor = config.loadSnpEffectPredictor();
 
-		if (verbose) Timer.showStdErr("Building interval forest");
-		snpEffectPredictor.buildForest();
+			if (verbose) Timer.showStdErr("Building interval forest");
+			snpEffectPredictor.buildForest();
+		}
 
 		if (verbose) Timer.showStdErr("Counting bases");
 		countBases(); // Count 
 		probabilities(); // Calculate probabilities
-		System.out.println(this);
+		if (!quiet) System.out.println(this);
 
 		// Perform some random sampling
 		if ((numIterations > 0) && (readLength > 0)) randomSampling(numIterations, readLength, numReads);
 
 		return true;
+	}
+
+	public void setNumIterations(int numIterations) {
+		this.numIterations = numIterations;
+	}
+
+	public void setNumReads(int numReads) {
+		this.numReads = numReads;
+	}
+
+	public void setReadLength(int readLength) {
+		this.readLength = readLength;
+	}
+
+	public void setSnpEffectPredictor(SnpEffectPredictor snpEffectPredictor) {
+		this.snpEffectPredictor = snpEffectPredictor;
 	}
 
 	@Override
