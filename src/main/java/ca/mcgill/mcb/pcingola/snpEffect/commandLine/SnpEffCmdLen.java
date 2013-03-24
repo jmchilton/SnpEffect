@@ -49,7 +49,6 @@ public class SnpEffCmdLen extends SnpEff {
 		// Add all marker types
 		for (Marker m : markers)
 			markerType.inc(m.getClass().getSimpleName());
-		markerType.remove(Chromosome.class.getSimpleName()); // We don't need chromosomes
 
 		// Count number of bases for each marker type
 		System.out.println("count\tsize\ttype");
@@ -73,6 +72,7 @@ public class SnpEffCmdLen extends SnpEff {
 			countMarkers++;
 		}
 		System.out.println(countMarkers + "\t" + countBases + "\t" + Chromosome.class.getSimpleName());
+		markerType.inc(Chromosome.class.getSimpleName());
 	}
 
 	/**
@@ -196,7 +196,6 @@ public class SnpEffCmdLen extends SnpEff {
 				System.out.print("\t" + count.get(type));
 			System.out.println("");
 		}
-
 	}
 
 	/**
