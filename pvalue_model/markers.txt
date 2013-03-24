@@ -1,0 +1,15 @@
+count	size	type
+30537	24471375	Cds
+5171	49579368	Downstream
+32657	33104821	Exon
+10545	82656806	Gene
+11403	56811017	Intergenic
+39190	56071893	Intron
+3	9	RareAminoAcid
+47768	136251	SpliceSiteAcceptor
+49765	153039	SpliceSiteDonor
+10545	82656806	Transcript
+5575	52878232	Upstream
+11852	5334360	Utr3prime
+17612	3829814	Utr5prime
+15	168736537	Chromosome
