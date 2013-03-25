@@ -89,6 +89,7 @@
           <li><a href="#Split"> <i class="icon-chevron-right"></i>  SnpSift Split</a></li>
           <li><a href="#phastCons"> <i class="icon-chevron-right"></i>  SnpSift PhastCons</a></li>
           <li><a href="#concordance"> <i class="icon-chevron-right"></i>  SnpSift Concordance</a></li>
+          <li><a href="#private"> <i class="icon-chevron-right"></i>  SnpSift Private</a></li>
         </ul>
       </div>
       <div class="span9">
@@ -1223,6 +1224,32 @@ Errors:
 				<br>
 				<br>
 				<i class="icon-hand-right"></i> Summary messages are shown to STDERR if you use verbose mode (command line option <code>-v</code>).
+				</p>
+        </section>
+
+        <!-- Concordance
+        ================================================== -->
+        <section id="private">
+          <div class="page-header">
+            <h1>17. SnpSift Private </h1>
+          </div>
+				<p class="lead">
+				Annotate if a variant is private to a family.
+				</p>
+				<p>
+				A <code>Private=Family_ID</code> is added to a variant's INFO field, if the variant is only found in one family.
+				A TFAM file (see PLINK's documentation) specifies a mapping from sample IDs to family IDs.
+				<br>
+				E.g.:
+<pre>
+$ java -jar SnpSift.jar private pheotypes.tfam imp.ann.vcf > imp.ann.private.vcf
+</pre>
+				<br>
+				An annotated variant may look like this:
+<pre>
+1   1005806 rs3934834   C   T   .   PASS    AF=0.091;..;<b>Private=Family_47</b>
+</pre>
+				This indicates that the variant is only found in members of <code>Family_47</code>, according to the definitions in <code>pheotypes.tfam</code>.
 				</p>
         </section>
 
