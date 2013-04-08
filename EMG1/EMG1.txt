@@ -1,0 +1,42 @@
+
+639	NM_006331	chr12	+	7079943	7085165	7080086	7084971	7	7079943,7080212,7083500,7083713,7084251,7084390,7084857,	7080211,7080253,7083602,7083855,7084310,7084540,7085165		EMG1	cmpl	cmpl	0,1,0,0,1,0,0,
+639	NM_006331.7	chr12	+	7079943	7085165	7080086	7084971	7	7079943,7080212,7083500,7083713,7084251,7084390,7084857,	
+																7080211,7080253,7083602,7083855,7084310,7084540,7085165,	0EMG1	cmpl	cmpl	0,1,0,0,1,0,0,
+
+
+Frame:
+	0,1,0,0,1,0,0,
+
+So the annotation is not Gcg/Acg ->Ala/Thr  but cgG/gcA -> Arg/Arg.
+
+
+12	7083581	.	G	A	911.16	PASS	ABHet=0.61;ABHom=1.00;AC=2;AF=0.037;AN=54;BaseQRankSum=-1.829;DP=1343;Dels=0.00;FS=7.825;HRun=0;HaplotypeScore=0.6199;InbreedingCoeff=-0.0385;MQ=59.36;MQ0=0;MQRankSum=1.436;OND=0.00;QD=10.24;ReadPosRankSum=-0.587;SB=-139.40;set=variant3;
+	EFF=
+	DOWNSTREAM(MODIFIER||||487|LPCAT3||CODING|NM_005768||1),
+	NON_SYNONYMOUS_CODING(MODERATE|MISSENSE|Gcg/Acg|A83T|243|EMG1||CODING|NM_006331|3|1),
+	GT:AD:DP:GQ:PL	0/0:30,0:30:84.27:0,84,1100	0/0:48,0:48:99:0,126,1599	0/0:46,0:46:99:0,120,1493	0/0:57,0:57:99:0,153,1947	0/0:47,0:47:99:0,132,1634	0/0:51,0:51:99:0,135,1666	0/0:63,0:63:99:0,181,2280	0/0:38,0:38:99:0,108,1365	0/0:60,0:60:99:0,175,2193	0/0:50,0:50:99:0,132,1660	0/0:46,0:46:99:0,126,1584	0/0:53,0:53:99:0,153,1929	0/0:27,0:28:75.23:0,75,947	0/0:62,0:62:99:0,181,2243	0/0:63,0:63:99:0,175,2193	0/0:55,0:55:99:0,160,2023	0/0:51,1:52:99:0,135,1735	0/0:60,0:60:99:0,172,2189	0/0:32,0:32:87.27:0,87,1093	0/0:46,0:46:99:0,120,1501	0/0:44,0:44:99:0,114,1437	0/1:23,16:39:99:473,0,718	0/1:32,18:50:99:497,0,972	0/0:46,0:46:99:0,117,1493	0/0:57,0:57:99:0,166,2123	0/0:58,0:58:99:0,163,2039	0/0:61,0:61:99:0,169,2155
+
+
+NON_SYNONYMOUS_CODING(MODERATE|MISSENSE|Gcg/Acg|A83T|243|EMG1||CODING|NM_006331|3|1),
+NON_SYNONYMOUS_CODING(MODERATE|MISSENSE|Gcg/Acg|A83T|243|EMG1||CODING|NM_006331.7|3|1)
+	Gcg	-> Acg
+	A83T
+	Exon 3
+
+
+12:7079943-7085164, strand:1, id:EMG1, name:EMG1, bioType:mRNA
+Transcipts:
+	12:7079943-7085164, strand: +, id:NM_006331.7, Protein
+		5'UTR   :	12	7079943-7080085 UTR_5_PRIME 'NM_006331.7.ex.1'
+		Exons:
+		12:7079943-7080210 'NM_006331.7.ex.1' rank:1, sequence: ctcccagggagggcagcgcaagacagcaagtcatctccatttcctggcccactttcaaaatggcagccggaaggaaatttgtgattagaagccgcgctgttcttatttaagagcgttagcgcaacttccggtattgttgcaagatggccgcgcccagtgatggattcaagcctcgtgaacgaagcggtggggagcaggcacaggactgggatgctctgccacccaagcggccccgactaggggcaggaaacaagatcggaggccgtag
+		12:7080212-7080252 'NM_006331.7.ex.2' rank:2, sequence: ttattgtggtgctggaaggggccagtctggagacagtcaag
+		12:7083500-7083601 'NM_006331.7.ex.3' rank:3, sequence: gtagggaagacatatgagctactcaactgtgacaagcacaagtctatattgttgaagaatggacgggaccctggggaagcgcggccagatatcacccaccag
+		12:7083713-7083854 'NM_006331.7.ex.4' rank:4, sequence: agtttgctgatgctgatggatagtcccctgaaccgagctggcttgctacaggtttatatccatacacagaagaatgttctgattgaagtgaatccccagacccgaattcccagaacctttgaccgcttttgtggcctcatgg
+		12:7084251-7084309 'NM_006331.7.ex.5' rank:5, sequence: ttcaacttttacacaagctcagtgttcgagcagctgatggcccccagaagcttttgaag
+		12:7084390-7084539 'NM_006331.7.ex.6' rank:6, sequence: gtaattaagaatccagtatcagatcactttccagttggatgtatgaaagttggcacttctttttccatcccggttgtcagtgatgtgcgtgagctggtgcccagcagtgatcctattgtttttgtggtaggggcctttgcccatggcaag
+		12:7084857-7085164 'NM_006331.7.ex.7' rank:7, sequence: gtcagtgtggagtatacagagaagatggtgtccatcagtaactaccccctttctgctgccctcacctgtgcaaaacttaccacagcctttgaggaagtatggggggtcatttgacagtagtagaacctgttctgaaaccagaaactgttgatgtcacatcctttgaccctggtctgagctgactgctggaagatgatctttctgcactgagactgtggagtttggggaagccaaggctgtacatttgctatttgtttatcctatgaatactgttcttgcaaacctggttgttttggggttcctaaagt
+		3'UTR   :	12	7084971-7085164 UTR_3_PRIME 'NM_006331.7.ex.7'
+		CDS     :	atggccgcgcccagtgatggattcaagcctcgtgaacgaagcggtggggagcaggcacaggactgggatgctctgccacccaagcggccccgactaggggcaggaaacaagatcggaggccgtag|ttattgtggtgctggaaggggccagtctggagacagtcaag|gtagggaagacatatgagctactcaactgtgacaagcacaagtctatattgttgaagaatggacgggaccctggggaagcgcggccagatatcacccaccag|agtttgctgatgctgatggatagtcccctgaaccgagctggcttgctacaggtttatatccatacacagaagaatgttctgattgaagtgaatccccagacccgaattcccagaacctttgaccgcttttgtggcctcatggttcaacttttacacaagctcagtgttcgagcagctgatggcccccagaagcttttgaaggtaattaagaatccagtatcagatcactttccagttggatgtatgaaagttggcacttctttttccatcccggttgtcagtgatgtgcgtgagctggtgcccagcagtgatcctattgtttttgtggtaggggcctttgcccatggcaaggtcagtgtggagtatacagagaagatggtgtccatcagtaactaccccctttctgctgccctcacctgtgcaaaacttaccacagcctttgaggaagtatggggggtcatttga
+		Protein :	M  A  A  P  S  D  G  F  K  P  R  E  R  S  G  G  E  Q  A  Q  D  W  D  A  L  P  P  K  R  P  R  L  G  A  G  N  K  I  G  G  R  S | Y  C  G  A  G  R  G  Q  S  G  D  S  Q  G|  R  E  D  I  *  A  T  Q  L  *  Q  A  Q  V  Y  I  V  E  E  W  T  G  P  W  G  S  A  A  R  Y  H  P  P  E|  F  A  D  A  D  G  *  S  P  E  P  S  W  L  A  T  G  L  Y  P  Y  T  E  E  C  S  D  *  S  E  S  P  D  P  N  S  Q  N  L  *  P  L  L  W  P  H  G  S  T  F  T  Q  A  Q  C  S  S  S  *  W  P  P  E  A  F  E  G  N  *  E  S  S  I  R  S  L  S  S  W  M  Y  E  S  W  H  F  F  F  H  P  G  C  Q  *  C  A  *  A  G  A  Q  Q  *  S  Y  C  F  C  G  R  G  L  C  P  W  Q  G  Q  C  G  V  Y  R  E  D  G  V  H  Q  *  L  P  P  F  C  C  P  H  L  C  K  T  Y  H  S  L  *  G  S  M  G  G  H  L  ?
+
