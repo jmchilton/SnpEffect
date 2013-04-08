@@ -71,12 +71,12 @@
     <dependency>
     	<groupId>net.sf.samtools</groupId>
     	<artifactId>Sam</artifactId>
-    	<version>1.77</version>
+    	<version>1.89</version>
     </dependency>
     <dependency>
-    	<groupId>net.sf.picard</groupId>
-    	<artifactId>Picard</artifactId>
-    	<version>1.77</version>
+    	<groupId>org.utgenome.thirdparty</groupId>
+    	<artifactId>picard</artifactId>
+    	<version>1.86.0</version>
     </dependency>
   </dependencies>
 

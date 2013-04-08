@@ -338,6 +338,13 @@ java -jar SnpSift.jar filter -f file.eff.vcf "! exists ID" > file.eff.not_in_dbS
 <pre>
 svn co https://snpeff.svn.sourceforge.net/svnroot/snpeff/SnpEffect/trunk
 </pre>
+				<br>
+				<br>
+				You may need to install <code>sam-jdk</code> JAR file manually on your maven repository.
+				Download the JAR file <a href="http://sourceforge.net/projects/picard/files/">here</a>, then run the following command to add the JAR to Maven:
+<pre>
+mvn install:install-file -Dfile=sam-1.89.jar -DgroupId=net.sf.samtools -DartifactId=Sam -Dversion=1.89 -Dpackaging=jar
+</pre>
 
 				<p> <h3>Configuration</h3>
 				The only configuration file is "snpEff.config".
