@@ -210,6 +210,7 @@ public class Exon extends Marker {
 			int idx = sequence.length() - index - len;
 			return GprSeq.reverseWc(sequence.getBases(idx, len)); // Minus strand => Exon's sequence has been reversed and WC-complemented
 		}
+
 		return sequence.getBases(index, len);
 	}
 
@@ -378,7 +379,7 @@ public class Exon extends Marker {
 	public void setSequence(String sequence) {
 		if ((sequence == null) || (sequence.length() <= 0)) this.sequence = DnaSequence.empty();
 
-		if (GprSeq.isAmbiguous(sequence)) this.sequence = new DnaNSequence(sequence); // Use DnaNSequence whch supports ambiguous sequences
+		if (GprSeq.isAmbiguous(sequence)) this.sequence = new DnaNSequence(sequence); // Use DnaNSequence which supports ambiguous sequences
 		else this.sequence = new DnaSequence(sequence); // Use DnaSequence
 	}
 

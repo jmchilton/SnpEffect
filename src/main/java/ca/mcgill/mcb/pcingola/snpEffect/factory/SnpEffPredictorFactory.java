@@ -3,7 +3,7 @@ package ca.mcgill.mcb.pcingola.snpEffect.factory;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedList;
+import java.util.HashSet;
 import java.util.List;
 
 import ca.mcgill.mcb.pcingola.fileIterator.FastaFileIterator;
@@ -231,6 +231,15 @@ public abstract class SnpEffPredictorFactory {
 
 		// Some annotations introduce zero size introns
 		collapseZeroLenIntrons();
+	}
+
+	/**
+	 * Check if exon frames are OK
+	 * @return true if OK
+	 */
+	public boolean checkExonFrames(Transcript tr) {
+		throw new RuntimeException("MUST IMPLEMENT THIS!!!");
+		//return false;
 	}
 
 	/**
@@ -583,7 +592,7 @@ public abstract class SnpEffPredictorFactory {
 		// Mark Transcripts for removal
 		i = 1;
 		if (verbose) System.out.print("\n\tFiltering out suspicious transcripts (first exon has non-zero frame): ");
-		LinkedList<Transcript> trToDelete = new LinkedList<Transcript>();
+		HashSet<Transcript> trToDelete = new HashSet<Transcript>();
 		for (Gene gene : genome.getGenes())
 			for (Transcript tr : gene) {
 				List<Exon> exons = tr.sortedStrand();
@@ -595,6 +604,9 @@ public abstract class SnpEffPredictorFactory {
 						else mark(i++);
 					}
 				}
+
+				// Check that exon frames are OK
+				if (!checkExonFrames(tr)) trToDelete.add(tr);
 			}
 
 		// Remove transcripts
