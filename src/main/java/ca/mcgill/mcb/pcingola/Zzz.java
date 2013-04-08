@@ -6,7 +6,6 @@ import ca.mcgill.mcb.pcingola.interval.Gene;
 import ca.mcgill.mcb.pcingola.interval.Transcript;
 import ca.mcgill.mcb.pcingola.snpEffect.Config;
 import ca.mcgill.mcb.pcingola.snpEffect.SnpEffectPredictor;
-import ca.mcgill.mcb.pcingola.util.Gpr;
 import ca.mcgill.mcb.pcingola.util.Timer;
 
 /**
@@ -34,22 +33,16 @@ public class Zzz {
 		SnpEffectPredictor snpEffectPredictor = config.loadSnpEffectPredictor();
 
 		// Analyze genes
-		int countErrs = 0, total = 0;
+		int countErrsTr = 0, totalTr = 0;
 		for (Gene g : snpEffectPredictor.getGenome().getGenes()) {
 			for (Transcript tr : g) {
-				if (tr.getId().equals("NM_006331.7")) {
-					System.out.println(tr);
-					if (!checkExonFrames(tr)) {
-						//System.out.println("Error on gene " + g.getId() + "\t" + tr.getId());
-						countErrs++;
-					}
-					total++;
-				}
+				if (!checkExonFrames(tr)) countErrsTr++;
+				totalTr++;
 			}
 		}
 
-		Timer.showStdErr("\n\tErrors                    : " + countErrs // 
-				+ "\n\tTranscripts               : " + total //
+		Timer.showStdErr("\n\tErrors                    : " + countErrsTr // 
+				+ "\n\tTranscripts               : " + totalTr //
 				+ "\n\tExons with non-zero frame : " + exonsNonZeroFrame //
 		);
 	}
@@ -70,8 +63,7 @@ public class Zzz {
 
 					// Calculate frame
 					int frame = (bases % 3);
-					if (frame > 0) frame = 3 - frame;
-					Gpr.debug("Exon: " + e.getRank() + "\tBases: " + bases + "\tFrame: " + frame);
+					//if (frame > 0) frame = 3 - frame;
 
 					if (e.getFrame() > 0) {
 						exonsNonZeroFrame++;
