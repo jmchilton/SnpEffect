@@ -63,7 +63,7 @@ public class Zzz {
 
 					// Calculate frame
 					int frame = (bases % 3);
-					//if (frame > 0) frame = 3 - frame;
+					//if (frame > 0) frame = 3 - frame;  // USE THIS LINE FOR ENSEMBL, BUT NOT FOR UCSC REFSEQ
 
 					if (e.getFrame() > 0) {
 						exonsNonZeroFrame++;
