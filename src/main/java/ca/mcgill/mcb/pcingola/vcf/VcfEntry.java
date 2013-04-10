@@ -24,23 +24,27 @@ import ca.mcgill.mcb.pcingola.vcf.VcfEffect.FormatVersion;
  */
 public class VcfEntry extends Marker implements Iterable<VcfGenotype> {
 
+	public enum VariantByFrequency {
+		Common, LowFrequency, Rare
+	}
+
 	private static final long serialVersionUID = 4226374412681243433L;
 
-	String line; // Line from VCF file
-	int lineNum; // Line number
-	VcfFileIterator vcfFileIterator; // Iterator where this entry was red from
-	String chromosomeName; // Original chromosome name
-	String ref;
-	String[] alts;
-	Double quality;
-	String filterPass;
-	String infoStr = "";
-	HashMap<String, String> info;
-	String format;
-	ArrayList<VcfGenotype> vcfGenotypes = null;
-	ChangeType changeType;
-	String genotypeFields[]; // Raw fields from VCF file
-	String genotypeFieldsStr; // Raw fields from VCF file (one string, tab separated)
+	protected String line; // Line from VCF file
+	protected int lineNum; // Line number
+	protected VcfFileIterator vcfFileIterator; // Iterator where this entry was red from
+	protected String chromosomeName; // Original chromosome name
+	protected String ref;
+	protected String[] alts;
+	protected Double quality;
+	protected String filterPass;
+	protected String infoStr = "";
+	protected HashMap<String, String> info;
+	protected String format;
+	protected ArrayList<VcfGenotype> vcfGenotypes = null;
+	protected ChangeType changeType;
+	protected String genotypeFields[]; // Raw fields from VCF file
+	protected String genotypeFieldsStr; // Raw fields from VCF file (one string, tab separated)
 
 	public VcfEntry(VcfFileIterator vcfFileIterator, Marker parent, String chromosomeName, int start, String id, String ref, String altsStr, double quality, String filterPass, String infoStr, String format) {
 		super(parent, start, start + ref.length(), 1, id);
@@ -454,6 +458,20 @@ public class VcfEntry extends Marker implements Iterable<VcfGenotype> {
 		return false;
 	}
 
+	/**
+	 * Is this variant a singleton (appears only in one genotype)
+	 * @param ve
+	 * @return
+	 */
+	public boolean isSingleton() {
+		int count = 0;
+		for (VcfGenotype gen : this) {
+			if (gen.isVariant()) count++;
+			if (count > 1) return false;
+		}
+		return count == 1;
+	}
+
 	public boolean isSnp() {
 		return changeType == ChangeType.SNP;
 	}
@@ -472,6 +490,34 @@ public class VcfEntry extends Marker implements Iterable<VcfGenotype> {
 	public Iterator<VcfGenotype> iterator() {
 		if (vcfGenotypes == null) parseGenotypes();
 		return vcfGenotypes.iterator();
+	}
+
+	/**
+	 * Calculate Minor allele frequency
+	 * @param ve
+	 * @return
+	 */
+	public double maf() {
+		double maf = -1;
+
+		// Do we have it annotated as AF or MAF?
+		if (hasField("AF")) maf = getInfoFloat("AF");
+		else if (hasField("MAF")) maf = getInfoFloat("MAF");
+		else {
+			// No annotations, we have to calculate
+			int ac = 0, count = 0;
+			for (VcfGenotype gen : this) {
+				count += 2;
+				int genCode = gen.getGenotypeCode();
+				if (genCode > 0) ac += genCode;
+			}
+			maf = ((double) ac) / count;
+		}
+
+		// Always use the Minor Allele Frequency
+		if (maf > 0.5) maf = 1.0 - maf;
+
+		return maf;
 	}
 
 	/**
@@ -748,4 +794,12 @@ public class VcfEntry extends Marker implements Iterable<VcfGenotype> {
 
 		return sb.toString();
 	}
+
+	public VariantByFrequency variantByFrequency() {
+		double maf = maf();
+		if (maf <= 0.01) return VariantByFrequency.Rare;
+		if (maf <= 0.05) return VariantByFrequency.LowFrequency;
+		return VariantByFrequency.Common;
+	}
+
 }
