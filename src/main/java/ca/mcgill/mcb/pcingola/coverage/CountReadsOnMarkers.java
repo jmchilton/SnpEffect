@@ -82,6 +82,7 @@ public class CountReadsOnMarkers {
 
 		readLengthSum = 0;
 		readLengthCount = 0;
+		int countExceptions = 0;
 
 		// Iterate over all BAM/SAM files
 		for (String samFileName : samFileNames) {
@@ -126,7 +127,9 @@ public class CountReadsOnMarkers {
 						if (verbose) Gpr.showMark(readNum, SHOW_EVERY);
 						readNum++;
 					} catch (Exception e) {
-						e.printStackTrace();
+						countExceptions++;
+						if (countExceptions < 10) e.printStackTrace();
+						else if (countExceptions == 10) System.err.println("Not showing more exceptions!");
 					}
 
 				}
