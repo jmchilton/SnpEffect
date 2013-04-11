@@ -234,15 +234,6 @@ public abstract class SnpEffPredictorFactory {
 	}
 
 	/**
-	 * Check if exon frames are OK
-	 * @return true if OK
-	 */
-	public boolean checkExonFrames(Transcript tr) {
-		throw new RuntimeException("MUST IMPLEMENT THIS!!!");
-		//return false;
-	}
-
-	/**
 	 * Get (or create) a chromosome and set it's length
 	 * @param chromoName
 	 * @param len
@@ -604,9 +595,6 @@ public abstract class SnpEffPredictorFactory {
 						else mark(i++);
 					}
 				}
-
-				// Check that exon frames are OK
-				if (!checkExonFrames(tr)) trToDelete.add(tr);
 			}
 
 		// Remove transcripts
