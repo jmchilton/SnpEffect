@@ -14,15 +14,21 @@ source `dirname $0`/config.sh
 # Upload to ZIP files and databases
 #---
 # Core program
-scp snpEff_v${SNPEFF_VERSION}_core.zip pcingola,snpeff@frs.sourceforge.net:/home/frs/project/s/sn/snpeff/snpEff_latest_core.zip
-scp snpEff_v${SNPEFF_VERSION}_core.zip pcingola,snpeff@frs.sourceforge.net:/home/frs/project/s/sn/snpeff/
-		
+echo
+echo "Upload snpEff_latest_core.zip and snpEff_v${SNPEFF_VERSION}_core.zip"
+cp snpEff_v${SNPEFF_VERSION}_core.zip snpEff_latest_core.zip
+scp snpEff_v${SNPEFF_VERSION}_core.zip snpEff_latest_core.zip pcingola,snpeff@frs.sourceforge.net:/home/frs/project/s/sn/snpeff/
+
 # Individual databases
+echo
+echo "Upload databases"
 scp snpEff_v${SNPEFF_VERSION}_*.zip pcingola,snpeff@frs.sourceforge.net:/home/frs/project/s/sn/snpeff/databases/v${SNPEFF_VERSION}/
 
 # SnpSift
-scp SnpSift.jar pcingola,snpeff@frs.sourceforge.net:/home/frs/project/s/sn/snpeff/SnpSift_v${SNPSIFT_VERSION}.jar
-scp SnpSift.jar pcingola,snpeff@frs.sourceforge.net:/home/frs/project/s/sn/snpeff/SnpSift_latest.jar
+echo
+echo "Upload SnpSift.jar"
+cp SnpSift.jar SnpSift_v${SNPSIFT_VERSION}.jar
+scp SnpSift.jar SnpSift_v${SNPSIFT_VERSION}.jar pcingola,snpeff@frs.sourceforge.net:/home/frs/project/s/sn/snpeff/
 
 #---
 # Update SnpEff web pages
@@ -35,8 +41,12 @@ scp SnpSift.jar pcingola,snpeff@frs.sourceforge.net:/home/frs/project/s/sn/snpef
 cd $HOME/workspace/SnpEff/html/
 
 # Copy html and txt files 
+echo
+echo "Upload web pages"
 scp style.css *.html *.txt pcingola,snpeff@frs.sourceforge.net:htdocs/
 		
 # Copy images
+echo
+echo "Upload web pages images"
 scp -r  images/ pcingola,snpeff@frs.sourceforge.net:htdocs/images/
 

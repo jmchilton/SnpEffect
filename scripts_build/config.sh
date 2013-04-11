@@ -1,7 +1,7 @@
 #!/bin/sh
 
 export VERSION_SNPEFF=3.2
-export SUBVERSION_SNPEFF=""
+export SUBVERSION_SNPEFF="a"
 export VERSION_SNPSIFT=1.9
 export VERSION_SNPSQL=0.2
 

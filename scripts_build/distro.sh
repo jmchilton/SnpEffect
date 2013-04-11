@@ -9,13 +9,12 @@
 
 source `dirname $0`/config.sh
 
-DIR=snpEff_$SNPEFF_VERSION_REV
-rm -rvf $DIR
+DIR=snpEff_$SNPEFF_VERSION
+rm -rvf $DIR snpEff
 mkdir $DIR
 
 # Copy core files
-cp snpEff.config snpEff.jar SnpSift.jar demo.1kg.vcf $DIR
-# cp -rvfH galaxy scripts $DIR
+cp -vf snpEff.config snpEff.jar SnpSift.jar demo.1kg.vcf $DIR
 cp -rvf galaxy scripts $DIR
 
 cd $DIR
@@ -26,7 +25,7 @@ cd -
 mv $DIR snpEff
 
 # Create 'core' zip file
-ZIP="snpEff_v"$SNPEFF_VERSION_REV"_core.zip"
+ZIP="snpEff_v"$SNPEFF_VERSION"_core.zip"
 rm -f $ZIP 2> /dev/null
 zip -r $ZIP snpEff
 
