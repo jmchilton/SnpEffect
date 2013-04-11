@@ -36,11 +36,14 @@ public class VcfOutputFormatter extends OutputFormatter {
 	public static final String VCF_INFO_LOF_NAME = "LOF";
 	public static final String VCF_INFO_NMD_NAME = "NMD";
 
+	public static final String GATK_ACCEPTED_VERSION = "2.0.5"; // GATK refuses to run if we report another version, so we have to lie...
+
 	boolean needAddInfo = false;
 	boolean needAddHeader = true;
 	FormatVersion formatVersion = VcfEffect.FormatVersion.FORMAT_SNPEFF_4;
 	List<VcfEntry> vcfEntries;
 	boolean lossOfFunction;
+	boolean gatk;
 	Genome genome;
 
 	/**
@@ -168,10 +171,12 @@ public class VcfOutputFormatter extends OutputFormatter {
 					if (intron != null) rank = intron.getRank();
 				}
 				effBuff.append(rank >= 0 ? rank : "");
-				effBuff.append("|");
 
 				// Add genotype (or genotype difference) for this effect
-				if (formatVersion == FormatVersion.FORMAT_SNPEFF_4) effBuff.append(changeEffect.getGenotype());
+				if (formatVersion == FormatVersion.FORMAT_SNPEFF_4) {
+					effBuff.append("|");
+					effBuff.append(changeEffect.getGenotype());
+				}
 				// Add genotype corresponding to this change
 
 				// Errors or warnings (this is the last thing in the list)
@@ -291,7 +296,10 @@ public class VcfOutputFormatter extends OutputFormatter {
 	 */
 	public List<String> getNewHeaderLines() {
 		ArrayList<String> newLines = new ArrayList<String>();
-		newLines.add("##SnpEffVersion=\"" + version + "\"");
+
+		if (gatk) newLines.add("##SnpEffVersion=\"" + GATK_ACCEPTED_VERSION + " Real version: " + version + "\""); // We have to lie to GATK, otherwise it refuses to run...
+		else newLines.add("##SnpEffVersion=\"" + version + "\"");
+
 		newLines.add("##SnpEffCmd=\"" + commandLineStr + "\"");
 		newLines.add("##INFO=<ID=EFF,Number=.,Type=String,Description=\"Predicted effects for this variant.Format: 'Effect ( Effect_Impact | Functional_Class | Codon_Change | Amino_Acid_change| Amino_Acid_length | Gene_Name | Gene_BioType | Coding | Transcript | Exon  | GenotypeNum [ | ERRORS | WARNINGS ] )' \">");
 
@@ -303,6 +311,10 @@ public class VcfOutputFormatter extends OutputFormatter {
 		if (useOicr) newLines.add("##INFO=<ID=OICR,Number=.,Type=String,Description=\"Format: ( Transcript | Distance from begining cDNA )\">");
 
 		return newLines;
+	}
+
+	public void setGatk(boolean gatk) {
+		this.gatk = gatk;
 	}
 
 	public void setLossOfFunction(boolean lossOfFunction) {

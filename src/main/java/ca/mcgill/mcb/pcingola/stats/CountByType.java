@@ -91,6 +91,14 @@ public class CountByType implements Serializable {
 		return score != null ? score : 0.0;
 	}
 
+	/**
+	 * List all types (alphabetically sorted)
+	 * We need it as a getter for summary page (freemarker)
+	 */
+	public List<String> getTypeList() {
+		return keysSorted();
+	}
+
 	public boolean hasData() {
 		return !countByType.isEmpty();
 	}

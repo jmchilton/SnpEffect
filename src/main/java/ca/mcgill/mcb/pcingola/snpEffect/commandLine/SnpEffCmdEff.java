@@ -857,6 +857,7 @@ public class SnpEffCmdEff extends SnpEff {
 			break;
 		case GATK:
 			outputFormatter = new VcfOutputFormatter(config.getGenome(), VcfEffect.FormatVersion.FORMAT_SNPEFF_2);
+			((VcfOutputFormatter) outputFormatter).setGatk(true);
 			break;
 		case BED:
 			outputFormatter = new BedOutputFormatter();
