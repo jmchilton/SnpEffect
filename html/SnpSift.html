@@ -934,21 +934,37 @@ $ java -jar SnpSift.jar gwasCat gwascatalog.txt test.vcf | tee test.gwas.vcf
 				One of the main advantages is that you can annotate using multiple prediction tools with just one command.
 				<a href="https://sites.google.com/site/jpopgen/dbNSFP">Here</a> is the link to dbNSFP database website.
 				<p>
+				<br>
+				<br>
+				<b>Database:</b> In order to use this command, you need to download the dbNSFP database.
+				<br>
+				There are two options:
+				<ul>
+					<li> You can download the file from SnpEff's site <a href="http://sourceforge.net/projects/snpeff/files/databases/dbNSFP2.0.txt.gz">here</a>.
+					<li> You can create it yourself, downloading the files from <a href="https://sites.google.com/site/jpopgen/dbNSFP">DbNsfp</a> site.
+					Creating a file that SnpSift can use is simple, just follow this guidelines:
+<pre>
+# Download dbNSFP database
+$ wget http://dbnsfp.houstonbioinformatics.org/dbNSFPzip/dbNSFP2.0.zip
 
-				In order to use this command, you need to download the dbNSFP database file from our <a href="http://sourceforge.net/projects/snpeff/files/databases/">'databases' directory</a>.
-				The file is named 'dbNSFP-version.txt.gz', where 'version' is the version number (e.g. 'dbNSFP2.0b3.txt.gz').<br>
-				Another option is to download from the original <a href="https://sites.google.com/site/jpopgen/dbNSFP">dbNSFP</a> site, and create a single file from the individual chromosome files (a simple 'cat dbNSFP2.0b3_variant.chr* | grep -v "^#" &gt; dbNSFP2.0b3.txt' command will be enough).
+# Uncompress
+$ unzip dbNSFP2.0.zip
+
+# Create a single file version
+$ (head -n 1 dbNSFP2.0_variant.chr1 ; cat dbNSFP2.0_variant.chr* | grep -v "^#" ) > dbNSFP2.0.txt
+</pre>
+				</ul>
+				</p>
 				<p>
-
-				Here is a full example how to perform annotations:
+				<b>Annotation example:</b> Here is a full example how to perform annotations
 <pre>
 # Donload and uncompress database (you need to do this only once):
 # WARNING: The database is 3Gb when compressed and 30Gb uncompressed.
-wget http://sourceforge.net/projects/snpeff/files/databases/dbNSFP2.0b3.txt.gz
-gunzip dbNSFP2.0b3.txt.gz
+wget http://sourceforge.net/projects/snpeff/files/databases/dbNSFP2.0.txt.gz
+gunzip dbNSFP2.0.txt.gz
 
 # Annotate using dbNSFP
-java -jar SnpSift.jar dbnsfp -v dbNSFP2.0b3.txt myFile.vcf > myFile.annotated.vcf
+java -jar SnpSift.jar dbnsfp -v dbNSFP2.0.txt myFile.vcf > myFile.annotated.vcf
 </pre>
 
 				<i class="icon-warning-sign"></i> You can now specify which fields you want to use for annotation using the '-f' command line option followed by a comma separated list of field names.
@@ -967,8 +983,8 @@ java -jar SnpSift.jar dbnsfp -v dbNSFP2.0b3.txt myFile.vcf > myFile.annotated.vc
 					<li> 1000Gp1_EUR_AF
 					<li> 1000Gp1_AMR_AF
 					<li> 1000Gp1_ASN_AF
-					<li> ESP5400_AA_AF
-					<li> ESP5400_EA_AF
+					<li> ESP6500_AA_AF
+					<li> ESP6500_EA_AF
 				</ul>
 
         </section>
