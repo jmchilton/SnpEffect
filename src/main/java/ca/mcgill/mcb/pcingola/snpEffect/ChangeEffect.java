@@ -77,6 +77,7 @@ public class ChangeEffect implements Cloneable, Comparable<ChangeEffect> {
 		, REGULATION //
 		, MICRO_RNA //
 		, CUSTOM //
+		, NEXT_PROT //
 		;
 
 		public String toSequenceOntology() {

@@ -6,6 +6,7 @@ import java.util.HashMap;
 import ca.mcgill.mcb.pcingola.Pcingola;
 import ca.mcgill.mcb.pcingola.logStatsServer.LogStats;
 import ca.mcgill.mcb.pcingola.logStatsServer.VersionCheck;
+import ca.mcgill.mcb.pcingola.nextProt.SnpEffCmdBuildNextProt;
 import ca.mcgill.mcb.pcingola.snpEffect.Config;
 import ca.mcgill.mcb.pcingola.spliceSites.SpliceAnalysis;
 import ca.mcgill.mcb.pcingola.util.Gpr;
@@ -166,6 +167,7 @@ public class SnpEff implements CommandLine {
 		// Parse command
 		//---
 		if (args[0].equalsIgnoreCase("build") //
+				|| args[0].equalsIgnoreCase("buildNextProt") //
 				|| args[0].equalsIgnoreCase("dump") //
 				|| args[0].equalsIgnoreCase("cds") //
 				|| args[0].equalsIgnoreCase("eff") //
@@ -228,6 +230,7 @@ public class SnpEff implements CommandLine {
 		// All commands are lowercase
 		command = command.toLowerCase();
 		if (command.equalsIgnoreCase("build")) snpEff = new SnpEffCmdBuild();
+		else if (command.equalsIgnoreCase("buildNextProt")) snpEff = new SnpEffCmdBuildNextProt();
 		else if (command.equalsIgnoreCase("dump")) snpEff = new SnpEffCmdDump();
 		else if (command.equalsIgnoreCase("download")) snpEff = new SnpEffCmdDownload();
 		else if (command.equalsIgnoreCase("cds")) snpEff = new SnpEffCmdCds();
@@ -288,17 +291,18 @@ public class SnpEff implements CommandLine {
 		System.err.println("Usage: snpEff [command] [options] [files]");
 		System.err.println("\nAvailable commands: ");
 		System.err.println("   [eff]           : Calculate effect of variants. Default: eff (no command or 'eff').");
+		System.err.println("   build           : Build a SnpEff database.");
+		System.err.println("   buildNextProt   : Build a SnpEff for NextProt (using NextProt's XML files).");
+		System.err.println("   cds             : Compare CDS sequences calculated form a SnpEff database to the one in a FASTA file. Used for checking databases correctness.");
+		System.err.println("   closestExon     : Calculate closes exon/s given a set of genomic positions or intervals.");
+		System.err.println("   countReads      : Count how many reads (from a BAM file) overlap with each genomic interval. Experimental feature.");
 		System.err.println("   databases       : Show currently available databases (from local config file).");
 		System.err.println("   download        : Download a SnpEff database.");
-		System.err.println("   build           : Build a SnpEff database.");
 		System.err.println("   dump            : Dump to STDOUT a SnpEff database (mostly used for debugging).");
-		System.err.println("   cds             : Compare CDS sequences calculated form a SnpEff database to the one in a FASTA file. Used for checking databases correctness.");
-		System.err.println("   protein         : Compare protein sequences calculated form a SnpEff database to the one in a FASTA file. Used for checking databases correctness.");
-		System.err.println("   closestExon     : Calculate closes exon/s given a set of genomic positions or intervals.");
-		System.err.println("   spliceAnalysis  : Perform an analysis of splice sites. Experimental feature.");
-		System.err.println("   countReads      : Count how many reads (from a BAM file) overlap with each genomic interval. Experimental feature.");
 		System.err.println("   genes2bed       : Create a bed file from a genes list.");
 		System.err.println("   len             : Calculate total genomic length for each marker type.");
+		System.err.println("   protein         : Compare protein sequences calculated form a SnpEff database to the one in a FASTA file. Used for checking databases correctness.");
+		System.err.println("   spliceAnalysis  : Perform an analysis of splice sites. Experimental feature.");
 		System.err.println("\nRun 'java -jar snpEff.jar command' for help on each specific command");
 		System.exit(-1);
 	}

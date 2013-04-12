@@ -170,6 +170,9 @@ public class MarkerSerializer {
 			case SPLICE_SITE_DONOR:
 				m = new SpliceSiteDonor();
 				break;
+			case NEXT_PROT:
+				m = new NextProt();
+				break;
 			default:
 				throw new RuntimeException("Unimplemented for type '" + type + "'");
 			}

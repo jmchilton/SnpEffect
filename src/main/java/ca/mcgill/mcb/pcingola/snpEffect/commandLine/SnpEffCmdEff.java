@@ -27,6 +27,10 @@ import ca.mcgill.mcb.pcingola.interval.Chromosome;
 import ca.mcgill.mcb.pcingola.interval.Custom;
 import ca.mcgill.mcb.pcingola.interval.Gene;
 import ca.mcgill.mcb.pcingola.interval.Genome;
+import ca.mcgill.mcb.pcingola.interval.Marker;
+import ca.mcgill.mcb.pcingola.interval.MarkerSerializer;
+import ca.mcgill.mcb.pcingola.interval.Markers;
+import ca.mcgill.mcb.pcingola.interval.NextProt;
 import ca.mcgill.mcb.pcingola.interval.Regulation;
 import ca.mcgill.mcb.pcingola.interval.SeqChange;
 import ca.mcgill.mcb.pcingola.interval.SpliceSite;
@@ -82,6 +86,7 @@ public class SnpEffCmdEff extends SnpEff {
 	boolean onlyRegulation = false; // Only build regulation tracks
 	boolean lossOfFunction = false; // Create loss of function LOF tag?
 	boolean useGeneId = false; // Use gene ID instead of gene name (VCF output)
+	boolean nextProt = false; // Annotate using NextProt database
 	int upDownStreamLength = SnpEffectPredictor.DEFAULT_UP_DOWN_LENGTH; // Upstream & downstream interval length
 	int spliceSiteSize = SpliceSite.CORE_SPLICE_SITE_SIZE; // Splice site size default: 2 bases (canonical splice site)
 	int totalErrs = 0;
@@ -544,6 +549,10 @@ public class SnpEffCmdEff extends SnpEff {
 					if ((i + 1) < args.length) regulationTracks.add(args[++i]); // Add this track to the list
 				}
 				//---
+				// NextProt database
+				//---
+				else if (args[i].equalsIgnoreCase("-nextProt")) nextProt = true; // Use NextProt database
+				//---
 				// Filters
 				//---
 				else if ((args[i].equals("-minQ") || args[i].equalsIgnoreCase("-minQuality"))) {
@@ -652,6 +661,34 @@ public class SnpEffCmdEff extends SnpEff {
 	 * Read regulation track and update SnpEffectPredictor
 	 * @param regTrack
 	 */
+	void readNextProt() {
+		//---
+		// Read file
+		//---
+		String nextProtBinFile = config.getDirDataVersion() + "/nextProt.bin";
+		if (verbose) Timer.showStdErr("Reading NextProt database from file '" + nextProtBinFile + "'");
+
+		MarkerSerializer markerSerializer = new MarkerSerializer();
+		Markers nextProtDb = markerSerializer.load(nextProtBinFile);
+
+		//---
+		// Add all nextProt marker to predictor
+		//---
+		SnpEffectPredictor snpEffectPredictor = config.getSnpEffectPredictor();
+		int count = 0;
+		for (Marker m : nextProtDb)
+			if (m instanceof NextProt) {
+				snpEffectPredictor.add(m);
+				count++;
+			}
+
+		if (verbose) Timer.showStdErr("NextProt database: " + count + " markers loaded.");
+	}
+
+	/**
+	 * Read regulation track and update SnpEffectPredictor
+	 * @param regTrack
+	 */
 	@SuppressWarnings("unchecked")
 	void readRegulationTrack(String regTrack) {
 		//---
@@ -683,7 +720,6 @@ public class SnpEffCmdEff extends SnpEff {
 		SnpEffectPredictor snpEffectPredictor = config.getSnpEffectPredictor();
 		for (Regulation r : regulation)
 			snpEffectPredictor.add(r);
-
 	}
 
 	@Override
@@ -764,6 +800,9 @@ public class SnpEffCmdEff extends SnpEff {
 		// Read regulation tracks
 		for (String regTrack : regulationTracks)
 			readRegulationTrack(regTrack);
+
+		// Read nextProt database?
+		if (nextProt) readNextProt();
 
 		// Build interval forest for filter (if any)
 		if (filterIntervals != null) {
@@ -1015,6 +1054,7 @@ public class SnpEffCmdEff extends SnpEff {
 		System.err.println("\t-geneId                         : Use gene ID instead of gene name (VCF output). Default: " + useGeneId);
 		System.err.println("\t-hgvs                           : Use HGVS annotations for amino acid sub-field. Default: " + useHgvs);
 		System.err.println("\t-lof                            : Add loss of function (LOF) and Nonsense mediated decay (NMD) tags.");
+		System.err.println("\t-nextProt                       : Annotate using NextProt database.");
 		System.err.println("\t-reg <name>                     : Regulation track to use (this option can be used add several times).");
 		System.err.println("\t-oicr                           : Add OICR tag in VCF file. Default: " + useOicr);
 		System.err.println("\t-onlyReg                        : Only use regulation tracks.");
