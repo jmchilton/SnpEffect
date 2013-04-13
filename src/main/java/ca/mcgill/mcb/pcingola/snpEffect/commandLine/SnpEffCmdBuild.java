@@ -6,10 +6,14 @@ import java.util.Collection;
 import ca.mcgill.mcb.pcingola.RegulationConsensusMultipleBed;
 import ca.mcgill.mcb.pcingola.RegulationFileConsensus;
 import ca.mcgill.mcb.pcingola.codons.FindRareAaIntervals;
+import ca.mcgill.mcb.pcingola.fileIterator.MotifFileIterator;
 import ca.mcgill.mcb.pcingola.fileIterator.RegulationFileIterator;
 import ca.mcgill.mcb.pcingola.fileIterator.RegulationGffFileIterator;
 import ca.mcgill.mcb.pcingola.interval.ExonSpliceCharacterizer;
+import ca.mcgill.mcb.pcingola.interval.Markers;
+import ca.mcgill.mcb.pcingola.interval.Motif;
 import ca.mcgill.mcb.pcingola.interval.RareAminoAcid;
+import ca.mcgill.mcb.pcingola.motif.Jaspar;
 import ca.mcgill.mcb.pcingola.snpEffect.Config;
 import ca.mcgill.mcb.pcingola.snpEffect.SnpEffectPredictor;
 import ca.mcgill.mcb.pcingola.snpEffect.factory.SnpEffPredictorFactory;
@@ -223,6 +227,44 @@ public class SnpEffCmdBuild extends SnpEff {
 	}
 
 	/**
+	 * Read regulation motif files
+	 */
+	void readRegulationMotif() {
+		if (verbose) Timer.showStdErr("[Optional] Reading motifs: GFF");
+		String motifFileName = config.getBaseFileNameMotif() + ".gff";
+		String motifBinFileName = config.getBaseFileNameMotif() + ".bin";
+		String pwmsFileName = config.getDirDataVersion() + "/pwms.bin";
+
+		if (!Gpr.exists(pwmsFileName)) {
+			if (verbose) Timer.showStdErr("Warning: Cannot open PWMs file " + pwmsFileName + ". Nothing done");
+			return;
+		}
+
+		try {
+			// Load all PWMs
+			if (verbose) Timer.showStdErr("\tLoading PWMs from : " + pwmsFileName);
+			Jaspar jaspar = new Jaspar();
+			jaspar.load(pwmsFileName);
+
+			// Open the regulation file and create a consensus
+			if (verbose) Timer.showStdErr("\tLoading motifs from : " + motifFileName);
+			MotifFileIterator motifFileIterator = new MotifFileIterator(motifFileName, config.getGenome(), jaspar);
+			Markers motifs = new Markers();
+			for (Motif motif : motifFileIterator)
+				motifs.add(motif);
+			if (verbose) Timer.showStdErr("\tLoadded motifs: " + motifs.size());
+
+			if (verbose) Timer.showStdErr("\tSaving motifs to: " + motifBinFileName);
+			motifs.save(motifBinFileName);
+		} catch (Throwable t) {
+			// If file does not exists, no problem
+			if (verbose) Timer.showStdErr("Warning: Cannot read optional motif file '" + motifFileName + "', nothing done.");
+			if (debug) t.printStackTrace();
+		}
+
+	}
+
+	/**
 	 * Build database
 	 */
 	@Override
@@ -254,6 +296,7 @@ public class SnpEffCmdBuild extends SnpEff {
 		// Read regulation elements 
 		if (cellType == null) readRegulationGff(); // CellType specific is meant for BED files.
 		readRegulationBed();
+		readRegulationMotif();
 
 		if (verbose) Timer.showStdErr("Done");
 

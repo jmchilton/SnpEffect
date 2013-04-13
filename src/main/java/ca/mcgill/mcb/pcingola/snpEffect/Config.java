@@ -173,6 +173,10 @@ public class Config implements Serializable, Iterable<String> {
 		return dataDir + "/" + genome.getVersion() + "/genes";
 	}
 
+	public String getBaseFileNameMotif() {
+		return getDirDataVersion() + "/motif";
+	}
+
 	/**
 	 * Regulation file (GFF format)
 	 * @return

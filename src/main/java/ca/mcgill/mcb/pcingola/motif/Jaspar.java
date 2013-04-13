@@ -7,12 +7,13 @@ import ca.mcgill.mcb.pcingola.util.Gpr;
 import ca.mcgill.mcb.pcingola.util.Timer;
 
 /**
- * Test class
+ * Load PWM matrices from a Jaspar file
+ * 
  * @author pablocingolani
  */
 public class Jaspar implements Iterable<Pwm> {
 
-	boolean verbose = true;
+	boolean verbose = false;
 	HashMap<String, Pwm> pwms;
 
 	public Jaspar() {
@@ -34,7 +35,7 @@ public class Jaspar implements Iterable<Pwm> {
 	public void load(String jasparMatrixFile) {
 		pwms = new HashMap<String, Pwm>();
 
-		Timer.showStdErr("Loading jaspar matrix from file " + jasparMatrixFile);
+		if (verbose) Timer.showStdErr("Loading jaspar matrix from file " + jasparMatrixFile);
 
 		String lines[] = Gpr.readFile(jasparMatrixFile, true).split("\n");
 

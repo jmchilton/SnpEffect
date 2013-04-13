@@ -4,32 +4,26 @@ import java.io.IOException;
 
 import ca.mcgill.mcb.pcingola.interval.Chromosome;
 import ca.mcgill.mcb.pcingola.interval.Genome;
-import ca.mcgill.mcb.pcingola.interval.Regulation;
+import ca.mcgill.mcb.pcingola.interval.Motif;
+import ca.mcgill.mcb.pcingola.motif.Jaspar;
 
 /**
- * Opens a GFF3 file and create regulatory elements.
- * 
- * Example of regulatory GFF file:
- * 			ftp://ftp.ensembl.org/pub/release-63/regulation/homo_sapiens/AnnotatedFeatures.gff.gz
- * 
- * References (GFF3) : http://www.sequenceontology.org/gff3.shtml
+ * Opens a regulation file and create Motif elements.
  * 
  * @author pcingola
  */
-public class RegulationGffFileIterator extends RegulationFileIterator {
+public class MotifFileIterator extends MarkerFileIterator<Motif> {
 
 	public static final int GFF_OFFSET = 1;
+	Jaspar jaspar;
 
-	public RegulationGffFileIterator(String fileName) {
-		super(fileName, GFF_OFFSET);
-	}
-
-	public RegulationGffFileIterator(String fileName, Genome genome) {
+	public MotifFileIterator(String fileName, Genome genome, Jaspar jaspar) {
 		super(fileName, genome, GFF_OFFSET);
+		this.jaspar = jaspar;
 	}
 
 	@Override
-	protected Regulation readNext() {
+	protected Motif readNext() {
 		// Try to read a line
 		try {
 			while (ready()) {
@@ -60,7 +54,6 @@ public class RegulationGffFileIterator extends RegulationFileIterator {
 						// Parse info field, looking for "Name=XXXX"
 						String info = fields[8];
 						String name = "";
-						String cellType = "";
 						String infos[] = info.split(";");
 						for (String nv : infos) { // Field has "name = value" pairs
 							String nameValue[] = nv.split("="); // Get field name
@@ -69,14 +62,21 @@ public class RegulationGffFileIterator extends RegulationFileIterator {
 								String val = nameValue[1].trim();
 
 								// Is name 'Name'? 
-								if (attr.equals("Name")) name = val;
-								else if (attr.equals("Alias")) cellType = val.split("_")[0]; // Cell type is in 'Alias'
+								if (attr.equals("Name")) {
+									name = val;
+									String names[] = name.split(":");
+									name = names[0];
+									id = names[names.length - 1];
+								}
 							}
 						}
 
 						// Create seqChange
-						Regulation seqChange = new Regulation(chromo, start, end, strand, id, name, cellType);
-						return seqChange;
+						Motif motif = new Motif(chromo, start, end, strand, id, name);
+						motif.setPwm(jaspar.getPwm(id));
+						if (motif.getPwm() == null) System.err.println("Warning: Pwm '" + id + "' not found! Name = " + name);
+
+						return motif;
 					}
 				}
 			}

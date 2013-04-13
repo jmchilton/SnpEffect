@@ -9,6 +9,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import ca.mcgill.mcb.pcingola.interval.tree.IntervalForest;
+import ca.mcgill.mcb.pcingola.serializer.MarkerSerializer;
 
 /**
  * A collection of markers
@@ -262,6 +263,41 @@ public class Markers implements Iterable<Marker>, Serializable {
 	public Interval rand() {
 		int idx = (int) (Math.random() * markers.size());
 		return markers.get(idx);
+	}
+
+	/**
+	 * Save to a file using a serializer
+	 * @param fileName
+	 */
+	public void save(String fileName) {
+		// Nothing to save
+		if (size() <= 0) return;
+
+		// We must add genome and all chromosomes to the list (otherwise the serializer cannot save all references)
+		Genome genome = markers.get(0).getGenome();
+
+		// Add all chromosomes to a set (to make sure they are added only once)
+		HashSet<Chromosome> chromos = new HashSet<Chromosome>();
+		for (Marker m : this)
+			chromos.add(m.getChromosome());
+
+		// Create a set of all markers to be saved
+		Markers markersToSave = new Markers();
+
+		// Add genome
+		markersToSave.add(genome);
+
+		// Add chromosomes
+		for (Chromosome chr : chromos)
+			markersToSave.add(chr);
+
+		// Add markers
+		for (Marker m : markers)
+			markersToSave.add(m);
+
+		// Save
+		MarkerSerializer markerSerializer = new MarkerSerializer();
+		markerSerializer.save(fileName, markersToSave);
 	}
 
 	public int size() {
