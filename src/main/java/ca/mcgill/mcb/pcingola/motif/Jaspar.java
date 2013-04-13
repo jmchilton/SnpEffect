@@ -1,6 +1,7 @@
 package ca.mcgill.mcb.pcingola.motif;
 
 import java.util.HashMap;
+import java.util.Iterator;
 
 import ca.mcgill.mcb.pcingola.util.Gpr;
 import ca.mcgill.mcb.pcingola.util.Timer;
@@ -9,7 +10,7 @@ import ca.mcgill.mcb.pcingola.util.Timer;
  * Test class
  * @author pablocingolani
  */
-public class Jaspar {
+public class Jaspar implements Iterable<Pwm> {
 
 	boolean verbose = true;
 	HashMap<String, Pwm> pwms;
@@ -21,8 +22,9 @@ public class Jaspar {
 		return pwms.get(pwmId);
 	}
 
-	public boolean isVerbose() {
-		return verbose;
+	@Override
+	public Iterator<Pwm> iterator() {
+		return pwms.values().iterator();
 	}
 
 	/**
@@ -88,6 +90,10 @@ public class Jaspar {
 			weight[i] = Gpr.parseIntSafe(weightStr[i + 1]);
 
 		return weight;
+	}
+
+	public void setVerbose(boolean verbose) {
+		this.verbose = verbose;
 	}
 
 }

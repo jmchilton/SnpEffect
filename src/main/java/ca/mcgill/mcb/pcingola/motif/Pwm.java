@@ -71,6 +71,23 @@ public class Pwm {
 		return -1;
 	}
 
+	public char[] bestSequence() {
+		char best[] = new char[length];
+
+		for (int i = 0; i < countMatrix[0].length; i++) {
+			int max = 0, maxb = 0;
+			for (int b = 0; b < BASES.length; b++) {
+				if (max < countMatrix[b][i]) {
+					max = countMatrix[b][i];
+					maxb = b;
+				}
+			}
+			best[i] = BASES[maxb];
+		}
+
+		return best;
+	}
+
 	/**
 	 * Calculate log odds matrix from counts
 	 * Reference: http://en.wikipedia.org/wiki/Position-specific_scoring_matrix
@@ -129,6 +146,19 @@ public class Pwm {
 		return totalCount;
 	}
 
+	/**
+	 * Is position 'pos' conserved (only one base has non-zero counts)
+	 * @param pos
+	 * @return
+	 */
+	public boolean isConserved(int pos) {
+		int countNonZero = 0;
+		for (int i = 0; i < countMatrix.length; i++)
+			if (countMatrix[i][pos] > 0) countNonZero++;
+
+		return countNonZero == 1;
+	}
+
 	public int length() {
 		return length;
 	}
@@ -142,11 +172,12 @@ public class Pwm {
 		if (logOdds == null) calcLogOddsWeight();
 
 		char bases[] = dna.toCharArray();
-		int score = 0;
+		double score = 0;
 		for (int i = 0; i < bases.length; i++)
 			score += getLogOdds(bases[i], i);
 
-		return ((double) score) / (length * SCALE);
+		return score / length;
+		// return ((double) score) / (length * SCALE);
 	}
 
 	/**
@@ -196,6 +227,8 @@ public class Pwm {
 	public String toString() {
 		StringBuffer sb = new StringBuffer();
 
+		sb.append("Name: " + name + "\tId: " + id + "\n");
+
 		if (countMatrix != null) {
 			sb.append("Counts:\n");
 			for (int b = 0; b < BASES.length; b++) {
@@ -206,16 +239,9 @@ public class Pwm {
 			}
 
 			sb.append("Max:\t");
-			for (int i = 0; i < countMatrix[0].length; i++) {
-				int max = 0, maxb = 0;
-				for (int b = 0; b < BASES.length; b++) {
-					if (max < countMatrix[b][i]) {
-						max = countMatrix[b][i];
-						maxb = b;
-					}
-				}
-				sb.append(String.format("%10s  ", BASES[maxb]));
-			}
+			char best[] = bestSequence();
+			for (int i = 0; i < countMatrix[0].length; i++)
+				sb.append(String.format("%10s  ", best[i]));
 			sb.append("\n");
 		}
 

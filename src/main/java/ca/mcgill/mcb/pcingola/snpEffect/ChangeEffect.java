@@ -76,6 +76,7 @@ public class ChangeEffect implements Cloneable, Comparable<ChangeEffect> {
 		, INTERGENIC_CONSERVED //
 		, INTRAGENIC //
 		, REGULATION //
+		, MOTIF //
 		, MICRO_RNA //
 		, CUSTOM //
 		, NEXT_PROT //
@@ -451,6 +452,9 @@ public class ChangeEffect implements Cloneable, Comparable<ChangeEffect> {
 				effectImpact = EffectImpact.MODIFIER;
 				break;
 
+			case MOTIF:
+				throw new RuntimeException("Unimplemented!");
+
 			case NEXT_PROT:
 				if (marker == null) effectImpact = EffectImpact.MODIFIER;
 				else if (((NextProt) marker).isHighlyConservedAaSequence()) effectImpact = EffectImpact.HIGH;
@@ -579,6 +583,8 @@ public class ChangeEffect implements Cloneable, Comparable<ChangeEffect> {
 			return EffectType.DOWNSTREAM.toString();
 		case REGULATION:
 			return EffectType.REGULATION.toString();
+		case MOTIF:
+			return EffectType.MOTIF.toString();
 		default:
 			throw new RuntimeException("Unknown gene region for effect type: '" + effectType + "'");
 		}
@@ -748,6 +754,10 @@ public class ChangeEffect implements Cloneable, Comparable<ChangeEffect> {
 
 	public boolean isIntron() {
 		return effectType == EffectType.INTRON;
+	}
+
+	public boolean isMotif() {
+		return (effectType == EffectType.MOTIF);
 	}
 
 	public boolean isNextProt() {
