@@ -23,11 +23,11 @@ public class RegulationFileConsensus {
 		Regulation consensus = null;
 
 		void add(Regulation r) {
-			if( consensus == null ) {
+			if (consensus == null) {
 				consensus = r;
 				count = 1;
 			} else {
-				if( consensus.intersects(r) ) {
+				if (consensus.intersects(r)) {
 					consensus.setStart(Math.max(consensus.getStart(), r.getStart()));
 					consensus.setEnd(Math.max(consensus.getEnd(), r.getEnd()));
 					count++;
@@ -40,7 +40,7 @@ public class RegulationFileConsensus {
 		}
 
 		void flush() {
-			if( consensus != null ) {
+			if (consensus != null) {
 				totalCount++;
 				totalLength += consensus.size();
 
@@ -73,7 +73,7 @@ public class RegulationFileConsensus {
 
 		// Get or create
 		RegulationConsensus regCons = regConsByName.get(key);
-		if( regCons == null ) {
+		if (regCons == null) {
 			regCons = new RegulationConsensus();
 			regConsByName.put(key, regCons);
 		}
@@ -92,7 +92,7 @@ public class RegulationFileConsensus {
 	 */
 	public ArrayList<Regulation> getRegulationList(String cellType) {
 		ArrayList<Regulation> regs = regByCell.get(cellType);
-		if( regs == null ) {
+		if (regs == null) {
 			regs = new ArrayList<Regulation>();
 			regByCell.put(cellType, regs);
 		}
@@ -106,12 +106,12 @@ public class RegulationFileConsensus {
 	public void readFile(RegulationFileIterator regulationFileIterator) {
 		String chromo = "";
 		int lineNum = 1;
-		for( Regulation reg : regulationFileIterator ) {
+		for (Regulation reg : regulationFileIterator) {
 
-			// Different chromosome? flushh all
-			if( !chromo.equals(reg.getChromosomeName()) ) {
-				if( verbose ) Timer.showStdErr("\tChromosome '" + reg.getChromosomeName() + "'\tline: " + regulationFileIterator.getLineNum());
-				for( RegulationConsensus regCons : regConsByName.values() )
+			// Different chromosome? flush all
+			if (!chromo.equals(reg.getChromosomeName())) {
+				if (verbose) Timer.showStdErr("\tChromosome '" + reg.getChromosomeName() + "'\tline: " + regulationFileIterator.getLineNum());
+				for (RegulationConsensus regCons : regConsByName.values())
 					regCons.flush();
 				chromo = reg.getChromosomeName();
 			}
@@ -126,7 +126,7 @@ public class RegulationFileConsensus {
 		}
 
 		// Finished, flush all
-		for( RegulationConsensus regCons : regConsByName.values() )
+		for (RegulationConsensus regCons : regConsByName.values())
 			regCons.flush();
 
 		// Show stats
@@ -144,7 +144,7 @@ public class RegulationFileConsensus {
 	 * @param outputDir
 	 */
 	public void save(String outputDir) {
-		for( String cellType : regByCell.keySet() ) {
+		for (String cellType : regByCell.keySet()) {
 			String fileName = outputDir + "/regulation_" + cellType + ".bin";
 			Timer.showStdErr("Saving database '" + cellType + "' in file '" + fileName + "'");
 			Gpr.toFileSerializeGz(fileName, regByCell.get(cellType));
