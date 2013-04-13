@@ -1,4 +1,4 @@
-package ca.mcgill.mcb.pcingola.interval;
+package ca.mcgill.mcb.pcingola.serializer;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -7,6 +7,23 @@ import java.util.HashMap;
 import java.util.zip.GZIPOutputStream;
 
 import ca.mcgill.mcb.pcingola.fileIterator.LineFileIterator;
+import ca.mcgill.mcb.pcingola.interval.Cds;
+import ca.mcgill.mcb.pcingola.interval.Chromosome;
+import ca.mcgill.mcb.pcingola.interval.Exon;
+import ca.mcgill.mcb.pcingola.interval.Gene;
+import ca.mcgill.mcb.pcingola.interval.Genome;
+import ca.mcgill.mcb.pcingola.interval.Marker;
+import ca.mcgill.mcb.pcingola.interval.MarkerParentId;
+import ca.mcgill.mcb.pcingola.interval.Markers;
+import ca.mcgill.mcb.pcingola.interval.NextProt;
+import ca.mcgill.mcb.pcingola.interval.RareAminoAcid;
+import ca.mcgill.mcb.pcingola.interval.SpliceSiteAcceptor;
+import ca.mcgill.mcb.pcingola.interval.SpliceSiteBranch;
+import ca.mcgill.mcb.pcingola.interval.SpliceSiteBranchU12;
+import ca.mcgill.mcb.pcingola.interval.SpliceSiteDonor;
+import ca.mcgill.mcb.pcingola.interval.Transcript;
+import ca.mcgill.mcb.pcingola.interval.Utr3prime;
+import ca.mcgill.mcb.pcingola.interval.Utr5prime;
 import ca.mcgill.mcb.pcingola.snpEffect.ChangeEffect.EffectType;
 import ca.mcgill.mcb.pcingola.snpEffect.SnpEffectPredictor;
 import ca.mcgill.mcb.pcingola.util.Gpr;
@@ -33,12 +50,12 @@ public class MarkerSerializer {
 	int parsedField;
 	String fields[];
 	int currId = 0;
-	HashMap<Integer, Marker> markerById;
-	HashMap<Marker, Integer> idByMarker;
+	HashMap<Integer, TxtSerializable> byId;
+	HashMap<TxtSerializable, Integer> byMarker;
 
 	public MarkerSerializer() {
-		markerById = new HashMap<Integer, Marker>();
-		idByMarker = new HashMap<Marker, Integer>();
+		byId = new HashMap<Integer, TxtSerializable>();
+		byMarker = new HashMap<TxtSerializable, Integer>();
 	}
 
 	/**
@@ -56,8 +73,12 @@ public class MarkerSerializer {
 			markers.add(g);
 	}
 
-	protected int getIdByMarker(Marker m) {
-		Integer id = idByMarker.get(m);
+	protected TxtSerializable getById(int id) {
+		return byId.get(id);
+	}
+
+	public int getIdByMarker(Marker m) {
+		Integer id = byMarker.get(m);
 		if (id == null) { throw new RuntimeException("Marker has no numeric ID. \n" //
 				+ "\tClass    : " + m.getClass().getSimpleName() + "\n" //
 				+ "\tMarker ID: '" + m.getId() + "'\n" // 
@@ -66,27 +87,27 @@ public class MarkerSerializer {
 	}
 
 	protected Marker getMarkerById(int id) {
-		return markerById.get(id);
+		return (Marker) getById(id);
 	}
 
-	protected String getNextField() {
+	public String getNextField() {
 		if (fields.length <= parsedField) return "";
 		return fields[parsedField++];
 	}
 
-	protected boolean getNextFieldBoolean() {
+	public boolean getNextFieldBoolean() {
 		return Gpr.parseBoolSafe(getNextField());
 	}
 
-	protected int getNextFieldInt() {
+	public int getNextFieldInt() {
 		return Gpr.parseIntSafe(getNextField());
 	}
 
-	protected Marker getNextFieldMarker() {
+	public Marker getNextFieldMarker() {
 		return getMarkerById(getNextFieldInt());
 	}
 
-	protected Markers getNextFieldMarkers() {
+	public Markers getNextFieldMarkers() {
 		Markers markers = new Markers();
 		String fieldIdsStr = getNextField();
 		if (fieldIdsStr.isEmpty()) return markers;
@@ -173,6 +194,7 @@ public class MarkerSerializer {
 			case NEXT_PROT:
 				m = new NextProt();
 				break;
+
 			default:
 				throw new RuntimeException("Unimplemented for type '" + type + "'");
 			}
@@ -186,7 +208,7 @@ public class MarkerSerializer {
 			}
 
 			// Add to hash
-			markerById.put(id, m);
+			byId.put(id, m);
 			lineNum++;
 		}
 
@@ -194,17 +216,20 @@ public class MarkerSerializer {
 		// Assign parents
 		//---
 		Markers markers = new Markers();
-		for (Marker m : markerById.values()) {
-			// Find parent ID
-			MarkerParentId mpid = (MarkerParentId) m.getParent();
-			int parentId = mpid.getParentId();
+		for (TxtSerializable tm : byId.values()) {
+			if (tm instanceof Marker) {
+				Marker m = (Marker) tm;
+				// Find parent ID
+				MarkerParentId mpid = (MarkerParentId) m.getParent();
+				int parentId = mpid.getParentId();
 
-			// Find and set parent
-			Marker parent = getMarkerById(parentId);
-			m.setParent(parent);
+				// Find and set parent
+				Marker parent = getMarkerById(parentId);
+				m.setParent(parent);
 
-			// Add to markers
-			markers.add(m);
+				// Add to markers
+				markers.add(m);
+			}
 		}
 
 		return markers;
@@ -215,7 +240,7 @@ public class MarkerSerializer {
 	 * @param markersCollection
 	 * @return
 	 */
-	protected String save(Iterable<Marker> markersCollection) {
+	public String save(Iterable<Marker> markersCollection) {
 		StringBuilder idStr = new StringBuilder();
 		for (Marker m : markersCollection) {
 			int id = save(m);
@@ -229,13 +254,13 @@ public class MarkerSerializer {
 	 * Save a marker
 	 * @param m
 	 */
-	protected int save(Marker m) {
+	public int save(Marker m) {
 		if (m == null) return -1;
-		if (idByMarker.containsKey(m)) return idByMarker.get(m); // Already done
+		if (byMarker.containsKey(m)) return byMarker.get(m); // Already done
 
 		// Store already saved IDs
 		int id = getNextId();
-		idByMarker.put(m, id);
+		byMarker.put(m, id);
 
 		// Print line
 		String line = m.serializeSave(this);

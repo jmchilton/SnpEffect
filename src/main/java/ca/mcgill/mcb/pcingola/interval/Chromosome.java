@@ -1,6 +1,7 @@
 package ca.mcgill.mcb.pcingola.interval;
 
 import ca.mcgill.mcb.pcingola.binseq.DnaSequence;
+import ca.mcgill.mcb.pcingola.serializer.MarkerSerializer;
 import ca.mcgill.mcb.pcingola.snpEffect.ChangeEffect.EffectType;
 import ca.mcgill.mcb.pcingola.util.Gpr;
 
@@ -27,7 +28,7 @@ public class Chromosome extends Marker {
 		return ChromosomeSimpleName.get(chrName);
 	}
 
-	protected Chromosome() {
+	public Chromosome() {
 		super();
 	}
 

@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import ca.mcgill.mcb.pcingola.serializer.MarkerSerializer;
 import ca.mcgill.mcb.pcingola.snpEffect.ChangeEffect;
 import ca.mcgill.mcb.pcingola.snpEffect.ChangeEffect.EffectType;
 import ca.mcgill.mcb.pcingola.stats.ObservedOverExpectedCpG;
@@ -26,7 +27,7 @@ public class Gene extends IntervalAndSubIntervals<Transcript> implements Seriali
 	String geneName;
 	String bioType;
 
-	protected Gene() {
+	public Gene() {
 		super();
 		geneName = "";
 		bioType = "";

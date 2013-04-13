@@ -4,6 +4,8 @@ import java.util.List;
 
 import ca.mcgill.mcb.pcingola.codons.CodonTable;
 import ca.mcgill.mcb.pcingola.codons.CodonTables;
+import ca.mcgill.mcb.pcingola.serializer.MarkerSerializer;
+import ca.mcgill.mcb.pcingola.serializer.TxtSerializable;
 import ca.mcgill.mcb.pcingola.snpEffect.ChangeEffect;
 import ca.mcgill.mcb.pcingola.snpEffect.ChangeEffect.EffectType;
 import ca.mcgill.mcb.pcingola.util.Gpr;
@@ -13,7 +15,7 @@ import ca.mcgill.mcb.pcingola.util.Gpr;
  * 
  * @author pcingola
  */
-public class Marker extends Interval {
+public class Marker extends Interval implements TxtSerializable {
 
 	private static final long serialVersionUID = 7878886900660027549L;
 	protected EffectType type = EffectType.NONE;

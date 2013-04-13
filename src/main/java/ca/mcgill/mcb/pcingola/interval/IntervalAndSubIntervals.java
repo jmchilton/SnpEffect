@@ -7,6 +7,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
+import ca.mcgill.mcb.pcingola.serializer.MarkerSerializer;
+
 /**
  * Interval that contains sub intervals.
  * 

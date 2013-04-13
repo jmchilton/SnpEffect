@@ -3,6 +3,7 @@ package ca.mcgill.mcb.pcingola.interval;
 import ca.mcgill.mcb.pcingola.binseq.DnaNSequence;
 import ca.mcgill.mcb.pcingola.binseq.DnaSequence;
 import ca.mcgill.mcb.pcingola.interval.SeqChange.ChangeType;
+import ca.mcgill.mcb.pcingola.serializer.MarkerSerializer;
 import ca.mcgill.mcb.pcingola.snpEffect.ChangeEffect;
 import ca.mcgill.mcb.pcingola.snpEffect.ChangeEffect.EffectType;
 import ca.mcgill.mcb.pcingola.snpEffect.ChangeEffect.ErrorType;
@@ -40,7 +41,7 @@ public class Exon extends Marker {
 	SpliceSiteDonor spliceSiteDonor;
 	ExonSpliceType spliceType;
 
-	protected Exon() {
+	public Exon() {
 		super();
 		strand = 0;
 		rank = 0;

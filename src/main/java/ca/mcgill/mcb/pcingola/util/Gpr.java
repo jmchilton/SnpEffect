@@ -483,13 +483,23 @@ public class Gpr {
 	 * @param showExceptions : show exceptions if true 
 	 */
 	public static String readFile(String fileName) {
+		return readFile(fileName, true);
+	}
+
+	/**
+	 * Read a file as a String.
+	 * Note: the file can be compressed using gzip (file name must have a ".gz" extension).
+	 * 
+	 * @param fileName : File to read (null on error)
+	 * @param showExceptions : show exceptions if true 
+	 */
+	public static String readFile(String fileName, boolean gzipped) {
 		BufferedReader inFile;
 		StringBuffer strb = new StringBuffer();
 		char buff[] = new char[10240];
 		int len = 0;
 		try {
-			// inFile = new BufferedReader(new InputStreamReader(new FileInputStream(fileName)));
-			inFile = reader(fileName);
+			inFile = reader(fileName, gzipped);
 			while ((len = inFile.read(buff)) >= 0)
 				strb.append(buff, 0, len);
 			inFile.close();

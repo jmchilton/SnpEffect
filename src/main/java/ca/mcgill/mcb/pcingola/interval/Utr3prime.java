@@ -16,7 +16,7 @@ public class Utr3prime extends Utr {
 
 	private static final long serialVersionUID = 5688641008301281991L;
 
-	protected Utr3prime() {
+	public Utr3prime() {
 		super();
 		type = EffectType.UTR_3_PRIME;
 	}

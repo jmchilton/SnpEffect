@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import ca.mcgill.mcb.pcingola.interval.codonChange.CodonChange;
+import ca.mcgill.mcb.pcingola.serializer.MarkerSerializer;
 import ca.mcgill.mcb.pcingola.snpEffect.ChangeEffect;
 import ca.mcgill.mcb.pcingola.snpEffect.ChangeEffect.EffectType;
 import ca.mcgill.mcb.pcingola.snpEffect.Config;
@@ -44,7 +45,7 @@ public class Transcript extends IntervalAndSubIntervals<Exon> {
 	Exon firstCodingExon; // First coding exon. I.e. where transcription start site (TSS) is. 
 	int cds2pos[];
 
-	protected Transcript() {
+	public Transcript() {
 		super();
 		spliceBranchSites = new ArrayList<SpliceSiteBranch>();
 		utrs = new ArrayList<Utr>();
