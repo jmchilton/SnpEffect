@@ -25,6 +25,14 @@ public class NextProt extends Marker {
 		transcriptId = parent.getId();
 	}
 
+	public String getTranscriptId() {
+		return transcriptId;
+	}
+
+	public boolean isHighlyConservedAaSequence() {
+		return highlyConservedAaSequence;
+	}
+
 	@Override
 	public void serializeParse(MarkerSerializer markerSerializer) {
 		super.serializeParse(markerSerializer);

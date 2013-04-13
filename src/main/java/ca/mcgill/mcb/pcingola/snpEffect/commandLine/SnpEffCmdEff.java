@@ -25,6 +25,7 @@ import ca.mcgill.mcb.pcingola.filter.ChangeEffectFilter;
 import ca.mcgill.mcb.pcingola.filter.SeqChangeFilter;
 import ca.mcgill.mcb.pcingola.interval.Chromosome;
 import ca.mcgill.mcb.pcingola.interval.Custom;
+import ca.mcgill.mcb.pcingola.interval.Exon;
 import ca.mcgill.mcb.pcingola.interval.Gene;
 import ca.mcgill.mcb.pcingola.interval.Genome;
 import ca.mcgill.mcb.pcingola.interval.Marker;
@@ -662,8 +663,10 @@ public class SnpEffCmdEff extends SnpEff {
 	 * @param regTrack
 	 */
 	void readNextProt() {
+		SnpEffectPredictor snpEffectPredictor = config.getSnpEffectPredictor();
+
 		//---
-		// Read file
+		// Read nextProt binary file
 		//---
 		String nextProtBinFile = config.getDirDataVersion() + "/nextProt.bin";
 		if (verbose) Timer.showStdErr("Reading NextProt database from file '" + nextProtBinFile + "'");
@@ -671,18 +674,60 @@ public class SnpEffCmdEff extends SnpEff {
 		MarkerSerializer markerSerializer = new MarkerSerializer();
 		Markers nextProtDb = markerSerializer.load(nextProtBinFile);
 
+		// Create a collection of (only) NextProt markers. The original nextProtDb has Chromosomes, Genomes and other markers (otherwise it could have not been saved)
+		ArrayList<NextProt> nextProts = new ArrayList<NextProt>(nextProtDb.size());
+		for (Marker m : nextProtDb)
+			if (m instanceof NextProt) nextProts.add((NextProt) m);
+
+		if (verbose) Timer.showStdErr("NextProt database: " + nextProts.size() + " markers loaded.");
+
+		//---
+		// Connect nextProt annotations to transcripts and exons 
+		//---
+		if (verbose) Timer.showStdErr("Adding transcript info to NextProt markers.");
+
+		// Create a list of all transcripts
+		HashMap<String, Transcript> trs = new HashMap<String, Transcript>();
+		for (Gene g : snpEffectPredictor.getGenome().getGenes())
+			for (Transcript tr : g)
+				trs.put(tr.getId(), tr);
+
+		// Find the corresponding transcript for each nextProt marker 
+		// WARNING: The transcripts might be filtered out by the user (e.g. '-cannon' command line option or user defined sets). 
+		//          We only keep nextProt markers associated to found transcripts. All others are discarded (the user doesn't want that info).
+		ArrayList<NextProt> nextProtsToAdd = new ArrayList<NextProt>();
+		for (NextProt np : nextProts) {
+			Transcript tr = trs.get(np.getTranscriptId());
+
+			// Found transcript, now try to find an exon
+			if (tr != null) {
+				boolean assignedToExon = false;
+				for (Exon ex : tr) {
+					if (ex.intersects(np)) {
+						NextProt npEx = (NextProt) np.clone(); // The nextProt marker might cover more than one Exon 
+						npEx.setParent(ex);
+						nextProtsToAdd.add(npEx);
+
+						assignedToExon = ex.includes(np); // Completely included in exon? No need to add transcript as well
+					}
+				}
+
+				// Not assigned to an exon? Add transcript info
+				if (!assignedToExon) {
+					np.setParent(tr); // Set this transcript as parent
+					nextProtsToAdd.add(np);
+				}
+			}
+		}
+
 		//---
 		// Add all nextProt marker to predictor
 		//---
-		SnpEffectPredictor snpEffectPredictor = config.getSnpEffectPredictor();
-		int count = 0;
-		for (Marker m : nextProtDb)
-			if (m instanceof NextProt) {
-				snpEffectPredictor.add(m);
-				count++;
-			}
+		for (NextProt np : nextProtsToAdd)
+			snpEffectPredictor.add(np);
 
-		if (verbose) Timer.showStdErr("NextProt database: " + count + " markers loaded.");
+		// Note: We might end up with more markers than we loaded (just because they map to multiple exons (although it would be highly unusual)
+		if (verbose) Timer.showStdErr("NextProt database: " + nextProtsToAdd.size() + " markers added.");
 	}
 
 	/**
@@ -801,9 +846,6 @@ public class SnpEffCmdEff extends SnpEff {
 		for (String regTrack : regulationTracks)
 			readRegulationTrack(regTrack);
 
-		// Read nextProt database?
-		if (nextProt) readNextProt();
-
 		// Build interval forest for filter (if any)
 		if (filterIntervals != null) {
 			if (verbose) Timer.showStdErr("Building filter interval forest");
@@ -849,6 +891,9 @@ public class SnpEffCmdEff extends SnpEff {
 			int removed = config.getSnpEffectPredictor().keepTranscripts(trIds);
 			if (verbose) Timer.showStdErr("Done: " + removed + " transcripts removed.");
 		}
+
+		// Read nextProt database?
+		if (nextProt) readNextProt();
 
 		// Build tree
 		if (verbose) Timer.showStdErr("Building interval forest");

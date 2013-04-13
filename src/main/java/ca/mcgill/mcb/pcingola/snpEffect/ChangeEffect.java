@@ -9,6 +9,7 @@ import ca.mcgill.mcb.pcingola.interval.Exon;
 import ca.mcgill.mcb.pcingola.interval.Gene;
 import ca.mcgill.mcb.pcingola.interval.Intron;
 import ca.mcgill.mcb.pcingola.interval.Marker;
+import ca.mcgill.mcb.pcingola.interval.NextProt;
 import ca.mcgill.mcb.pcingola.interval.Regulation;
 import ca.mcgill.mcb.pcingola.interval.SeqChange;
 import ca.mcgill.mcb.pcingola.interval.Transcript;
@@ -450,6 +451,12 @@ public class ChangeEffect implements Cloneable, Comparable<ChangeEffect> {
 				effectImpact = EffectImpact.MODIFIER;
 				break;
 
+			case NEXT_PROT:
+				if (marker == null) effectImpact = EffectImpact.MODIFIER;
+				else if (((NextProt) marker).isHighlyConservedAaSequence()) effectImpact = EffectImpact.HIGH;
+				else effectImpact = EffectImpact.LOW;
+				break;
+
 			default:
 				throw new RuntimeException("Unknown impact for effect type: '" + effectType + "'");
 			}
@@ -542,6 +549,7 @@ public class ChangeEffect implements Cloneable, Comparable<ChangeEffect> {
 		case SYNONYMOUS_START:
 		case NON_SYNONYMOUS_START:
 		case GENE:
+		case NEXT_PROT:
 		case TRANSCRIPT:
 			if (isExon()) return EffectType.EXON.toString();
 			return EffectType.NONE.toString();
@@ -740,6 +748,10 @@ public class ChangeEffect implements Cloneable, Comparable<ChangeEffect> {
 
 	public boolean isIntron() {
 		return effectType == EffectType.INTRON;
+	}
+
+	public boolean isNextProt() {
+		return (effectType == EffectType.NEXT_PROT);
 	}
 
 	public boolean isRegulation() {

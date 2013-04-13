@@ -45,7 +45,13 @@ public class SnpEffCmdBuildNextProt extends SnpEff {
 	public static final int HIGHLY_CONSERVED_AA_COUNT = 100;
 
 	// We don't care about these categories
-	public static final String CATAGORY_BLACK_LIST_STR[] = { "sequence variant", "sequence conflict", "mature protein", "mutagenesis site" };
+	public static final String CATAGORY_BLACK_LIST_STR[] = { "" //
+			, "sequence variant" //
+			, "sequence conflict" //
+			, "mature protein" //
+			, "mutagenesis site" //
+			, "retained intron" //
+	};
 
 	public static final String NODE_NAME_PROTEIN = "protein";
 	public static final String NODE_NAME_GENE = "gene";

@@ -111,8 +111,11 @@ public class VcfOutputFormatter extends OutputFormatter {
 				effBuff.append("|");
 
 				// Add functional class
-				FunctionalClass fc = changeEffect.getFunctionalClass();
-				effBuff.append(fc == FunctionalClass.NONE ? "" : fc.toString()); // Show only if it is not empty
+				if (changeEffect.isNextProt()) effBuff.append(changeEffect.getMarker().getId());
+				else {
+					FunctionalClass fc = changeEffect.getFunctionalClass();
+					effBuff.append(fc == FunctionalClass.NONE ? "" : fc.toString()); // Show only if it is not empty
+				}
 				effBuff.append("|");
 
 				// Codon change
