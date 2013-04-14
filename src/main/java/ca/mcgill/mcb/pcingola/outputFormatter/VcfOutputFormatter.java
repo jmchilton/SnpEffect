@@ -111,11 +111,8 @@ public class VcfOutputFormatter extends OutputFormatter {
 				effBuff.append("|");
 
 				// Add functional class
-				if (changeEffect.isNextProt()) effBuff.append(changeEffect.getMarker().getId());
-				else {
-					FunctionalClass fc = changeEffect.getFunctionalClass();
-					effBuff.append(fc == FunctionalClass.NONE ? "" : fc.toString()); // Show only if it is not empty
-				}
+				FunctionalClass fc = changeEffect.getFunctionalClass();
+				effBuff.append(fc == FunctionalClass.NONE ? "" : fc.toString()); // Show only if it is not empty
 				effBuff.append("|");
 
 				// Codon change
@@ -304,7 +301,7 @@ public class VcfOutputFormatter extends OutputFormatter {
 		else newLines.add("##SnpEffVersion=\"" + version + "\"");
 
 		newLines.add("##SnpEffCmd=\"" + commandLineStr + "\"");
-		newLines.add("##INFO=<ID=EFF,Number=.,Type=String,Description=\"Predicted effects for this variant.Format: 'Effect ( Effect_Impact | Functional_Class | Codon_Change | Amino_Acid_change| Amino_Acid_length | Gene_Name | Gene_BioType | Coding | Transcript | Exon  | GenotypeNum [ | ERRORS | WARNINGS ] )' \">");
+		newLines.add("##INFO=<ID=EFF,Number=.,Type=String,Description=\"Predicted effects for this variant.Format: 'Effect ( Effect_Impact | Functional_Class | Codon_Change | Amino_Acid_change| Amino_Acid_length | Gene_Name | Transcript_BioType | Gene_Coding | Transcript_ID | Exon  | GenotypeNum [ | ERRORS | WARNINGS ] )' \">");
 
 		if (lossOfFunction) {
 			newLines.add("##INFO=<ID=LOF,Number=.,Type=String,Description=\"Predicted loss of function effects for this variant. Format: 'Gene_Name | Gene_ID | Number_of_transcripts_in_gene | Percent_of_transcripts_affected' \">");

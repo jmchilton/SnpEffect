@@ -84,6 +84,13 @@ public class TestSuiteAll {
 		// Cancer effects (Somatic vs Germline)
 		suite.addTestSuite(TestCasesCancer.class);
 
-		return suite;
+		// Nextprot
+		suite.addTestSuite(TestCasesNextProt.class);
+
+		// Motif
+		throw new RuntimeException("Unimplemented Motif");
+		// suite.addTestSuite(TestCasesMotif.class);
+		//
+		//		return suite;
 	}
 }

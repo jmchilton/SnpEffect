@@ -289,7 +289,8 @@ public class ChangeEffect implements Cloneable, Comparable<ChangeEffect> {
 
 		// Create effect string
 		if (!codonEffect.isEmpty()) e = codonEffect;
-		else if (isRegulation()) e = getEffectTypeString(useSeqOntology) + "[" + ((Regulation) marker).getName() + "]";
+		else if (isRegulation()) return getEffectTypeString(useSeqOntology) + "[" + ((Regulation) marker).getName() + "]";
+		else if (isNextProt()) return getEffectTypeString(useSeqOntology) + "[" + ((NextProt) marker).getId() + "]";
 		else if (isIntergenic() || isIntron() || isSpliceSite()) e = getEffectTypeString(useSeqOntology);
 		else if (!message.isEmpty()) e = getEffectTypeString(useSeqOntology) + ": " + message;
 		else if (marker == null) e = getEffectTypeString(useSeqOntology); // There are cases when no marker is associated (e.g. "Out of chromosome", "No such chromosome", etc.)

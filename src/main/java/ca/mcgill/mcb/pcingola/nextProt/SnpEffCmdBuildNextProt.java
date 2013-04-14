@@ -42,7 +42,7 @@ import ca.mcgill.mcb.pcingola.util.Timer;
 public class SnpEffCmdBuildNextProt extends SnpEff {
 
 	public static final double HIGHLY_CONSERVED_AA_PERCENT = 0.99;
-	public static final int HIGHLY_CONSERVED_AA_COUNT = 100;
+	public static final int HIGHLY_CONSERVED_AA_COUNT = 30;
 
 	// We don't care about these categories
 	public static final String CATAGORY_BLACK_LIST_STR[] = { "" //
@@ -105,6 +105,12 @@ public class SnpEffCmdBuildNextProt extends SnpEff {
 	 * Show annotations counters in a table
 	 */
 	void analyzeSequenceConservation() {
+		if (verbose) Timer.showStdErr("Sequence conservation analysis."//
+				+ "\n\tAA sequence length  : " + 1 //
+				+ "\n\tMin AA count        : " + HIGHLY_CONSERVED_AA_COUNT //
+				+ "\n\tMin AA conservation : " + HIGHLY_CONSERVED_AA_PERCENT //
+		);
+
 		ArrayList<String> keys = new ArrayList<String>();
 		keys.addAll(countAaSequenceByType.keySet());
 		Collections.sort(keys);
@@ -114,40 +120,60 @@ public class SnpEffCmdBuildNextProt extends SnpEff {
 		for (char aa : GprSeq.AMINO_ACIDS)
 			title.append(aa + "\t");
 		title.append("\t" + title);
-		if (verbose) System.out.println("Impact\tCatergory\tControlled Vocabulary\tTotal\t" + title);
+		if (verbose) System.out.println("Amino acid regions:\n\tTotal\tMax count\tAvg len\tConservation\tCatergory\tControlled Vocabulary\t" + title + "\tOther AA sequences:");
 
 		// Show AA counts for each 'key'
 		for (String key : keys) {
+			long seqLen = 0, totalSeqs = 0, maxCount = 0;
 			CountByType cbt = countAaSequenceByType.get(key);
 			long total = cbt.sum();
 
 			boolean highlyConservedAaSequence = false;
 
 			StringBuilder sb = new StringBuilder();
-			StringBuilder sbPerc = new StringBuilder();
 
-			// For each amino acid
+			// For each single amino acid "sequence"
 			for (char aa : GprSeq.AMINO_ACIDS) {
 				long count = cbt.get("" + aa);
 				if (count > 0) {
+					seqLen += 1 * count;
+					totalSeqs += count;
+					maxCount = Math.max(maxCount, count);
+
 					sb.append(count);
 					double perc = ((double) count) / total;
-					sbPerc.append(String.format("%1.2f", perc));
 
 					// We estimate that if most AA are the same, then changing this AA can cause a high impact in protein coding
 					if ((perc > HIGHLY_CONSERVED_AA_PERCENT) && (total >= HIGHLY_CONSERVED_AA_COUNT)) highlyConservedAaSequence = true;
 				}
 				sb.append("\t");
-				sbPerc.append("\t");
 			}
 
+			// Sequences of more than one AA
+			for (String aas : cbt.keySet()) {
+				long count = cbt.get(aas);
+				double perc = ((double) count) / total;
+				if (aas.length() > 1) {
+					seqLen += aas.length() * count;
+					totalSeqs += count;
+					maxCount = Math.max(maxCount, count);
+
+					sb.append(String.format("\t" + aas + ":" + count));
+					if ((perc > HIGHLY_CONSERVED_AA_PERCENT) && (total >= HIGHLY_CONSERVED_AA_COUNT)) highlyConservedAaSequence = true;
+				}
+			}
+
+			long avgLen = seqLen / totalSeqs;
+
 			// Show line
-			if (debug) System.out.println((highlyConservedAaSequence ? "High" : "") //
-					+ "\t" + key //
-					+ "\t" + total //
-					+ "\t" + sb //
-					+ "\t" + sbPerc //
-			);
+			if (verbose) System.out.println( //
+					"\t" + total //
+							+ "\t" + maxCount //
+							+ "\t" + avgLen //
+							+ "\t" + (highlyConservedAaSequence ? "High" : "") //
+							+ "\t" + key //
+							+ "\t" + sb //
+					);
 
 			// Mark highly conserved
 			if (highlyConservedAaSequence) {
@@ -521,7 +547,8 @@ public class SnpEffCmdBuildNextProt extends SnpEff {
 				NextProt nextProt = new NextProt(trData.tr, trData.chrPosStart, trData.chrPosEnd, id);
 				markers.add(nextProt);
 
-				if (subSeq.length() == 1) countAaSequence(category, contrVoc, description, subSeq);
+				// if (subSeq.length() == 1) countAaSequence(category, contrVoc, description, subSeq);
+				countAaSequence(category, contrVoc, description, subSeq);
 			}
 		}
 	}
@@ -623,7 +650,6 @@ public class SnpEffCmdBuildNextProt extends SnpEff {
 				+ "\n\tAA errros   : " + aaErrors //
 		);
 
-		if (verbose) Timer.showStdErr("Sequence conservation analysis");
 		analyzeSequenceConservation();
 
 		// Save database

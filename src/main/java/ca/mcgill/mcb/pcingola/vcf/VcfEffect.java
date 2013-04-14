@@ -21,6 +21,7 @@ public class VcfEffect {
 	String effectStrings[];
 	FormatVersion formatVersion;
 	ChangeEffect.EffectType effect;
+	String effectDetails;
 	ChangeEffect.EffectImpact impact;
 	ChangeEffect.FunctionalClass funClass;
 	String codon;
@@ -178,6 +179,10 @@ public class VcfEffect {
 		return effect;
 	}
 
+	public String getEffectDetails() {
+		return effectDetails;
+	}
+
 	public String getExonId() {
 		return exonId;
 	}
@@ -211,8 +216,13 @@ public class VcfEffect {
 		try {
 			// Parse each sub field
 			int index = 0;
+
+			// Effect
 			if (effectStrings[index].startsWith("REGULATION")) effect = ChangeEffect.EffectType.REGULATION;
+			else if (effectStrings[index].startsWith("NEXT_PROT")) effect = ChangeEffect.EffectType.NEXT_PROT;
 			else effect = ChangeEffect.EffectType.valueOf(effectStrings[index]);
+			// Effect details
+			effectDetails = parseEffectDetails(effectStrings[index]);
 			index++;
 
 			if ((effectStrings.length > index) && !effectStrings[index].isEmpty()) impact = ChangeEffect.EffectImpact.valueOf(effectStrings[index]);
@@ -262,6 +272,18 @@ public class VcfEffect {
 		}
 	}
 
+	/**
+	 * Parse effect details.
+	 * E.g. NEXT_PROT[amino_acid_modification:Phosphoserine]  returns "amino_acid_modification:Phosphoserine"
+	 * @param eff
+	 * @return
+	 */
+	String parseEffectDetails(String eff) {
+		int idx = eff.indexOf('[');
+		if (idx < 0) return "";
+		return eff.substring(idx + 1, eff.length() - 1);
+	}
+
 	public void setAa(String aa) {
 		this.aa = aa;
 	}
@@ -284,6 +306,10 @@ public class VcfEffect {
 
 	public void setEffect(ChangeEffect.EffectType effect) {
 		this.effect = effect;
+	}
+
+	public void setEffectDetails(String effectDetails) {
+		this.effectDetails = effectDetails;
 	}
 
 	public void setExonId(String exonId) {
@@ -310,6 +336,7 @@ public class VcfEffect {
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		sb.append(effect);
+		if ((effectDetails != null) && !effectDetails.isEmpty()) sb.append("[" + effectDetails + "]");
 		sb.append("(");
 
 		if (impact != null) sb.append(impact);
@@ -318,31 +345,31 @@ public class VcfEffect {
 		if (funClass != null) sb.append(funClass);
 		sb.append("|");
 
-		sb.append(codon);
+		if (codon != null) sb.append(codon);
 		sb.append("|");
 
-		sb.append(aa);
+		if (aa != null) sb.append(aa);
 		sb.append("|");
 
 		if (aaLen > 0) sb.append(aaLen);
 		sb.append("|");
 
-		sb.append(gene);
+		if (gene != null) sb.append(gene);
 		sb.append("|");
 
-		sb.append(bioType);
+		if (bioType != null) sb.append(bioType);
 		sb.append("|");
 
 		if (coding != null) sb.append(coding);
 		sb.append("|");
 
-		sb.append(transcriptId);
+		if (transcriptId != null) sb.append(transcriptId);
 		sb.append("|");
 
-		sb.append(exonId);
+		if (exonId != null) sb.append(exonId);
 		sb.append("|");
 
-		sb.append(genotype);
+		if (genotype != null) sb.append(genotype);
 
 		sb.append(")");
 
