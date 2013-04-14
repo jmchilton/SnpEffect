@@ -483,7 +483,7 @@ public class Gpr {
 	 * @param showExceptions : show exceptions if true 
 	 */
 	public static String readFile(String fileName) {
-		return readFile(fileName, true);
+		return readFile(fileName, false);
 	}
 
 	/**

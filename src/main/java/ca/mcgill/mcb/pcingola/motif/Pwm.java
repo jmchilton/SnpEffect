@@ -21,6 +21,7 @@ public class Pwm {
 	int length;
 	int totalCount;
 	String name, id;
+	char bestSequence[];
 
 	public Pwm(int length) {
 		this.length = length;
@@ -71,23 +72,6 @@ public class Pwm {
 		return -1;
 	}
 
-	public char[] bestSequence() {
-		char best[] = new char[length];
-
-		for (int i = 0; i < countMatrix[0].length; i++) {
-			int max = 0, maxb = 0;
-			for (int b = 0; b < BASES.length; b++) {
-				if (max < countMatrix[b][i]) {
-					max = countMatrix[b][i];
-					maxb = b;
-				}
-			}
-			best[i] = BASES[maxb];
-		}
-
-		return best;
-	}
-
 	/**
 	 * Calculate log odds matrix from counts
 	 * Reference: http://en.wikipedia.org/wiki/Position-specific_scoring_matrix
@@ -116,6 +100,33 @@ public class Pwm {
 				logOdds[baseNum][i] = -p * Math.log(p / b[baseNum]) / LOG2;
 			}
 		}
+	}
+
+	/**
+	 * Get best matching sequence (highest score)
+	 * @return
+	 */
+	public char[] getBestSequence() {
+		if (bestSequence == null) {
+			bestSequence = new char[length];
+
+			for (int i = 0; i < countMatrix[0].length; i++) {
+				int max = 0, maxb = 0;
+				for (int b = 0; b < BASES.length; b++) {
+					if (max < countMatrix[b][i]) {
+						max = countMatrix[b][i];
+						maxb = b;
+					}
+				}
+				bestSequence[i] = BASES[maxb];
+			}
+		}
+
+		return bestSequence;
+	}
+
+	public String getBestSequenceStr() {
+		return new String(getBestSequence());
 	}
 
 	/**
@@ -239,7 +250,7 @@ public class Pwm {
 			}
 
 			sb.append("Max:\t");
-			char best[] = bestSequence();
+			char best[] = getBestSequence();
 			for (int i = 0; i < countMatrix[0].length; i++)
 				sb.append(String.format("%10s  ", best[i]));
 			sb.append("\n");

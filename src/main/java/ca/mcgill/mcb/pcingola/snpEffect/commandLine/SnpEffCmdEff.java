@@ -30,6 +30,7 @@ import ca.mcgill.mcb.pcingola.interval.Gene;
 import ca.mcgill.mcb.pcingola.interval.Genome;
 import ca.mcgill.mcb.pcingola.interval.Marker;
 import ca.mcgill.mcb.pcingola.interval.Markers;
+import ca.mcgill.mcb.pcingola.interval.Motif;
 import ca.mcgill.mcb.pcingola.interval.NextProt;
 import ca.mcgill.mcb.pcingola.interval.Regulation;
 import ca.mcgill.mcb.pcingola.interval.SeqChange;
@@ -37,6 +38,8 @@ import ca.mcgill.mcb.pcingola.interval.SpliceSite;
 import ca.mcgill.mcb.pcingola.interval.Transcript;
 import ca.mcgill.mcb.pcingola.interval.codonChange.CodonChange;
 import ca.mcgill.mcb.pcingola.interval.tree.IntervalForest;
+import ca.mcgill.mcb.pcingola.motif.Jaspar;
+import ca.mcgill.mcb.pcingola.motif.Pwm;
 import ca.mcgill.mcb.pcingola.outputFormatter.BedAnnotationOutputFormatter;
 import ca.mcgill.mcb.pcingola.outputFormatter.BedOutputFormatter;
 import ca.mcgill.mcb.pcingola.outputFormatter.OutputFormatter;
@@ -88,6 +91,7 @@ public class SnpEffCmdEff extends SnpEff {
 	boolean lossOfFunction = false; // Create loss of function LOF tag?
 	boolean useGeneId = false; // Use gene ID instead of gene name (VCF output)
 	boolean nextProt = false; // Annotate using NextProt database
+	boolean motif = false; // Annotate using motifs
 	int upDownStreamLength = SnpEffectPredictor.DEFAULT_UP_DOWN_LENGTH; // Upstream & downstream interval length
 	int spliceSiteSize = SpliceSite.CORE_SPLICE_SITE_SIZE; // Splice site size default: 2 bases (canonical splice site)
 	int totalErrs = 0;
@@ -553,6 +557,7 @@ public class SnpEffCmdEff extends SnpEff {
 				// NextProt database
 				//---
 				else if (args[i].equalsIgnoreCase("-nextProt")) nextProt = true; // Use NextProt database
+				else if (args[i].equalsIgnoreCase("-motif")) motif = true; // Use motif database
 				//---
 				// Filters
 				//---
@@ -656,6 +661,56 @@ public class SnpEffCmdEff extends SnpEff {
 			count++;
 		}
 		return count;
+	}
+
+	/**
+	 * Read regulation motif files
+	 */
+	void readMotif() {
+		if (verbose) Timer.showStdErr("Loading Motifs and PWMs");
+
+		//---
+		// Sanity checks
+		//---
+		String pwmsFileName = config.getDirDataVersion() + "/pwms.bin";
+		if (!Gpr.exists(pwmsFileName)) fatalError("Warning: Cannot open PWMs file " + pwmsFileName);
+
+		String motifBinFileName = config.getBaseFileNameMotif() + ".bin";
+		if (!Gpr.exists(motifBinFileName)) fatalError("Warning: Cannot open Motifs file " + motifBinFileName);
+
+		//---
+		// Load all PWMs
+		//---
+		if (verbose) Timer.showStdErr("\tLoading PWMs from : " + pwmsFileName);
+		Jaspar jaspar = new Jaspar();
+		jaspar.load(pwmsFileName);
+
+		//---
+		// Read motifs
+		//---		
+		if (verbose) Timer.showStdErr("\tLoading Motifs from file '" + motifBinFileName + "'");
+
+		MarkerSerializer markerSerializer = new MarkerSerializer();
+		Markers motifsDb = markerSerializer.load(motifBinFileName);
+
+		// Add (only) motif markers. The original motifs has to be serialized with Chromosomes, Genomes and other markers (otherwise it could have not been saved)
+		SnpEffectPredictor snpEffectPredictor = config.getSnpEffectPredictor();
+		int countAddded = 0;
+		for (Marker m : motifsDb)
+			if (m instanceof Motif) {
+				Motif motif = (Motif) m;
+
+				// Connect motifs to their respective PWMs
+				Pwm pwm = jaspar.getPwm(motif.getPwmId());
+				if (pwm != null) {
+					// Set PWM and add to snpEffPredictor
+					motif.setPwm(pwm);
+					snpEffectPredictor.add(motif);
+					countAddded++;
+				} else Timer.showStdErr("Cannot find PWM for motif '" + motif.getId() + "'");
+			}
+
+		if (verbose) Timer.showStdErr("\tMotif database: " + countAddded + " markers loaded.");
 	}
 
 	/**
@@ -894,6 +949,7 @@ public class SnpEffCmdEff extends SnpEff {
 
 		// Read nextProt database?
 		if (nextProt) readNextProt();
+		if (motif) readMotif();
 
 		// Build tree
 		if (verbose) Timer.showStdErr("Building interval forest");
@@ -1099,14 +1155,14 @@ public class SnpEffCmdEff extends SnpEff {
 		System.err.println("\t-geneId                         : Use gene ID instead of gene name (VCF output). Default: " + useGeneId);
 		System.err.println("\t-hgvs                           : Use HGVS annotations for amino acid sub-field. Default: " + useHgvs);
 		System.err.println("\t-lof                            : Add loss of function (LOF) and Nonsense mediated decay (NMD) tags.");
-		System.err.println("\t-nextProt                       : Annotate using NextProt database.");
+		System.err.println("\t-motif                          : Annotate using motifs (requires Motif database).");
+		System.err.println("\t-nextProt                       : Annotate using NextProt (requires NextProt database).");
 		System.err.println("\t-reg <name>                     : Regulation track to use (this option can be used add several times).");
 		System.err.println("\t-oicr                           : Add OICR tag in VCF file. Default: " + useOicr);
 		System.err.println("\t-onlyReg                        : Only use regulation tracks.");
 		System.err.println("\t-onlyTr <file.txt>              : Only use the transcripts in this file. Format: One transcript ID per line.");
 		System.err.println("\t-sequenceOntolgy                : Use Sequence Ontolgy terms. Default: " + useSequenceOntolgy);
 		System.err.println("\t-ss, -spliceSiteSize <int>      : Set size for splice sites (donor and acceptor) in bases. Default: " + spliceSiteSize);
-		// System.err.println("\t-treatAllAsProteinCoding <bool> : If true, all transcript are treated as if they were protein conding. Default: Auto");
 		System.err.println("\t-ud, -upDownStreamLen <int>     : Set upstream downstream interval length (in bases)");
 		System.err.println("\nGeneric options:");
 		System.err.println("\t-0                      : File positions are zero-based (same as '-inOffset 0 -outOffset 0')");

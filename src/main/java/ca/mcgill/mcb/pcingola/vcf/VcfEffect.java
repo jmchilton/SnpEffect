@@ -220,6 +220,7 @@ public class VcfEffect {
 			// Effect
 			if (effectStrings[index].startsWith("REGULATION")) effect = ChangeEffect.EffectType.REGULATION;
 			else if (effectStrings[index].startsWith("NEXT_PROT")) effect = ChangeEffect.EffectType.NEXT_PROT;
+			else if (effectStrings[index].startsWith("MOTIF")) effect = ChangeEffect.EffectType.MOTIF;
 			else effect = ChangeEffect.EffectType.valueOf(effectStrings[index]);
 			// Effect details
 			effectDetails = parseEffectDetails(effectStrings[index]);

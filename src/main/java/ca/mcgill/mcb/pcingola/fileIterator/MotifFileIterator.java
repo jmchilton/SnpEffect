@@ -53,7 +53,7 @@ public class MotifFileIterator extends MarkerFileIterator<Motif> {
 
 						// Parse info field, looking for "Name=XXXX"
 						String info = fields[8];
-						String name = "";
+						String name = "", pwmId = "";
 						String infos[] = info.split(";");
 						for (String nv : infos) { // Field has "name = value" pairs
 							String nameValue[] = nv.split("="); // Get field name
@@ -66,14 +66,14 @@ public class MotifFileIterator extends MarkerFileIterator<Motif> {
 									name = val;
 									String names[] = name.split(":");
 									name = names[0];
-									id = names[names.length - 1];
+									pwmId = names[names.length - 1];
 								}
 							}
 						}
 
 						// Create seqChange
-						Motif motif = new Motif(chromo, start, end, strand, id, name);
-						motif.setPwm(jaspar.getPwm(id));
+						Motif motif = new Motif(chromo, start, end, strand, id, name, pwmId);
+						motif.setPwm(jaspar.getPwm(pwmId));
 						if (motif.getPwm() == null) System.err.println("Warning: Pwm '" + id + "' not found! Name = " + name);
 
 						return motif;

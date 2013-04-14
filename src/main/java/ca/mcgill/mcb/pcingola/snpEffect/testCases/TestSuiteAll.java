@@ -88,9 +88,8 @@ public class TestSuiteAll {
 		suite.addTestSuite(TestCasesNextProt.class);
 
 		// Motif
-		throw new RuntimeException("Unimplemented Motif");
-		// suite.addTestSuite(TestCasesMotif.class);
-		//
-		//		return suite;
+		suite.addTestSuite(TestCasesMotif.class);
+
+		return suite;
 	}
 }

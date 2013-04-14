@@ -1,14 +1,11 @@
 package ca.mcgill.mcb.pcingola.interval;
 
-import ca.mcgill.mcb.pcingola.binseq.DnaNSequence;
-import ca.mcgill.mcb.pcingola.binseq.DnaSequence;
 import ca.mcgill.mcb.pcingola.interval.SeqChange.ChangeType;
 import ca.mcgill.mcb.pcingola.serializer.MarkerSerializer;
 import ca.mcgill.mcb.pcingola.snpEffect.ChangeEffect;
 import ca.mcgill.mcb.pcingola.snpEffect.ChangeEffect.EffectType;
 import ca.mcgill.mcb.pcingola.snpEffect.ChangeEffect.ErrorType;
 import ca.mcgill.mcb.pcingola.snpEffect.ChangeEffect.WarningType;
-import ca.mcgill.mcb.pcingola.util.GprSeq;
 
 /**
  * Interval for an exon
@@ -16,7 +13,7 @@ import ca.mcgill.mcb.pcingola.util.GprSeq;
  * @author pcingola
  *
  */
-public class Exon extends Marker {
+public class Exon extends MarkerSeq {
 
 	/**
 	 * Characterize exons based on alternative splicing
@@ -36,16 +33,13 @@ public class Exon extends Marker {
 
 	byte frame = 0;
 	int rank; // Exon rank in transcript
-	DnaSequence sequence;
 	SpliceSiteAcceptor spliceSiteAcceptor;
 	SpliceSiteDonor spliceSiteDonor;
 	ExonSpliceType spliceType;
 
 	public Exon() {
 		super();
-		strand = 0;
 		rank = 0;
-		sequence = DnaSequence.empty();
 		type = EffectType.EXON;
 	}
 
@@ -53,7 +47,6 @@ public class Exon extends Marker {
 		super(parent, start, end, strand, id);
 		this.strand = (byte) strand;
 		this.rank = rank;
-		sequence = DnaSequence.empty();
 		type = EffectType.EXON;
 	}
 
@@ -69,150 +62,11 @@ public class Exon extends Marker {
 		// Create new exon with updated coordinates
 		Exon ex = (Exon) super.apply(seqChange);
 
-		// Exon eliminated?
-		if (ex == null) return null;
-
-		// Sometimes 'apply' method return 'this'. Since we don't want to update the original exon, we have to create a clone
-		if (ex == this) ex = (Exon) clone();
-
 		// Update sites
 		if (spliceSiteAcceptor != null) ex.spliceSiteAcceptor = (SpliceSiteAcceptor) spliceSiteAcceptor.apply(seqChange);
 		if (spliceSiteDonor != null) ex.spliceSiteDonor = (SpliceSiteDonor) spliceSiteDonor.apply(seqChange);
 
-		if (seqChange.intersects(this)) {
-			switch (seqChange.getChangeType()) {
-			case SNP:
-				applySnp(seqChange, ex);
-				break;
-
-			case INS:
-				applyIns(seqChange, ex);
-				break;
-
-			case DEL:
-				applyDel(seqChange, ex);
-				break;
-
-			case MNP:
-				applyMnp(seqChange, ex);
-				break;
-
-			default:
-				throw new RuntimeException("Unimplemented method for sequence change type " + seqChange.getChangeType());
-			}
-		} else ex.setSequence(getSequence());
-
 		return ex;
-	}
-
-	/**
-	 * Apply a change type deletion
-	 * @param seqChange
-	 * @param ex
-	 */
-	protected void applyDel(SeqChange seqChange, Exon ex) {
-		// Update sequence
-		if ((sequence != null) && (!sequence.isEmpty())) {
-
-			// Get sequence in positive strand direction
-			String seq = isStrandPlus() ? sequence.getSequence() : sequence.reverseWc().getSequence();
-
-			// Apply change to sequence
-			int idxStart = seqChange.getStart() - start;
-			int idxEnd = seqChange.getStart() - start + seqChange.size();
-
-			StringBuilder newSeq = new StringBuilder();
-			if (idxStart >= 0) newSeq.append(seq.substring(0, idxStart));
-			if (idxEnd >= 0) newSeq.append(seq.substring(idxEnd));
-
-			// Update sequence
-			seq = newSeq.toString();
-			ex.setSequence(isStrandPlus() ? seq : GprSeq.reverseWc(seq));
-		}
-	}
-
-	/**
-	 * Apply a change type insertion
-	 * @param seqChange
-	 * @param ex
-	 */
-	protected void applyIns(SeqChange seqChange, Exon ex) {
-		// Update sequence
-		if ((sequence != null) && (!sequence.isEmpty())) {
-
-			// Get sequence in positive strand direction
-			String seq = isStrandPlus() ? sequence.getSequence() : sequence.reverseWc().getSequence();
-
-			String netChange = seqChange.netChange(this);
-			// Apply change to sequence
-			int idx = seqChange.getStart() - start - 1;
-			if (idx >= 0) seq = seq.substring(0, idx + 1) + netChange + seq.substring(idx + 1);
-			else seq = netChange + seq;
-
-			// Update sequence
-			ex.setSequence(isStrandPlus() ? seq : GprSeq.reverseWc(seq));
-		}
-	}
-
-	/**
-	 * Apply a change type MNP
-	 * @param seqChange
-	 * @param ex
-	 */
-	protected void applyMnp(SeqChange seqChange, Exon ex) {
-		// Update sequence
-		if ((sequence != null) && (!sequence.isEmpty())) {
-			// Get sequence in positive strand direction
-			String seq = isStrandPlus() ? sequence.getSequence() : sequence.reverseWc().getSequence();
-
-			// Apply change to sequence
-			int idxStart = seqChange.getStart() - start;
-			int changeSize = seqChange.intersectSize(this);
-			int idxEnd = seqChange.getStart() - start + changeSize;
-
-			StringBuilder seqsb = new StringBuilder();
-			seqsb.append(seq.substring(0, idxStart));
-			seqsb.append(seqChange.getChange().substring(0, changeSize));
-			seqsb.append(seq.substring(idxEnd));
-
-			// Update sequence
-			seq = seqsb.toString();
-			ex.setSequence(isStrandPlus() ? seq : GprSeq.reverseWc(seq));
-		}
-	}
-
-	/**
-	 * Apply a change type SNP
-	 * @param seqChange
-	 * @param ex
-	 */
-	protected void applySnp(SeqChange seqChange, Exon ex) {
-		// Update sequence
-		if ((sequence != null) && (!sequence.isEmpty())) {
-			// Get sequence in positive strand direction
-			String seq = isStrandPlus() ? sequence.getSequence() : sequence.reverseWc().getSequence();
-
-			// Apply change to sequence
-			int idx = seqChange.getStart() - start;
-			seq = seq.substring(0, idx) + seqChange.getChange() + seq.substring(idx + 1);
-
-			// Update sequence
-			ex.setSequence(isStrandPlus() ? seq : GprSeq.reverseWc(seq));
-		}
-	}
-
-	/**
-	 * Base in this exon at position 'index'
-	 * @param idx
-	 * @return
-	 */
-	public String basesAt(int index, int len) {
-		if (strand < 0) {
-			int idx = sequence.length() - index - len;
-			return GprSeq.reverseWc(sequence.getBases(idx, len)); // Minus strand => Exon's sequence has been reversed and WC-complemented
-		}
-
-		return sequence.getBases(index, len);
 	}
 
 	/**
@@ -278,20 +132,6 @@ public class Exon extends Marker {
 		return rank;
 	}
 
-	/**
-	 * Get exon sequence
-	 * 
-	 * WARNING: Exon sequence is always according to coding 
-	 * strand. E.g. if the strand is negative, the sequence 
-	 * returned by this method is the reverse-WC that you see 
-	 * in the reference genome
-	 * 
-	 * @param sequence
-	 */
-	public String getSequence() {
-		return sequence.toString();
-	}
-
 	public SpliceSiteAcceptor getSpliceSiteAcceptor() {
 		return spliceSiteAcceptor;
 	}
@@ -302,15 +142,6 @@ public class Exon extends Marker {
 
 	public ExonSpliceType getSpliceType() {
 		return spliceType;
-	}
-
-	/**
-	 * Do we have a sequence for this exon?
-	 * @return
-	 */
-	public boolean hasSequence() {
-		if (size() <= 0) return true; // This interval has zero length, so sequence should be empty anyway (it is OK if its empty)
-		return (sequence != null) && (!sequence.isEmpty());
 	}
 
 	@Override
@@ -366,22 +197,6 @@ public class Exon extends Marker {
 
 	public void setRank(int rank) {
 		this.rank = rank;
-	}
-
-	/**
-	 * Set exon sequence
-	 * 
-	 * WARNING: Exon sequence is always according to coding 
-	 * strand. So use you should use setSequence( GprSeq.reverseWc( seq ) ) 
-	 * if the exon is in negative strand.
-	 * 
-	 * @param sequence
-	 */
-	public void setSequence(String sequence) {
-		if ((sequence == null) || (sequence.length() <= 0)) this.sequence = DnaSequence.empty();
-
-		if (GprSeq.isAmbiguous(sequence)) this.sequence = new DnaNSequence(sequence); // Use DnaNSequence which supports ambiguous sequences
-		else this.sequence = new DnaSequence(sequence); // Use DnaSequence
 	}
 
 	@Override

@@ -45,7 +45,7 @@ public class Zzz {
 		outSb.append(out + "\n");
 
 		for (Pwm pwm : jaspar) {
-			char bestSeq[] = pwm.bestSequence();
+			char bestSeq[] = pwm.getBestSequence();
 			String bestSequence = new String(bestSeq);
 			double bestScore = pwm.score(bestSequence);
 

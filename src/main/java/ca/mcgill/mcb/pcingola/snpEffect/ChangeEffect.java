@@ -9,6 +9,7 @@ import ca.mcgill.mcb.pcingola.interval.Exon;
 import ca.mcgill.mcb.pcingola.interval.Gene;
 import ca.mcgill.mcb.pcingola.interval.Intron;
 import ca.mcgill.mcb.pcingola.interval.Marker;
+import ca.mcgill.mcb.pcingola.interval.Motif;
 import ca.mcgill.mcb.pcingola.interval.NextProt;
 import ca.mcgill.mcb.pcingola.interval.Regulation;
 import ca.mcgill.mcb.pcingola.interval.SeqChange;
@@ -291,6 +292,7 @@ public class ChangeEffect implements Cloneable, Comparable<ChangeEffect> {
 		if (!codonEffect.isEmpty()) e = codonEffect;
 		else if (isRegulation()) return getEffectTypeString(useSeqOntology) + "[" + ((Regulation) marker).getName() + "]";
 		else if (isNextProt()) return getEffectTypeString(useSeqOntology) + "[" + ((NextProt) marker).getId() + "]";
+		else if (isMotif()) return getEffectTypeString(useSeqOntology) + "[" + ((Motif) marker).getPwmId() + ":" + ((Motif) marker).getPwmName() + "]";
 		else if (isIntergenic() || isIntron() || isSpliceSite()) e = getEffectTypeString(useSeqOntology);
 		else if (!message.isEmpty()) e = getEffectTypeString(useSeqOntology) + ": " + message;
 		else if (marker == null) e = getEffectTypeString(useSeqOntology); // There are cases when no marker is associated (e.g. "Out of chromosome", "No such chromosome", etc.)
@@ -399,6 +401,7 @@ public class ChangeEffect implements Cloneable, Comparable<ChangeEffect> {
 	 */
 	public EffectImpact getEffectImpact() {
 		if (effectImpact == null) {
+			// TODO: Refactor.This code should be in each marker class, not here...
 			switch (effectType) {
 			case EXON_DELETED:
 			case FRAME_SHIFT:
@@ -454,9 +457,10 @@ public class ChangeEffect implements Cloneable, Comparable<ChangeEffect> {
 				break;
 
 			case MOTIF:
-				throw new RuntimeException("Unimplemented!");
+				effectImpact = EffectImpact.LOW;
 
 			case NEXT_PROT:
+				// TODO: Refactor.This code should be in NextProt marker, not here
 				if (marker == null) effectImpact = EffectImpact.MODIFIER;
 				else if (((NextProt) marker).isHighlyConservedAaSequence()) effectImpact = EffectImpact.HIGH;
 				else effectImpact = EffectImpact.LOW;
@@ -898,6 +902,10 @@ public class ChangeEffect implements Cloneable, Comparable<ChangeEffect> {
 		String aasRigt = codonTable.aa(codonsRight);
 		aasAroundOld = aasLeft.toLowerCase() + aaOld.toUpperCase() + aasRigt.toLowerCase();
 		aasAroundNew = aasLeft.toLowerCase() + aaNew.toUpperCase() + aasRigt.toLowerCase();
+	}
+
+	public void setEffectImpact(EffectImpact effectImpact) {
+		this.effectImpact = effectImpact;
 	}
 
 	public void setMarker(Marker marker) {

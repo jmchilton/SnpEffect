@@ -261,7 +261,6 @@ public class SnpEffCmdBuild extends SnpEff {
 			if (verbose) Timer.showStdErr("Warning: Cannot read optional motif file '" + motifFileName + "', nothing done.");
 			if (debug) t.printStackTrace();
 		}
-
 	}
 
 	/**
