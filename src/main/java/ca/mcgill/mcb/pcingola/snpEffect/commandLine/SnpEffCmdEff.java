@@ -107,7 +107,7 @@ public class SnpEffCmdEff extends SnpEff {
 	ChangeEffectFilter changeEffectResutFilter; // Filter prediction results
 	ArrayList<String> filterIntervalFiles;// Files used for filter intervals
 	IntervalForest filterIntervals; // Filter only seqChanges that match these intervals
-	ArrayList<String> customIntervalFiles; // Custom interval files
+	ArrayList<String> customIntervalBedFiles; // Custom interval files (bed)
 	SeqChangeStats seqChangeStats;
 	ChangeEffectResutStats changeEffectResutStats;
 	VcfStats vcfStats;
@@ -123,7 +123,7 @@ public class SnpEffCmdEff extends SnpEff {
 		changeEffectResutFilter = new ChangeEffectFilter(); // Filter prediction results
 		filterIntervalFiles = new ArrayList<String>(); // Files used for filter intervals
 		filterIntervals = new IntervalForest(); // Filter only seqChanges that match these intervals
-		customIntervalFiles = new ArrayList<String>(); // Custom interval files
+		customIntervalBedFiles = new ArrayList<String>(); // Custom interval files
 		summaryFile = DEFAULT_SUMMARY_FILE;
 		summaryGenesFile = DEFAULT_SUMMARY_GENES_FILE;
 	}
@@ -519,7 +519,7 @@ public class SnpEffCmdEff extends SnpEff {
 				// Input options
 				//---
 				else if (args[i].equalsIgnoreCase("-interval")) {
-					if ((i + 1) < args.length) customIntervalFiles.add(args[++i]);
+					if ((i + 1) < args.length) customIntervalBedFiles.add(args[++i]);
 					else usage("Option '-i' without config interval_file argument");
 				} else if ((args[i].equals("-fi") || args[i].equalsIgnoreCase("-filterInterval"))) {
 					if ((i + 1) < args.length) filterIntervalFiles.add(args[++i]);
@@ -883,7 +883,7 @@ public class SnpEffCmdEff extends SnpEff {
 		}
 
 		// Read custom interval files
-		for (String intFile : customIntervalFiles) {
+		for (String intFile : customIntervalBedFiles) {
 			if (verbose) Timer.showStdErr("Reading interval file '" + intFile + "'");
 			int count = readCustomIntFile(intFile);
 			if (verbose) Timer.showStdErr("done (" + count + " intervals loaded). ");
@@ -1127,7 +1127,7 @@ public class SnpEffCmdEff extends SnpEff {
 		System.err.println("\t-a , -around            : Show N codons and amino acids around change (only in coding regions). Default is " + CodonChange.SHOW_CODONS_AROUND_CHANGE + " codons.");
 		System.err.println("\t-i <format>             : Input format [ vcf, txt, pileup, bed ]. Default: VCF.");
 		System.err.println("\t-o <format>             : Ouput format [ txt, vcf, gatk, bed, bedAnn ]. Default: VCF.");
-		System.err.println("\t-interval               : Use a custom interval file (you may use this option many times)");
+		System.err.println("\t-interval               : Use a custom interval BED file (you may use this option many times)");
 		System.err.println("\t-chr <string>           : Prepend 'string' to chromosome name (e.g. 'chr1' instead of '1'). Only on TXT output.");
 		System.err.println("\t-s,  -stats             : Name of stats file (summary). Default is '" + DEFAULT_SUMMARY_FILE + "'");
 		System.err.println("\t-t                      : Use multiple threads (implies '-noStats'). Default 'off'");
