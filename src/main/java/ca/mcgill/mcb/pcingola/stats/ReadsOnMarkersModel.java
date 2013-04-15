@@ -1,5 +1,6 @@
 package ca.mcgill.mcb.pcingola.stats;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -26,6 +27,7 @@ public class ReadsOnMarkersModel {
 	CountByType rawCountBases; // Number of bases covered by each marker type (befoew join or overlap)
 	CountByType prob; // Binomial probability (for each marker type)
 	SnpEffectPredictor snpEffectPredictor;
+	HashMap<Marker, String> markerTypes;
 
 	public ReadsOnMarkersModel(SnpEffectPredictor snpEffectPredictor) {
 		super();
@@ -34,7 +36,12 @@ public class ReadsOnMarkersModel {
 		countMarkers = new CountByType();
 		rawCountMarkers = new CountByType();
 		rawCountBases = new CountByType();
+		markerTypes = new HashMap<Marker, String>();
 		prob = new CountByType();
+	}
+
+	public void addMarkerType(Marker marker, String type) {
+		markerTypes.put(marker, type);
 	}
 
 	/**
@@ -57,7 +64,7 @@ public class ReadsOnMarkersModel {
 		// Calculate raw counts
 		//---
 		for (Marker m : markers) {
-			String mtype = m.getClass().getSimpleName();
+			String mtype = markerType(m);
 			rawCountMarkers.inc(mtype);
 			rawCountBases.inc(mtype, m.size());
 		}
@@ -102,7 +109,7 @@ public class ReadsOnMarkersModel {
 
 		for (Marker m : markers) {
 			// Same marker type & same chromo? Count bases
-			if (m.getChromosomeName().equals(chrName) && m.getClass().getSimpleName().equals(mtype)) {
+			if (m.getChromosomeName().equals(chrName) && markerType(m).equals(mtype)) {
 				for (int i = m.getStart(); i <= m.getEnd(); i++)
 					busy[i] = 1;
 			}
@@ -142,6 +149,17 @@ public class ReadsOnMarkersModel {
 
 	public CountByType getRawCountMarkers() {
 		return rawCountMarkers;
+	}
+
+	/**
+	 * Get marker type
+	 * @param marker
+	 * @return
+	 */
+	String markerType(Marker marker) {
+		String type = markerTypes.get(marker);
+		if (type != null) return type;
+		return marker.getClass().getSimpleName();
 	}
 
 	/**
@@ -192,10 +210,10 @@ public class ReadsOnMarkersModel {
 			Set<Marker> regions = snpEffectPredictor.regionsMarkers(read);
 			HashSet<String> doneRegion = new HashSet<String>();
 			for (Marker m : regions) {
-				String clazz = m.getClass().getSimpleName();
-				if (!doneRegion.contains(clazz)) {
-					countReads.inc(clazz); // Count reads
-					doneRegion.add(clazz); // Do not count twice
+				String mtype = markerType(m);
+				if (!doneRegion.contains(mtype)) {
+					countReads.inc(mtype); // Count reads
+					doneRegion.add(mtype); // Do not count twice
 				}
 			}
 		}
@@ -232,6 +250,10 @@ public class ReadsOnMarkersModel {
 		countBases(); // Count 
 		probabilities(); // Calculate probabilities
 		return true;
+	}
+
+	public void setMarkerTypes(HashMap<Marker, String> markerTypes) {
+		this.markerTypes = markerTypes;
 	}
 
 	public void setNumIterations(int numIterations) {

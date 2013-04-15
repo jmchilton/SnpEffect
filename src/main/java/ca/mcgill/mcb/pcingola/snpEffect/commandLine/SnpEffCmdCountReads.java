@@ -13,6 +13,7 @@ import ca.mcgill.mcb.pcingola.interval.SeqChange;
 import ca.mcgill.mcb.pcingola.snpEffect.Config;
 import ca.mcgill.mcb.pcingola.snpEffect.SnpEffectPredictor;
 import ca.mcgill.mcb.pcingola.stats.ReadsOnMarkersModel;
+import ca.mcgill.mcb.pcingola.util.Gpr;
 import ca.mcgill.mcb.pcingola.util.Timer;
 
 /**
@@ -89,6 +90,7 @@ public class SnpEffCmdCountReads extends SnpEff {
 		if (verbose) Timer.showStdErr("Calculating probability model for read length " + readLength);
 		readsOnMarkersModel.setReadLength(readLength);
 		readsOnMarkersModel.setVerbose(verbose);
+		readsOnMarkersModel.setMarkerTypes(countReadsOnMarkers.getMarkerTypes());
 
 		// Run model
 		readsOnMarkersModel.run();
@@ -109,16 +111,22 @@ public class SnpEffCmdCountReads extends SnpEff {
 		if (verbose) Timer.showStdErr("Reading database for genome '" + genomeVer + "'");
 		config.loadSnpEffectPredictor(); // Read snpEffect predictor
 		snpEffectPredictor = config.getSnpEffectPredictor(); // Read snpEffect predictor
+		countReadsOnMarkers = new CountReadsOnMarkers(snpEffectPredictor);
 		if (verbose) Timer.showStdErr("done");
 
 		// Load BED files
 		for (String bedFile : bedFileNames) {
 			// Load file
 			if (verbose) Timer.showStdErr("Reading intervals from file '" + bedFile + "'");
+			String baseName = Gpr.removeExt(Gpr.baseName(bedFile));
+
 			SeqChangeBedFileIterator bed = new SeqChangeBedFileIterator(bedFile);
 			List<SeqChange> markers = bed.load();
-			for (SeqChange marker : markers)
+			for (SeqChange marker : markers) {
+				marker.setId(baseName + ":" + marker.getId());
 				snpEffectPredictor.add(marker);
+				countReadsOnMarkers.addMarkerType(marker, baseName);
+			}
 			if (verbose) Timer.showStdErr("Done. Intervals added : " + markers.size());
 		}
 
@@ -128,7 +136,6 @@ public class SnpEffCmdCountReads extends SnpEff {
 		if (verbose) Timer.showStdErr("done");
 
 		// Count reads
-		countReadsOnMarkers = new CountReadsOnMarkers(snpEffectPredictor);
 		countReadsOnMarkers.setVerbose(verbose);
 		for (String file : samFileNames)
 			countReadsOnMarkers.addFile(file);

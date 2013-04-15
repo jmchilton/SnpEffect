@@ -561,7 +561,7 @@ public class Gpr {
 	}
 
 	public static String removeExt(String file) {
-		int lastDot = file.lastIndexOf('.');
+		int lastDot = file.indexOf('.');
 		if (lastDot >= 0) return file.substring(0, lastDot);
 		return file;
 	}

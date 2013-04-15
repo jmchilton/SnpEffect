@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -40,6 +41,7 @@ public class CountReadsOnMarkers {
 	ArrayList<CountByKey<Marker>> countBasesByFile;
 	ArrayList<CountByType> countTypesByFile;
 	SnpEffectPredictor snpEffectPredictor;
+	HashMap<Marker, String> markerTypes;
 
 	public CountReadsOnMarkers() {
 		init(null);
@@ -56,6 +58,10 @@ public class CountReadsOnMarkers {
 	public void addFile(String samFileName) {
 		samFileNames.add(samFileName);
 		names.add(Gpr.removeExt(Gpr.baseName(samFileName)));
+	}
+
+	public void addMarkerType(Marker marker, String type) {
+		markerTypes.put(marker, type);
 	}
 
 	/**
@@ -115,10 +121,10 @@ public class CountReadsOnMarkers {
 									countBases.inc(m, m.intersectSize(read)); // Count number bases that intersect
 
 									// Count by marker type (make sure we only count once per read)
-									String clazz = m.getClass().getSimpleName();
-									if (!doneClass.contains(clazz)) {
-										countTypes.inc(clazz); // Count reads
-										doneClass.add(clazz); // Do not count twice
+									String type = markerType(m);
+									if (!doneClass.contains(type)) {
+										countTypes.inc(type); // Count reads
+										doneClass.add(type); // Do not count twice
 									}
 								}
 							}
@@ -157,9 +163,13 @@ public class CountReadsOnMarkers {
 	 */
 	CountByType countMarkerTypes(Collection<Marker> markersToCount) {
 		CountByType countByMarkerType = new CountByType();
-		for (Marker key : markersToCount)
-			countByMarkerType.inc(key.getClass().getSimpleName());
+		for (Marker marker : markersToCount)
+			countByMarkerType.inc(markerType(marker));
 		return countByMarkerType;
+	}
+
+	public HashMap<Marker, String> getMarkerTypes() {
+		return markerTypes;
 	}
 
 	/**
@@ -182,9 +192,21 @@ public class CountReadsOnMarkers {
 		countReadsByFile = new ArrayList<CountByKey<Marker>>();
 		countBasesByFile = new ArrayList<CountByKey<Marker>>();
 		countTypesByFile = new ArrayList<CountByType>();
+		markerTypes = new HashMap<Marker, String>();
 
 		if (snpEffectPredictor != null) this.snpEffectPredictor = snpEffectPredictor;
 		else this.snpEffectPredictor = new SnpEffectPredictor(new Genome());
+	}
+
+	/**
+	 * Get marker type
+	 * @param marker
+	 * @return
+	 */
+	String markerType(Marker marker) {
+		String type = markerTypes.get(marker);
+		if (type != null) return type;
+		return marker.getClass().getSimpleName();
 	}
 
 	/**
@@ -265,6 +287,10 @@ public class CountReadsOnMarkers {
 		}
 
 		return sb.toString();
+	}
+
+	public void setMarkerTypes(HashMap<Marker, String> markerTypes) {
+		this.markerTypes = markerTypes;
 	}
 
 	public void setVerbose(boolean verbose) {
