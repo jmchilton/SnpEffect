@@ -762,8 +762,7 @@ public class SnpEffCmdEff extends SnpEff {
 						NextProt npEx = (NextProt) np.clone(); // The nextProt marker might cover more than one Exon 
 						npEx.setParent(ex);
 						nextProtsToAdd.add(npEx);
-
-						assignedToExon = ex.includes(np); // Completely included in exon? No need to add transcript as well
+						assignedToExon = true;
 					}
 				}
 
