@@ -5,6 +5,7 @@ import java.io.BufferedReader;
 import ca.mcgill.mcb.pcingola.interval.Chromosome;
 import ca.mcgill.mcb.pcingola.interval.Genome;
 import ca.mcgill.mcb.pcingola.interval.Marker;
+import ca.mcgill.mcb.pcingola.interval.Markers;
 import ca.mcgill.mcb.pcingola.util.Gpr;
 
 /**
@@ -55,6 +56,14 @@ public abstract class MarkerFileIterator<M extends Marker> extends FileIterator<
 
 	public boolean isIgnoreChromosomeErrors() {
 		return ignoreChromosomeErrors;
+	}
+
+	public Markers loadMarkers() {
+		Markers list = new Markers();
+		for (M t : this)
+			list.add(t);
+		close();
+		return list;
 	}
 
 	/**

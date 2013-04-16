@@ -16,10 +16,11 @@ import akka.actor.Actor;
 import akka.actor.Props;
 import akka.actor.UntypedActorFactory;
 import ca.mcgill.mcb.pcingola.akka.vcf.VcfWorkQueue;
-import ca.mcgill.mcb.pcingola.fileIterator.SeqChangeBedFileIterator;
+import ca.mcgill.mcb.pcingola.fileIterator.BedFileIterator;
+import ca.mcgill.mcb.pcingola.fileIterator.BigBedFileIterator;
+import ca.mcgill.mcb.pcingola.fileIterator.PileUpFileIterator;
 import ca.mcgill.mcb.pcingola.fileIterator.SeqChangeFileIterator;
-import ca.mcgill.mcb.pcingola.fileIterator.SeqChangeFilePileUp;
-import ca.mcgill.mcb.pcingola.fileIterator.SeqChangeFileTxt;
+import ca.mcgill.mcb.pcingola.fileIterator.SeqChangeTxtFileIterator;
 import ca.mcgill.mcb.pcingola.fileIterator.VcfFileIterator;
 import ca.mcgill.mcb.pcingola.filter.ChangeEffectFilter;
 import ca.mcgill.mcb.pcingola.filter.SeqChangeFilter;
@@ -202,9 +203,9 @@ public class SnpEffCmdEff extends SnpEff {
 
 		// Create an input file iterator
 		SeqChangeFileIterator seqChangeFileIterator;
-		if (inputFormat == InputFormat.PILEUP) seqChangeFileIterator = new SeqChangeFilePileUp(inputFile, config.getGenome(), inOffset);
-		else if (inputFormat == InputFormat.BED) seqChangeFileIterator = new SeqChangeBedFileIterator(inputFile, config.getGenome(), inOffset);
-		else if (inputFormat == InputFormat.TXT) seqChangeFileIterator = new SeqChangeFileTxt(inputFile, config.getGenome(), inOffset);
+		if (inputFormat == InputFormat.PILEUP) seqChangeFileIterator = new PileUpFileIterator(inputFile, config.getGenome(), inOffset);
+		else if (inputFormat == InputFormat.BED) seqChangeFileIterator = new BedFileIterator(inputFile, config.getGenome(), inOffset);
+		else if (inputFormat == InputFormat.TXT) seqChangeFileIterator = new SeqChangeTxtFileIterator(inputFile, config.getGenome(), inOffset);
 		else throw new RuntimeException("Cannot create SeqChange file iterator on input format '" + inputFormat + "'");
 
 		//---
@@ -622,16 +623,40 @@ public class SnpEffCmdEff extends SnpEff {
 	 * @param intFile
 	 */
 	int readCustomIntFile(String intFile) {
+		Markers markers = null;
+		intFile = intFile.toLowerCase();
+
+		// Load according to file type
+		if (intFile.endsWith(".txt")) markers = readCustomIntFileTxt(intFile);
+		else if (intFile.endsWith(".bed")) markers = (new BedFileIterator(intFile).loadMarkers());
+		else if (intFile.endsWith(".bb")) markers = (new BigBedFileIterator(intFile).loadMarkers());
+		else throw new RuntimeException("Unrecognized genomig interval file type '" + intFile + "'");
+
+		// Add all markers
+		for (Marker m : markers)
+			config.getSnpEffectPredictor().add(m);
+
+		// Number added
+		return markers.size();
+
+	}
+
+	/**
+	 * Read intervals from a txt file
+	 * @param intFile
+	 * @return
+	 */
+	Markers readCustomIntFileTxt(String intFile) {
+		Markers markers = new Markers();
+
 		String file = readFile(intFile);
 		String lines[] = file.split("\n");
-		int count = 0;
 		for (int lineNum = 0; lineNum < lines.length; lineNum++) {
 			Custom ci = new Custom(null, 0, 0, 0, "");
 			ci.readTxt(lines[lineNum], lineNum + 1, config.getGenome(), inOffset);
-			config.getSnpEffectPredictor().add(ci);
-			count++;
+			markers.add(ci);
 		}
-		return count;
+		return markers;
 	}
 
 	/**

@@ -8,7 +8,7 @@ import net.sf.samtools.AbstractBAMFileIndex;
 import net.sf.samtools.BAMIndexMetaData;
 import net.sf.samtools.SAMFileReader;
 import ca.mcgill.mcb.pcingola.coverage.CountReadsOnMarkers;
-import ca.mcgill.mcb.pcingola.fileIterator.SeqChangeBedFileIterator;
+import ca.mcgill.mcb.pcingola.fileIterator.BedFileIterator;
 import ca.mcgill.mcb.pcingola.interval.SeqChange;
 import ca.mcgill.mcb.pcingola.snpEffect.Config;
 import ca.mcgill.mcb.pcingola.snpEffect.SnpEffectPredictor;
@@ -120,7 +120,7 @@ public class SnpEffCmdCountReads extends SnpEff {
 			if (verbose) Timer.showStdErr("Reading intervals from file '" + bedFile + "'");
 			String baseName = Gpr.removeExt(Gpr.baseName(bedFile));
 
-			SeqChangeBedFileIterator bed = new SeqChangeBedFileIterator(bedFile);
+			BedFileIterator bed = new BedFileIterator(bedFile);
 			List<SeqChange> markers = bed.load();
 			for (SeqChange marker : markers) {
 				marker.setId(baseName + ":" + marker.getId());

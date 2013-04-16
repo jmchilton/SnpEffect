@@ -5,7 +5,7 @@ import java.util.List;
 
 import ca.mcgill.mcb.pcingola.Pcingola;
 import ca.mcgill.mcb.pcingola.coverage.CountReadsOnMarkers;
-import ca.mcgill.mcb.pcingola.fileIterator.SeqChangeBedFileIterator;
+import ca.mcgill.mcb.pcingola.fileIterator.BedFileIterator;
 import ca.mcgill.mcb.pcingola.interval.Gene;
 import ca.mcgill.mcb.pcingola.interval.Genome;
 import ca.mcgill.mcb.pcingola.interval.Marker;
@@ -170,12 +170,12 @@ public class DiffChipSeq implements CommandLine {
 
 		// Read BED files and collapse intervals into one set
 		if (verbose) Timer.showStdErr("Reading peaks from file '" + peaksFile1 + "'");
-		SeqChangeBedFileIterator bedFile1 = new SeqChangeBedFileIterator(peaksFile1);
+		BedFileIterator bedFile1 = new BedFileIterator(peaksFile1);
 		List<SeqChange> peaks1 = bedFile1.load();
 		if (verbose) Timer.showStdErr("done. Number of peaks : " + peaks1.size());
 
 		if (verbose) Timer.showStdErr("Reading peaks from file '" + peaksFile2 + "'");
-		SeqChangeBedFileIterator bedFile2 = new SeqChangeBedFileIterator(peaksFile2);
+		BedFileIterator bedFile2 = new BedFileIterator(peaksFile2);
 		List<SeqChange> peaks2 = bedFile2.load();
 		if (verbose) Timer.showStdErr("done. Number of peaks : " + peaks2.size());
 

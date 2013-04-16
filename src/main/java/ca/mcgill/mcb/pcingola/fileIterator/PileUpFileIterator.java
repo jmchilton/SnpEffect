@@ -36,9 +36,9 @@ import ca.mcgill.mcb.pcingola.util.Gpr;
  * 
  * @author pcingola
  */
-public class SeqChangeFilePileUp extends SeqChangeFileIterator {
+public class PileUpFileIterator extends SeqChangeFileIterator {
 
-	public SeqChangeFilePileUp(String fileName, Genome genome, int positionBase) {
+	public PileUpFileIterator(String fileName, Genome genome, int positionBase) {
 		super(fileName, genome, positionBase);
 	}
 

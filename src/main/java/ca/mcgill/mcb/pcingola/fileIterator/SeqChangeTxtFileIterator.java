@@ -24,9 +24,9 @@ import ca.mcgill.mcb.pcingola.util.Gpr;
  * 
  * @author pcingola
  */
-public class SeqChangeFileTxt extends SeqChangeFileIterator {
+public class SeqChangeTxtFileIterator extends SeqChangeFileIterator {
 
-	public SeqChangeFileTxt(String fileName, Genome genome, int positionBase) {
+	public SeqChangeTxtFileIterator(String fileName, Genome genome, int positionBase) {
 		super(fileName, genome, positionBase);
 	}
 

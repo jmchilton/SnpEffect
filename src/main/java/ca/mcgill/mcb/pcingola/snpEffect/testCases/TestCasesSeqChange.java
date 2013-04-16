@@ -8,7 +8,7 @@ import java.util.Random;
 
 import junit.framework.TestCase;
 import ca.mcgill.mcb.pcingola.fileIterator.SeqChangeFileIterator;
-import ca.mcgill.mcb.pcingola.fileIterator.SeqChangeFileTxt;
+import ca.mcgill.mcb.pcingola.fileIterator.SeqChangeTxtFileIterator;
 import ca.mcgill.mcb.pcingola.interval.Chromosome;
 import ca.mcgill.mcb.pcingola.interval.Exon;
 import ca.mcgill.mcb.pcingola.interval.Gene;
@@ -117,7 +117,7 @@ public class TestCasesSeqChange extends TestCase {
 		ArrayList<SeqChange> seqChanges = new ArrayList<SeqChange>();
 
 		int inOffset = 1;
-		SeqChangeFileTxt seqChangeFileIterator = new SeqChangeFileTxt(seqChangeFile, config.getGenome(), inOffset);
+		SeqChangeTxtFileIterator seqChangeFileIterator = new SeqChangeTxtFileIterator(seqChangeFile, config.getGenome(), inOffset);
 		for (SeqChange sc : seqChangeFileIterator)
 			seqChanges.add(sc);
 
@@ -313,7 +313,7 @@ public class TestCasesSeqChange extends TestCase {
 		initSnpEffPredictor();
 
 		SeqChangeFileIterator snpFileIterator;
-		snpFileIterator = new SeqChangeFileTxt("tests/chr_not_found.out", config.getGenome(), 0);
+		snpFileIterator = new SeqChangeTxtFileIterator("tests/chr_not_found.out", config.getGenome(), 0);
 		snpFileIterator.setIgnoreChromosomeErrors(false);
 
 		boolean trown = false;

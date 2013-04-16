@@ -25,17 +25,17 @@ import ca.mcgill.mcb.pcingola.util.Gpr;
  *     
  * @author pcingola
  */
-public class SeqChangeBedFileIterator extends SeqChangeFileIterator {
+public class BedFileIterator extends SeqChangeFileIterator {
 
-	public SeqChangeBedFileIterator(String fileName) {
+	public BedFileIterator(String fileName) {
 		super(fileName, 0);
 	}
 
-	public SeqChangeBedFileIterator(String fileName, Genome genome) {
+	public BedFileIterator(String fileName, Genome genome) {
 		super(fileName, genome, 0);
 	}
 
-	public SeqChangeBedFileIterator(String fileName, Genome genome, int inOffset) {
+	public BedFileIterator(String fileName, Genome genome, int inOffset) {
 		super(fileName, genome, inOffset);
 	}
 

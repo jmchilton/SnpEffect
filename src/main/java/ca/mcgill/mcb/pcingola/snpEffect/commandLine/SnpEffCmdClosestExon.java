@@ -5,7 +5,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 
-import ca.mcgill.mcb.pcingola.fileIterator.SeqChangeBedFileIterator;
+import ca.mcgill.mcb.pcingola.fileIterator.BedFileIterator;
 import ca.mcgill.mcb.pcingola.fileIterator.VcfFileIterator;
 import ca.mcgill.mcb.pcingola.interval.Chromosome;
 import ca.mcgill.mcb.pcingola.interval.Exon;
@@ -64,7 +64,7 @@ public class SnpEffCmdClosestExon extends SnpEff {
 	 */
 	void bedIterate() {
 		// Open file
-		SeqChangeBedFileIterator bfi = new SeqChangeBedFileIterator(inFile, config.getGenome(), 0);
+		BedFileIterator bfi = new BedFileIterator(inFile, config.getGenome(), 0);
 		bfi.setCreateChromos(true); // Any 'new' chromosome in the input file will be created (otherwise an error will be thrown)
 
 		for (SeqChange bed : bfi) {
