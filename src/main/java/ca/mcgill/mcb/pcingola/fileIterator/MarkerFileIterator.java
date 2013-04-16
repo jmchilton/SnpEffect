@@ -14,7 +14,7 @@ import ca.mcgill.mcb.pcingola.util.Gpr;
  */
 public abstract class MarkerFileIterator<M extends Marker> extends FileIterator<M> {
 
-	boolean createChromos = false; // Create chromosomes if not found
+	protected boolean createChromos = false; // Create chromosomes if not found
 	protected Genome genome;
 	protected boolean ignoreChromosomeErrors = true; // If true, do not throw an exception when a chromosome is not found. Just ignore the line
 	protected int inOffset;
