@@ -14,16 +14,34 @@ public class Custom extends Marker {
 
 	private static final long serialVersionUID = -6843535415295857726L;
 
-	public Custom(Marker parent, int start, int end, int strand, String id) {
+	String label;
+	double score = Double.NaN;
+
+	public Custom(Marker parent, int start, int end, int strand, String id, String label) {
 		super(parent, start, end, strand, id);
 		type = EffectType.CUSTOM;
+
+		this.label = label;
+		if (label == null || label.isEmpty()) label = id;
+	}
+
+	public String getLabel() {
+		return label;
+	}
+
+	public double getScore() {
+		return score;
 	}
 
 	@Override
 	public List<ChangeEffect> seqChangeEffect(SeqChange snp, ChangeEffect changeEffec) {
 		if (!intersects(snp)) return ChangeEffect.emptyResults(); // Sanity check
-		changeEffec.set(this, EffectType.CUSTOM, id);
+		changeEffec.set(this, EffectType.CUSTOM, label);
 		return changeEffec.newList();
+	}
+
+	public void setScore(double score) {
+		this.score = score;
 	}
 
 }

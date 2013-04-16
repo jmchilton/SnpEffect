@@ -30,7 +30,7 @@ public abstract class MarkerFileIterator<M extends Marker> extends FileIterator<
 	public MarkerFileIterator(String fileName, Genome genome, int inOffset) {
 		super(fileName);
 		this.inOffset = inOffset;
-		this.genome = genome;
+		this.genome = (genome != null ? genome : new Genome("genome"));
 	}
 
 	public MarkerFileIterator(String fileName, int inOffset) {

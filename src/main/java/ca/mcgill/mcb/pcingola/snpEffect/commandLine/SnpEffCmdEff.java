@@ -623,39 +623,36 @@ public class SnpEffCmdEff extends SnpEff {
 	 * @param intFile
 	 */
 	int readCustomIntFile(String intFile) {
-		Markers markers = null;
-		intFile = intFile.toLowerCase();
+		Markers markers = readCustomMarkers(intFile);
 
-		// Load according to file type
-		if (intFile.endsWith(".txt")) markers = readCustomIntFileTxt(intFile);
-		else if (intFile.endsWith(".bed")) markers = (new BedFileIterator(intFile).loadMarkers());
-		else if (intFile.endsWith(".bb")) markers = (new BigBedFileIterator(intFile).loadMarkers());
-		else throw new RuntimeException("Unrecognized genomig interval file type '" + intFile + "'");
-
-		// Add all markers
+		// Add all markers to predictor
 		for (Marker m : markers)
 			config.getSnpEffectPredictor().add(m);
 
 		// Number added
 		return markers.size();
-
 	}
 
-	/**
-	 * Read intervals from a txt file
-	 * @param intFile
-	 * @return
-	 */
-	Markers readCustomIntFileTxt(String intFile) {
-		Markers markers = new Markers();
+	Markers readCustomMarkers(String intFile) {
+		Markers markersSeqChange = null;
+		intFile = intFile.toLowerCase();
+		String label = Gpr.removeExt(Gpr.baseName(intFile));
 
-		String file = readFile(intFile);
-		String lines[] = file.split("\n");
-		for (int lineNum = 0; lineNum < lines.length; lineNum++) {
-			Custom ci = new Custom(null, 0, 0, 0, "");
-			ci.readTxt(lines[lineNum], lineNum + 1, config.getGenome(), inOffset);
-			markers.add(ci);
+		// Load according to file type
+		if (intFile.endsWith(".txt")) markersSeqChange = new BedFileIterator(intFile, null, inOffset).loadMarkers(); // TXT is assumed to be "chr \t start \t end"
+		else if (intFile.endsWith(".bed")) markersSeqChange = new BedFileIterator(intFile).loadMarkers();
+		else if (intFile.endsWith(".bb")) markersSeqChange = new BigBedFileIterator(intFile).loadMarkers();
+		else throw new RuntimeException("Unrecognized genomig interval file type '" + intFile + "'");
+
+		// Convert 'SeqChange' markers to 'Custom' markers
+		Markers markers = new Markers();
+		for (Marker m : markersSeqChange) {
+			Custom custom = new Custom(m.getParent(), m.getStart(), m.getEnd(), m.getStrand(), m.getId(), label);
+			custom.setScore(((SeqChange) m).getScore());
+			markers.add(custom);
 		}
+
+		// Number added
 		return markers;
 	}
 
@@ -676,16 +673,10 @@ public class SnpEffCmdEff extends SnpEff {
 	 * @param intFile
 	 */
 	int readFilterIntFile(String intFile) {
-		String file = readFile(intFile);
-		String lines[] = file.split("\n");
-		int count = 0;
-		for (int lineNum = 0; lineNum < lines.length; lineNum++) {
-			Custom ci = new Custom(null, 0, 0, 0, "");
-			ci.readTxt(lines[lineNum], lineNum + 1, config.getGenome(), inOffset);
-			filterIntervals.add(ci);
-			count++;
-		}
-		return count;
+		Markers markers = readCustomMarkers(intFile);
+		for (Marker filterInterval : markers)
+			filterIntervals.add(filterInterval);
+		return markers.size();
 	}
 
 	/**

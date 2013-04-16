@@ -218,12 +218,8 @@ public class VcfEffect {
 			int index = 0;
 
 			// Effect
-			if (effectStrings[index].startsWith("REGULATION")) effect = ChangeEffect.EffectType.REGULATION;
-			else if (effectStrings[index].startsWith("NEXT_PROT")) effect = ChangeEffect.EffectType.NEXT_PROT;
-			else if (effectStrings[index].startsWith("MOTIF")) effect = ChangeEffect.EffectType.MOTIF;
-			else effect = ChangeEffect.EffectType.valueOf(effectStrings[index]);
-			// Effect details
-			effectDetails = parseEffectDetails(effectStrings[index]);
+			effect = ChangeEffect.EffectType.valueOf(parseEffect(effectStrings[index]));
+			effectDetails = parseEffectDetails(effectStrings[index]); // Effect details: everythin betwee '['  and ']' (e.g. Regulation, Custom, Motif, etc.)
 			index++;
 
 			if ((effectStrings.length > index) && !effectStrings[index].isEmpty()) impact = ChangeEffect.EffectImpact.valueOf(effectStrings[index]);
@@ -283,6 +279,12 @@ public class VcfEffect {
 		int idx = eff.indexOf('[');
 		if (idx < 0) return "";
 		return eff.substring(idx + 1, eff.length() - 1);
+	}
+
+	String parseEffect(String eff) {
+		int idx = eff.indexOf('[');
+		if (idx < 0) return eff;
+		return eff.substring(0, idx);
 	}
 
 	public void setAa(String aa) {

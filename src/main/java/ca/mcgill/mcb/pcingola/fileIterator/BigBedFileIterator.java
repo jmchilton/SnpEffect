@@ -23,7 +23,6 @@ public class BigBedFileIterator extends SeqChangeFileIterator {
 	BBFileHeader bbFileHdr;
 	Iterator<BedFeature> iterator;
 	String label;
-	int featureNum = 0;
 
 	public BigBedFileIterator(String fileName) {
 		super(null, 0);
@@ -67,15 +66,17 @@ public class BigBedFileIterator extends SeqChangeFileIterator {
 		if (f == null) return null;
 
 		// Create an ID
-		String id = label + ":" + featureNum;
-		featureNum++;
+		String id = label + ":" + (f.getStartBase() + 1) + "_" + f.getEndBase(); // Show as one-based coordinates
 
 		// Get score
 		String restOfFields[] = f.getRestOfFields();
 		String score = restOfFields[1];
 
+		// Create seqChange
 		SeqChange seqChange = new SeqChange(getChromosome(f.getChromosome()), f.getStartBase(), f.getEndBase() - 1, id);
-		System.out.println(f.getChromosome() + "\t" + f.getStartBase() + "\t" + f.getEndBase() + "\t" + id + "\t" + score + "\n\t" + seqChange);
+		seqChange.setScore(Gpr.parseDoubleSafe(score));
+
+		//		Gpr.debug(seqChange);
 
 		return seqChange;
 	}

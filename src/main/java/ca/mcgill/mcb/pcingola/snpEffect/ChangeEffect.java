@@ -293,7 +293,14 @@ public class ChangeEffect implements Cloneable, Comparable<ChangeEffect> {
 		else if (isRegulation()) return getEffectTypeString(useSeqOntology) + "[" + ((Regulation) marker).getName() + "]";
 		else if (isNextProt()) return getEffectTypeString(useSeqOntology) + "[" + ((NextProt) marker).getId() + "]";
 		else if (isMotif()) return getEffectTypeString(useSeqOntology) + "[" + ((Motif) marker).getPwmId() + ":" + ((Motif) marker).getPwmName() + "]";
-		else if (isIntergenic() || isIntron() || isSpliceSite()) e = getEffectTypeString(useSeqOntology);
+		else if (isCustom()) {
+			// Custom interval
+			String label = ((Custom) marker).getLabel();
+			double score = ((Custom) marker).getScore();
+			if (Double.isNaN(score)) label = label + ":" + score;
+			if (!label.isEmpty()) label = "[" + label + "]";
+			return getEffectTypeString(useSeqOntology) + label;
+		} else if (isIntergenic() || isIntron() || isSpliceSite()) e = getEffectTypeString(useSeqOntology);
 		else if (!message.isEmpty()) e = getEffectTypeString(useSeqOntology) + ": " + message;
 		else if (marker == null) e = getEffectTypeString(useSeqOntology); // There are cases when no marker is associated (e.g. "Out of chromosome", "No such chromosome", etc.)
 		else e = getEffectTypeString(useSeqOntology) + ": " + marker.getId();
