@@ -120,7 +120,7 @@ public class VcfEntry extends Marker implements Iterable<VcfGenotype> {
 			infoStr += addInfoStr; // Add info string
 		}
 
-		if (invalidateCache) addInfoStr = null; // Invalidate cache
+		if (invalidateCache) info = null; // Invalidate cache
 	}
 
 	/**
@@ -394,6 +394,11 @@ public class VcfEntry extends Marker implements Iterable<VcfGenotype> {
 
 	public boolean hasField(String filedName) {
 		return vcfFileIterator.getVcfHeader().getVcfInfo(filedName) != null;
+	}
+
+	public boolean hasInfo(String infoFieldName) {
+		if (info == null) parseInfo();
+		return info.containsKey(infoFieldName);
 	}
 
 	public boolean isDel() {
@@ -700,10 +705,40 @@ public class VcfEntry extends Marker implements Iterable<VcfGenotype> {
 		info = new HashMap<String, String>();
 		for (String inf : infoStr.split(";")) {
 			String vp[] = inf.split("=");
-
 			if (vp.length > 1) info.put(vp[0], vp[1]);
 			else info.put(vp[0], "true"); // A property that is present, but has no value (e.g. "INDEL")
 		}
+	}
+
+	/**
+	 * Parse INFO fields
+	 */
+	public boolean rmInfo(String info) {
+		boolean deleted = false;
+		StringBuilder infoSb = new StringBuilder();
+
+		// Parse info entries
+		for (String inf : infoStr.split(";")) {
+			String vp[] = inf.split("=");
+
+			if (vp[0].equals(info)) {
+				// Delete this field
+				deleted = true;
+			} else {
+				if (infoSb.length() > 0) infoSb.append(";");
+
+				infoSb.append(vp[0]);
+				if (vp.length > 1) { // Flags don't need '=' sign
+					infoSb.append("=");
+					infoSb.append(vp[1]);
+				}
+			}
+		}
+
+		if (deleted) {
+			infoStr = infoSb.toString();
+		}
+		return deleted;
 	}
 
 	/**
