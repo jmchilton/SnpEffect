@@ -2469,6 +2469,41 @@ INFO  11:23:49,953 GATKRunReport - Uploaded run statistics report to AWS S3
 				<br>
  				This is a screen capture from a Galaxy server (click to enlarge) <p>
 				<center> <a href="images/snpEff_galaxy.png"><img src="images/snpEff_galaxy_small.png"></a> </center>
+				<br>
+				<br>
+				Installing SnpEff in a Galaxy server:
+				<p>
+<pre>
+# Go to your galaxy 'tools' dir
+cd galaxy-dist/tools
+
+# Create a directory and copy the XML config files from SnpEff's distribution
+mkdir snpEff
+cd snpEff/
+cp path/to/snpEff/galaxy/* .
+
+# Edit Galaxy's tool_conf.xml and add all the tools
+cd ../..
+vi tool_conf.xml
+
+  &lt;!-- 
+       Add this section to tool_conf.xml file in your galaxy distribution
+	
+       Note: The following lines should be added at the end of the 
+             file, right before "&lt;/toolbox&gt;" line
+  --&gt;
+  &lt;section name="snpeff tools" id="snpeff_tools"&gt;
+    &lt;tool file="snpeff/snpeff.xml" /&gt;
+    &lt;tool file="snpeff/snpeff_download.xml" /&gt;
+    &lt;tool file="snpeff/snpsift_annotate.xml" /&gt;
+    &lt;tool file="snpeff/snpsift_casecontrol.xml" /&gt;
+    &lt;tool file="snpeff/snpsift_filter.xml" /&gt;
+    &lt;tool file="snpeff/snpsift_int.xml" /&gt;
+  &lt;/section&gt;
+
+
+</pre>
+
 				</p>
 				
 
