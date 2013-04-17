@@ -64,6 +64,7 @@ public class SnpEff implements CommandLine {
 	protected int outOffset = 1;
 	protected String configFile; // Config file
 	protected String genomeVer; // Genome version
+	protected String dataDir; // Dara dir override
 	protected Config config; // Configuration
 
 	/**
@@ -204,6 +205,9 @@ public class SnpEff implements CommandLine {
 			else if ((args[i].equals("-c") || args[i].equalsIgnoreCase("-config"))) {
 				if ((i + 1) < args.length) configFile = args[++i];
 				else usage("Option '-c' without config file argument");
+			} else if ((args[i].equals("-data_dir"))) {
+				if ((i + 1) < args.length) dataDir = args[++i];
+				else usage("Option '-data_dir' without argument");
 			} else argsList.add(args[i]);
 		}
 
