@@ -8,8 +8,8 @@ import net.sf.samtools.AbstractBAMFileIndex;
 import net.sf.samtools.BAMIndexMetaData;
 import net.sf.samtools.SAMFileReader;
 import ca.mcgill.mcb.pcingola.coverage.CountReadsOnMarkers;
-import ca.mcgill.mcb.pcingola.fileIterator.BedFileIterator;
-import ca.mcgill.mcb.pcingola.interval.SeqChange;
+import ca.mcgill.mcb.pcingola.interval.Marker;
+import ca.mcgill.mcb.pcingola.interval.Markers;
 import ca.mcgill.mcb.pcingola.snpEffect.Config;
 import ca.mcgill.mcb.pcingola.snpEffect.SnpEffectPredictor;
 import ca.mcgill.mcb.pcingola.stats.ReadsOnMarkersModel;
@@ -29,11 +29,11 @@ public class SnpEffCmdCountReads extends SnpEff {
 	ReadsOnMarkersModel readsOnMarkersModel;
 	SnpEffectPredictor snpEffectPredictor;
 	List<String> fileNames; // Files to count (can be BAM, SAM) 
-	List<String> bedFileNames; // BED files for custom intervals
+	List<String> customIntervals; // Custom intervals
 
 	public SnpEffCmdCountReads() {
 		fileNames = new ArrayList<String>();
-		bedFileNames = new ArrayList<String>();
+		customIntervals = new ArrayList<String>();
 	}
 
 	/**
@@ -71,7 +71,7 @@ public class SnpEffCmdCountReads extends SnpEff {
 	public void parseArgs(String[] args) {
 		// Parse command line arguments
 		for (int i = 0; i < args.length; i++) {
-			if (args[i].equals("-i")) bedFileNames.add(args[++i]);
+			if (args[i].equals("-i")) customIntervals.add(args[++i]);
 			else if ((genomeVer == null) || genomeVer.isEmpty()) genomeVer = args[i];
 			else fileNames.add(args[i]);
 		}
@@ -114,15 +114,14 @@ public class SnpEffCmdCountReads extends SnpEff {
 		countReadsOnMarkers = new CountReadsOnMarkers(snpEffectPredictor);
 		if (verbose) Timer.showStdErr("done");
 
-		// Load BED files
-		for (String bedFile : bedFileNames) {
+		// Load custom interval files
+		for (String markersFile : customIntervals) {
 			// Load file
-			if (verbose) Timer.showStdErr("Reading intervals from file '" + bedFile + "'");
-			String baseName = Gpr.removeExt(Gpr.baseName(bedFile));
+			if (verbose) Timer.showStdErr("Reading intervals from file '" + markersFile + "'");
+			String baseName = Gpr.removeExt(Gpr.baseName(markersFile));
 
-			BedFileIterator bed = new BedFileIterator(bedFile);
-			List<SeqChange> markers = bed.load();
-			for (SeqChange marker : markers) {
+			Markers markers = readMarkers(markersFile);
+			for (Marker marker : markers) {
 				marker.setId(baseName + ":" + marker.getId());
 				snpEffectPredictor.add(marker);
 				countReadsOnMarkers.addMarkerType(marker, baseName);

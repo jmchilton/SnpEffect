@@ -226,13 +226,13 @@ public class SnpEff implements CommandLine {
 	 */
 	protected Markers readMarkers(String fileName) {
 		Markers markersSeqChange = null;
-		fileName = fileName.toLowerCase();
+		String flLower = fileName.toLowerCase();
 		String label = Gpr.removeExt(Gpr.baseName(fileName));
 
 		// Load according to file type
-		if (fileName.endsWith(".txt")) markersSeqChange = new BedFileIterator(fileName, null, inOffset).loadMarkers(); // TXT is assumed to be "chr \t start \t end"
-		else if (fileName.endsWith(".bed")) markersSeqChange = new BedFileIterator(fileName).loadMarkers();
-		else if (fileName.endsWith(".bb")) markersSeqChange = new BigBedFileIterator(fileName).loadMarkers();
+		if (flLower.endsWith(".txt") || flLower.endsWith(".txt.gz")) markersSeqChange = new BedFileIterator(fileName, null, inOffset).loadMarkers(); // TXT is assumed to be "chr \t start \t end"
+		else if (flLower.endsWith(".bed") || flLower.endsWith(".bed.gz")) markersSeqChange = new BedFileIterator(fileName).loadMarkers();
+		else if (flLower.endsWith(".bb")) markersSeqChange = new BigBedFileIterator(fileName).loadMarkers();
 		else throw new RuntimeException("Unrecognized genomig interval file type '" + fileName + "'");
 
 		// Convert 'SeqChange' markers to 'Custom' markers
