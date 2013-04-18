@@ -18,9 +18,10 @@ $command = $ARGV[0];	# Which snpEff's command do we want to execute?
 @snpEffCmd = ("java", "-Xmx4g", "-jar", "$dir/snpEff.jar", "$command", "-c", "$dir/snpEff.config");
 
 # Add all command line options
-for( $i=1 ; $i < $#ARGV ; $i++ ) {
-	$snpEffCmd[$#snpEffCmd] = $ARGV[$i];
+for( $i=1 ; $i <= $#ARGV ; $i++ ) {
+	$snpEffCmd[$#snpEffCmd + 1] = $ARGV[$i];
 }
 
 # Execute
+print STDERR "Command to execute: " . join(" ", @snpEffCmd) . "\n\n" if $debug;
 exec @snpEffCmd;

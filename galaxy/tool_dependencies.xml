@@ -8,6 +8,12 @@
                     <source_directory>.</source_directory>
                     <destination_directory>$INSTALL_DIR</destination_directory>
                 </action>
+                <action type="set_environment">
+                    <environment_variable name="JAVA_JAR_PATH" action="set_to">$INSTALL_DIR</environment_variable>
+                </action>
+                <action type="set_environment">
+                    <environment_variable name="PATH" action="prepend_to">$INSTALL_DIR/scripts</environment_variable>
+                </action>
             </actions>
         </install>
         <readme>

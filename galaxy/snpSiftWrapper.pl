@@ -23,4 +23,5 @@ for( $i=1 ; $i < $#ARGV ; $i++ ) {
 }
 
 # Execute
+print STDERR "Command to execute: " . join(" ", @snpSiftCmd) . "\n\n" if $debug;
 exec @snpSiftCmd;

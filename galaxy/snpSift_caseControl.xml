@@ -1,14 +1,17 @@
-<tool id="snpSift_caseControl" name="SnpSift CaseControl" version="1.0">
+<tool id="snpSift_caseControl" name="SnpSift CaseControl" version="3.1">
 	<description>Count samples are in 'case' and 'control' groups.</description>
 	<!-- 
 	    You will need to change the path to wherever your installation is.
 		You can change the amount of memory used, just change the -Xmx parameter (e.g. use -Xmx2G for 2Gb of memory)
 	-->
+	<requirements>
+                <requirement type="package" version="3.1">snpEff</requirement>
+	</requirements>
 	<command>
-		java -Xmx1G -jar /home/pcingola/tools/SnpSift.jar casControl -q $hhCase $hhControl $caseControStr $input > $output
+		java -Xmx1G -jar \$JAVA_JAR_PATH/SnpSift.jar caseControl -q $hhCase $hhControl '$caseControStr' $input > $output
 	</command>
 	<inputs>
-		<param format="Tabular" name="input" type="data" label="VCF input"/>
+		<param format="vcf" name="input" type="data" label="VCF input"/>
 		<param name="hhCase" type="select" label="Hom/Het case">
 			<option value="any">Any</option>
 			<option value="hom">Homozygous</option>
@@ -19,15 +22,88 @@
 			<option value="hom">Homozygous</option>
 			<option value="het">Heterozygous</option>
 		</param>
-		<param name="caseControStr" type="text" label="Case / Control" size="50"/>
+		<param name="caseControStr" type="text" label="Case / Control column designation" size="50">
+		<help>
+Case and control are defined by a string containing plus and minus symbols {'+', '-', '0'} where '+' is case, '-' is control and '0' is neutral
+		</help>
+		<validator type="regex" message="must be  only plus(+), minus(-), or zero(0) characters">[+-0]+</validator>
+                </param>
 	</inputs>
 	<outputs>
-		<data format="tabular" name="output" />
+		<data format="vcf" name="output" />
 	</outputs>
+        <stdio>
+          <exit_code range=":-1"  level="fatal"   description="Error: Cannot open file" />
+          <exit_code range="1:"  level="fatal"   description="Error" />
+        </stdio>
+        <tests>
+
+            <test>
+                <param name="input" ftype="vcf" value="test.private.01.vcf"/>
+                <param name="hhCase" value="any"/>
+                <param name="hhControl" value="any"/>
+                <param name="caseControStr" value="--"/>
+                <output name="output">
+                    <assert_contents>
+                        <has_text text="CaseControl=0/0,0/2;" />
+                    </assert_contents>
+                </output>
+            </test>
+
+            <test>
+                <param name="input" ftype="vcf" value="test.private.02.vcf"/>
+                <param name="hhCase" value="any"/>
+                <param name="hhControl" value="any"/>
+                <param name="caseControStr" value="--"/>
+                <output name="output">
+                    <assert_contents>
+                        <has_text text="CaseControl=0/0,2/0;" />
+                    </assert_contents>
+                </output>
+            </test>
+
+            <test>
+                <param name="input" ftype="vcf" value="test.private.02.vcf"/>
+                <param name="hhCase" value="any"/>
+                <param name="hhControl" value="any"/>
+                <param name="caseControStr" value="-+"/>
+                <output name="output">
+                    <assert_contents>
+                        <has_text text="CaseControl=1/0,1/0;" />
+                    </assert_contents>
+                </output>
+            </test>
+
+        </tests>
 
 	<help>
 
-Count samples are in 'case' and 'control' groups. You can count 'homozygous', 'heterozygous' or 'any' variants. Case and control are defined by a string containing plus and minus symbols ('+' and '-') where '+' is case and '-' is control. This command adds two annotations to the VCF file.
+**SnpSift CaseControl**
+
+Allows you to count how many samples are in 'case' group and a 'control' group. You can count 'homozygous', 'heterozygous' or 'any' variants. 
+
+Case and control are defined by a string containing plus and minus symbols {'+', '-', '0'} where '+' is case, '-' is control and '0' is neutral. 
+
+This command adds two annotations to the VCF file:
+
+ - **CaseControl**: Two comma separated numbers numbers representing the number of samples that have the variant in the case and the control group. Example: 
+
+  "CaseControl=3,4" *the variant is present in 3 cases and 4 controls.*
+
+
+ - **CaseControlP**: A p-value (Fisher exact test) that the number of cases is N or more. Example:
+
+  "CaseControl=4,0;CaseControlP=3.030303e-02" *in this case the pValue of having 4 or more cases and zero controls is 0.03*
+
+
+For example, if we have ten samples (which means ten genotype columns in the VCF file), the first four are 'case' and the last six are 'control', so the description string would be "++++------".  Let's say we want to distinguish genotypes that are homozygous in 'case' and either homozygous or heterozygous in 'control'.  We would set:
+
+  - Hom/Het case = "hom"
+
+  - Hom/Het control = "any"  
+
+  - Case / Control column designation = ""++++------"
+
 
 For details about this tool, please go to http://snpeff.sourceforge.net/SnpSift.html#casecontrol
 
