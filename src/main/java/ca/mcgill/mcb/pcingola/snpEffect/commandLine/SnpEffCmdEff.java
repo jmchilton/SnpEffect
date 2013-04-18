@@ -17,7 +17,6 @@ import akka.actor.Props;
 import akka.actor.UntypedActorFactory;
 import ca.mcgill.mcb.pcingola.akka.vcf.VcfWorkQueue;
 import ca.mcgill.mcb.pcingola.fileIterator.BedFileIterator;
-import ca.mcgill.mcb.pcingola.fileIterator.BigBedFileIterator;
 import ca.mcgill.mcb.pcingola.fileIterator.PileUpFileIterator;
 import ca.mcgill.mcb.pcingola.fileIterator.SeqChangeFileIterator;
 import ca.mcgill.mcb.pcingola.fileIterator.SeqChangeTxtFileIterator;
@@ -25,7 +24,6 @@ import ca.mcgill.mcb.pcingola.fileIterator.VcfFileIterator;
 import ca.mcgill.mcb.pcingola.filter.ChangeEffectFilter;
 import ca.mcgill.mcb.pcingola.filter.SeqChangeFilter;
 import ca.mcgill.mcb.pcingola.interval.Chromosome;
-import ca.mcgill.mcb.pcingola.interval.Custom;
 import ca.mcgill.mcb.pcingola.interval.Exon;
 import ca.mcgill.mcb.pcingola.interval.Gene;
 import ca.mcgill.mcb.pcingola.interval.Genome;
@@ -622,8 +620,8 @@ public class SnpEffCmdEff extends SnpEff {
 	 * Read a custom interval file
 	 * @param intFile
 	 */
-	int readCustomIntFile(String intFile) {
-		Markers markers = readCustomMarkers(intFile);
+	protected int readCustomIntFile(String intFile) {
+		Markers markers = readMarkers(intFile);
 
 		// Add all markers to predictor
 		for (Marker m : markers)
@@ -631,29 +629,6 @@ public class SnpEffCmdEff extends SnpEff {
 
 		// Number added
 		return markers.size();
-	}
-
-	Markers readCustomMarkers(String intFile) {
-		Markers markersSeqChange = null;
-		intFile = intFile.toLowerCase();
-		String label = Gpr.removeExt(Gpr.baseName(intFile));
-
-		// Load according to file type
-		if (intFile.endsWith(".txt")) markersSeqChange = new BedFileIterator(intFile, null, inOffset).loadMarkers(); // TXT is assumed to be "chr \t start \t end"
-		else if (intFile.endsWith(".bed")) markersSeqChange = new BedFileIterator(intFile).loadMarkers();
-		else if (intFile.endsWith(".bb")) markersSeqChange = new BigBedFileIterator(intFile).loadMarkers();
-		else throw new RuntimeException("Unrecognized genomig interval file type '" + intFile + "'");
-
-		// Convert 'SeqChange' markers to 'Custom' markers
-		Markers markers = new Markers();
-		for (Marker m : markersSeqChange) {
-			Custom custom = new Custom(m.getParent(), m.getStart(), m.getEnd(), m.getStrand(), m.getId(), label);
-			custom.setScore(((SeqChange) m).getScore());
-			markers.add(custom);
-		}
-
-		// Number added
-		return markers;
 	}
 
 	/**
@@ -673,7 +648,7 @@ public class SnpEffCmdEff extends SnpEff {
 	 * @param intFile
 	 */
 	int readFilterIntFile(String intFile) {
-		Markers markers = readCustomMarkers(intFile);
+		Markers markers = readMarkers(intFile);
 		for (Marker filterInterval : markers)
 			filterIntervals.add(filterInterval);
 		return markers.size();

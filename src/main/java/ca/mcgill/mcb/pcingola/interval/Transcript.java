@@ -924,7 +924,7 @@ public class Transcript extends IntervalAndSubIntervals<Exon> {
 		for (Cds m : cdss)
 			if (m.intersects(marker)) markers.add(m);
 
-		for (Intron m : introns)
+		for (Intron m : introns())
 			if (m.intersects(marker)) markers.add(m);
 
 		if (upstream.intersects(marker)) markers.add(upstream);

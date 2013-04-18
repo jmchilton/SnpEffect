@@ -3,12 +3,14 @@ package ca.mcgill.mcb.pcingola.snpEffect.commandLine;
 import ca.mcgill.mcb.pcingola.fileIterator.BedFileIterator;
 import ca.mcgill.mcb.pcingola.fileIterator.VcfFileIterator;
 import ca.mcgill.mcb.pcingola.interval.Chromosome;
+import ca.mcgill.mcb.pcingola.interval.Exon;
 import ca.mcgill.mcb.pcingola.interval.Gene;
 import ca.mcgill.mcb.pcingola.interval.Intergenic;
 import ca.mcgill.mcb.pcingola.interval.Marker;
 import ca.mcgill.mcb.pcingola.interval.Markers;
 import ca.mcgill.mcb.pcingola.interval.SeqChange;
 import ca.mcgill.mcb.pcingola.interval.Transcript;
+import ca.mcgill.mcb.pcingola.interval.Utr;
 import ca.mcgill.mcb.pcingola.outputFormatter.OutputFormatter;
 import ca.mcgill.mcb.pcingola.snpEffect.Config;
 import ca.mcgill.mcb.pcingola.snpEffect.SnpEffectPredictor;
@@ -104,7 +106,7 @@ public class SnpEffCmdClosest extends SnpEff {
 				Marker extended = new Marker(chr, start, end, 1, "");
 
 				// Find all markers that intersect with 'extended interval'
-				Markers markers = snpEffectPredictor.query(extended);
+				Markers markers = snpEffectPredictor.queryDeep(extended);
 				Marker closest = findClosestMarker(queryMarker, markers);
 				if (closest != null) return closest;
 			}
@@ -142,6 +144,9 @@ public class SnpEffCmdClosest extends SnpEff {
 						maxTrLen = trLen;
 						minDist = dist;
 						minDistMarker = m;
+					} else if (trLen == maxTrLen) {
+						// Prefer Utr to Exon (more descriptive)
+						if ((minDistMarker instanceof Exon) && (m instanceof Utr)) minDistMarker = m;
 					}
 				}
 			}

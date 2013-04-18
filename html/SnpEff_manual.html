@@ -2522,28 +2522,31 @@ vi tool_conf.xml
 				Here we describe all the other commands and some scripts provided, that are useful for genomic data analysis.
 				</p>
 
-				<h3> SnpEff closestExon </h3>
+				<h3> SnpEff closest</h3>
 				<p>
-				Annotates using the closest exon, as well as the transcript ID, gene name and distance to the exon in bases.
+				Annotates using the closest genomic region (e.g. exon, transcript ID, gene name) and distance in bases.
 				<br>
 				Example:
 <pre>
 $ java -Xmx4g -jar snpEff.jar closestExon GRCh37.66 test.vcf
-##INFO=&lt;ID=CLOSEST_EXON,Number=4,Type=String,Description="Closest exon: Distance (bases), exons Id, transcript Id, gene name">
-1       12078   .       G       A       25.69   PASS    AC=2;AF=0.048;CLOSEST_EXON=0,exon_1_11869_12227,ENST00000456328,DDX11L1
-1       16097   .       T       G       42.42   PASS    AC=9;AF=0.0113;CLOSEST_EXON=150,exon_1_15796_15947,ENST00000423562,WASH7P
-1       40261   .       C       A       366.26  PASS    AC=30;AF=0.484;CLOSEST_EXON=4180,exon_1_35721_36081,ENST00000417324,FAM138A
-1       63880   .       C       T       82.13   PASS    AC=10;AF=0.0400;CLOSEST_EXON=0,exon_1_62948_63887,ENST00000492842,OR4G11P
+##INFO=&lt;ID=CLOSEST,Number=4,Type=String,Description="Closest exon: Distance (bases), exons Id, transcript Id, gene name">
+1       12078   .       G       A       25.69   PASS    AC=2;AF=0.048;CLOSEST=0,exon_1_11869_12227,ENST00000456328,DDX11L1
+1       16097   .       T       G       42.42   PASS    AC=9;AF=0.0113;CLOSEST=150,exon_1_15796_15947,ENST00000423562,WASH7P
+1       40261   .       C       A       366.26  PASS    AC=30;AF=0.484;CLOSEST=4180,exon_1_35721_36081,ENST00000417324,FAM138A
+1       63880   .       C       T       82.13   PASS    AC=10;AF=0.0400;CLOSEST=0,exon_1_62948_63887,ENST00000492842,OR4G11P
 </pre>
 
-				For intance, in the third line (1:16097 T G), it added the tag <code>CLOSEST_EXON=150,exon_1_15796_15947,ENST00000423562,WASH7P</code>
-				, which means that the variant is 150 bases away from exon "exon_1_15796_15947" 
-				located in transcript "ENST00000423562" of gene "WASH7P"
+				For intance, in the third line (1:16097 T G), it added the tag <code>CLOSEST=150,exon_1_15796_15947,ENST00000423562,WASH7P</code>
+				, which means that the variant is 150 bases away from exon "exon_1_15796_15947". 
+				The exon belongs to transcript "ENST00000423562" of gene "WASH7P".
 				<br>
 				<br>
-				The input can also be a BED file, the output file has the same information as CLOSEST_EXON info field, added to the fourth column of the output BED file:
+				<i class="icon-hand-right"></i> If multiple markers are available (at the same distance) the one belonging to the longest mRna transcript is shown.
+				<br>
+				<br>
+				The input can also be a BED file, the output file has the same information as CLOSEST info field, added to the fourth column of the output BED file:
 <pre>
-$ snpeff closestExon -bed GRCh37.66 test.bed 
+$ snpeff closest -bed GRCh37.66 test.bed 
 1	12077	12078	line_1;0,exon_1_11869_12227,ENST00000456328,DDX11L1
 1	16096	16097	line_2;150,exon_1_15796_15947,ENST00000423562,WASH7P
 1	40260	40261	line_3;4180,exon_1_35721_36081,ENST00000417324,FAM138A

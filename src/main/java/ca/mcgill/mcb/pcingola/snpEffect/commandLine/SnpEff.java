@@ -4,6 +4,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import ca.mcgill.mcb.pcingola.Pcingola;
+import ca.mcgill.mcb.pcingola.fileIterator.BedFileIterator;
+import ca.mcgill.mcb.pcingola.fileIterator.BigBedFileIterator;
+import ca.mcgill.mcb.pcingola.interval.Custom;
+import ca.mcgill.mcb.pcingola.interval.Marker;
+import ca.mcgill.mcb.pcingola.interval.Markers;
+import ca.mcgill.mcb.pcingola.interval.SeqChange;
 import ca.mcgill.mcb.pcingola.logStatsServer.LogStats;
 import ca.mcgill.mcb.pcingola.logStatsServer.VersionCheck;
 import ca.mcgill.mcb.pcingola.nextProt.SnpEffCmdBuildNextProt;
@@ -208,6 +214,37 @@ public class SnpEff implements CommandLine {
 		}
 
 		shiftArgs = argsList.toArray(new String[0]);
+	}
+
+	/**
+	 * Read markers file
+	 * 
+	 * Supported formats: BED, TXT, BigBed
+	 * 
+	 * @param fileName
+	 * @return
+	 */
+	protected Markers readMarkers(String fileName) {
+		Markers markersSeqChange = null;
+		fileName = fileName.toLowerCase();
+		String label = Gpr.removeExt(Gpr.baseName(fileName));
+
+		// Load according to file type
+		if (fileName.endsWith(".txt")) markersSeqChange = new BedFileIterator(fileName, null, inOffset).loadMarkers(); // TXT is assumed to be "chr \t start \t end"
+		else if (fileName.endsWith(".bed")) markersSeqChange = new BedFileIterator(fileName).loadMarkers();
+		else if (fileName.endsWith(".bb")) markersSeqChange = new BigBedFileIterator(fileName).loadMarkers();
+		else throw new RuntimeException("Unrecognized genomig interval file type '" + fileName + "'");
+
+		// Convert 'SeqChange' markers to 'Custom' markers
+		Markers markers = new Markers();
+		for (Marker m : markersSeqChange) {
+			Custom custom = new Custom(m.getParent(), m.getStart(), m.getEnd(), m.getStrand(), m.getId(), label);
+			custom.setScore(((SeqChange) m).getScore());
+			markers.add(custom);
+		}
+
+		// Number added
+		return markers;
 	}
 
 	/**

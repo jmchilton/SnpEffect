@@ -28,11 +28,11 @@ public class SnpEffCmdCountReads extends SnpEff {
 	CountReadsOnMarkers countReadsOnMarkers;
 	ReadsOnMarkersModel readsOnMarkersModel;
 	SnpEffectPredictor snpEffectPredictor;
-	List<String> samFileNames; // SAM or BAM files 
+	List<String> fileNames; // Files to count (can be BAM, SAM) 
 	List<String> bedFileNames; // BED files for custom intervals
 
 	public SnpEffCmdCountReads() {
-		samFileNames = new ArrayList<String>();
+		fileNames = new ArrayList<String>();
 		bedFileNames = new ArrayList<String>();
 	}
 
@@ -73,12 +73,12 @@ public class SnpEffCmdCountReads extends SnpEff {
 		for (int i = 0; i < args.length; i++) {
 			if (args[i].equals("-i")) bedFileNames.add(args[++i]);
 			else if ((genomeVer == null) || genomeVer.isEmpty()) genomeVer = args[i];
-			else samFileNames.add(args[i]);
+			else fileNames.add(args[i]);
 		}
 
 		// Sanity check
 		if ((genomeVer == null) || genomeVer.isEmpty()) usage("Missing genome version");
-		if (samFileNames.size() < 1) usage("Missing SAM/BAM file/s");
+		if (fileNames.size() < 1) usage("Missing SAM/BAM file/s");
 	}
 
 	/**
@@ -137,7 +137,7 @@ public class SnpEffCmdCountReads extends SnpEff {
 
 		// Count reads
 		countReadsOnMarkers.setVerbose(verbose);
-		for (String file : samFileNames)
+		for (String file : fileNames)
 			countReadsOnMarkers.addFile(file);
 		countReadsOnMarkers.count();
 
