@@ -150,6 +150,16 @@ public class Exon extends MarkerSeq {
 	}
 
 	/**
+	 * Query all genomic regions that intersect 'marker'
+	 */
+	public Markers query(Marker marker) {
+		Markers markers = new Markers();
+		if (marker.intersects(spliceSiteAcceptor)) markers.add(spliceSiteAcceptor);
+		if (marker.intersects(spliceSiteDonor)) markers.add(spliceSiteDonor);
+		return markers;
+	}
+
+	/**
 	 * Parse a line from a serialized file
 	 * @param line
 	 * @return

@@ -141,68 +141,37 @@ public class SnpEffectPredictor implements Serializable {
 			intervalForest.add(gene);
 
 		//---
-		// Add to markers to 'markers'
+		// Create (and add) up-down stream, splice sites, intergenic, etc
 		//---
-		// Add up-down stream intervals
-		for (Marker upDownStream : genome.getGenes().createUpDownStream(upDownStreamLength))
-			add(upDownStream);
+		markers.add(createGenomicRegions());
 
-		// Add splice site intervals
-		for (Marker spliceSite : genome.getGenes().findSpliceSites(true, spliceSiteSize))
-			add(spliceSite);
-
-		// Intergenic markers
-		for (Intergenic intergenic : genome.getGenes().createIntergenic())
-			add(intergenic);
-
-		intervalForest.add(markers); // Add all 'markers' to forest (includes custom intervals)
+		// Add all 'markers' to forest (includes custom intervals)
+		intervalForest.add(markers);
 
 		// Build interval forest
 		intervalForest.build();
 	}
 
 	/**
-	 * Find closest gene to this interval
-	 * @param inputInterval
+	 * Create (and add) up-down stream, splice sites, intergenic, etc
+	 * @return
 	 */
-	public Gene findClosestGene(Marker inputInterval) {
-		int initialExtension = 1000;
+	public Markers createGenomicRegions() {
+		Markers markers = new Markers();
 
-		String chrName = inputInterval.getChromosomeName();
-		Chromosome chr = genome.getChromosome(chrName);
-		if (chr == null) return null;
+		// Add up-down stream intervals
+		for (Marker upDownStream : genome.getGenes().createUpDownStream(upDownStreamLength))
+			markers.add(upDownStream);
 
-		if (chr.size() > 0) {
-			// Extend interval to capture 'close' exons
-			for (int extend = initialExtension; extend < chr.size(); extend *= 2) {
-				int start = Math.max(inputInterval.getStart() - extend, 0);
-				int end = inputInterval.getEnd() + extend;
-				Marker extended = new Marker(chr, start, end, 1, "");
+		// Add splice site intervals
+		for (Marker spliceSite : genome.getGenes().createSpliceSites(spliceSiteSize))
+			markers.add(spliceSite);
 
-				// Find all exons that intersect with the interval
-				Markers markers = intersects(extended);
-				int minDist = Integer.MAX_VALUE;
-				Gene minDistMarker = null;
-				for (Marker m : markers) {
-					if (m instanceof Gene) {
-						int dist = m.distance(inputInterval);
-						if (dist < minDist) {
-							minDistMarker = (Gene) m;
-							minDist = dist;
-						}
+		// Intergenic markers
+		for (Intergenic intergenic : genome.getGenes().createIntergenic())
+			markers.add(intergenic);
 
-						// Zero distance? Cannot be lower than this => return
-						if (minDist <= 0) return minDistMarker;
-					}
-				}
-
-				// Found something?
-				if (minDistMarker != null) return minDistMarker;
-			}
-		}
-
-		// Nothing found
-		return null;
+		return markers;
 	}
 
 	/**
@@ -231,13 +200,6 @@ public class SnpEffectPredictor implements Serializable {
 	}
 
 	/**
-	 * Return a collection of intervals thet intercept marker
-	 */
-	public Markers intersects(Marker marker) {
-		return intervalForest.query(marker);
-	}
-
-	/**
 	 * Is the chromosome missing in this marker?
 	 * @param marker
 	 * @return
@@ -262,17 +224,6 @@ public class SnpEffectPredictor implements Serializable {
 	}
 
 	/**
-	 * Remove all non-canonical transcripts
-	 * @return : Number of transcripts removed
-	 */
-	public int keepTranscripts(Set<String> trIds) {
-		int total = 0;
-		for (Gene g : genome.getGenes())
-			total += g.keepTranscripts(trIds);
-		return total;
-	}
-
-	/**
 	 * Dump to sdtout
 	 */
 	public void print() {
@@ -285,6 +236,88 @@ public class SnpEffectPredictor implements Serializable {
 		// Show other inervals
 		for (Marker marker : markers)
 			System.out.println(marker);
+	}
+
+	/**
+	 * Return a collection of intervals that intersect 'marker'
+	 */
+	public Markers query(Marker marker) {
+		return intervalForest.query(marker);
+	}
+
+	/**
+	 * Find closest gene to this interval
+	 * @param inputInterval
+	 */
+	public Gene queryClosestGene(Marker inputInterval) {
+		int initialExtension = 1000;
+
+		String chrName = inputInterval.getChromosomeName();
+		Chromosome chr = genome.getChromosome(chrName);
+		if (chr == null) return null;
+
+		if (chr.size() > 0) {
+			// Extend interval to capture 'close' exons
+			for (int extend = initialExtension; extend < chr.size(); extend *= 2) {
+				int start = Math.max(inputInterval.getStart() - extend, 0);
+				int end = inputInterval.getEnd() + extend;
+				Marker extended = new Marker(chr, start, end, 1, "");
+
+				// Find all exons that intersect with the interval
+				Markers markers = query(extended);
+				int minDist = Integer.MAX_VALUE;
+				Gene minDistMarker = null;
+				for (Marker m : markers) {
+					if (m instanceof Gene) {
+						int dist = m.distance(inputInterval);
+						if (dist < minDist) {
+							minDistMarker = (Gene) m;
+							minDist = dist;
+						}
+
+						// Zero distance? Cannot be lower than this => return
+						if (minDist <= 0) return minDistMarker;
+					}
+				}
+
+				// Found something?
+				if (minDistMarker != null) return minDistMarker;
+			}
+		}
+
+		// Nothing found
+		return null;
+	}
+
+	/**
+	 * Return a collection of intervals that intersect 'marker'
+	 * Query resulting genes, transcripts and exons to get ALL types of intervals possible
+	 * 
+	 * @return
+	 */
+	public Markers queryDeep(Marker marker) {
+		if (Config.get().isErrorOnMissingChromo() && isChromosomeMissing(marker)) throw new RuntimeEOFException("Chromosome missing for marker: " + marker);
+
+		boolean hitChromo = false;
+		Markers hits = new Markers();
+		Markers intersects = query(marker);
+
+		if (intersects.size() > 0) {
+			for (Marker m : intersects) {
+				hits.add(m);
+
+				if (m instanceof Chromosome) {
+					hitChromo = true; // OK (we have to hit a chromosome, otherwise it's an error
+				} else if (m instanceof Gene) {
+					// Analyze Genes
+					Gene gene = (Gene) m;
+					hits.addAll(gene.query(marker));
+				}
+			}
+		}
+
+		if (!hitChromo && Config.get().isErrorChromoHit()) throw new RuntimeException("ERROR: Out of chromosome range. " + marker);
+		return hits;
 	}
 
 	/**
@@ -310,7 +343,7 @@ public class SnpEffectPredictor implements Serializable {
 		boolean hitChromo = false;
 		HashSet<String> hits = new HashSet<String>();
 
-		Markers intersects = intersects(marker);
+		Markers intersects = query(marker);
 		if (intersects.size() > 0) {
 			for (Marker markerInt : intersects) {
 
@@ -391,56 +424,22 @@ public class SnpEffectPredictor implements Serializable {
 	}
 
 	/**
-	 * Regions hit by a marker
-	 * @return
-	 */
-	public Set<Marker> regionsMarkers(Marker marker) {
-		if (Config.get().isErrorOnMissingChromo() && isChromosomeMissing(marker)) throw new RuntimeEOFException("Chromosome missing for marker: " + marker);
-
-		boolean hitChromo = false;
-		HashSet<Marker> hits = new HashSet<Marker>();
-
-		Markers intersects = intersects(marker);
-		if (intersects.size() > 0) {
-			for (Marker markerInt : intersects) {
-				hits.add(markerInt);
-
-				if (markerInt instanceof Chromosome) {
-					hitChromo = true; // OK (we have to hit a chromosome, otherwise it's an error
-				} else if (markerInt instanceof Gene) {
-					// Analyze Genes
-					Gene gene = (Gene) markerInt;
-
-					// For all transcripts...
-					for (Transcript tr : gene) {
-
-						if (tr.intersects(marker)) { // Does it intersect this transcript?
-							hits.add(tr);
-
-							for (Utr utr : tr.getUtrs())
-								if (utr.intersects(marker)) hits.add(utr);
-
-							for (Exon ex : tr)
-								if (ex.intersects(marker)) hits.add(ex);
-
-							for (Intron intron : tr.introns())
-								if (intron.intersects(marker)) hits.add(intron);
-						}
-					}
-				}
-			}
-		}
-
-		if (!hitChromo && Config.get().isErrorChromoHit()) throw new RuntimeException("ERROR: Out of chromosome range. " + marker);
-		return hits;
-	}
-
-	/**
 	 * Remove all non-canonical transcripts
 	 */
 	public void removeNonCanonical() {
 		for (Gene g : genome.getGenes())
 			g.removeNonCanonical();
+	}
+
+	/**
+	 * Remove all transcripts that are NOT in the list
+	 * @return : Number of transcripts removed
+	 */
+	public int retainAllTranscripts(Set<String> trIds) {
+		int total = 0;
+		for (Gene g : genome.getGenes())
+			total += g.keepTranscripts(trIds);
+		return total;
 	}
 
 	/**
@@ -478,7 +477,7 @@ public class SnpEffectPredictor implements Serializable {
 		}
 
 		// Which intervals does seqChange intersect?
-		Markers intersects = intersects(seqChange);
+		Markers intersects = query(seqChange);
 
 		// Show all results
 		boolean hitChromo = false, hitSomething = false;

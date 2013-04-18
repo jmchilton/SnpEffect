@@ -291,7 +291,7 @@ public class TestCasesLof extends TestCase {
 	 * @return
 	 */
 	Marker findMarker(SeqChange seqChange, EffectType effectType, Transcript tr, Exon exon) {
-		Markers markers = config.getSnpEffectPredictor().intersects(seqChange);
+		Markers markers = config.getSnpEffectPredictor().query(seqChange);
 		for (Marker m : markers) {
 			Exon mex = (Exon) m.findParent(Exon.class);
 			Transcript mtr = (Transcript) m.findParent(Transcript.class);

@@ -54,6 +54,7 @@ public abstract class OutputFormatter {
 
 		for (Marker m = marker; (m != null) && !(m instanceof Chromosome) && !(m instanceof Genome); m = m.getParent()) {
 			if (sb.length() > 0) sb.append(separator);
+
 			switch (m.getType()) {
 			case EXON:
 				Transcript tr = (Transcript) m.getParent();

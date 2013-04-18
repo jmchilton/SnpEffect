@@ -958,7 +958,7 @@ public class SnpEffCmdEff extends SnpEff {
 
 			// Remove transcripts
 			if (verbose) Timer.showStdErr("Filtering out transcripts in file '" + onlyTranscriptsFile + "'. Total " + trIds.size() + " transcript IDs.");
-			int removed = config.getSnpEffectPredictor().keepTranscripts(trIds);
+			int removed = config.getSnpEffectPredictor().retainAllTranscripts(trIds);
 			if (verbose) Timer.showStdErr("Done: " + removed + " transcripts removed.");
 		}
 

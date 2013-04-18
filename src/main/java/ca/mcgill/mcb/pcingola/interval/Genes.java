@@ -76,6 +76,27 @@ public class Genes implements Iterable<Gene>, Serializable {
 	}
 
 	/**
+	 * Create splice sites.
+	 * 
+	 * @param createIfMissing : If true, create canonical splice sites if they are missing.
+	 * 
+	 * For a definition of splice site, see comments at the beginning of SpliceSite.java
+	 */
+	public Collection<Marker> createSpliceSites(int spliceSiteSize) {
+		ArrayList<Marker> spliceSites = new ArrayList<Marker>();
+
+		// For each gene, transcript
+		for (Gene gene : this) {
+			for (Transcript tr : gene) {
+				List<SpliceSite> slist = tr.createSpliceSites(spliceSiteSize); // Find (or create) splice sites
+				spliceSites.addAll(slist); // Store all markers 
+			}
+		}
+
+		return spliceSites;
+	}
+
+	/**
 	 * Creates a list of UP/DOWN stream regions (for each transcript)
 	 * Upstream (downstream) stream is defined as upDownLength before (after) transcript
 	 * 
@@ -94,27 +115,6 @@ public class Genes implements Iterable<Gene>, Serializable {
 			}
 		}
 		return list;
-	}
-
-	/**
-	 * Find all splice sites.
-	 * 
-	 * @param createIfMissing : If true, create canonical splice sites if they are missing.
-	 * 
-	 * For a definition of splice site, see comments at the beginning of SpliceSite.java
-	 */
-	public Collection<Marker> findSpliceSites(boolean createIfMissing, int spliceSiteSize) {
-		ArrayList<Marker> spliceSites = new ArrayList<Marker>();
-
-		// For each gene, transcript
-		for (Gene gene : this) {
-			for (Transcript tr : gene) {
-				List<SpliceSite> slist = tr.findSpliceSites(createIfMissing, spliceSiteSize); // Find (or create) splice sites
-				spliceSites.addAll(slist); // Store all markers 
-			}
-		}
-
-		return spliceSites;
 	}
 
 	/**

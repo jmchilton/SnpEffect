@@ -165,7 +165,7 @@ public class SnpEffPredictorFactoryGff3 extends SnpEffPredictorFactoryGff {
 
 				// Find exon
 				Marker utr = new Marker(tr, start, end, strand, id);
-				Exon exon = tr.intersectingExon(utr);
+				Exon exon = tr.queryExon(utr);
 				if (exon == null) {
 					exon = new Exon(tr, start, end, strand, id, 0);
 					exon.setFrame(frame);

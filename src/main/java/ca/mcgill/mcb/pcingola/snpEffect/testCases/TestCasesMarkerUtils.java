@@ -147,7 +147,10 @@ public class TestCasesMarkerUtils extends TestCase {
 			// Get unique markers
 			HashSet<Marker> collapsed = new HashSet<Marker>();
 			collapsed.addAll(collapse.values());
-			String mColStr = markers2string((new Markers()).addAll(collapsed)); // Create string 
+
+			Markers markers = new Markers();
+			markers.addAll(collapsed);
+			String mColStr = markers2string(markers); // Create string 
 
 			// Are generated intervasl OK?
 			if (!mColStr.equals(mStr)) {
@@ -158,7 +161,9 @@ public class TestCasesMarkerUtils extends TestCase {
 					System.err.println(m);
 
 				System.err.println("Markers collapsed: ");
-				Markers keySorted = (new Markers()).addAll(collapse.keySet()).sort(false, false);
+				markers = new Markers();
+				markers.addAll(collapse.keySet());
+				Markers keySorted = markers.sort(false, false);
 				for (Marker mkey : keySorted)
 					System.err.println(mkey + "\t->\t" + collapse.get(mkey));
 

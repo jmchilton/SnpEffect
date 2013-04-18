@@ -75,7 +75,7 @@ public class DiffChipSeq implements CommandLine {
 	void annotatePeaks(Markers peaks) {
 		if (verbose) Timer.showStdErr("Annotating peaks");
 		for (Marker m : peaks) {
-			Gene gene = snpEffectPredictor.findClosestGene(m);
+			Gene gene = snpEffectPredictor.queryClosestGene(m);
 			if (gene != null) m.setId(gene.getGeneName() + ";" + gene.getId() + ";" + m.distance(gene));
 		}
 	}

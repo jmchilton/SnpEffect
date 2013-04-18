@@ -16,7 +16,8 @@ import ca.mcgill.mcb.pcingola.serializer.MarkerSerializer;
  * 
  * @author pcingola
  */
-public class Markers implements Iterable<Marker>, Serializable {
+// public class Markers implements Iterable<Marker>, Serializable, Collection<Marker> {
+public class Markers implements Serializable, Collection<Marker> {
 
 	private static final long serialVersionUID = 259791388087691277L;
 	protected ArrayList<Marker> markers;
@@ -46,9 +47,9 @@ public class Markers implements Iterable<Marker>, Serializable {
 	 * Add an interval to the collection
 	 * @param marker
 	 */
-	public Markers add(Marker marker) {
-		markers.add(marker);
-		return this;
+	@Override
+	public boolean add(Marker marker) {
+		return markers.add(marker);
 	}
 
 	/**
@@ -64,10 +65,27 @@ public class Markers implements Iterable<Marker>, Serializable {
 	 * Add all markers in this collection
 	 * @param intervalsMarkerIntervaloAdd
 	 */
-	public Markers addAll(Collection<? extends Marker> mm) {
+	@Override
+	public boolean addAll(Collection<? extends Marker> mm) {
+		boolean changed = false;
 		for (Marker m : mm)
-			markers.add(m);
-		return this;
+			changed |= markers.add(m);
+		return changed;
+	}
+
+	@Override
+	public void clear() {
+		markers.clear();
+	}
+
+	@Override
+	public boolean contains(Object o) {
+		return markers.contains(o);
+	}
+
+	@Override
+	public boolean containsAll(Collection<?> c) {
+		return markers.containsAll(c);
 	}
 
 	/**
@@ -141,6 +159,7 @@ public class Markers implements Iterable<Marker>, Serializable {
 		return intersectOfOverlaps;
 	}
 
+	@Override
 	public boolean isEmpty() {
 		return markers.isEmpty();
 	}
@@ -265,6 +284,21 @@ public class Markers implements Iterable<Marker>, Serializable {
 		return markers.get(idx);
 	}
 
+	@Override
+	public boolean remove(Object o) {
+		return markers.remove(o);
+	}
+
+	@Override
+	public boolean removeAll(Collection<?> c) {
+		return markers.removeAll(c);
+	}
+
+	@Override
+	public boolean retainAll(Collection<?> c) {
+		return markers.retainAll(c);
+	}
+
 	/**
 	 * Save to a file using a serializer
 	 * @param fileName
@@ -300,6 +334,7 @@ public class Markers implements Iterable<Marker>, Serializable {
 		markerSerializer.save(fileName, markersToSave);
 	}
 
+	@Override
 	public int size() {
 		return markers.size();
 	}
@@ -320,6 +355,16 @@ public class Markers implements Iterable<Marker>, Serializable {
 		if (byEnd) Collections.sort(markers, new IntervalComparatorByEnd(reverse));
 		else Collections.sort(markers, new IntervalComparatorByStart(reverse));
 		return this;
+	}
+
+	@Override
+	public Object[] toArray() {
+		return markers.toArray();
+	}
+
+	@Override
+	public <T> T[] toArray(T[] a) {
+		return markers.toArray(a);
 	}
 
 	@Override

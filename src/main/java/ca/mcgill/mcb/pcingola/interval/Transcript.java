@@ -104,7 +104,7 @@ public class Transcript extends IntervalAndSubIntervals<Exon> {
 		// Add intervals
 		boolean retVal = false;
 		for (Marker mu : missingUtrs) {
-			Exon exon = intersectingExon(mu);
+			Exon exon = queryExon(mu);
 			if (exon == null) throw new RuntimeException("Cannot find exon for UTR: " + mu);
 			Utr toAdd = null;
 
@@ -443,7 +443,9 @@ public class Transcript extends IntervalAndSubIntervals<Exon> {
 		//---
 		// Collapse Exons
 		//---
-		Map<Marker, Marker> collapse = MarkerUtil.collapseZeroGap(new Markers().addAll(subintervals())); // Create a map of collapsed exons
+		Markers markers = new Markers();
+		markers.addAll(subintervals());
+		Map<Marker, Marker> collapse = MarkerUtil.collapseZeroGap(markers); // Create a map of collapsed exons
 
 		// Replace exons
 		for (Marker exon : collapse.keySet()) {
@@ -502,6 +504,66 @@ public class Transcript extends IntervalAndSubIntervals<Exon> {
 	public int cpgExons() {
 		ObservedOverExpectedCpG oe = new ObservedOverExpectedCpG();
 		return oe.observed(this);
+	}
+
+	/**
+	 * Find all splice sites.
+	 * 
+	 * @param createIfMissing : If true, create canonical splice sites if they are missing.
+	 * 
+	 * @return
+	 */
+	public List<SpliceSite> createSpliceSites(int spliceSiteSize) {
+		List<SpliceSite> list = new LinkedList<SpliceSite>();
+
+		// For each gene, transcript and exon
+		ArrayList<Exon> exons = (ArrayList<Exon>) sortedStrand();
+
+		if (exons.size() > 0) {
+			for (int i = 0; i < exons.size(); i++) {
+
+				Exon exon = exons.get(i);
+				Exon prev = (i >= 1 ? exons.get(i - 1) : null);
+				Exon next = (i < exons.size() - 1 ? exons.get(i + 1) : null);
+
+				//---
+				// Distance to previous exon
+				//---
+				if (prev != null) {
+					int dist = 0;
+					if (strand >= 0) dist = exon.getStart() - prev.getEnd() - 1;
+					else dist = prev.getStart() - exon.getEnd() - 1;
+
+					// Acceptor splice site: before exon start, but not before first exon
+					SpliceSite ss = exon.getSpliceSiteAcceptor();
+					if (ss == null) ss = exon.createSpliceSiteAcceptor(Math.min(spliceSiteSize, dist));
+					if (ss != null) list.add(ss);
+				}
+
+				//---
+				// Distance to next exon
+				//---
+				if (next != null) {
+					int dist = 0;
+					if (strand >= 0) dist = next.getStart() - exon.getEnd() - 1;
+					else dist = exon.getStart() - next.getEnd() - 1;
+
+					// Donor splice site: after exon end, but not after last exon
+					SpliceSite ss = exon.getSpliceSiteDonor();
+					if (ss == null) ss = exon.createSpliceSiteDonor(Math.min(spliceSiteSize, dist));
+					if (ss != null) list.add(ss);
+				}
+
+				// Sanity check
+				int rank = i + 1;
+				if (exon.getRank() != rank) {
+					String msg = "Rank numbers do not march: " + rank + " != " + exon.getRank() + "\n\tTranscript: " + this;
+					throw new RuntimeException(msg);
+				}
+			}
+		}
+
+		return list;
 	}
 
 	/**
@@ -573,66 +635,6 @@ public class Transcript extends IntervalAndSubIntervals<Exon> {
 		for (Exon exon : this)
 			if (exon.intersects(pos)) return exon;
 		return null;
-	}
-
-	/**
-	 * Find all splice sites.
-	 * 
-	 * @param createIfMissing : If true, create canonical splice sites if they are missing.
-	 * 
-	 * @return
-	 */
-	public List<SpliceSite> findSpliceSites(boolean createIfMissing, int spliceSiteSize) {
-		List<SpliceSite> list = new LinkedList<SpliceSite>();
-
-		// For each gene, transcript and exon
-		ArrayList<Exon> exons = (ArrayList<Exon>) sortedStrand();
-
-		if (exons.size() > 0) {
-			for (int i = 0; i < exons.size(); i++) {
-
-				Exon exon = exons.get(i);
-				Exon prev = (i >= 1 ? exons.get(i - 1) : null);
-				Exon next = (i < exons.size() - 1 ? exons.get(i + 1) : null);
-
-				//---
-				// Distance to previous exon
-				//---
-				if (prev != null) {
-					int dist = 0;
-					if (strand >= 0) dist = exon.getStart() - prev.getEnd() - 1;
-					else dist = prev.getStart() - exon.getEnd() - 1;
-
-					// Acceptor splice site: before exon start, but not before first exon
-					SpliceSite ss = exon.getSpliceSiteAcceptor();
-					if ((ss == null) && createIfMissing) ss = exon.createSpliceSiteAcceptor(Math.min(spliceSiteSize, dist));
-					if (ss != null) list.add(ss);
-				}
-
-				//---
-				// Distance to next exon
-				//---
-				if (next != null) {
-					int dist = 0;
-					if (strand >= 0) dist = next.getStart() - exon.getEnd() - 1;
-					else dist = exon.getStart() - next.getEnd() - 1;
-
-					// Donor splice site: after exon end, but not after last exon
-					SpliceSite ss = exon.getSpliceSiteDonor();
-					if ((ss == null) && createIfMissing) ss = exon.createSpliceSiteDonor(Math.min(spliceSiteSize, dist));
-					if (ss != null) list.add(ss);
-				}
-
-				// Sanity check
-				int rank = i + 1;
-				if (exon.getRank() != rank) {
-					String msg = "Rank numbers do not march: " + rank + " != " + exon.getRank() + "\n\tTranscript: " + this;
-					throw new RuntimeException(msg);
-				}
-			}
-		}
-
-		return list;
 	}
 
 	/**
@@ -741,17 +743,6 @@ public class Transcript extends IntervalAndSubIntervals<Exon> {
 	 */
 	public List<Utr> getUtrs() {
 		return utrs;
-	}
-
-	/**
-	 * Return the first exon that intersects 'interval' (null if not found)
-	 * @param interval
-	 * @return
-	 */
-	public Exon intersectingExon(Marker interval) {
-		for (Exon ei : this)
-			if (ei.intersects(interval)) return ei;
-		return null;
 	}
 
 	/**
@@ -909,6 +900,49 @@ public class Transcript extends IntervalAndSubIntervals<Exon> {
 	public String protein() {
 		if (!Config.get().isTreatAllAsProteinCoding() && !isProteinCoding()) return "";
 		return codonTable().aa(cds());
+	}
+
+	/**
+	 * Query all genomic regions that intersect 'marker'
+	 */
+	@Override
+	public Markers query(Marker marker) {
+		Markers markers = new Markers();
+
+		for (Exon e : this)
+			if (e.intersects(marker)) {
+				markers.add(e);
+				markers.add(e.query(marker));
+			}
+
+		for (SpliceSiteBranch sb : spliceBranchSites)
+			if (sb.intersects(marker)) markers.add(sb);
+
+		for (Utr u : utrs)
+			if (u.intersects(marker)) markers.add(u);
+
+		for (Cds m : cdss)
+			if (m.intersects(marker)) markers.add(m);
+
+		for (Intron m : introns)
+			if (m.intersects(marker)) markers.add(m);
+
+		if (upstream.intersects(marker)) markers.add(upstream);
+
+		if (downstream.intersects(marker)) markers.add(downstream);
+
+		return markers;
+	}
+
+	/**
+	 * Return the first exon that intersects 'interval' (null if not found)
+	 * @param interval
+	 * @return
+	 */
+	public Exon queryExon(Marker interval) {
+		for (Exon ei : this)
+			if (ei.intersects(interval)) return ei;
+		return null;
 	}
 
 	/**

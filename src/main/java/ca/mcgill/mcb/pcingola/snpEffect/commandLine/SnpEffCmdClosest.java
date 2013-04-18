@@ -1,48 +1,42 @@
 package ca.mcgill.mcb.pcingola.snpEffect.commandLine;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashSet;
-
 import ca.mcgill.mcb.pcingola.fileIterator.BedFileIterator;
 import ca.mcgill.mcb.pcingola.fileIterator.VcfFileIterator;
 import ca.mcgill.mcb.pcingola.interval.Chromosome;
-import ca.mcgill.mcb.pcingola.interval.Exon;
 import ca.mcgill.mcb.pcingola.interval.Gene;
+import ca.mcgill.mcb.pcingola.interval.Intergenic;
 import ca.mcgill.mcb.pcingola.interval.Marker;
 import ca.mcgill.mcb.pcingola.interval.Markers;
 import ca.mcgill.mcb.pcingola.interval.SeqChange;
 import ca.mcgill.mcb.pcingola.interval.Transcript;
-import ca.mcgill.mcb.pcingola.interval.tree.IntervalForest;
+import ca.mcgill.mcb.pcingola.outputFormatter.OutputFormatter;
 import ca.mcgill.mcb.pcingola.snpEffect.Config;
+import ca.mcgill.mcb.pcingola.snpEffect.SnpEffectPredictor;
 import ca.mcgill.mcb.pcingola.util.Timer;
 import ca.mcgill.mcb.pcingola.vcf.VcfEntry;
 
 /**
- * Command line: Find closes exon to each variant
+ * Command line: Find closes marker to each variant
  * 
- * Note: Transcripts are ordered by 'mRNA' length in order 
- *       for exon form longer transcripts to appear first 
- *       (same exon form shorter transcripts is omitted).  
- *       
  * @author pcingola
  */
-public class SnpEffCmdClosestExon extends SnpEff {
+public class SnpEffCmdClosest extends SnpEff {
 
-	public static final String CLOSEST_EXON = "CLOSEST_EXON";
-	public static final String INFO_LINE = "##INFO=<ID=" + CLOSEST_EXON + ",Number=4,Type=String,Description=\"Closest exon: Distance (bases), exons Id, transcript Id, gene name\">";
+	public static final String CLOSEST = "CLOSEST";
+	public static final String INFO_LINE = "##INFO=<ID=" + CLOSEST + ",Number=4,Type=String,Description=\"Closest exon: Distance (bases), exons Id, transcript Id, gene name\">";
 
 	boolean bedFormat = false;
 	String inFile = "";
-	IntervalForest intervalForest;
+	SnpEffectPredictor snpEffectPredictor;
 
-	public SnpEffCmdClosestExon() {
+	//	IntervalForest intervalForest;
+
+	public SnpEffCmdClosest() {
 		super();
 		command = "closestExon";
 	}
 
-	public SnpEffCmdClosestExon(Config config) {
+	public SnpEffCmdClosest(Config config) {
 		super();
 		command = "closestExon";
 		this.config = config;
@@ -70,16 +64,14 @@ public class SnpEffCmdClosestExon extends SnpEff {
 		for (SeqChange bed : bfi) {
 			try {
 				// Find closest exon
-				Exon exon = (Exon) findClosestExons(bed);
+				Marker closestMarker = findClosestMarker(bed);
 
 				String id = bed.getId();
 
 				// Update INFO fields if any exon was found
-				if (exon != null) {
-					int dist = exon.distance(bed);
-					Transcript tr = (Transcript) exon.getParent();
-					Gene gene = (Gene) tr.getParent();
-					id = (id.isEmpty() ? "" : bed.getId() + ";") + dist + "," + exon.getId() + "," + tr.getId() + "," + gene.getGeneName();
+				if (closestMarker != null) {
+					int dist = closestMarker.distance(bed);
+					id = (id.isEmpty() ? "" : bed.getId() + ";") + dist + "," + OutputFormatter.idChain(closestMarker, ",", false);
 				}
 
 				// Show output
@@ -96,99 +88,71 @@ public class SnpEffCmdClosestExon extends SnpEff {
 	}
 
 	/**
-	 * Create an interval forest containing all exons.
-	 * 
-	 * Note: Transcripts are ordered by 'mRNA' length in order 
-	 *       for exon form longer transcripts to appear first 
-	 *       (same exon form shorter transcripts is omitted).  
-	 * 
-	 * @return
+	 * Find closest marker
+	 * @param queryMarker
 	 */
-	IntervalForest createForest() {
-		if (verbose) Timer.showStdErr("Creating interval forest...");
-
-		// Build an 'exon' forest. Forget about everything else.
-		intervalForest = new IntervalForest();
-		HashSet<String> exons = new HashSet<String>();
-
-		// Compare by mRNA length
-		Comparator<Transcript> mRnaLenComp = new Comparator<Transcript>() {
-
-			@Override
-			public int compare(Transcript t1, Transcript t2) {
-				return t2.mRna().length() - t1.mRna().length();
-			}
-		};
-
-		// For all genes, find transcripts and add exons to forest
-		int countAdded = 0, countSkipped = 0;
-		for (Gene gene : config.getGenome().getGenes()) {
-
-			// Sort transcripts by length
-			ArrayList<Transcript> transcripts = new ArrayList<Transcript>();
-			for (Transcript tr : gene)
-				transcripts.add(tr);
-
-			// Sort by mRna length
-			Collections.sort(transcripts, mRnaLenComp);
-
-			// Add exons form transcripts (longer transcripts first) 
-			for (Transcript tr : transcripts) {
-				for (Exon exon : tr) {
-					// Create a key
-					String key = exon.getChromosomeName() + ":" + exon.getStart() + "-" + exon.getEnd();
-
-					// Already in the set? => Don't add exon
-					if (!exons.contains(key)) {
-						intervalForest.add(exon); // Add exon and key
-						exons.add(key);
-						countAdded++;
-					} else countSkipped++;
-				}
-			}
-		}
-
-		if (verbose) Timer.showStdErr("Done. Added " + countAdded + " exons. Skipped " + countSkipped + " (redundant exons).");
-		return intervalForest;
-	}
-
-	/**
-	 * Find closest exon for this interval
-	 * @param inputInterval
-	 */
-	Marker findClosestExons(Marker inputInterval) {
+	Marker findClosestMarker(Marker queryMarker) {
 		int initialExtension = 1000;
 
-		Chromosome chr = inputInterval.getChromosome();
+		Chromosome chr = queryMarker.getChromosome();
 		if ((chr != null) && (chr.size() > 0)) {
-			// Extend interval to capture 'close' exons
+
+			// Extend interval to capture 'close' markers
 			for (int extend = initialExtension; extend < chr.size(); extend *= 2) {
-				int start = Math.max(inputInterval.getStart() - extend, 0);
-				int end = inputInterval.getEnd() + extend;
+				int start = Math.max(queryMarker.getStart() - extend, 0);
+				int end = queryMarker.getEnd() + extend;
 				Marker extended = new Marker(chr, start, end, 1, "");
 
-				// Find all exons that intersect with the interval
-				Markers markers = intervalForest.query(extended);
-				int minDist = Integer.MAX_VALUE;
-				Marker minDistMarker = null;
-				for (Marker m : markers) {
-					int dist = m.distance(inputInterval);
-					if (dist < minDist) {
-						minDistMarker = m;
-						minDist = dist;
-					}
-
-					// Zero distance? Cannot be lower than this => return
-					if (minDist <= 0) return minDistMarker;
-				}
-
-				// Found something?
-				if (minDistMarker != null) return minDistMarker;
+				// Find all markers that intersect with 'extended interval'
+				Markers markers = snpEffectPredictor.query(extended);
+				Marker closest = findClosestMarker(queryMarker, markers);
+				if (closest != null) return closest;
 			}
 		}
 
 		// Nothing found
 		return null;
+	}
+
+	/**
+	 * Find closest marker to query (in markers collection)
+	 * @param queryMarker
+	 * @param markers
+	 * @return
+	 */
+	Marker findClosestMarker(Marker queryMarker, Markers markers) {
+		// We prefer the closest marker from the longest transcript)
+		int minDist = Integer.MAX_VALUE;
+		int maxTrLen = 0;
+
+		Marker minDistMarker = null;
+		for (Marker m : markers) {
+			// We don't care about these
+			if ((m instanceof Chromosome) || (m instanceof Intergenic) || (m instanceof Gene) || (m instanceof Transcript)) continue;
+
+			// Find closest marker
+			int dist = m.distance(queryMarker);
+			if (dist <= minDist) {
+
+				Transcript tr = findTranscript(m);
+				if (tr != null) {
+					// Find closest marker in largest transcript
+					int trLen = tr.mRna().length();
+					if (trLen > maxTrLen) {
+						maxTrLen = trLen;
+						minDist = dist;
+						minDistMarker = m;
+					}
+				}
+			}
+		}
+
+		return minDistMarker;
+	}
+
+	Transcript findTranscript(Marker m) {
+		if (m instanceof Transcript) return (Transcript) m;
+		return (Transcript) m.findParent(Transcript.class);
 	}
 
 	/**
@@ -229,7 +193,10 @@ public class SnpEffCmdClosestExon extends SnpEff {
 		config.loadSnpEffectPredictor();
 		if (verbose) Timer.showStdErr("done");
 
-		createForest();
+		if (verbose) Timer.showStdErr("Building interval forest...");
+		snpEffectPredictor = config.getSnpEffectPredictor();
+		snpEffectPredictor.buildForest();
+		if (verbose) Timer.showStdErr("done");
 
 		if (verbose) Timer.showStdErr("Reading file '" + inFile + "'");
 		if (bedFormat) bedIterate();
@@ -277,15 +244,13 @@ public class SnpEffCmdClosestExon extends SnpEff {
 				}
 
 				// Find closest exon
-				Exon exon = (Exon) findClosestExons(ve);
+				Marker closestMarker = findClosestMarker(ve);
 
 				// Update INFO fields if any exon was found
-				if (exon != null) {
-					int dist = exon.distance(ve);
-					Transcript tr = (Transcript) exon.getParent();
-					Gene gene = (Gene) tr.getParent();
-					String value = dist + "," + exon.getId() + "," + tr.getId() + "," + gene.getGeneName();
-					ve.addInfo(CLOSEST_EXON, value);
+				if (closestMarker != null) {
+					int dist = closestMarker.distance(ve);
+					String value = dist + "," + OutputFormatter.idChain(closestMarker, ",", false);
+					ve.addInfo(CLOSEST, value);
 				}
 
 				// Show output

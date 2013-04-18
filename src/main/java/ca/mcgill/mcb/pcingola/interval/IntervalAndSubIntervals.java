@@ -107,6 +107,25 @@ public class IntervalAndSubIntervals<T extends Marker> extends Marker implements
 	}
 
 	/**
+	 * Query all genomic regions that intersect 'marker'
+	 */
+	@Override
+	public Markers query(Marker marker) {
+		Markers markers = new Markers();
+
+		for (Marker m : this) {
+			if (m.intersects(marker)) {
+				markers.add(m);
+
+				Markers subMarkers = m.query(marker);
+				if (subMarkers != null) markers.add(subMarkers);
+			}
+		}
+
+		return markers;
+	}
+
+	/**
 	 * Remove a subinterval
 	 * @param t
 	 */

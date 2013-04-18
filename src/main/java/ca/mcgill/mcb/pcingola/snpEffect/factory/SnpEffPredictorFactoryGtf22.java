@@ -107,7 +107,7 @@ public class SnpEffPredictorFactoryGtf22 extends SnpEffPredictorFactoryGff {
 		} else if (is(type, UTR5) || is(type, UTR3)) {
 			// Find exon
 			Marker utr = new Marker(tr, start, end, strand, id);
-			Exon exon = tr.intersectingExon(utr);
+			Exon exon = tr.queryExon(utr);
 			if (exon == null) { // No exon? => Create one
 				int rank = 0; // We don't have rank information
 				String exonId = "Exon_" + chromo + "_" + (start + 1) + "_" + (end + 1);

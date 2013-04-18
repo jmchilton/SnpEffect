@@ -2,7 +2,6 @@ package ca.mcgill.mcb.pcingola.stats;
 
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Set;
 
 import ca.mcgill.mcb.pcingola.interval.Chromosome;
 import ca.mcgill.mcb.pcingola.interval.Gene;
@@ -207,7 +206,7 @@ public class ReadsOnMarkersModel {
 			Marker read = randMarker.rand(readLen);
 
 			// Where does it hit?
-			Set<Marker> regions = snpEffectPredictor.regionsMarkers(read);
+			Markers regions = snpEffectPredictor.queryDeep(read);
 			HashSet<String> doneRegion = new HashSet<String>();
 			for (Marker m : regions) {
 				String mtype = markerType(m);

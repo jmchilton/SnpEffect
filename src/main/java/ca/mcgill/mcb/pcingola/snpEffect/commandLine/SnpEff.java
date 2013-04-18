@@ -42,9 +42,9 @@ public class SnpEff implements CommandLine {
 	public static final int COMMAND_LINE_WIDTH = 40;
 
 	public static final String SOFTWARE_NAME = "SnpEff";
-	public static final String REVISION = "c";
-	public static final String BUILD = "2013-04-15";
-	public static final String VERSION_MAJOR = "3.2";
+	public static final String REVISION = "";
+	public static final String BUILD = "2013-04-18";
+	public static final String VERSION_MAJOR = "3.3";
 	public static final String VERSION_SHORT = VERSION_MAJOR + REVISION;
 	public static final String VERSION = SOFTWARE_NAME + " " + VERSION_SHORT + " (build " + BUILD + "), by " + Pcingola.BY;
 	public static final String DEFAULT_SUMMARY_FILE = "snpEff_summary.html";
@@ -64,7 +64,6 @@ public class SnpEff implements CommandLine {
 	protected int outOffset = 1;
 	protected String configFile; // Config file
 	protected String genomeVer; // Genome version
-	protected String dataDir; // Dara dir override
 	protected Config config; // Configuration
 
 	/**
@@ -174,7 +173,7 @@ public class SnpEff implements CommandLine {
 				|| args[0].equalsIgnoreCase("eff") //
 				|| args[0].equalsIgnoreCase("download") //
 				|| args[0].equalsIgnoreCase("protein") //
-				|| args[0].equalsIgnoreCase("closestExon") //
+				|| args[0].equalsIgnoreCase("closest") //
 				|| args[0].equalsIgnoreCase("test") //
 				|| args[0].equalsIgnoreCase("databases") //
 				|| args[0].equalsIgnoreCase("spliceAnalysis") //
@@ -205,9 +204,6 @@ public class SnpEff implements CommandLine {
 			else if ((args[i].equals("-c") || args[i].equalsIgnoreCase("-config"))) {
 				if ((i + 1) < args.length) configFile = args[++i];
 				else usage("Option '-c' without config file argument");
-			} else if ((args[i].equals("-data_dir"))) {
-				if ((i + 1) < args.length) dataDir = args[++i];
-				else usage("Option '-data_dir' without argument");
 			} else argsList.add(args[i]);
 		}
 
@@ -240,7 +236,7 @@ public class SnpEff implements CommandLine {
 		else if (command.equalsIgnoreCase("cds")) snpEff = new SnpEffCmdCds();
 		else if (command.equalsIgnoreCase("eff")) snpEff = new SnpEffCmdEff();
 		else if (command.equalsIgnoreCase("protein")) snpEff = new SnpEffCmdProtein();
-		else if (command.equalsIgnoreCase("closestexon")) snpEff = new SnpEffCmdClosestExon();
+		else if (command.equalsIgnoreCase("closest")) snpEff = new SnpEffCmdClosest();
 		else if (command.equalsIgnoreCase("databases")) snpEff = new SnpEffCmdDatabases();
 		else if (command.equalsIgnoreCase("genes2bed")) snpEff = new SnpEffCmdGenes2Bed();
 		else if (command.equalsIgnoreCase("spliceanalysis")) snpEff = new SpliceAnalysis();
@@ -298,7 +294,7 @@ public class SnpEff implements CommandLine {
 		System.err.println("   build           : Build a SnpEff database.");
 		System.err.println("   buildNextProt   : Build a SnpEff for NextProt (using NextProt's XML files).");
 		System.err.println("   cds             : Compare CDS sequences calculated form a SnpEff database to the one in a FASTA file. Used for checking databases correctness.");
-		System.err.println("   closestExon     : Calculate closes exon/s given a set of genomic positions or intervals.");
+		System.err.println("   closest         : Annotate the closest genomic region.");
 		System.err.println("   countReads      : Count how many reads (from a BAM file) overlap with each genomic interval. Experimental feature.");
 		System.err.println("   databases       : Show currently available databases (from local config file).");
 		System.err.println("   download        : Download a SnpEff database.");

@@ -391,6 +391,13 @@ public class Marker extends Interval implements TxtSerializable {
 	}
 
 	/**
+	 * Query all genomic regions that intersect 'marker' (this makes sense in Gene, Transcript, Exon, etc.)
+	 */
+	public Markers query(Marker marker) {
+		return null;
+	}
+
+	/**
 	 * Parse a line (form a file)
 	 * Format: "chromosome \t start \t end \t id \n" 
 	 */
@@ -461,6 +468,7 @@ public class Marker extends Interval implements TxtSerializable {
 	 * @param line
 	 * @return
 	 */
+	@Override
 	public void serializeParse(MarkerSerializer markerSerializer) {
 		type = EffectType.valueOf(markerSerializer.getNextField());
 		markerSerializer.getNextFieldInt();
@@ -475,6 +483,7 @@ public class Marker extends Interval implements TxtSerializable {
 	 * Create a string to serialize to a file
 	 * @return
 	 */
+	@Override
 	public String serializeSave(MarkerSerializer markerSerializer) {
 		return type //
 				+ "\t" + markerSerializer.getIdByMarker(this) //

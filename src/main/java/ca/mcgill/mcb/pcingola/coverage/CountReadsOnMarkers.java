@@ -7,7 +7,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import net.sf.samtools.SAMFileReader;
 import net.sf.samtools.SAMFileReader.ValidationStringency;
@@ -15,6 +14,7 @@ import net.sf.samtools.SAMRecord;
 import ca.mcgill.mcb.pcingola.interval.Chromosome;
 import ca.mcgill.mcb.pcingola.interval.Genome;
 import ca.mcgill.mcb.pcingola.interval.Marker;
+import ca.mcgill.mcb.pcingola.interval.Markers;
 import ca.mcgill.mcb.pcingola.outputFormatter.OutputFormatter;
 import ca.mcgill.mcb.pcingola.probablility.Binomial;
 import ca.mcgill.mcb.pcingola.snpEffect.SnpEffectPredictor;
@@ -114,7 +114,7 @@ public class CountReadsOnMarkers {
 								readLengthSum += read.size();
 
 								// Find all intersects
-								Set<Marker> regions = snpEffectPredictor.regionsMarkers(read);
+								Markers regions = snpEffectPredictor.queryDeep(read);
 								HashSet<String> doneClass = new HashSet<String>();
 								for (Marker m : regions) {
 									countReads.inc(m); // Count reads
