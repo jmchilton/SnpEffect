@@ -183,7 +183,7 @@ public class SnpEff implements CommandLine {
 				|| args[0].equalsIgnoreCase("test") //
 				|| args[0].equalsIgnoreCase("databases") //
 				|| args[0].equalsIgnoreCase("spliceAnalysis") //
-				|| args[0].equalsIgnoreCase("countReads") //
+				|| args[0].equalsIgnoreCase("count") //
 				|| args[0].equalsIgnoreCase("genes2bed") //
 				|| args[0].equalsIgnoreCase("len") //
 		) {
@@ -277,7 +277,7 @@ public class SnpEff implements CommandLine {
 		else if (command.equalsIgnoreCase("databases")) snpEff = new SnpEffCmdDatabases();
 		else if (command.equalsIgnoreCase("genes2bed")) snpEff = new SnpEffCmdGenes2Bed();
 		else if (command.equalsIgnoreCase("spliceanalysis")) snpEff = new SpliceAnalysis();
-		else if (command.equalsIgnoreCase("countreads")) snpEff = new SnpEffCmdCountReads();
+		else if (command.equalsIgnoreCase("count")) snpEff = new SnpEffCmdCount();
 		else if (command.equalsIgnoreCase("len")) snpEff = new SnpEffCmdLen();
 		else if (command.equalsIgnoreCase("test")) snpEff = new SnpEffCmdTest();
 		else throw new RuntimeException("Unknown command '" + command + "'");
@@ -332,7 +332,7 @@ public class SnpEff implements CommandLine {
 		System.err.println("   buildNextProt   : Build a SnpEff for NextProt (using NextProt's XML files).");
 		System.err.println("   cds             : Compare CDS sequences calculated form a SnpEff database to the one in a FASTA file. Used for checking databases correctness.");
 		System.err.println("   closest         : Annotate the closest genomic region.");
-		System.err.println("   countReads      : Count how many reads (from a BAM file) overlap with each genomic interval. Experimental feature.");
+		System.err.println("   count           : Count how many intervals (from a BAM, BED or VCF file) overlap with each genomic interval.");
 		System.err.println("   databases       : Show currently available databases (from local config file).");
 		System.err.println("   download        : Download a SnpEff database.");
 		System.err.println("   dump            : Dump to STDOUT a SnpEff database (mostly used for debugging).");

@@ -142,10 +142,10 @@ public class Gpr {
 	 */
 	public static boolean canRead(String fileName) {
 		File inputFile = new File(fileName);
-		if (inputFile.exists()) return true;
+		if (inputFile.exists() && inputFile.canRead() && inputFile.isFile()) return true;
 
 		inputFile = new File(fileName + ".gz");
-		if (inputFile.exists()) return true;
+		if (inputFile.exists() && inputFile.canRead() && inputFile.isFile()) return true;
 
 		return false;
 	}

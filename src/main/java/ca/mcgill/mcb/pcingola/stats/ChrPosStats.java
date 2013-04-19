@@ -11,28 +11,24 @@ import ca.mcgill.mcb.pcingola.util.Gpr;
  */
 public class ChrPosStats {
 
-	public static int MAX_BINS = 300; // Max number of points to show in a plot (plots to sample)
-	String chrName; // Chromosome name
-	int chrLength; // Chromosome length;
+	int maxBins = 300; // Max number of points to show in a plot (plots to sample)
+	String name; // Chromosome name
+	int length; // Chromosome length;
 	int factor = 1;
 	int count[];
 	int total;
 
-	public ChrPosStats(String chrName, int chrLength) {
-		this.chrName = chrName;
-		this.chrLength = chrLength;
+	public ChrPosStats(String chrName, int length) {
+		name = chrName;
+		this.length = length;
 		total = 0;
 
 		// Multiplier factor 
 		factor = 1;
-		for (factor = 1; (chrLength / factor) > MAX_BINS; factor *= 10);
+		for (factor = 1; (length / factor) > maxBins; factor *= 10);
 
-		int len = chrLength / factor + 1; // May be the chromosome is smaller then 'MAX_POINTS' (e.g. when you have small contigs)
-
-		// Initialize count
-		count = new int[len];
-		for (int i = 0; i < count.length; i++)
-			count[i] = 0;
+		int len = length / factor + 1; // May be the chromosome is smaller then 'MAX_POINTS' (e.g. when you have small contigs)
+		init(len);
 	}
 
 	String factorStr() {
@@ -42,8 +38,19 @@ public class ChrPosStats {
 		return factor + "b";
 	}
 
+	public int getCount(int idx) {
+		return count[idx];
+	}
+
 	public int getTotal() {
 		return total;
+	}
+
+	void init(int len) {
+		// Initialize count
+		count = new int[len];
+		for (int i = 0; i < count.length; i++)
+			count[i] = 0;
 	}
 
 	int[] posArray() {
@@ -59,7 +66,7 @@ public class ChrPosStats {
 	 */
 	public void sample(int position) {
 		// Ignore counts for zero or one-length chromosomes
-		if (chrLength <= 1) {
+		if (length <= 1) {
 			// Gpr.debug("Warning: Chromosome '" + chrName + "' has length " + chrLength);
 			return;
 		}
@@ -68,13 +75,13 @@ public class ChrPosStats {
 		if ((i >= 0) && (i < count.length)) {
 			count[i]++;
 			total++;
-		} else Gpr.debug("Error counting samples on chromosome '" + chrName + "'. Position '" + position + "' => count[" + i + "]  (count.length: " + count.length + ", factor: " + factor + ", chrLength: " + chrLength + ").");
+		} else Gpr.debug("Error counting samples on chromosome '" + name + "'. Position '" + position + "' => count[" + i + "]  (count.length: " + count.length + ", factor: " + factor + ", chrLength: " + length + ").");
 	}
 
 	@Override
 	public String toString() {
 		StringBuffer sb = new StringBuffer();
-		sb.append("Chromosome: " + chrName + "\n");
+		sb.append(name + ":\n");
 		sb.append("\tPosition :\t");
 
 		// Position

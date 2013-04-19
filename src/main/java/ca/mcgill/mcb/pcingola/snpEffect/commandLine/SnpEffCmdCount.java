@@ -21,17 +21,16 @@ import ca.mcgill.mcb.pcingola.util.Timer;
  * 
  * @author pablocingolani
  */
-public class SnpEffCmdCountReads extends SnpEff {
+public class SnpEffCmdCount extends SnpEff {
 
 	public static boolean debug = true;
 
 	CountReadsOnMarkers countReadsOnMarkers;
-	ReadsOnMarkersModel readsOnMarkersModel;
 	SnpEffectPredictor snpEffectPredictor;
 	List<String> fileNames; // Files to count (can be BAM, SAM) 
 	List<String> customIntervals; // Custom intervals
 
-	public SnpEffCmdCountReads() {
+	public SnpEffCmdCount() {
 		fileNames = new ArrayList<String>();
 		customIntervals = new ArrayList<String>();
 	}
@@ -79,13 +78,17 @@ public class SnpEffCmdCountReads extends SnpEff {
 		// Sanity check
 		if ((genomeVer == null) || genomeVer.isEmpty()) usage("Missing genome version");
 		if (fileNames.size() < 1) usage("Missing SAM/BAM file/s");
+		for (String file : fileNames)
+			if (!Gpr.canRead(file)) fatalError("Cannot read file '" + file + "'");
+		for (String file : customIntervals)
+			if (!Gpr.canRead(file)) fatalError("Cannot read file '" + file + "'");
 	}
 
 	/**
 	 * Calculate pvalues for 
 	 */
-	void pvalues() {
-		readsOnMarkersModel = new ReadsOnMarkersModel(snpEffectPredictor);
+	ReadsOnMarkersModel pvalues() {
+		ReadsOnMarkersModel readsOnMarkersModel = new ReadsOnMarkersModel(snpEffectPredictor);
 		int readLength = countReadsOnMarkers.getReadLengthAvg();
 		if (verbose) Timer.showStdErr("Calculating probability model for read length " + readLength);
 		readsOnMarkersModel.setReadLength(readLength);
@@ -94,7 +97,7 @@ public class SnpEffCmdCountReads extends SnpEff {
 
 		// Run model
 		readsOnMarkersModel.run();
-		System.err.println(countReadsOnMarkers.probabilityTable(readsOnMarkersModel.getProb()));
+		return readsOnMarkersModel;
 	}
 
 	/**
@@ -141,8 +144,18 @@ public class SnpEffCmdCountReads extends SnpEff {
 		countReadsOnMarkers.count();
 
 		if (!quiet) {
-			countReadsOnMarkers.print();
-			pvalues(); // Calculate (and show) pvalues
+			Gpr.debug("UNCOMMENT!!!");
+			//			// Show marker by marker counts
+			//			countReadsOnMarkers.print();
+			//
+			//			// Calculate p-values
+			//			ReadsOnMarkersModel readsOnMarkersModel = pvalues();
+			//			System.err.println(countReadsOnMarkers.probabilityTable(readsOnMarkersModel.getProb()));
+
+			ReadsOnMarkersModel readsOnMarkersModel = new ReadsOnMarkersModel(snpEffectPredictor);
+			System.err.println(countReadsOnMarkers.probabilityTable(readsOnMarkersModel.getProb()));
+
+			Gpr.toFile(Gpr.HOME + "/z.html", countReadsOnMarkers.html());
 		}
 
 		return true;
@@ -152,7 +165,7 @@ public class SnpEffCmdCountReads extends SnpEff {
 	public void usage(String message) {
 		if (message != null) System.err.println("Error: " + message + "\n");
 		System.err.println("snpEff version " + VERSION);
-		System.err.println("Usage: snpEff countReads [-i intervals.bed] genome readsFile_1 readsFile_2 ...  readsFile_N");
+		System.err.println("Usage: snpEff count [-i intervals.bed] genome file_1 file_2 ...  file_N");
 		System.err.println("\t-i intervals.bed : User defined intervals. Mutiple '-i' commands are allowed.");
 		System.err.println("\treadsFile        : A file contianing the reads. Either BAM or SAM format.");
 		System.exit(-1);

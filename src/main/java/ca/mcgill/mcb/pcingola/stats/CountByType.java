@@ -39,6 +39,10 @@ public class CountByType implements Serializable {
 		scoreByType.put(type, currScore + score);
 	}
 
+	public boolean contains(String key) {
+		return countByType.containsKey(key);
+	}
+
 	/**
 	 * How many counts of this type?
 	 * @param type
