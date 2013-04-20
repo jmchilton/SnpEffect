@@ -93,10 +93,25 @@ public class VcfEffect {
 	 * @return
 	 */
 	public static String[] split(String eff) {
+		int idxBr = eff.indexOf('[');
+		int idxParen = eff.indexOf('(');
+
+		String eff0 = null;
+		if ((idxBr >= 0) && (idxBr < idxParen)) {
+			int idxRbr = eff.indexOf(']');
+			eff0 = eff.substring(0, idxRbr + 1);
+			eff = eff.substring(idxRbr);
+		}
+
 		eff = eff.replace('(', '\t'); // Replace all chars by spaces
 		eff = eff.replace('|', '\t');
 		eff = eff.replace(')', '\t');
 		String effs[] = eff.split("\t", -1); // Negative number means "use trailing empty as well"
+
+		if (eff0 != null) {
+			Gpr.debug("eff[0]=" + effs[0] + "\t" + eff0);
+			effs[0] = eff0;
+		}
 		return effs;
 	}
 
@@ -269,6 +284,12 @@ public class VcfEffect {
 		}
 	}
 
+	String parseEffect(String eff) {
+		int idx = eff.indexOf('[');
+		if (idx < 0) return eff;
+		return eff.substring(0, idx);
+	}
+
 	/**
 	 * Parse effect details.
 	 * E.g. NEXT_PROT[amino_acid_modification:Phosphoserine]  returns "amino_acid_modification:Phosphoserine"
@@ -279,12 +300,6 @@ public class VcfEffect {
 		int idx = eff.indexOf('[');
 		if (idx < 0) return "";
 		return eff.substring(idx + 1, eff.length() - 1);
-	}
-
-	String parseEffect(String eff) {
-		int idx = eff.indexOf('[');
-		if (idx < 0) return eff;
-		return eff.substring(0, idx);
 	}
 
 	public void setAa(String aa) {

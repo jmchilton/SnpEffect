@@ -6,6 +6,7 @@ import junit.framework.TestCase;
 
 import org.junit.Assert;
 
+import ca.mcgill.mcb.pcingola.fileIterator.VcfFileIterator;
 import ca.mcgill.mcb.pcingola.snpEffect.ChangeEffect.EffectImpact;
 import ca.mcgill.mcb.pcingola.snpEffect.ChangeEffect.EffectType;
 import ca.mcgill.mcb.pcingola.snpEffect.commandLine.SnpEff;
@@ -67,5 +68,14 @@ public class TestCasesNextProt extends TestCase {
 	public void test_03_eff() {
 		// Note: Normally this EffectImpact should be 'HIGH' impact, but since the database we build in test_01_build is small, there are not enough stats.
 		checkNextProt("testHg3770Chr22", "tests/test_nextProt_03.vcf", "amino_acid_modification:Phosphoserine", EffectImpact.HIGH);
+	}
+
+	public void test_04_parse() {
+		String vcfFile = "tests/test.nextProt_paren.vcf";
+		for (VcfEntry ve : new VcfFileIterator(vcfFile)) {
+			for (VcfEffect eff : ve.parseEffects()) {
+				System.out.println(eff);
+			}
+		}
 	}
 }
