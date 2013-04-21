@@ -108,10 +108,8 @@ public class VcfEffect {
 		eff = eff.replace(')', '\t');
 		String effs[] = eff.split("\t", -1); // Negative number means "use trailing empty as well"
 
-		if (eff0 != null) {
-			Gpr.debug("eff[0]=" + effs[0] + "\t" + eff0);
-			effs[0] = eff0;
-		}
+		if (eff0 != null) effs[0] = eff0;
+
 		return effs;
 	}
 
