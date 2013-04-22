@@ -245,7 +245,6 @@ rs71262673</pre>
 						are equivalent to (in this case, there are only two values in the array)
 						<pre> "( CI95[0] > 0.1 ) & ( CI95[1] > 0.1 )" </pre>
 				</ul>
-
 				<h3> Genotype fields </h3>
 				Vcf genotype fields can be accessed individually using array notation.
 				<br>
@@ -267,6 +266,20 @@ rs71262673</pre>
 						...or even 
 						<pre>"( GEN[*].PL[*] = 0 )" </pre>
 				</ul>
+				<br>
+				<br>
+				<i class="icon-hand-right"></i> You can create an expression usnig sample names instead of genotype numbers. 
+				The script <code>snpSift_filter_sample_to_number.pl</code> converts sample names to sample numbers. 
+				<br>
+				E.g.
+<pre>
+$ ./scripts/snpSift_filter_sample_to_number.pl test.1KG.vcf "( GEN[HG00096].GQ > 60 ) & ( GEN[HG00097].GQ > 90 )"
+( GEN[0].GQ > 60 ) & ( GEN[1].GQ > 90 )
+</pre>
+				You can use the resulting expression in SnpSift filter without having to worry about different versions of the VCF files having different sample order.
+				<br>
+				<br>
+
 
 				<h3> Sets </h3>
 					Sets are defined by the '-s' (or '--set') command line option. Each file must have one string per line. They are named based on the order used in the command line (e.g. the first one is 'SET[0]', the second one is 'SET[1]', etc.)
