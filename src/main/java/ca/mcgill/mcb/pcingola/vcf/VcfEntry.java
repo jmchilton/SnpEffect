@@ -46,6 +46,15 @@ public class VcfEntry extends Marker implements Iterable<VcfGenotype> {
 	protected String genotypeFields[]; // Raw fields from VCF file
 	protected String genotypeFieldsStr; // Raw fields from VCF file (one string, tab separated)
 
+	/**
+	 * Return a string safe to be used in an 'INFO' field (VCF file)
+	 * @param str
+	 * @return
+	 */
+	public static String vcfInfoSafe(String str) {
+		return str.replaceAll("(\\s|;|,)+", "_");
+	}
+
 	public VcfEntry(VcfFileIterator vcfFileIterator, Marker parent, String chromosomeName, int start, String id, String ref, String altsStr, double quality, String filterPass, String infoStr, String format) {
 		super(parent, start, start + ref.length(), 1, id);
 		this.chromosomeName = chromosomeName;

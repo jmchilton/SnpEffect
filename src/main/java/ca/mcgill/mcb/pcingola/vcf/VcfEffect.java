@@ -15,7 +15,7 @@ public class VcfEffect {
 	 */
 	public enum FormatVersion {
 		FORMAT_SNPEFF_2, FORMAT_SNPEFF_3, FORMAT_SNPEFF_4
-	};
+	}
 
 	String effectString;
 	String effectStrings[];
@@ -111,6 +111,15 @@ public class VcfEffect {
 		if (eff0 != null) effs[0] = eff0;
 
 		return effs;
+	}
+
+	/**
+	 * Return a string safe to be used in an 'EFF' info field (VCF file)
+	 * @param str
+	 * @return
+	 */
+	public static String vcfEffSafe(String str) {
+		return str.replaceAll("(\\s|\\(|\\)|\\[|\\]|;|,|\\|)+", "_");
 	}
 
 	/**

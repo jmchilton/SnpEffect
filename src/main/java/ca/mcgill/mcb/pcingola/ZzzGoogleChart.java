@@ -1,4 +1,4 @@
-package ca.mcgill.mcb.pcingola.snpEffect.commandLine;
+package ca.mcgill.mcb.pcingola;
 
 import java.util.ArrayList;
 
@@ -13,10 +13,10 @@ import ca.mcgill.mcb.pcingola.stats.plot.GoogleGeneRegionChart;
 import ca.mcgill.mcb.pcingola.stats.plot.GoogleLineChart;
 import ca.mcgill.mcb.pcingola.util.Gpr;
 
-public class Zzz {
+public class ZzzGoogleChart {
 
 	public static void main(String[] args) {
-		Zzz zzz = new Zzz();
+		ZzzGoogleChart zzz = new ZzzGoogleChart();
 		zzz.run();
 	}
 

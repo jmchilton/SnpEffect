@@ -14,6 +14,7 @@ import ca.mcgill.mcb.pcingola.interval.NextProt;
 import ca.mcgill.mcb.pcingola.interval.Regulation;
 import ca.mcgill.mcb.pcingola.interval.SeqChange;
 import ca.mcgill.mcb.pcingola.interval.Transcript;
+import ca.mcgill.mcb.pcingola.vcf.VcfEffect;
 
 /**
  * Object used to show results of a sequence change effect.
@@ -279,6 +280,15 @@ public class ChangeEffect implements Cloneable, Comparable<ChangeEffect> {
 	}
 
 	/**
+	 * Return a string safe enough to be used in a VCF file
+	 * @param str
+	 * @return
+	 */
+	String vcfSafe(String str) {
+		return str;
+	}
+
+	/**
 	 * Show a string with overall effect
 	 * @param shortFormat
 	 * @param showAaChange
@@ -291,7 +301,7 @@ public class ChangeEffect implements Cloneable, Comparable<ChangeEffect> {
 		// Create effect string
 		if (!codonEffect.isEmpty()) e = codonEffect;
 		else if (isRegulation()) return getEffectTypeString(useSeqOntology) + "[" + ((Regulation) marker).getName() + "]";
-		else if (isNextProt()) return getEffectTypeString(useSeqOntology) + "[" + ((NextProt) marker).getId() + "]";
+		else if (isNextProt()) return getEffectTypeString(useSeqOntology) + "[" + VcfEffect.vcfEffSafe(((NextProt) marker).getId()) + "]"; // Make sure this 'id' is not dangerous in a VCF 'EFF' field
 		else if (isMotif()) return getEffectTypeString(useSeqOntology) + "[" + ((Motif) marker).getPwmId() + ":" + ((Motif) marker).getPwmName() + "]";
 		else if (isCustom()) {
 			// Custom interval
