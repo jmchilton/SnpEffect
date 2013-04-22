@@ -37,18 +37,19 @@ public class ChromosomeSimpleName {
 
 		// Remove any prefix string until no change is made
 		String chrPrev = "";
-		while (!chr.equals(chrPrev)) {
+		do {
 			chrPrev = chr;
-			String chName = chr.toLowerCase();
 
 			// Remove all common prefixes
 			for (String prefix : CHROMO_PREFIX) {
+				String chName = chr.toLowerCase();
+
 				if (chName.startsWith(prefix + ":")) chr = chr.substring(prefix.length() + 1);
 				else if (chName.startsWith(prefix + "_")) chr = chr.substring(prefix.length() + 1);
 				else if (chName.startsWith(prefix + "-")) chr = chr.substring(prefix.length() + 1);
 				else if (chName.startsWith(prefix)) chr = chr.substring(prefix.length());
 			}
-		}
+		} while (!chr.equals(chrPrev));
 
 		return chr;
 	}
