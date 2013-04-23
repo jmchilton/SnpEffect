@@ -8,6 +8,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 
+import ca.mcgill.mcb.pcingola.fileIterator.BedFileIterator;
+import ca.mcgill.mcb.pcingola.fileIterator.BigBedFileIterator;
 import ca.mcgill.mcb.pcingola.interval.tree.IntervalForest;
 import ca.mcgill.mcb.pcingola.serializer.MarkerSerializer;
 
@@ -16,12 +18,25 @@ import ca.mcgill.mcb.pcingola.serializer.MarkerSerializer;
  * 
  * @author pcingola
  */
-// public class Markers implements Iterable<Marker>, Serializable, Collection<Marker> {
 public class Markers implements Serializable, Collection<Marker> {
 
 	private static final long serialVersionUID = 259791388087691277L;
 	protected ArrayList<Marker> markers;
 	protected String name = "";
+
+	/**
+	 * Read markers from a file
+	 * Supported formats: BED, TXT, BigBed
+	 */
+	public static Markers readMarkers(String fileName) {
+		String flLower = fileName.toLowerCase();
+
+		// Load according to file type
+		if (flLower.endsWith(".txt") || flLower.endsWith(".txt.gz")) return new BedFileIterator(fileName, null, 1).loadMarkers(); // TXT is assumed to be "chr \t start \t end"
+		else if (flLower.endsWith(".bed") || flLower.endsWith(".bed.gz")) return new BedFileIterator(fileName).loadMarkers();
+		else if (flLower.endsWith(".bb")) return new BigBedFileIterator(fileName).loadMarkers();
+		else throw new RuntimeException("Unrecognized genomig interval file type '" + fileName + "'");
+	}
 
 	public Markers() {
 		markers = new ArrayList<Marker>();

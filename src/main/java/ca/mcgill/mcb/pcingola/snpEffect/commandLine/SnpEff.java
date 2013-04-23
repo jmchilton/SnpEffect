@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import ca.mcgill.mcb.pcingola.Pcingola;
-import ca.mcgill.mcb.pcingola.fileIterator.BedFileIterator;
-import ca.mcgill.mcb.pcingola.fileIterator.BigBedFileIterator;
 import ca.mcgill.mcb.pcingola.interval.Custom;
 import ca.mcgill.mcb.pcingola.interval.Marker;
 import ca.mcgill.mcb.pcingola.interval.Markers;
@@ -225,15 +223,8 @@ public class SnpEff implements CommandLine {
 	 * @return
 	 */
 	protected Markers readMarkers(String fileName) {
-		Markers markersSeqChange = null;
-		String flLower = fileName.toLowerCase();
+		Markers markersSeqChange = Markers.readMarkers(fileName);
 		String label = Gpr.removeExt(Gpr.baseName(fileName));
-
-		// Load according to file type
-		if (flLower.endsWith(".txt") || flLower.endsWith(".txt.gz")) markersSeqChange = new BedFileIterator(fileName, null, inOffset).loadMarkers(); // TXT is assumed to be "chr \t start \t end"
-		else if (flLower.endsWith(".bed") || flLower.endsWith(".bed.gz")) markersSeqChange = new BedFileIterator(fileName).loadMarkers();
-		else if (flLower.endsWith(".bb")) markersSeqChange = new BigBedFileIterator(fileName).loadMarkers();
-		else throw new RuntimeException("Unrecognized genomig interval file type '" + fileName + "'");
 
 		// Convert 'SeqChange' markers to 'Custom' markers
 		Markers markers = new Markers();
