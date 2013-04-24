@@ -273,6 +273,8 @@ public class SnpEffCmdEff extends SnpEff {
 		CountByType errByType = new CountByType(), warnByType = new CountByType();
 
 		for (VcfEntry vcfEntry : vcfFile) {
+			boolean printed = false;
+
 			try {
 				countInputLines++;
 
@@ -375,10 +377,13 @@ public class SnpEffCmdEff extends SnpEff {
 
 				// Finish up this section
 				outputFormatter.printSection(vcfEntry);
+				printed = true;
 
 			} catch (Throwable t) {
 				totalErrs++;
 				error(t, "Error while processing VCF entry (line " + vcfFile.getLineNum() + ") :\n\t" + vcfEntry + "\n" + t);
+			} finally {
+				if (!printed) outputFormatter.printSection(vcfEntry);
 			}
 		}
 
