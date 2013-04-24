@@ -128,7 +128,7 @@ public class SnpEffCmdEff extends SnpEff {
 	}
 
 	/**
-	 * Analyze which comparissons to make in cancer genomes
+	 * Analyze which comparisons to make in cancer genomes
 	 * @param vcfEntry
 	 * @param pedigree
 	 * @return
