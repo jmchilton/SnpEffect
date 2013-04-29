@@ -90,6 +90,9 @@
           <li><a href="#phastCons"> <i class="icon-chevron-right"></i>  SnpSift PhastCons</a></li>
           <li><a href="#concordance"> <i class="icon-chevron-right"></i>  SnpSift Concordance</a></li>
           <li><a href="#private"> <i class="icon-chevron-right"></i>  SnpSift Private</a></li>
+          <li><a href="#vcf2tped"> <i class="icon-chevron-right"></i>  SnpSift Vcf2Tped</a></li>
+          <li><a href="#intersect"> <i class="icon-chevron-right"></i>  SnpSift Intersect</a></li>
+          <li><a href="#rmInfo"> <i class="icon-chevron-right"></i>  SnpSift RmInfo</a></li>
         </ul>
       </div>
       <div class="span9">
@@ -1256,7 +1259,7 @@ Errors:
 				</p>
         </section>
 
-        <!-- Concordance
+        <!-- Private
         ================================================== -->
         <section id="private">
           <div class="page-header">
@@ -1282,6 +1285,123 @@ $ java -jar SnpSift.jar private pheotypes.tfam imp.ann.vcf > imp.ann.private.vcf
 				</p>
         </section>
 
+        <!-- Vcf2Tped
+        ================================================== -->
+        <section id="vcf2tped">
+          <div class="page-header">
+            <h1>18. SnpSift Vcf2Tped </h1>
+          </div>
+				<p class="lead">
+				Convert from VCF to PLINK's TPED file format.
+				</p>
+				<p>
+				The <code>vcf2tped</code> command uses a VCF and a TFAP file as input, creating a TPED and a consolidated TFAM as outputs.
+				<br>
+				<br>
+				Command line options are:
+<pre>
+$ java -jar SnpSift.jar vcf2tped
+SnpSift version 1.9d (build 2013-04-26), by Pablo Cingolani
+Usage: java -jar SnpSift.jar vcf2tped [options] file.tfam file.vcf outputName
+Options:
+	-f             : Force. Overwrite new files if they exist. Default: false
+	-onlySnp       : Use only SNPs when converting VCF to TPED. Default: false
+	-onlyBiAllelic : Use only bi-allelic variants. Default: false
+	-useMissing    : Use entries with missing genotypes (otherwise they are filtered out). Default: false
+	-useMissingRef : Use entries with missing genotypes marking them as 'reference' instead of 'missing'. Default: false
+Parameters:
+	file.tfam      : File with genotypes and groups information (in PLINK's TFAM format)
+	file.vcf       : A VCF file (variants and genotype data)
+	outputName     : Base name for the new TPED and TFAM files.
+</pre>
+				<br>
+				<br>
+				<code>vcf2tped</code> command supports the following features:
+
+				<ul>
+					<li> Output a TPED file:
+						<ul>
+							<li> Only samples present in both the input TFAM and the input VCF files are in the output TPED.
+							<li> Bi-allelic filter: <code>-onlyBiAllelic</code> option filters out non bi-allelic variants.
+							<li> Non SNP variants (InDels, MNPs, etc):
+								<ul>
+									<li> InDels and other non-SNP variants are converted for "fake" SNPs (some programs have problems handling non-SNP vairants).
+									<li> <code>-onlySnp</code> option filters out non SNP variants.
+								</ul>
+							<li> Missing variants:
+								<ul>
+									<li> Variants having missing data are filtered out by default.
+									<li> <code>-useMissing</code> uses missing variants in TPED file.
+									<li> <code>-useMissingRef</code> Converts missing variants to reference genotype.
+								</ul>
+						</ul>
+					<li> Output TFAM file:
+						<ul>
+							<li> Only samples present in both the input TFAM and the input VCF files are in the output TFAM.
+							<li> Samples are re-ordered to have the same order as the VCF file
+						</ul>
+				</ul>
+				</p>
+        </section>
+
+        <!-- Intersect
+        ================================================== -->
+        <section id="intersect">
+          <div class="page-header">
+            <h1>19. SnpSift Intersect </h1>
+          </div>
+				<p class="lead">
+				This command intersects several intervals files (e.g. BED, BigBed, TXT) and produces a result of all intersections.
+				</p>
+				<p>
+				<br>
+				A tipical usage example is to create a consensus of peaks from several Chip-Seq experiments.
+				<br>
+				<br>
+				Algorithm: This command creates one interval forest for each input file. 
+				For every interval in all input files, finds all intervals that intersect at least <code>minOverlap</code> bases (default 1 base).
+				If there are at least <code>cluster</code> number of intersecting intervals it creates a consensus interval from the intersections (or <code>union</code>) of all intervals found.
+				The consensus interval, if any, is shown as result.
+				<p>
+				<br>
+				Command line options:
+<pre>
+$ java -jar SnpSift.jar intersect
+SnpSift version 1.9d (build 2013-04-26), by Pablo Cingolani
+Usage: java -jar SnpSift.jar [options] file_1.bed file_2.bed ... file_N.bed
+Options:
+	-minOverlap <num> : Minimum number of bases that two intervals have to overlap. Default : 0
+	-cluster <num>    : An interval has to intersect at least 'num' intervals (from other files) to be considered. Default: 0
+	-intersect        : Report the intersection of all intervals. Default: false
+	-union            : Report the union of all intervals. Default: true
+</pre>
+				</p>
+        </section>
+
+        <!-- RmInfo
+        ================================================== -->
+        <section id="rmInfo">
+          <div class="page-header">
+            <h1>20. SnpSift RmInfo </h1>
+          </div>
+				<p class="lead">
+				This command removes INFO fields from a VCF file (i.e. removes annotations)
+				</p>
+				<p>
+				Removing INFO fields is usually done because you want to re-annotate the VCF file, thus removing old INFO fields in order to add new ones later.
+				<br>
+				<br>
+				Usage example:
+<pre>
+$ cat test.snpeff.vcf 
+#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO
+1	734462	1032	G	A	.	s50	AC=348;EFF=DOWNSTREAM(MODIFIER|||||RP11-206L10.8|processed_transcript|NON_CODING|ENST00000447500||1),INTRON(MODIFIER|||||RP11-206L10.6|processed_transcript|NON_CODING|ENST00000429505|1|1)
+
+$ java -jar SnpSift.jar rmInfo test.snpeff.vcf EFF
+#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO
+1	734462	1032	G	A	.	s50	AC=348
+</pre>
+				</p>
       </div>
     </div>
 
