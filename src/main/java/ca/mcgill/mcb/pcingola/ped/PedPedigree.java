@@ -1,8 +1,10 @@
 package ca.mcgill.mcb.pcingola.ped;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 import ca.mcgill.mcb.pcingola.util.Gpr;
@@ -15,15 +17,18 @@ import ca.mcgill.mcb.pcingola.util.Gpr;
 public class PedPedigree implements Iterable<TfamEntry> {
 
 	boolean verbose = false;
-	HashMap<String, TfamEntry> tfamById = new HashMap<String, TfamEntry>();
+	HashMap<String, TfamEntry> tfamEntryById = new HashMap<String, TfamEntry>();
+	List<TfamEntry> tfamEntries;
 	PlinkMap plinkMap;
 
 	public PedPedigree() {
-		tfamById = new HashMap<String, TfamEntry>();
+		tfamEntryById = new HashMap<String, TfamEntry>();
+		tfamEntries = new ArrayList<TfamEntry>();
 	}
 
 	public PedPedigree(String tfamFileName) {
-		tfamById = new HashMap<String, TfamEntry>();
+		tfamEntryById = new HashMap<String, TfamEntry>();
+		tfamEntries = new ArrayList<TfamEntry>();
 		loadTfam(tfamFileName);
 	}
 
@@ -32,24 +37,36 @@ public class PedPedigree implements Iterable<TfamEntry> {
 	 * @param tfamEntry
 	 */
 	public void add(TfamEntry tfamEntry) {
-		tfamById.put(tfamEntry.getId(), tfamEntry);
+		tfamEntryById.put(tfamEntry.getId(), tfamEntry);
+		tfamEntries.add(tfamEntry);
 	}
 
 	public TfamEntry get(String id) {
-		return tfamById.get(id);
+		return tfamEntryById.get(id);
 	}
 
 	public PlinkMap getPlinkMap() {
 		return plinkMap;
 	}
 
+	/**
+	 * Get a list of sample IDs
+	 * @return
+	 */
+	public List<String> getSampleIds() {
+		ArrayList<String> sampleIds = new ArrayList<String>();
+		for (TfamEntry te : tfamEntries)
+			sampleIds.add(te.id);
+		return sampleIds;
+	}
+
 	@Override
 	public Iterator<TfamEntry> iterator() {
-		return tfamById.values().iterator();
+		return tfamEntries.iterator();
 	}
 
 	public Set<String> keySet() {
-		return tfamById.keySet();
+		return tfamEntryById.keySet();
 	}
 
 	/**
@@ -87,12 +104,24 @@ public class PedPedigree implements Iterable<TfamEntry> {
 		}
 	}
 
+	/**
+	 * Save pedigree as a TFAM file
+	 * @param fileName
+	 */
+	public void saveTfam(String fileName) {
+		StringBuilder sb = new StringBuilder();
+		for (TfamEntry te : this)
+			sb.append(te + "\n");
+
+		Gpr.toFile(fileName, sb.toString());
+	}
+
 	public void setVerbose(boolean verbose) {
 		this.verbose = verbose;
 	}
 
 	public int size() {
-		return tfamById.size();
+		return tfamEntryById.size();
 	}
 
 	@Override
@@ -104,6 +133,6 @@ public class PedPedigree implements Iterable<TfamEntry> {
 	}
 
 	public Collection<TfamEntry> values() {
-		return tfamById.values();
+		return tfamEntryById.values();
 	}
 }

@@ -124,11 +124,16 @@ public class TfamEntry {
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 
+		String sexStr;
+		if (sex == Sex.Male) sexStr = "1";
+		else if (sex == Sex.Female) sexStr = "2";
+		else sexStr = "0";
+
 		sb.append(familyId + "\t");
 		sb.append(id + "\t");
 		sb.append(fatherId + "\t");
 		sb.append(motherId + "\t");
-		sb.append(sex + "\t");
+		sb.append(sexStr + "\t");
 		sb.append(phenotype);
 
 		return sb.toString();

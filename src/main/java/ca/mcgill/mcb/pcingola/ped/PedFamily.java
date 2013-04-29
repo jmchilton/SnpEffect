@@ -20,7 +20,7 @@ public class PedFamily extends PedPedigree {
 	@Override
 	public void add(TfamEntry tfamEntry) {
 		if ((familyId != null) && (!familyId.equals(tfamEntry.getFamilyId()))) throw new RuntimeException("Cannot add memeber to family. Family IDs do not match: '" + familyId + "' vs '" + tfamEntry.getFamilyId() + "'");
-		tfamById.put(tfamEntry.getId(), tfamEntry);
+		tfamEntryById.put(tfamEntry.getId(), tfamEntry);
 	}
 
 }
