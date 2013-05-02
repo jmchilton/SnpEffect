@@ -80,7 +80,7 @@ while( $l = <STDIN> ) {
 			}
 
 			# Do we have at least one Moderate EFFect AND one High NEXT_PROT?
-			if( ($effBest > $HIGH) || (($effBest == $MODERATE) && ($nextprotBest ne '')) ) {
+			if( ($effBest == $HIGH) || (($effBest == $MODERATE) && ($nextprotBest ne '')) ) {
 				print "$effBest\t$nextprotBest\t" if $debug; 
 				print "$l"; 
 			} 
