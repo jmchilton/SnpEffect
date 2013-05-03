@@ -1,5 +1,6 @@
 package ca.mcgill.mcb.pcingola.probablility;
 
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Random;
 
@@ -48,7 +49,7 @@ public class Hypergeometric {
 	double sumLog[] = { 0.0 };
 
 	public static Hypergeometric get() {
-		if( hypergeometric == null ) hypergeometric = new Hypergeometric();
+		if (hypergeometric == null) hypergeometric = new Hypergeometric();
 		return hypergeometric;
 	}
 
@@ -57,7 +58,7 @@ public class Hypergeometric {
 		Random rand = new Random(20110122);
 
 		Date start = new Date();
-		for( int i = 0; i < numTests; i++ ) {
+		for (int i = 0; i < numTests; i++) {
 			int N = rand.nextInt(100000) + 1;
 			int D = rand.nextInt(N) + 1;
 			int n = rand.nextInt(N) + 1;
@@ -69,7 +70,8 @@ public class Hypergeometric {
 
 	}
 
-	private Hypergeometric() {}
+	private Hypergeometric() {
+	}
 
 	/**
 	 * Check if hypergeometric paramters are correct
@@ -80,7 +82,7 @@ public class Hypergeometric {
 	 * @return
 	 */
 	public boolean checkHypergeometricParams(int k, int N, int D, int n) {
-		if( (k < 0) || (N < 0) || (D < 0) || (n < 0) ) return false;
+		if ((k < 0) || (N < 0) || (D < 0) || (n < 0)) return false;
 
 		/* Change of variables
 		 *					drawn		not drawn			|	total
@@ -96,7 +98,7 @@ public class Hypergeometric {
 		d = N + k - n - D;
 
 		// Check values
-		if( (a < 0) || (b < 0) || (c < 0) || (d < 0) || (N < 0) ) return false;
+		if ((a < 0) || (b < 0) || (c < 0) || (d < 0) || (N < 0)) return false;
 		return true;
 	}
 
@@ -131,7 +133,7 @@ public class Hypergeometric {
 		int ab = a + b, cd = c + d, ac = a + c, bd = b + d;
 
 		// Check values
-		if( (a < 0) || (b < 0) || (c < 0) || (d < 0) || (N < 0) || (D < 0) || (n < 0) || (k < 0) ) {
+		if ((a < 0) || (b < 0) || (c < 0) || (d < 0) || (N < 0) || (D < 0) || (n < 0) || (k < 0)) {
 			Gpr.debug("WARNING: Invalid values. k:" + k + ", N:" + N + ", D:" + D + ", n:" + n + "\t=> a:" + a + ", b:" + b + ", c:" + c + ", d:" + d);
 			return 0;
 		}
@@ -161,7 +163,7 @@ public class Hypergeometric {
 		hypergeometric = Math.exp(hypergeometricLog);
 
 		// A probability can't be negative
-		if( hypergeometric < 0 ) throw new RuntimeException("Negative cumulativeHG = " + hypergeometric + "\n\t\t\t\t\tcalculating hypergeometric(" + k + ", " + N + ", " + D + ", " + n + ")");
+		if (hypergeometric < 0) throw new RuntimeException("Negative cumulativeHG = " + hypergeometric + "\n\t\t\t\t\tcalculating hypergeometric(" + k + ", " + N + ", " + D + ", " + n + ")");
 
 		return hypergeometric;
 	}
@@ -171,16 +173,12 @@ public class Hypergeometric {
 	 * @param n
 	 */
 	synchronized void newSumLog(int n) {
-		if( n >= sumLog.length ) {
-			double sumLogOld[] = sumLog;
-			double sumLogNew[] = new double[n + 1];
-
-			// Copy old values
-			for( int i = 0; i < sumLogOld.length; i++ )
-				sumLogNew[i] = sumLogOld[i];
+		if (n >= sumLog.length) {
+			// Copy and resize
+			double sumLogNew[] = Arrays.copyOf(sumLog, n + 1);
 
 			// Calc new values
-			for( int i = sumLogOld.length; i < sumLogNew.length; i++ )
+			for (int i = sumLog.length; i < sumLogNew.length; i++)
 				sumLogNew[i] = sumLogNew[i - 1] + Math.log(i);
 
 			sumLog = sumLogNew;
@@ -194,7 +192,7 @@ public class Hypergeometric {
 	 */
 	double sumLog(int n) {
 		// Not in the array? => update size
-		if( n >= sumLog.length ) newSumLog(n);
+		if (n >= sumLog.length) newSumLog(n);
 		return sumLog[n];
 	}
 
