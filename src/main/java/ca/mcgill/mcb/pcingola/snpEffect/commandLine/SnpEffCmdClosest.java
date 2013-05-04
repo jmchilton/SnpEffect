@@ -3,14 +3,12 @@ package ca.mcgill.mcb.pcingola.snpEffect.commandLine;
 import ca.mcgill.mcb.pcingola.fileIterator.BedFileIterator;
 import ca.mcgill.mcb.pcingola.fileIterator.VcfFileIterator;
 import ca.mcgill.mcb.pcingola.interval.Chromosome;
-import ca.mcgill.mcb.pcingola.interval.Exon;
 import ca.mcgill.mcb.pcingola.interval.Gene;
 import ca.mcgill.mcb.pcingola.interval.Intergenic;
 import ca.mcgill.mcb.pcingola.interval.Marker;
 import ca.mcgill.mcb.pcingola.interval.Markers;
 import ca.mcgill.mcb.pcingola.interval.SeqChange;
 import ca.mcgill.mcb.pcingola.interval.Transcript;
-import ca.mcgill.mcb.pcingola.interval.Utr;
 import ca.mcgill.mcb.pcingola.outputFormatter.OutputFormatter;
 import ca.mcgill.mcb.pcingola.snpEffect.Config;
 import ca.mcgill.mcb.pcingola.snpEffect.SnpEffectPredictor;
@@ -66,14 +64,28 @@ public class SnpEffCmdClosest extends SnpEff {
 		for (SeqChange bed : bfi) {
 			try {
 				// Find closest exon
-				Marker closestMarker = findClosestMarker(bed);
+				Markers closestMarkers = findClosestMarker(bed);
 
 				String id = bed.getId();
 
-				// Update INFO fields if any exon was found
-				if (closestMarker != null) {
-					int dist = closestMarker.distance(bed);
-					id = (id.isEmpty() ? "" : bed.getId() + ";") + dist + "," + OutputFormatter.idChain(closestMarker, ",", false);
+				// Update ID field if any marker found
+				if (closestMarkers != null) {
+					StringBuilder idsb = new StringBuilder();
+
+					// Previous ID
+					idsb.append(bed.getId());
+					if (idsb.length() > 0) idsb.append(";");
+
+					// Distance
+					Marker firstMarker = closestMarkers.getMarkers().get(0);
+					int dist = firstMarker.distance(bed);
+					idsb.append(dist);
+
+					// Append all closest markers
+					for (Marker closestMarker : closestMarkers)
+						idsb.append(";" + OutputFormatter.idChain(closestMarker, ",", false));
+
+					id = idsb.toString();
 				}
 
 				// Show output
@@ -93,7 +105,7 @@ public class SnpEffCmdClosest extends SnpEff {
 	 * Find closest marker
 	 * @param queryMarker
 	 */
-	Marker findClosestMarker(Marker queryMarker) {
+	Markers findClosestMarker(Marker queryMarker) {
 		int initialExtension = 1000;
 
 		Chromosome chr = queryMarker.getChromosome();
@@ -107,8 +119,14 @@ public class SnpEffCmdClosest extends SnpEff {
 
 				// Find all markers that intersect with 'extended interval'
 				Markers markers = snpEffectPredictor.queryDeep(extended);
-				Marker closest = findClosestMarker(queryMarker, markers);
-				if (closest != null) return closest;
+
+				// Find minimum distance
+				int minDistance = minDistance(queryMarker, markers);
+				if (minDistance < Integer.MAX_VALUE) {
+					// All markers that are at minimum distance 
+					Markers closest = findClosestMarkers(queryMarker, markers, minDistance);
+					return closest;
+				}
 			}
 		}
 
@@ -122,42 +140,47 @@ public class SnpEffCmdClosest extends SnpEff {
 	 * @param markers
 	 * @return
 	 */
-	Marker findClosestMarker(Marker queryMarker, Markers markers) {
-		// We prefer the closest marker from the longest transcript)
-		int minDist = Integer.MAX_VALUE;
-		int maxTrLen = 0;
-
-		Marker minDistMarker = null;
+	Markers findClosestMarkers(Marker queryMarker, Markers markers, int maxDistance) {
+		Markers closest = new Markers();
 		for (Marker m : markers) {
 			// We don't care about these
 			if ((m instanceof Chromosome) || (m instanceof Intergenic) || (m instanceof Gene) || (m instanceof Transcript)) continue;
 
-			// Find closest marker
+			// Find marker at distance less than 'distance'
 			int dist = m.distance(queryMarker);
-			if (dist <= minDist) {
-
-				Transcript tr = findTranscript(m);
-				if (tr != null) {
-					// Find closest marker in largest transcript
-					int trLen = tr.mRna().length();
-					if (trLen > maxTrLen) {
-						maxTrLen = trLen;
-						minDist = dist;
-						minDistMarker = m;
-					} else if (trLen == maxTrLen) {
-						// Prefer Utr to Exon (more descriptive)
-						if ((minDistMarker instanceof Exon) && (m instanceof Utr)) minDistMarker = m;
-					}
-				}
-			}
+			if ((dist <= maxDistance) && (findTranscript(m) != null)) closest.add(m);
 		}
 
-		return minDistMarker;
+		return closest;
 	}
 
+	/**
+	 * Find a transcript
+	 * @param m
+	 * @return
+	 */
 	Transcript findTranscript(Marker m) {
 		if (m instanceof Transcript) return (Transcript) m;
 		return (Transcript) m.findParent(Transcript.class);
+	}
+
+	/**
+	 * Find minimum distance
+	 * @param queryMarker
+	 * @param markers
+	 * @return minumum distance
+	 */
+	int minDistance(Marker queryMarker, Markers markers) {
+		int minDist = Integer.MAX_VALUE;
+		for (Marker m : markers) {
+			// We don't care about these
+			if ((m instanceof Chromosome) || (m instanceof Intergenic) || (m instanceof Gene) || (m instanceof Transcript)) continue;
+
+			// Find closest marker that has a transcript 
+			int dist = m.distance(queryMarker);
+			if ((dist <= minDist) && (findTranscript(m) != null)) minDist = dist;
+		}
+		return minDist;
 	}
 
 	/**
@@ -249,13 +272,22 @@ public class SnpEffCmdClosest extends SnpEff {
 				}
 
 				// Find closest exon
-				Marker closestMarker = findClosestMarker(ve);
+				Markers closestMarkers = findClosestMarker(ve);
 
-				// Update INFO fields if any exon was found
-				if (closestMarker != null) {
-					int dist = closestMarker.distance(ve);
-					String value = dist + "," + OutputFormatter.idChain(closestMarker, ",", false);
-					ve.addInfo(CLOSEST, value);
+				// Update INFO fields if any marker was found
+				if (closestMarkers != null) {
+					StringBuilder closestsb = new StringBuilder();
+
+					// Distance
+					Marker firstMarker = closestMarkers.getMarkers().get(0);
+					int dist = firstMarker.distance(ve);
+					closestsb.append(dist);
+
+					// Append all closest markers
+					for (Marker closestMarker : closestMarkers)
+						closestsb.append("|" + OutputFormatter.idChain(closestMarker, ",", false));
+
+					ve.addInfo(CLOSEST, closestsb.toString());
 				}
 
 				// Show output

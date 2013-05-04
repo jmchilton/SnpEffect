@@ -773,11 +773,13 @@ public class Transcript extends IntervalAndSubIntervals<Exon> {
 					int size = end - start + 1;
 					if (size > 0) {
 						// Add intron to list
-						intron = new Intron(this, start, end, strand, id + "_intron_" + rank);
+						intron = new Intron(this, start, end, strand, id + "_intron_" + rank, exBefore, ex);
+
 						intron.setRank(rank);
 						introns.add(intron);
 					}
 				}
+
 				exBefore = ex;
 			}
 		}
@@ -887,8 +889,8 @@ public class Transcript extends IntervalAndSubIntervals<Exon> {
 
 		// Concatenate all exons
 		StringBuilder sequence = new StringBuilder();
-		for (Exon eint : exons)
-			sequence.append(eint.getSequence());
+		for (Exon ex : exons)
+			sequence.append(ex.getSequence());
 
 		return sequence.toString();
 	}

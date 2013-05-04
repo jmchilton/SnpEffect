@@ -58,11 +58,13 @@ public abstract class OutputFormatter {
 			switch (m.getType()) {
 			case EXON:
 				Transcript tr = (Transcript) m.getParent();
-				sb.append("exon_" + ((Exon) m).getRank() + "_" + tr.numChilds());
+				Exon ex = (Exon) m;
+				sb.append("exon_" + ex.getRank() + "_" + tr.numChilds() + "_" + ex.getSpliceType());
 				break;
 
 			case INTRON:
-				sb.append("intron_" + ((Intron) m).getRank());
+				Intron intron = (Intron) m;
+				sb.append("intron_" + intron.getRank() + "_" + intron.getSpliceType());
 				break;
 
 			case GENE:

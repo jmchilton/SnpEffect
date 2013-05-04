@@ -838,8 +838,9 @@ public class SnpEffCmdEff extends SnpEff {
 	 */
 	public List<VcfEntry> run(boolean createList) {
 		//---
-		// Run predictor
+		// Prepare to run
 		//---
+
 		// Nothing to filter out => don't waste time
 		if (!changeEffectResutFilter.anythingSet()) changeEffectResutFilter = null;
 
@@ -1117,7 +1118,9 @@ public class SnpEffCmdEff extends SnpEff {
 
 		System.err.println("snpEff version " + VERSION);
 		System.err.println("Usage: snpEff [eff] [options] genome_version [variants_file]");
-		System.err.println("\nInput file: Default is STDIN");
+		System.err.println("\n");
+		System.err.println("\nvariants_file           : Default is STDIN");
+		System.err.println("\n");
 		System.err.println("\nOptions:");
 		System.err.println("\t-a , -around            : Show N codons and amino acids around change (only in coding regions). Default is " + CodonChange.SHOW_CODONS_AROUND_CHANGE + " codons.");
 		System.err.println("\t-i <format>             : Input format [ vcf, txt, pileup, bed ]. Default: VCF.");
