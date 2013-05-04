@@ -85,18 +85,25 @@ public class SnpEffCmdCount extends SnpEff {
 	}
 
 	/**
-	 * Calculate pvalues for 
+	 * Calculate p-values for 
 	 */
 	ReadsOnMarkersModel pvalues() {
-		ReadsOnMarkersModel readsOnMarkersModel = new ReadsOnMarkersModel(snpEffectPredictor);
 		int readLength = countReadsOnMarkers.getReadLengthAvg();
 		if (verbose) Timer.showStdErr("Calculating probability model for read length " + readLength);
+
+		// Cannot load from file: Create model and save it
+		ReadsOnMarkersModel readsOnMarkersModel = new ReadsOnMarkersModel(snpEffectPredictor);
+
+		// Calculate model
 		readsOnMarkersModel.setReadLength(readLength);
 		readsOnMarkersModel.setVerbose(verbose);
 		readsOnMarkersModel.setMarkerTypes(countReadsOnMarkers.getMarkerTypes());
 
 		// Run model
 		readsOnMarkersModel.run();
+
+		Timer.showStdErr("Probability model:\n" + readsOnMarkersModel.toString());
+
 		return readsOnMarkersModel;
 	}
 
@@ -144,14 +151,11 @@ public class SnpEffCmdCount extends SnpEff {
 		countReadsOnMarkers.count();
 
 		if (!quiet) {
-			Gpr.debug("UNCOMMENT!!!");
-			//			// Show marker by marker counts
-			//			countReadsOnMarkers.print();
-			//
-			//			// Calculate p-values
-			//			ReadsOnMarkersModel readsOnMarkersModel = pvalues();
-			//			System.err.println(countReadsOnMarkers.probabilityTable(readsOnMarkersModel.getProb()));
+			// Show marker by marker counts
+			countReadsOnMarkers.print();
 
+			// Calculate p-values
+			// ReadsOnMarkersModel readsOnMarkersModel = pvalues(); // We don't calculate this any more. Binomial model is too primitive to calculate usable results.
 			ReadsOnMarkersModel readsOnMarkersModel = new ReadsOnMarkersModel(snpEffectPredictor);
 			System.err.println(countReadsOnMarkers.probabilityTable(readsOnMarkersModel.getProb()));
 

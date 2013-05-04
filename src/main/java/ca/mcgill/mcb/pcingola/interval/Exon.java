@@ -20,6 +20,7 @@ public class Exon extends MarkerSeq {
 	 * References: "Alternative splicing and evolution - diversification, exon definition and function"  (see Box 1)
 	 */
 	public enum ExonSpliceType {
+		NONE, // Not spliced
 		RETAINED, // All transcripts have this exon
 		SKIPPED, // Some transcripts skip it
 		ALTTENATIVE_3SS, // Some transcripts have and alternative 3' exon start 
@@ -35,7 +36,7 @@ public class Exon extends MarkerSeq {
 	int rank; // Exon rank in transcript
 	SpliceSiteAcceptor spliceSiteAcceptor;
 	SpliceSiteDonor spliceSiteDonor;
-	ExonSpliceType spliceType;
+	ExonSpliceType spliceType = ExonSpliceType.NONE;
 
 	public Exon() {
 		super();

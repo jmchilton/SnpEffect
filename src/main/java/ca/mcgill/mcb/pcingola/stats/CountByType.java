@@ -135,7 +135,7 @@ public class CountByType implements Serializable {
 	 * Is this empty
 	 */
 	public boolean isEmpty() {
-		return countByType.isEmpty();
+		return countByType.isEmpty() && scoreByType.isEmpty();
 	}
 
 	public Set<String> keySet() {
@@ -189,6 +189,10 @@ public class CountByType implements Serializable {
 	public void remove(String type) {
 		countByType.remove(type);
 		scoreByType.remove(type);
+	}
+
+	public void setScore(String type, double score) {
+		scoreByType.put(type, score);
 	}
 
 	/**

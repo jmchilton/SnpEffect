@@ -1,14 +1,15 @@
 package ca.mcgill.mcb.pcingola.stats;
 
-import java.util.HashMap;
 import java.util.HashSet;
 
+import ca.mcgill.mcb.pcingola.coverage.MarkerTypes;
 import ca.mcgill.mcb.pcingola.interval.Chromosome;
 import ca.mcgill.mcb.pcingola.interval.Gene;
 import ca.mcgill.mcb.pcingola.interval.Marker;
 import ca.mcgill.mcb.pcingola.interval.Markers;
 import ca.mcgill.mcb.pcingola.probablility.RandMarker;
 import ca.mcgill.mcb.pcingola.snpEffect.SnpEffectPredictor;
+import ca.mcgill.mcb.pcingola.util.Gpr;
 
 /**
  * Calculate the maximum interval length by type, for all markers in a genome
@@ -26,7 +27,7 @@ public class ReadsOnMarkersModel {
 	CountByType rawCountBases; // Number of bases covered by each marker type (befoew join or overlap)
 	CountByType prob; // Binomial probability (for each marker type)
 	SnpEffectPredictor snpEffectPredictor;
-	HashMap<Marker, String> markerTypes;
+	MarkerTypes markerTypes;
 
 	public ReadsOnMarkersModel(SnpEffectPredictor snpEffectPredictor) {
 		super();
@@ -35,12 +36,7 @@ public class ReadsOnMarkersModel {
 		countMarkers = new CountByType();
 		rawCountMarkers = new CountByType();
 		rawCountBases = new CountByType();
-		markerTypes = new HashMap<Marker, String>();
 		prob = new CountByType();
-	}
-
-	public void addMarkerType(Marker marker, String type) {
-		markerTypes.put(marker, type);
 	}
 
 	/**
@@ -63,9 +59,17 @@ public class ReadsOnMarkersModel {
 		// Calculate raw counts
 		//---
 		for (Marker m : markers) {
-			String mtype = markerType(m);
+			String mtype = markerTypes.getType(m);
+			String msubtype = markerTypes.getSubType(m);
+
 			rawCountMarkers.inc(mtype);
 			rawCountBases.inc(mtype, m.size());
+
+			// Count sub-types (if any)
+			if (msubtype != null) {
+				rawCountMarkers.inc(msubtype);
+				rawCountBases.inc(msubtype, m.size());
+			}
 		}
 
 		//---
@@ -76,8 +80,10 @@ public class ReadsOnMarkersModel {
 
 			if (verbose) System.err.print(mtype + ":");
 
-			for (Chromosome chr : snpEffectPredictor.getGenome())
-				countBases(mtype, chr, markers);
+			if (countMarkers.get(mtype) == 0) {
+				for (Chromosome chr : snpEffectPredictor.getGenome())
+					countBases(mtype, chr, markers);
+			}
 
 			if (verbose) System.err.println("");
 		}
@@ -108,7 +114,7 @@ public class ReadsOnMarkersModel {
 
 		for (Marker m : markers) {
 			// Same marker type & same chromo? Count bases
-			if (m.getChromosomeName().equals(chrName) && markerType(m).equals(mtype)) {
+			if (m.getChromosomeName().equals(chrName) && markerTypes.isType(m, mtype)) {
 				for (int i = m.getStart(); i <= m.getEnd(); i++)
 					busy[i] = 1;
 			}
@@ -151,20 +157,34 @@ public class ReadsOnMarkersModel {
 	}
 
 	/**
-	 * Get marker type
-	 * @param marker
-	 * @return
+	 * Load data from a file
+	 * @param fileName
 	 */
-	String markerType(Marker marker) {
-		String type = markerTypes.get(marker);
-		if (type != null) return type;
-		return marker.getClass().getSimpleName();
+	public void load(String fileName) {
+
+		boolean header = true;
+		for (String line : Gpr.readFile(fileName).split("\n")) {
+			if (header) {
+				header = false;
+				continue;
+			}
+
+			// Split line and parse data 
+			String recs[] = line.split("\t");
+
+			String mtype = recs[0];
+			countBases.inc(mtype, Gpr.parseIntSafe(recs[1]));
+			countMarkers.inc(mtype, Gpr.parseIntSafe(recs[2]));
+		}
 	}
 
 	/**
 	 * Calculate probabilities
 	 */
 	void probabilities() {
+		// Already done, nothing to do
+		if (!prob.isEmpty()) return;
+
 		// Get total length and count for chromosomes (chromosome size is total genome length)
 		String chrType = Chromosome.class.getSimpleName();
 		long chrSize = countBases.get(chrType);
@@ -186,9 +206,8 @@ public class ReadsOnMarkersModel {
 			p = Math.min(1.0, p);
 			p = Math.max(0.0, p);
 
-			prob.addScore(mtype, p);
+			prob.setScore(mtype, p);
 		}
-
 	}
 
 	/**
@@ -209,11 +228,19 @@ public class ReadsOnMarkersModel {
 			Markers regions = snpEffectPredictor.queryDeep(read);
 			HashSet<String> doneRegion = new HashSet<String>();
 			for (Marker m : regions) {
-				String mtype = markerType(m);
+				String mtype = markerTypes.getType(m);
+				String msubtype = markerTypes.getSubType(m);
+
 				if (!doneRegion.contains(mtype)) {
 					countReads.inc(mtype); // Count reads
 					doneRegion.add(mtype); // Do not count twice
 				}
+
+				if ((msubtype != null) && !doneRegion.contains(msubtype)) {
+					countReads.inc(msubtype); // Count reads
+					doneRegion.add(msubtype); // Do not count twice
+				}
+
 			}
 		}
 
@@ -251,7 +278,22 @@ public class ReadsOnMarkersModel {
 		return true;
 	}
 
-	public void setMarkerTypes(HashMap<Marker, String> markerTypes) {
+	/**
+	 * Save model to file
+	 * @param fileName
+	 */
+	public void save(String fileName) {
+		StringBuilder sb = new StringBuilder();
+		sb.append("marker_type\tsize\tcount\tbinomial_p\n");
+
+		probabilities();
+		for (String mtype : markerTypes.markerTypesClass())
+			sb.append(mtype + "\t" + countBases.get(mtype) + "\t" + countMarkers.get(mtype) + "\n");
+
+		Gpr.toFile(fileName, sb.toString());
+	}
+
+	public void setMarkerTypes(MarkerTypes markerTypes) {
 		this.markerTypes = markerTypes;
 	}
 
@@ -278,7 +320,7 @@ public class ReadsOnMarkersModel {
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
-		sb.append("marker\tsize\tcount\traw_size\traw_count\tbinomial_p\n");
+		sb.append("marker_type\tsize\tcount\traw_size\traw_count\tbinomial_p\n");
 
 		probabilities();
 		for (String mtype : countMarkers.keysSorted())
