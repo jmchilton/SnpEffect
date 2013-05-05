@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 
@@ -24,6 +25,7 @@ import ca.mcgill.mcb.pcingola.stats.CountByKey;
 import ca.mcgill.mcb.pcingola.stats.CountByType;
 import ca.mcgill.mcb.pcingola.stats.CoverageByType;
 import ca.mcgill.mcb.pcingola.stats.PosStats;
+import ca.mcgill.mcb.pcingola.stats.plot.GoogleBarChart;
 import ca.mcgill.mcb.pcingola.stats.plot.GoogleGeneRegionChart;
 import ca.mcgill.mcb.pcingola.util.Gpr;
 import ca.mcgill.mcb.pcingola.util.Timer;
@@ -282,20 +284,91 @@ public class CountReadsOnMarkers {
 		return (int) Math.round(rl);
 	}
 
+	/**
+	 * Show charts in html 
+	 * @return
+	 */
 	public String html() {
 		StringBuilder sbHead = new StringBuilder();
 		StringBuilder sbBody = new StringBuilder();
 
+		//---
+		// Barchart: Marker types
+		//---
+
+		// Create 3 charts: One for all intervals, one for Exons and one for Introns.
+		HashSet<String> keySetAll = new HashSet<String>();
+		HashSet<String> keySetExon = new HashSet<String>();
+		HashSet<String> keySetIntron = new HashSet<String>();
+		for (CountByType ct : countTypesByFile)
+			for (String key : ct.keySet())
+				if (key.startsWith("Exon:")) keySetExon.add(key);
+				else if (key.startsWith("Intron:")) keySetIntron.add(key);
+				else keySetAll.add(key);
+
+		keySetAll.remove("Chromosome"); // We don't want this number in the chart (usually it's too big)
+		HashMap<String, HashSet<String>> keySets = new HashMap<String, HashSet<String>>();
+		keySets.put("", keySetAll);
+		keySets.put("Exons", keySetExon);
+		keySets.put("Introns", keySetIntron);
+
+		// Sort names
+		ArrayList<String> keySetNames = new ArrayList<String>();
+		keySetNames.addAll(keySets.keySet());
+		Collections.sort(keySetNames);
+
+		// Create one barchart for each keySet
+		for (String ksname : keySetNames) {
+			HashSet<String> keySet = keySets.get(ksname);
+			// Sort keys
+			ArrayList<String> keys = new ArrayList<String>();
+			keys.addAll(keySet);
+			Collections.sort(keys);
+
+			// Add all columns
+			GoogleBarChart barchart = new GoogleBarChart("Count by file " + ksname);
+			barchart.setxLables(keys);
+
+			// Add all files
+			for (int i = 0; i < names.size(); i++) {
+				String name = names.get(i);
+				CountByType ct = countTypesByFile.get(i);
+
+				// Add all values
+				ArrayList<String> columnValues = new ArrayList<String>();
+				for (String key : keys)
+					if (keys.contains(key)) columnValues.add(ct.get(key) + "");
+
+				// Add column to chart
+				barchart.addColumn(name, columnValues);
+
+				// Add header and body
+				sbHead.append(barchart.toStringHtmlHeader());
+				sbBody.append(barchart.toStringHtmlBody());
+			}
+		}
+
+		//---
+		// Genomic region charts
+		//---
+		ArrayList<GoogleGeneRegionChart> genRegCharts = new ArrayList<GoogleGeneRegionChart>();
 		for (int i = 0; i < names.size(); i++) {
 			String name = names.get(i);
-			Gpr.debug("File : " + i + "\t" + name);
 			CoverageByType cvt = coverageByFile.get(i);
 
 			GoogleGeneRegionChart grc = new GoogleGeneRegionChart(cvt, name);
-			sbHead.append(grc.toStringHtmlHeader());
-			sbBody.append(grc.toStringHtmlBody());
+			genRegCharts.add(grc);
 		}
 
+		// Add all headers
+		for (GoogleGeneRegionChart grc : genRegCharts)
+			sbHead.append(grc.toStringHtmlHeader());
+
+		// Add all bodies
+		for (GoogleGeneRegionChart grc : genRegCharts)
+			sbBody.append(grc.toStringHtmlBody());
+
+		// Return all html code
 		return sbHead.toString() + sbBody.toString();
 	}
 
@@ -314,36 +387,6 @@ public class CountReadsOnMarkers {
 
 		if (snpEffectPredictor != null) this.snpEffectPredictor = snpEffectPredictor;
 		else this.snpEffectPredictor = new SnpEffectPredictor(new Genome());
-	}
-
-	/**
-	 * Print table to STDOUT
-	 */
-	public void print() {
-		// Show title
-		System.out.print("chr\tstart\tend\ttype\tIDs");
-		for (int j = 0; j < countReadsByFile.size(); j++)
-			System.out.print("\tReads:" + names.get(j) + "\tBases:" + names.get(j));
-		System.out.print("\n");
-
-		//---
-		// Show counts by marker
-		//---
-		// Show counts for each marker
-		for (Marker key : allMarkers()) {
-			// Show 'key' information in first columns
-			System.out.print(key.getChromosomeName() //
-					+ "\t" + (key.getStart() + 1) //
-					+ "\t" + (key.getEnd() + 1) //
-					+ "\t" + OutputFormatter.idChain(key) //
-			);
-
-			// Show counts for each file
-			for (int idx = 0; idx < countReadsByFile.size(); idx++)
-				System.out.print("\t" + countReadsByFile.get(idx).get(key) + "\t" + countBasesByFile.get(idx).get(key));
-			System.out.print("\n");
-		}
-		System.out.print("\n");
 	}
 
 	/**
@@ -398,6 +441,41 @@ public class CountReadsOnMarkers {
 
 	public void setVerbose(boolean verbose) {
 		this.verbose = verbose;
+	}
+
+	/**
+	 * Print table to STDOUT
+	 */
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+
+		// Show title
+		sb.append("chr\tstart\tend\ttype\tIDs");
+		for (int j = 0; j < countReadsByFile.size(); j++)
+			sb.append("\tReads:" + names.get(j) + "\tBases:" + names.get(j));
+		sb.append("\n");
+
+		//---
+		// Show counts by marker
+		//---
+		// Show counts for each marker
+		for (Marker key : allMarkers()) {
+			// Show 'key' information in first columns
+			sb.append(key.getChromosomeName() //
+					+ "\t" + (key.getStart() + 1) //
+					+ "\t" + (key.getEnd() + 1) //
+					+ "\t" + OutputFormatter.idChain(key) //
+			);
+
+			// Show counts for each file
+			for (int idx = 0; idx < countReadsByFile.size(); idx++)
+				sb.append("\t" + countReadsByFile.get(idx).get(key) + "\t" + countBasesByFile.get(idx).get(key));
+			sb.append("\n");
+		}
+		sb.append("\n");
+
+		return sb.toString();
 	}
 
 }

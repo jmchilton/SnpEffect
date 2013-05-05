@@ -23,8 +23,8 @@ import ca.mcgill.mcb.pcingola.util.Timer;
  */
 public class SnpEffCmdCount extends SnpEff {
 
-	public static boolean debug = true;
-
+	boolean calcProbModel;
+	String outputBaseNames;
 	CountReadsOnMarkers countReadsOnMarkers;
 	SnpEffectPredictor snpEffectPredictor;
 	List<String> fileNames; // Files to count (can be BAM, SAM) 
@@ -71,6 +71,8 @@ public class SnpEffCmdCount extends SnpEff {
 		// Parse command line arguments
 		for (int i = 0; i < args.length; i++) {
 			if (args[i].equals("-i")) customIntervals.add(args[++i]);
+			else if (args[i].equals("-p")) calcProbModel = true;
+			else if (args[i].equals("-n")) outputBaseNames = args[++i];
 			else if ((genomeVer == null) || genomeVer.isEmpty()) genomeVer = args[i];
 			else fileNames.add(args[i]);
 		}
@@ -129,8 +131,9 @@ public class SnpEffCmdCount extends SnpEff {
 			// Load file
 			if (verbose) Timer.showStdErr("Reading intervals from file '" + markersFile + "'");
 			String baseName = Gpr.removeExt(Gpr.baseName(markersFile));
-
 			Markers markers = readMarkers(markersFile);
+
+			// Set marker type
 			for (Marker marker : markers) {
 				marker.setId(baseName + ":" + marker.getId());
 				snpEffectPredictor.add(marker);
@@ -151,15 +154,30 @@ public class SnpEffCmdCount extends SnpEff {
 		countReadsOnMarkers.count();
 
 		if (!quiet) {
-			// Show marker by marker counts
-			countReadsOnMarkers.print();
+			Gpr.debug("Uncomment!");
+			// Show results : Details marker by marker counts
+			if (outputBaseNames != null) {
+				String detailsFile = outputBaseNames + ".txt";
+				if (verbose) Timer.showStdErr("Saving counts by marker to file '" + detailsFile + "'");
+				Gpr.toFile(detailsFile, countReadsOnMarkers);
+			} else System.out.println(countReadsOnMarkers);
 
 			// Calculate p-values
-			// ReadsOnMarkersModel readsOnMarkersModel = pvalues(); // We don't calculate this any more. Binomial model is too primitive to calculate usable results.
 			ReadsOnMarkersModel readsOnMarkersModel = new ReadsOnMarkersModel(snpEffectPredictor);
-			System.err.println(countReadsOnMarkers.probabilityTable(readsOnMarkersModel.getProb()));
+			if (calcProbModel) readsOnMarkersModel = pvalues();
 
-			Gpr.toFile(Gpr.HOME + "/z.html", countReadsOnMarkers.html());
+			// Show results (summary)
+			if (outputBaseNames != null) {
+				String summaryFile = outputBaseNames + ".summary.txt";
+				if (verbose) Timer.showStdErr("Saving summary to file '" + summaryFile + "'");
+				Gpr.toFile(summaryFile, "# Summary\n" + countReadsOnMarkers.probabilityTable(readsOnMarkersModel.getProb()));
+			} else System.err.println("# Summary\n" + countReadsOnMarkers.probabilityTable(readsOnMarkersModel.getProb()));
+
+			// Save HTML file
+			String htmlFile = "snpeff.count.html";
+			if (outputBaseNames != null) htmlFile = outputBaseNames + ".summary.html";
+			if (verbose) Timer.showStdErr("Saving charts to file : " + htmlFile);
+			Gpr.toFile(htmlFile, countReadsOnMarkers.html());
 		}
 
 		return true;
@@ -169,9 +187,11 @@ public class SnpEffCmdCount extends SnpEff {
 	public void usage(String message) {
 		if (message != null) System.err.println("Error: " + message + "\n");
 		System.err.println("snpEff version " + VERSION);
-		System.err.println("Usage: snpEff count [-i intervals.bed] genome file_1 file_2 ...  file_N");
+		System.err.println("Usage: snpEff count [options] genome file_1 file_2 ...  file_N");
 		System.err.println("\t-i intervals.bed : User defined intervals. Mutiple '-i' commands are allowed.");
-		System.err.println("\treadsFile        : A file contianing the reads. Either BAM or SAM format.");
+		System.err.println("\t-n name          : Output file base name. ");
+		System.err.println("\t-p               : Calculate probability model (binomial). Default: " + calcProbModel);
+		System.err.println("\tfile             : A file contianing intervals or reads. Either BAM, SAM, BED, BigBed format.");
 		System.exit(-1);
 	}
 }

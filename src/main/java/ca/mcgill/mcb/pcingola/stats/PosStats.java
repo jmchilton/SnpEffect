@@ -46,8 +46,15 @@ public class PosStats extends ChrPosStats {
 	 */
 	public void rand(int maxLen, int countMax) {
 		Random rand = new Random();
-		for (int i = 0; i < Math.min(maxLen, count.length); i++)
-			count[i] = rand.nextInt(countMax);
+		double lambda = 0.95;
+		int prev = 0;
+		for (int i = 0; i < Math.min(maxLen, count.length); i++) {
+			double factor1 = i / ((double) maxLen);
+			double factor2 = (maxLen - i) / ((double) maxLen);
+			double factor = factor1 * factor2 / 0.25;
+			count[i] = (int) (lambda * prev + (1 - lambda) * factor * rand.nextInt(countMax));
+			prev = count[i];
+		}
 		maxIndex = maxLen;
 	}
 

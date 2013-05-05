@@ -4,20 +4,28 @@ import java.util.ArrayList;
 
 import ca.mcgill.mcb.pcingola.interval.Downstream;
 import ca.mcgill.mcb.pcingola.interval.Exon;
+import ca.mcgill.mcb.pcingola.interval.Intergenic;
 import ca.mcgill.mcb.pcingola.interval.Intron;
 import ca.mcgill.mcb.pcingola.interval.Upstream;
 import ca.mcgill.mcb.pcingola.interval.Utr3prime;
 import ca.mcgill.mcb.pcingola.interval.Utr5prime;
 import ca.mcgill.mcb.pcingola.stats.CoverageByType;
 import ca.mcgill.mcb.pcingola.stats.PosStats;
-import ca.mcgill.mcb.pcingola.util.Gpr;
 
 public class GoogleGeneRegionChart {
+
+	String[] types = { Intergenic.class.getSimpleName() //
+			, Upstream.class.getSimpleName() //
+			, Utr5prime.class.getSimpleName() //
+			, Exon.class.getSimpleName() //
+			, Intron.class.getSimpleName() //
+			, Utr3prime.class.getSimpleName() //
+			, Downstream.class.getSimpleName() //
+	};
 
 	CoverageByType coverageByType;
 	GoogleLineChart lineChart;
 	String name;
-	String[] types = { Upstream.class.getSimpleName(), Utr5prime.class.getSimpleName(), Exon.class.getSimpleName(), Intron.class.getSimpleName(), Utr3prime.class.getSimpleName(), Downstream.class.getSimpleName() };
 
 	public GoogleGeneRegionChart(CoverageByType coverageByType, String name) {
 		this.coverageByType = coverageByType;
@@ -34,7 +42,6 @@ public class GoogleGeneRegionChart {
 	ArrayList<String> createCol(int nullBefore, String type) {
 		ArrayList<String> col = new ArrayList<String>();
 		PosStats posStats = coverageByType.get(type);
-		Gpr.debug(type + " Size: " + posStats.size());
 
 		for (int i = 0; i < nullBefore; i++)
 			col.add(null);
@@ -42,7 +49,6 @@ public class GoogleGeneRegionChart {
 		for (int i = 0; i < posStats.size(); i++)
 			col.add("" + posStats.getCount(i));
 
-		Gpr.debug(col.size());
 		return col;
 	}
 

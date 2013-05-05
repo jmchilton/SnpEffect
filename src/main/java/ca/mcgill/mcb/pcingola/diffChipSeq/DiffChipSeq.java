@@ -203,7 +203,7 @@ public class DiffChipSeq implements CommandLine {
 		countReadsOnMarkers.addFile(bamFile2);
 		countReadsOnMarkers.addFile(bamInputFile2);
 		countReadsOnMarkers.count();
-		countReadsOnMarkers.print();
+		System.out.println(countReadsOnMarkers);
 
 		return false;
 	}
