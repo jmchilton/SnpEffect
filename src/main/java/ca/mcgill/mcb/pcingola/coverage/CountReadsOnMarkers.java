@@ -341,11 +341,11 @@ public class CountReadsOnMarkers {
 
 				// Add column to chart
 				barchart.addColumn(name, columnValues);
-
-				// Add header and body
-				sbHead.append(barchart.toStringHtmlHeader());
-				sbBody.append(barchart.toStringHtmlBody());
 			}
+
+			// Add header and body
+			sbHead.append(barchart.toStringHtmlHeader());
+			sbBody.append(barchart.toStringHtmlBody());
 		}
 
 		//---

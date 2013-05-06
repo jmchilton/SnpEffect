@@ -93,7 +93,7 @@ public class GoogleLineChart {
 
 	public String toStringHtmlBody() {
 		StringBuilder sb = new StringBuilder();
-		sb.append("<div id=\"visualization_" + id + "\" style=\"width: " + width + "px; height: " + width + "px;\"></div>\n");
+		sb.append("<div id=\"visualization_" + id + "\" style=\"width: " + width + "px; height: " + height + "px;\"></div>\n");
 		return sb.toString();
 	}
 
