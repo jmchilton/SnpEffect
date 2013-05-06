@@ -40,6 +40,7 @@ public class CodonChangeMnp extends CodonChange {
 		ArrayList<ChangeEffect> changes = new ArrayList<ChangeEffect>();
 		if (!transcript.intersects(seqChange)) return changes;
 
+		// CDS coordinates
 		cdsStart = transcript.isStrandPlus() ? transcript.getCdsStart() : transcript.getCdsEnd();
 		cdsEnd = transcript.isStrandPlus() ? transcript.getCdsEnd() : transcript.getCdsStart();
 
@@ -47,10 +48,8 @@ public class CodonChangeMnp extends CodonChange {
 		if (cdsStart > seqChange.getEnd()) return changes;
 		if (cdsEnd < seqChange.getStart()) return changes;
 
+		// Base number relative to CDS start
 		int scStart, scEnd;
-		scStart = cdsBaseNumber(seqChange.getStart(), false);
-		scEnd = cdsBaseNumber(seqChange.getEnd(), true);
-
 		if (transcript.isStrandPlus()) {
 			scStart = cdsBaseNumber(seqChange.getStart(), false);
 			scEnd = cdsBaseNumber(seqChange.getEnd(), true);
@@ -59,8 +58,12 @@ public class CodonChangeMnp extends CodonChange {
 			scStart = cdsBaseNumber(seqChange.getEnd(), false);
 		}
 
-		int scLen = scEnd - scStart;
+		// Update coordinates
+		codonNum = scStart / CODON_SIZE;
+		codonIndex = scStart % CODON_SIZE;
 
+		// MNP overlap in coding part 
+		int scLen = scEnd - scStart;
 		if (scLen < 0) return changes;
 
 		// Round to codon position
@@ -79,7 +82,6 @@ public class CodonChangeMnp extends CodonChange {
 		}
 
 		// Get old codon (reference)
-
 		codonsOld = transcript.cds().substring(scStart3, scEnd3 + 1);
 
 		// Get new codon (change)

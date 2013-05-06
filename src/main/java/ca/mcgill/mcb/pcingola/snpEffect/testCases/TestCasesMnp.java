@@ -17,9 +17,12 @@ import ca.mcgill.mcb.pcingola.snpEffect.ChangeEffect;
 import ca.mcgill.mcb.pcingola.snpEffect.ChangeEffect.EffectType;
 import ca.mcgill.mcb.pcingola.snpEffect.Config;
 import ca.mcgill.mcb.pcingola.snpEffect.SnpEffectPredictor;
+import ca.mcgill.mcb.pcingola.snpEffect.commandLine.SnpEffCmdEff;
 import ca.mcgill.mcb.pcingola.snpEffect.factory.SnpEffPredictorFactoryRand;
 import ca.mcgill.mcb.pcingola.util.Gpr;
 import ca.mcgill.mcb.pcingola.util.GprSeq;
+import ca.mcgill.mcb.pcingola.vcf.VcfEffect;
+import ca.mcgill.mcb.pcingola.vcf.VcfEntry;
 
 class Save implements Serializable {
 
@@ -200,7 +203,7 @@ public class TestCasesMnp extends TestCase {
 
 	void init() {
 		initRand();
-		initSnpEffPredictor();
+		initSnpEffPredictorRand();
 	}
 
 	void initRand() {
@@ -208,9 +211,13 @@ public class TestCasesMnp extends TestCase {
 		rand = new Random(20111222);
 	}
 
-	void initSnpEffPredictor() {
+	void initSnpEffPredictorRand() {
+		initSnpEffPredictorRand("testCase");
+	}
+
+	void initSnpEffPredictorRand(String genomeVer) {
 		// Create a config and force out snpPredictor for hg37 chromosome Y
-		config = new Config("testCase", Config.DEFAULT_CONFIG_FILE);
+		config = new Config(genomeVer, Config.DEFAULT_CONFIG_FILE);
 
 		SnpEffPredictorFactoryRand sepf = new SnpEffPredictorFactoryRand(config, 1, rand, maxGeneLen, maxTranscripts, maxExons);
 
@@ -256,7 +263,7 @@ public class TestCasesMnp extends TestCase {
 		//	- Change each base in the exon
 		//	- Calculate effect
 		for (int i = 0; i < N; i++) {
-			initSnpEffPredictor();
+			initSnpEffPredictorRand();
 
 			if (debug) System.out.println("MNP Test iteration: " + i + "\nChromo:\t" + chromoSequence + "\n" + transcript);
 			else System.out.println("MNP Test iteration: " + i + "\t" + (transcript.getStrand() >= 0 ? "+" : "-") + "\t" + transcript.cds());
@@ -279,5 +286,29 @@ public class TestCasesMnp extends TestCase {
 				analyze(i, pos, ref, mnp);
 			}
 		}
+	}
+
+	public void test_01() {
+		String args[] = { "-ud", "0", "testHg3766Chr1", "./tests/test.mnp.01.vcf" };
+		SnpEffCmdEff snpeff = new SnpEffCmdEff();
+		snpeff.setVerbose(true);
+
+		// Run
+		snpeff.parseArgs(args);
+		List<VcfEntry> results = snpeff.run(true);
+
+		// Check
+		Assert.assertEquals(1, results.size());
+		VcfEntry result = results.get(0);
+
+		for (VcfEffect eff : result.parseEffects()) {
+			String aa = eff.getAa();
+			String aaNumStr = aa.substring(1, aa.length() - 1);
+			int aanum = Gpr.parseIntSafe(aaNumStr);
+			System.out.println(eff.getAa() + "\t" + aaNumStr + "\t" + eff);
+
+			if (aanum <= 0) throw new RuntimeException("Missing AA number!");
+		}
+
 	}
 }
