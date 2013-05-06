@@ -36,7 +36,7 @@ public class ReadsOnMarkersModel {
 		countMarkers = new CountByType();
 		rawCountMarkers = new CountByType();
 		rawCountBases = new CountByType();
-		prob = new CountByType();
+		prob = null;
 	}
 
 	/**
@@ -183,7 +183,7 @@ public class ReadsOnMarkersModel {
 	 */
 	void probabilities() {
 		// Already done, nothing to do
-		if (!prob.isEmpty()) return;
+		if (prob != null) return;
 
 		// Get total length and count for chromosomes (chromosome size is total genome length)
 		String chrType = Chromosome.class.getSimpleName();

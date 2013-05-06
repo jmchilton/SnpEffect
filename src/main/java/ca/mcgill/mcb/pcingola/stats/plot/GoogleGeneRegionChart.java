@@ -25,7 +25,7 @@ public class GoogleGeneRegionChart {
 
 	CoverageByType coverageByType;
 	GoogleLineChart lineChart;
-	String name;
+	String name, header, body;
 
 	public GoogleGeneRegionChart(CoverageByType coverageByType, String name) {
 		this.coverageByType = coverageByType;
@@ -37,6 +37,15 @@ public class GoogleGeneRegionChart {
 		ArrayList<String> values = createCol(nullBefore, type);
 		lineChart.addColumn(type, values);
 		return values.size();
+	}
+
+	void createChart() {
+		int nullBefore = 0;
+		for (String type : types)
+			nullBefore = addCol(nullBefore, type);
+
+		header = lineChart.toStringHtmlHeader();
+		body = lineChart.toStringHtmlBody();
 	}
 
 	ArrayList<String> createCol(int nullBefore, String type) {
@@ -57,16 +66,13 @@ public class GoogleGeneRegionChart {
 	}
 
 	public String toStringHtmlBody() {
-		int nullBefore = 0;
-		for (String type : types)
-			nullBefore = addCol(nullBefore, type);
-
-		return lineChart.toStringHtmlHeader() + lineChart.toStringHtmlBody();
+		if (body == null) createChart();
+		return body;
 	}
 
 	public String toStringHtmlHeader() {
-		StringBuilder sb = new StringBuilder();
-		return sb.toString();
+		if (header == null) createChart();
+		return header;
 	}
 
 }

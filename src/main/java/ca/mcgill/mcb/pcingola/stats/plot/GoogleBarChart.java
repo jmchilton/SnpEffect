@@ -11,7 +11,7 @@ public class GoogleBarChart extends GoogleLineChart {
 	}
 
 	@Override
-	public String toStringHtmlBody() {
+	public String toStringHtmlHeader() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("<script type=\"text/javascript\" src=\"http://www.google.com/jsapi\"></script>");
 		sb.append("<script type=\"text/javascript\"> google.load('visualization', '1', {packages: ['corechart']}); </script>\n");

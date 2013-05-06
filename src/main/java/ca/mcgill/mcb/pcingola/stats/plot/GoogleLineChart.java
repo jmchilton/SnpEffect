@@ -93,6 +93,12 @@ public class GoogleLineChart {
 
 	public String toStringHtmlBody() {
 		StringBuilder sb = new StringBuilder();
+		sb.append("<div id=\"visualization_" + id + "\" style=\"width: " + width + "px; height: " + width + "px;\"></div>\n");
+		return sb.toString();
+	}
+
+	public String toStringHtmlHeader() {
+		StringBuilder sb = new StringBuilder();
 		sb.append("<script type=\"text/javascript\" src=\"http://www.google.com/jsapi\"></script>");
 		sb.append("<script type=\"text/javascript\"> google.load('visualization', '1', {packages: ['corechart']}); </script>\n");
 		sb.append("<script type=\"text/javascript\">\n");
@@ -129,12 +135,6 @@ public class GoogleLineChart {
 		sb.append("\tgoogle.setOnLoadCallback(draw_" + id + ");\n");
 		sb.append("</script>\n");
 		sb.append("\n");
-		return sb.toString();
-	}
-
-	public String toStringHtmlHeader() {
-		StringBuilder sb = new StringBuilder();
-		sb.append("<div id=\"visualization_" + id + "\" style=\"width: " + width + "px; height: " + width + "px;\"></div>\n");
 		return sb.toString();
 	}
 

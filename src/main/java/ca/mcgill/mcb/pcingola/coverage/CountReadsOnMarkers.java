@@ -369,7 +369,7 @@ public class CountReadsOnMarkers {
 			sbBody.append(grc.toStringHtmlBody());
 
 		// Return all html code
-		return sbHead.toString() + sbBody.toString();
+		return "<head>\n" + sbHead.toString() + "\n</head>\n" + sbBody.toString();
 	}
 
 	/**

@@ -103,7 +103,6 @@ public class SnpEffCmdCount extends SnpEff {
 
 		// Run model
 		readsOnMarkersModel.run();
-
 		Timer.showStdErr("Probability model:\n" + readsOnMarkersModel.toString());
 
 		return readsOnMarkersModel;
@@ -154,7 +153,6 @@ public class SnpEffCmdCount extends SnpEff {
 		countReadsOnMarkers.count();
 
 		if (!quiet) {
-			Gpr.debug("Uncomment!");
 			// Show results : Details marker by marker counts
 			if (outputBaseNames != null) {
 				String detailsFile = outputBaseNames + ".txt";

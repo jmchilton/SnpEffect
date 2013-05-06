@@ -40,7 +40,7 @@ public class CountByType implements Serializable {
 	}
 
 	public boolean contains(String key) {
-		return countByType.containsKey(key);
+		return countByType.containsKey(key) || scoreByType.containsKey(key);
 	}
 
 	/**
@@ -147,7 +147,10 @@ public class CountByType implements Serializable {
 	 */
 	public List<String> keysSorted() {
 		ArrayList<String> list = new ArrayList<String>();
-		list.addAll(countByType.keySet());
+
+		if (!countByType.keySet().isEmpty()) list.addAll(countByType.keySet());
+		else list.addAll(scoreByType.keySet());
+
 		Collections.sort(list);
 		return list;
 	}
@@ -212,8 +215,9 @@ public class CountByType implements Serializable {
 	@Override
 	public String toString() {
 		StringBuffer out = new StringBuffer();
-		for (String type : keysSorted())
-			out.append(type + "\t" + get(type) + "\n");
+		for (String type : keysSorted()) {
+			out.append(type + "\t" + get(type) + "\t" + getScore(type) + "\n");
+		}
 
 		return out.toString();
 	}

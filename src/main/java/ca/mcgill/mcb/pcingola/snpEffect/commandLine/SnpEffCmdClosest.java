@@ -26,10 +26,8 @@ public class SnpEffCmdClosest extends SnpEff {
 	public static final String INFO_LINE = "##INFO=<ID=" + CLOSEST + ",Number=4,Type=String,Description=\"Closest exon: Distance (bases), exons Id, transcript Id, gene name\">";
 
 	boolean bedFormat = false;
-	String inFile = "";
+	String inFile;
 	SnpEffectPredictor snpEffectPredictor;
-
-	//	IntervalForest intervalForest;
 
 	public SnpEffCmdClosest() {
 		super();
@@ -192,17 +190,17 @@ public class SnpEffCmdClosest extends SnpEff {
 		for (int i = 0; i < args.length; i++) {
 
 			// Argument starts with '-'?
-			if (args[i].startsWith("-")) {
+			if (isOpt(args[i])) {
 				if (args[i].equals("-bed")) bedFormat = true;
 				else usage("Unknow option '" + args[i] + "'");
 			} else if (genomeVer.isEmpty()) genomeVer = args[i];
-			else if (inFile.isEmpty()) inFile = args[i];
+			else if (inFile == null) inFile = args[i];
 			else usage("Unknow parameter '" + args[i] + "'");
 		}
 
 		// Check: Do we have all required parameters?
-		if (genomeVer.isEmpty()) usage("Missing genomer_version parameter");
-		if (inFile.isEmpty()) usage("Missing protein_file parameter");
+		if ((genomeVer == null) || genomeVer.isEmpty()) usage("Missing genomer_version parameter");
+		if ((inFile == null) || inFile.isEmpty()) usage("Missing 'file' parameter");
 	}
 
 	/**
