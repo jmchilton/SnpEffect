@@ -1,5 +1,7 @@
 package ca.mcgill.mcb.pcingola.snpEffect.commandLine;
 
+import java.util.HashSet;
+
 import ca.mcgill.mcb.pcingola.fileIterator.BedFileIterator;
 import ca.mcgill.mcb.pcingola.fileIterator.VcfFileIterator;
 import ca.mcgill.mcb.pcingola.interval.Chromosome;
@@ -8,10 +10,12 @@ import ca.mcgill.mcb.pcingola.interval.Intergenic;
 import ca.mcgill.mcb.pcingola.interval.Marker;
 import ca.mcgill.mcb.pcingola.interval.Markers;
 import ca.mcgill.mcb.pcingola.interval.SeqChange;
+import ca.mcgill.mcb.pcingola.interval.SpliceSite;
 import ca.mcgill.mcb.pcingola.interval.Transcript;
 import ca.mcgill.mcb.pcingola.outputFormatter.OutputFormatter;
 import ca.mcgill.mcb.pcingola.snpEffect.Config;
 import ca.mcgill.mcb.pcingola.snpEffect.SnpEffectPredictor;
+import ca.mcgill.mcb.pcingola.util.Gpr;
 import ca.mcgill.mcb.pcingola.util.Timer;
 import ca.mcgill.mcb.pcingola.vcf.VcfEntry;
 
@@ -25,9 +29,12 @@ public class SnpEffCmdClosest extends SnpEff {
 	public static final String CLOSEST = "CLOSEST";
 	public static final String INFO_LINE = "##INFO=<ID=" + CLOSEST + ",Number=4,Type=String,Description=\"Closest exon: Distance (bases), exons Id, transcript Id, gene name\">";
 
-	boolean bedFormat = false;
+	boolean canonical; // Use only canonical transcripts
+	boolean bedFormat;
 	String inFile;
 	SnpEffectPredictor snpEffectPredictor;
+	int upDownStreamLength = SnpEffectPredictor.DEFAULT_UP_DOWN_LENGTH; // Upstream & downstream interval length
+	int spliceSiteSize = SpliceSite.CORE_SPLICE_SITE_SIZE; // Splice site size default: 2 bases (canonical splice site)
 
 	public SnpEffCmdClosest() {
 		super();
@@ -140,13 +147,21 @@ public class SnpEffCmdClosest extends SnpEff {
 	 */
 	Markers findClosestMarkers(Marker queryMarker, Markers markers, int maxDistance) {
 		Markers closest = new Markers();
+		HashSet<String> done = new HashSet<String>();
+
 		for (Marker m : markers) {
 			// We don't care about these
 			if ((m instanceof Chromosome) || (m instanceof Intergenic) || (m instanceof Gene) || (m instanceof Transcript)) continue;
 
 			// Find marker at distance less than 'distance'
 			int dist = m.distance(queryMarker);
-			if ((dist <= maxDistance) && (findTranscript(m) != null)) closest.add(m);
+			if ((dist <= maxDistance) && (findTranscript(m) != null)) {
+				String idChain = OutputFormatter.idChain(m);
+				if (!done.contains(idChain)) { // Do not repeat information
+					closest.add(m);
+					done.add(idChain);
+				}
+			}
 		}
 
 		return closest;
@@ -192,7 +207,12 @@ public class SnpEffCmdClosest extends SnpEff {
 			// Argument starts with '-'?
 			if (isOpt(args[i])) {
 				if (args[i].equals("-bed")) bedFormat = true;
-				else usage("Unknow option '" + args[i] + "'");
+				else if (args[i].equalsIgnoreCase("-canon")) canonical = true; // Use canonical transcripts
+				else if ((args[i].equals("-ss") || args[i].equalsIgnoreCase("-spliceSiteSize"))) {
+					if ((i + 1) < args.length) spliceSiteSize = Gpr.parseIntSafe(args[++i]);
+				} else if ((args[i].equals("-ud") || args[i].equalsIgnoreCase("-upDownStreamLen"))) {
+					if ((i + 1) < args.length) upDownStreamLength = Gpr.parseIntSafe(args[++i]);
+				} else usage("Unknow option '" + args[i] + "'");
 			} else if (genomeVer.isEmpty()) genomeVer = args[i];
 			else if (inFile == null) inFile = args[i];
 			else usage("Unknow parameter '" + args[i] + "'");
@@ -221,6 +241,32 @@ public class SnpEffCmdClosest extends SnpEff {
 
 		if (verbose) Timer.showStdErr("Building interval forest...");
 		snpEffectPredictor = config.getSnpEffectPredictor();
+
+		// Set upstream-downstream interval length
+		config.getSnpEffectPredictor().setUpDownStreamLength(upDownStreamLength);
+
+		// Set splice site size
+		config.getSnpEffectPredictor().setSpliceSiteSize(spliceSiteSize);
+
+		// Filter canonical transcripts
+		if (canonical) {
+			if (verbose) Timer.showStdErr("Filtering out non-canonical transcripts.");
+			config.getSnpEffectPredictor().removeNonCanonical();
+
+			if (debug) {
+				// Show genes and transcript (which ones are considered 'cannonica')
+				Timer.showStdErr("Canonical transcripts:\n\t\tgeneName\tgeneId\ttranscriptId\tcdsLength");
+				for (Gene g : config.getSnpEffectPredictor().getGenome().getGenes()) {
+					for (Transcript t : g) {
+						String cds = t.cds();
+						int cdsLen = (cds != null ? cds.length() : 0);
+						System.err.println("\t\t" + g.getGeneName() + "\t" + g.getId() + "\t" + t.getId() + "\t" + cdsLen);
+					}
+				}
+			}
+			if (verbose) Timer.showStdErr("done.");
+		}
+
 		snpEffectPredictor.buildForest();
 		if (verbose) Timer.showStdErr("done");
 
@@ -246,7 +292,10 @@ public class SnpEffCmdClosest extends SnpEff {
 		System.err.println("snpEff version " + SnpEff.VERSION);
 		System.err.println("Usage: snpEff closestExon [options] genome_version file.vcf");
 		System.err.println("\nOptions:");
-		System.err.println("\t-bed          : Input format is BED. Default: VCF");
+		System.err.println("\t-canon                      : Only use canonical transcripts.");
+		System.err.println("\t-bed                        : Input format is BED. Default: VCF");
+		System.err.println("\t-ss, -spliceSiteSize <int>  : Set size for splice sites (donor and acceptor) in bases. Default: " + spliceSiteSize);
+		System.err.println("\t-ud, -upDownStreamLen <int> : Set upstream downstream interval length (in bases)");
 		System.exit(-1);
 	}
 

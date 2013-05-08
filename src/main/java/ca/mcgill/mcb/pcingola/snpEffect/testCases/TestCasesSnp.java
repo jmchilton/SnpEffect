@@ -153,6 +153,8 @@ public class TestCasesSnp extends TestCase {
 						}
 						SeqChange seqChange = new SeqChange(chromosome, pos, refBase + "", snp + "", seqChangeStrand, "", 1.0, 1);
 
+						if (!seqChange.isChange()) effectExpected = "EXON";
+
 						// Calculate effects
 						List<ChangeEffect> effects = snpEffectPredictor.seqChangeEffect(seqChange);
 
