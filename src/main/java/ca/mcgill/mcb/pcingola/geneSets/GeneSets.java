@@ -37,7 +37,7 @@ public class GeneSets implements Iterable<GeneSet>, Serializable {
 	String label; // Label for this set of nodes 
 	HashSet<String> genes; // All genes in this experiment
 	HashMap<String, GeneSet> geneSetsByName; // Gene sets indexed by GeneSet.name
-	HashMap<String, List<GeneSet>> geneSetsByGene; // Gene sets indexed by gene name
+	HashMap<String, HashSet<GeneSet>> geneSetsByGene; // Gene sets indexed by gene name
 	HashSet<String> interestingGenes; // Interesting genes in this experiment
 	HashMap<String, Integer> rankByGene; // Ranked genes
 	HashMap<String, Double> valueByGene;
@@ -72,7 +72,7 @@ public class GeneSets implements Iterable<GeneSet>, Serializable {
 		interestingGenes = new HashSet<String>();
 		genes = new HashSet<String>();
 		rankByGene = new HashMap<String, Integer>();
-		geneSetsByGene = new HashMap<String, List<GeneSet>>();
+		geneSetsByGene = new HashMap<String, HashSet<GeneSet>>();
 		maxRank = 0;
 	}
 
@@ -81,7 +81,7 @@ public class GeneSets implements Iterable<GeneSet>, Serializable {
 		interestingGenes = new HashSet<String>();
 		genes = new HashSet<String>();
 		rankByGene = new HashMap<String, Integer>();
-		geneSetsByGene = new HashMap<String, List<GeneSet>>();
+		geneSetsByGene = new HashMap<String, HashSet<GeneSet>>();
 		maxRank = 0;
 		loadMSigDb(msigDb, false);
 	}
@@ -116,9 +116,9 @@ public class GeneSets implements Iterable<GeneSet>, Serializable {
 	 * @return
 	 */
 	public boolean add(String gene, GeneSet geneSet) {
-		List<GeneSet> listgs = geneSetsByGene.get(gene);
+		HashSet<GeneSet> listgs = geneSetsByGene.get(gene);
 		if (listgs == null) {
-			listgs = new LinkedList<GeneSet>();
+			listgs = new HashSet<GeneSet>();
 			geneSetsByGene.put(gene, listgs);
 		}
 		listgs.add(geneSet);
@@ -278,7 +278,7 @@ public class GeneSets implements Iterable<GeneSet>, Serializable {
 	 * @param gene
 	 * @return
 	 */
-	public List<GeneSet> getGeneSetsByGene(String gene) {
+	public HashSet<GeneSet> getGeneSetsByGene(String gene) {
 		return geneSetsByGene.get(gene);
 	}
 
