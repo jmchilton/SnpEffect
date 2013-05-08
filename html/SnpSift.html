@@ -618,8 +618,6 @@ $  java -jar SnpSift.jar caseControl -name "_MY_GROUP" "++++0-----" cc.vcf \
 				<p>
 				You must provide intervals as BED files.
 				<br>
-				<i class="icon-warning-sign"></i>  BED file format is tab separated zero-based coordinates "chr \t start \t end " (for this application, all other fields in the BED file are ignored).<br>
-				<br>
 				Command line options: <br>
 				<ul>
 					<li> '-x' : Filter out (exclude) VCF entries that match any interval in the BED files.
@@ -629,6 +627,12 @@ $  java -jar SnpSift.jar caseControl -name "_MY_GROUP" "++++0-----" cc.vcf \
 				<p>
 				E.g.: 
 				<pre> cat variants.vcf | java -jar SnpSift.jar intervals my_intervals.bed > variants_intersecting_intervals.vcf </pre>
+				<br>
+				<br>
+				<i class="icon-warning-sign"></i>  BED file format is tab separated zero-based coordinates "chr \t start \t end " (for this application, all other fields in the BED file are ignored).<br>
+				<br>
+				<i class="icon-warning-sign"></i>  If BED file has header lines, they must start with a '#' 
+				<br>
         </section>
 	
         <!-- intidx
@@ -656,6 +660,12 @@ $  java -jar SnpSift.jar caseControl -name "_MY_GROUP" "++++0-----" cc.vcf \
 				You can also have genomic coordinate in the command line.
 				Note that in this case, coordinates are assumed to be one-based (instead of zero-based, like in BED files):
 				<pre> java -jar SnpSift.jar intidx -c variants.vcf chr1:12345-23456 chr2:3456789-4567890  > variants_intersecting_intervals.vcf </pre>
+				<br>
+				<br>
+				<i class="icon-warning-sign"></i>  BED file format is tab separated zero-based coordinates "chr \t start \t end " (for this application, all other fields in the BED file are ignored).<br>
+				<br>
+				<i class="icon-warning-sign"></i>  If BED file has header lines, they must start with a '#' 
+				<br>
         </section>
 
         <!-- Join

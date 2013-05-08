@@ -1005,7 +1005,7 @@ public class SnpEffCmdEff extends SnpEff {
 			throw new RuntimeException("Unknown output format '" + outputFormat + "'");
 		}
 
-		outputFormatter.setVersion(VERSION);
+		outputFormatter.setVersion(VERSION_NO_NAME);
 		outputFormatter.setCommandLineStr(commandLineStr(false));
 		outputFormatter.setChangeEffectResutFilter(changeEffectResutFilter);
 		outputFormatter.setSupressOutput(supressOutput);

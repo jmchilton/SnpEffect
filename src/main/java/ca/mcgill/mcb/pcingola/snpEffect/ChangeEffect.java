@@ -280,15 +280,6 @@ public class ChangeEffect implements Cloneable, Comparable<ChangeEffect> {
 	}
 
 	/**
-	 * Return a string safe enough to be used in a VCF file
-	 * @param str
-	 * @return
-	 */
-	String vcfSafe(String str) {
-		return str;
-	}
-
-	/**
 	 * Show a string with overall effect
 	 * @param shortFormat
 	 * @param showAaChange
@@ -978,7 +969,7 @@ public class ChangeEffect implements Cloneable, Comparable<ChangeEffect> {
 
 		String aaChange = "";
 		if (useHgvs) aaChange = getHgvs();
-		else aaChange = ((codonsOld.length() + codonsNew.length()) > 0 ? codonsOld + "/" + codonsNew : "");
+		else aaChange = ((aaOld.length() + aaNew.length()) > 0 ? aaOld + "/" + aaNew : "");
 
 		return errWarn //		
 				+ "\t" + geneId //
@@ -1019,5 +1010,14 @@ public class ChangeEffect implements Cloneable, Comparable<ChangeEffect> {
 		if (!transcriptId.isEmpty()) return transcriptId;
 
 		return "NO EFFECT";
+	}
+
+	/**
+	 * Return a string safe enough to be used in a VCF file
+	 * @param str
+	 * @return
+	 */
+	String vcfSafe(String str) {
+		return str;
 	}
 }
