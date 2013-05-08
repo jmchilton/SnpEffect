@@ -751,7 +751,7 @@ public class VcfEntry extends Marker implements Iterable<VcfGenotype> {
 	}
 
 	/**
-	 * Create a list of seqChanges frmo this VcfEntry
+	 * Create a list of seqChanges from this VcfEntry
 	 * @return
 	 */
 	public List<SeqChange> seqChanges() {

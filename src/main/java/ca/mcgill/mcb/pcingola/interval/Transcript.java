@@ -1031,7 +1031,7 @@ public class Transcript extends IntervalAndSubIntervals<Exon> {
 		//---
 		// Analyze non-coding transcripts (or 'interval' seqChanges)
 		//---
-		if ((!Config.get().isTreatAllAsProteinCoding() && !isProteinCoding()) || seqChange.isInterval()) {
+		if ((!Config.get().isTreatAllAsProteinCoding() && !isProteinCoding()) || seqChange.isInterval() || !seqChange.isChange()) {
 			// Do we have exon information for this transcript?
 			if (!subintervals().isEmpty()) {
 				// Add all exons

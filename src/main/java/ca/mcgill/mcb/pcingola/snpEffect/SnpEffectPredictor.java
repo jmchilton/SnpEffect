@@ -466,7 +466,7 @@ public class SnpEffectPredictor implements Serializable {
 	 */
 	public List<ChangeEffect> seqChangeEffect(SeqChange seqChange, SeqChange seqChangerRef) {
 		// No change? => Nothing to predict
-		if ((!seqChange.isChange()) && (!seqChange.isInterval())) return ChangeEffect.emptyResults();
+		//if ((!seqChange.isChange()) && (!seqChange.isInterval())) return ChangeEffect.emptyResults();
 
 		ChangeEffect results = new ChangeEffect(seqChange);
 
