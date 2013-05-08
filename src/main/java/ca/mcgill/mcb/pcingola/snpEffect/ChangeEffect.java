@@ -408,7 +408,11 @@ public class ChangeEffect implements Cloneable, Comparable<ChangeEffect> {
 	 * @return
 	 */
 	public EffectImpact getEffectImpact() {
+
 		if (effectImpact == null) {
+			// Not a change? => Modifier
+			if ((seqChange != null) && (!seqChange.isChange())) effectImpact = EffectImpact.MODIFIER;
+
 			// TODO: Refactor.This code should be in each marker class, not here...
 			switch (effectType) {
 			case EXON_DELETED:

@@ -135,6 +135,9 @@ public class LossOfFunction {
 	 * @return
 	 */
 	protected boolean isLof(ChangeEffect changeEffect) {
+		// Not a sequence change? => Not LOF
+		if ((changeEffect.getSeqChange() != null) && (!changeEffect.getSeqChange().isChange())) return false;
+
 		// Is this change affecting a protein coding gene?
 		Gene gene = changeEffect.getGene();
 		Transcript tr = changeEffect.getTranscript();
