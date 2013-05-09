@@ -15,8 +15,6 @@ public class TestCasesMissenseSilentRatio extends TestCase {
 		super();
 	}
 
-	/**
-	 */
 	public void test_01() {
 		String args[] = { "-i", "vcf" //
 				, "-noOut" //

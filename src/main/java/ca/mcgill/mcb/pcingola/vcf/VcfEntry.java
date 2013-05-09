@@ -184,7 +184,7 @@ public class VcfEntry extends Marker implements Iterable<VcfGenotype> {
 	 */
 	SeqChange createSeqChange(Chromosome chromo, int start, String reference, String alt, int strand, String id, double quality, int coverage) {
 		// No change?
-		if (alt.isEmpty()) return new SeqChange(chromo, start, reference, reference, strand, id, quality, coverage);
+		if (alt == null || alt.isEmpty() || alt.equals(reference)) return new SeqChange(chromo, start, reference, reference, strand, id, quality, coverage);
 
 		alt = alt.toUpperCase();
 
@@ -270,6 +270,8 @@ public class VcfEntry extends Marker implements Iterable<VcfGenotype> {
 	 * @return
 	 */
 	public String getAltsStr() {
+		if (alts == null) return "";
+
 		String altsStr = "";
 		for (String alt : alts)
 			altsStr += alt + " ";
@@ -425,6 +427,7 @@ public class VcfEntry extends Marker implements Iterable<VcfGenotype> {
 	 * @return
 	 */
 	public boolean isHeterozygous() {
+		if (alts == null) return false;
 		return alts.length > 1; // More than one ALT option? => not homozygous
 	}
 
@@ -435,6 +438,7 @@ public class VcfEntry extends Marker implements Iterable<VcfGenotype> {
 	 * @return
 	 */
 	public boolean isHomozygous() {
+		if (alts == null) return false;
 		return alts.length == 1; // Only one ALT option? => homozygous
 	}
 
@@ -495,6 +499,8 @@ public class VcfEntry extends Marker implements Iterable<VcfGenotype> {
 	 * @return
 	 */
 	public boolean isVariant() {
+		if (alts == null) return false;
+
 		for (String alt : alts)
 			if (!alt.isEmpty() && !alt.equals(".") && !ref.equals(alt)) return true; // Any change option is different? => true
 		return false;
@@ -764,14 +770,21 @@ public class VcfEntry extends Marker implements Iterable<VcfGenotype> {
 		Boolean isHetero = calcHetero();
 
 		// Create one SeqChange for each ALT
+		Chromosome chr = (Chromosome) parent;
 		int genotypeNumber = 1;
-		for (String alt : alts) {
-			Chromosome chr = (Chromosome) parent;
-			SeqChange seqChange = createSeqChange(chr, start, ref, alt, strand, id, getQuality(), coverage);
-			seqChange.setHeterozygous(isHetero);
+		if (alts == null) {
+			// No ALTs, then it's not a change
+			SeqChange seqChange = createSeqChange(chr, start, ref, null, strand, id, getQuality(), coverage);
 			seqChange.setGenotype(Integer.toString(genotypeNumber));
 			list.add(seqChange);
-			genotypeNumber++;
+		} else {
+			for (String alt : alts) {
+				SeqChange seqChange = createSeqChange(chr, start, ref, alt, strand, id, getQuality(), coverage);
+				seqChange.setHeterozygous(isHetero);
+				seqChange.setGenotype(Integer.toString(genotypeNumber));
+				list.add(seqChange);
+				genotypeNumber++;
+			}
 		}
 
 		return list;

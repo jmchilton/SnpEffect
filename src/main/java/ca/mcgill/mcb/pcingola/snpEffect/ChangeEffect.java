@@ -410,78 +410,81 @@ public class ChangeEffect implements Cloneable, Comparable<ChangeEffect> {
 	public EffectImpact getEffectImpact() {
 
 		if (effectImpact == null) {
-			// Not a change? => Modifier
-			if ((seqChange != null) && (!seqChange.isChange())) effectImpact = EffectImpact.MODIFIER;
-
-			// TODO: Refactor.This code should be in each marker class, not here...
-			switch (effectType) {
-			case EXON_DELETED:
-			case FRAME_SHIFT:
-			case SPLICE_SITE_ACCEPTOR:
-			case SPLICE_SITE_DONOR:
-			case START_LOST:
-			case STOP_GAINED:
-			case STOP_LOST:
-			case RARE_AMINO_ACID:
-				effectImpact = EffectImpact.HIGH;
-				break;
-
-			case CODON_CHANGE:
-			case CODON_CHANGE_PLUS_CODON_DELETION:
-			case CODON_CHANGE_PLUS_CODON_INSERTION:
-			case CODON_DELETION:
-			case CODON_INSERTION:
-			case NON_SYNONYMOUS_CODING:
-			case SPLICE_SITE_BRANCH_U12:
-			case UTR_3_DELETED:
-			case UTR_5_DELETED:
-				effectImpact = EffectImpact.MODERATE;
-				break;
-
-			case SPLICE_SITE_BRANCH:
-			case NON_SYNONYMOUS_START:
-			case NON_SYNONYMOUS_STOP:
-			case START_GAINED:
-			case SYNONYMOUS_CODING:
-			case SYNONYMOUS_START:
-			case SYNONYMOUS_STOP:
-				effectImpact = EffectImpact.LOW;
-				break;
-
-			case CDS:
-			case CHROMOSOME:
-			case CUSTOM:
-			case DOWNSTREAM:
-			case EXON:
-			case GENE:
-			case INTRAGENIC:
-			case INTERGENIC:
-			case INTERGENIC_CONSERVED:
-			case INTRON:
-			case INTRON_CONSERVED:
-			case NONE:
-			case REGULATION:
-			case TRANSCRIPT:
-			case UPSTREAM:
-			case UTR_3_PRIME:
-			case UTR_5_PRIME:
+			if ((seqChange != null) && (!seqChange.isChange())) {
+				// Not a change? => Modifier
 				effectImpact = EffectImpact.MODIFIER;
-				break;
+			} else {
+				// TODO: Refactor.This code should be in each marker class, not here...
+				switch (effectType) {
+				case EXON_DELETED:
+				case FRAME_SHIFT:
+				case SPLICE_SITE_ACCEPTOR:
+				case SPLICE_SITE_DONOR:
+				case START_LOST:
+				case STOP_GAINED:
+				case STOP_LOST:
+				case RARE_AMINO_ACID:
+					effectImpact = EffectImpact.HIGH;
+					break;
 
-			case MOTIF:
-				effectImpact = EffectImpact.LOW;
+				case CODON_CHANGE:
+				case CODON_CHANGE_PLUS_CODON_DELETION:
+				case CODON_CHANGE_PLUS_CODON_INSERTION:
+				case CODON_DELETION:
+				case CODON_INSERTION:
+				case NON_SYNONYMOUS_CODING:
+				case SPLICE_SITE_BRANCH_U12:
+				case UTR_3_DELETED:
+				case UTR_5_DELETED:
+					effectImpact = EffectImpact.MODERATE;
+					break;
 
-			case NEXT_PROT:
-				// TODO: Refactor.This code should be in NextProt marker, not here
-				if (marker == null) effectImpact = EffectImpact.MODIFIER;
-				else if (((NextProt) marker).isHighlyConservedAaSequence()) effectImpact = EffectImpact.HIGH;
-				else effectImpact = EffectImpact.LOW;
-				break;
+				case SPLICE_SITE_BRANCH:
+				case NON_SYNONYMOUS_START:
+				case NON_SYNONYMOUS_STOP:
+				case START_GAINED:
+				case SYNONYMOUS_CODING:
+				case SYNONYMOUS_START:
+				case SYNONYMOUS_STOP:
+					effectImpact = EffectImpact.LOW;
+					break;
 
-			default:
-				throw new RuntimeException("Unknown impact for effect type: '" + effectType + "'");
+				case CDS:
+				case CHROMOSOME:
+				case CUSTOM:
+				case DOWNSTREAM:
+				case EXON:
+				case GENE:
+				case INTRAGENIC:
+				case INTERGENIC:
+				case INTERGENIC_CONSERVED:
+				case INTRON:
+				case INTRON_CONSERVED:
+				case NONE:
+				case REGULATION:
+				case TRANSCRIPT:
+				case UPSTREAM:
+				case UTR_3_PRIME:
+				case UTR_5_PRIME:
+					effectImpact = EffectImpact.MODIFIER;
+					break;
+
+				case MOTIF:
+					effectImpact = EffectImpact.LOW;
+
+				case NEXT_PROT:
+					// TODO: Refactor.This code should be in NextProt marker, not here
+					if (marker == null) effectImpact = EffectImpact.MODIFIER;
+					else if (((NextProt) marker).isHighlyConservedAaSequence()) effectImpact = EffectImpact.HIGH;
+					else effectImpact = EffectImpact.LOW;
+					break;
+
+				default:
+					throw new RuntimeException("Unknown impact for effect type: '" + effectType + "'");
+				}
 			}
 		}
+
 		return effectImpact;
 	}
 
