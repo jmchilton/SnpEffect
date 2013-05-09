@@ -1,5 +1,9 @@
 package ca.mcgill.mcb.pcingola.stats.plot;
 
+import java.util.ArrayList;
+
+import ca.mcgill.mcb.pcingola.util.Gpr;
+
 public class GoogleBarChart extends GoogleLineChart {
 
 	public GoogleBarChart(String name) {
@@ -8,6 +12,38 @@ public class GoogleBarChart extends GoogleLineChart {
 
 	public GoogleBarChart(String name, int width, int height) {
 		super(name, width, height);
+	}
+
+	/**
+	 * Scale columns to their respective counts
+	 */
+	public void percentColumns() {
+		ArrayList<ArrayList<String>> newColumns = new ArrayList<ArrayList<String>>();
+
+		for (ArrayList<String> col : columns)
+			newColumns.add(percentColumns(col));
+
+		columns = newColumns;
+	}
+
+	/**
+	 * Scale column to total sum
+	 * @param col
+	 * @return
+	 */
+	public ArrayList<String> percentColumns(ArrayList<String> col) {
+		ArrayList<String> newCol = new ArrayList<String>(col.size());
+
+		// Calculate total
+		double total = 0;
+		for (String d : col)
+			total += Gpr.parseDoubleSafe(d);
+
+		// Scale
+		for (String d : col)
+			newCol.add("" + (100.0 * Gpr.parseDoubleSafe(d) / total));
+
+		return newCol;
 	}
 
 	@Override

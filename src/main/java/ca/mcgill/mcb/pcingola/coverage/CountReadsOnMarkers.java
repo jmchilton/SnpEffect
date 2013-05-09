@@ -44,7 +44,7 @@ public class CountReadsOnMarkers {
 	int countExceptions = 0;
 	int readLengthCount;
 	long readLengthSum;
-	List<String> samFileNames;
+	List<String> fileNames;
 	List<String> names;
 	ArrayList<CountByKey<Marker>> countReadsByFile;
 	ArrayList<CountByKey<Marker>> countBasesByFile;
@@ -52,6 +52,7 @@ public class CountReadsOnMarkers {
 	SnpEffectPredictor snpEffectPredictor;
 	MarkerTypes markerTypes;
 	ArrayList<CoverageByType> coverageByFile;
+	CountByType readsByFile;
 	Genome genome;
 
 	public CountReadsOnMarkers() {
@@ -67,7 +68,7 @@ public class CountReadsOnMarkers {
 	 * @param samFileName
 	 */
 	public void addFile(String samFileName) {
-		samFileNames.add(samFileName);
+		fileNames.add(samFileName);
 		names.add(Gpr.removeExt(Gpr.baseName(samFileName)));
 	}
 
@@ -101,15 +102,15 @@ public class CountReadsOnMarkers {
 		readLengthCount = 0;
 
 		// Iterate over all BAM/SAM files
-		for (String samFileName : samFileNames) {
+		for (String fileName : fileNames) {
 			try {
-				if (verbose) Timer.showStdErr("Reading file '" + samFileName + "'");
+				if (verbose) Timer.showStdErr("Reading file '" + fileName + "'");
 				CountByKey<Marker> countReads = new CountByKey<Marker>();
 				CountByKey<Marker> countBases = new CountByKey<Marker>();
 				CountByType countTypes = new CountByType();
 				CoverageByType coverageByType = new CoverageByType();
 
-				countFile(samFileName, countReads, countBases, countTypes, coverageByType);
+				countFile(fileName, countReads, countBases, countTypes, coverageByType);
 
 				// Add count to list
 				countReadsByFile.add(countReads);
@@ -122,7 +123,7 @@ public class CountReadsOnMarkers {
 
 			if (verbose) {
 				System.err.println("");
-				Timer.showStdErr("Finished reding file " + samFileName);
+				Timer.showStdErr("Finished reding file " + fileName + "\n\tTotal reads: " + readsByFile.get(fileName));
 			}
 		}
 		if (verbose) Timer.showStdErr("Done.");
@@ -139,7 +140,7 @@ public class CountReadsOnMarkers {
 			try {
 				readLengthCount++;
 				readLengthSum += read.size();
-				countMarker(read, countReads, countBases, countTypes, coverageByType);
+				countMarker(fileName, read, countReads, countBases, countTypes, coverageByType);
 				if (verbose) Gpr.showMark(readNum, SHOW_EVERY);
 				readNum++;
 			} catch (Exception e) {
@@ -165,10 +166,14 @@ public class CountReadsOnMarkers {
 	/**
 	 * Count one marker
 	 */
-	void countMarker(Marker read, CountByKey<Marker> countReads, CountByKey<Marker> countBases, CountByType countTypes, CoverageByType coverageByType) {
+	void countMarker(String fileName, Marker read, CountByKey<Marker> countReads, CountByKey<Marker> countBases, CountByType countTypes, CoverageByType coverageByType) {
 		// Find all intersects
 		Markers regions = snpEffectPredictor.queryDeep(read);
 
+		// Count total reads
+		readsByFile.inc(fileName);
+
+		// Count each marker
 		HashSet<String> doneClass = new HashSet<String>();
 		for (Marker m : regions) {
 			countReads.inc(m); // Count reads
@@ -232,7 +237,7 @@ public class CountReadsOnMarkers {
 						readLengthCount++;
 						readLengthSum += read.size();
 
-						countMarker(read, countReads, countBases, countTypes, coverageByType);
+						countMarker(fileName, read, countReads, countBases, countTypes, coverageByType);
 					}
 				}
 
@@ -259,7 +264,7 @@ public class CountReadsOnMarkers {
 			try {
 				readLengthCount++;
 				readLengthSum += read.size();
-				countMarker(read, countReads, countBases, countTypes, coverageByType);
+				countMarker(fileName, read, countReads, countBases, countTypes, coverageByType);
 				if (verbose) Gpr.showMark(readNum, SHOW_EVERY);
 				readNum++;
 			} catch (Exception e) {
@@ -293,7 +298,7 @@ public class CountReadsOnMarkers {
 		StringBuilder sbBody = new StringBuilder();
 
 		//---
-		// Barchart: Marker types
+		// Barchart: By Marker types (all files toghether)
 		//---
 
 		// Create 3 charts: One for all intervals, one for Exons and one for Introns.
@@ -329,6 +334,9 @@ public class CountReadsOnMarkers {
 			GoogleBarChart barchart = new GoogleBarChart("Count by file " + ksname);
 			barchart.setxLables(keys);
 
+			GoogleBarChart barchartPercent = new GoogleBarChart("Count by file " + ksname + " [Percent]");
+			barchartPercent.setxLables(keys);
+
 			// Add all files
 			for (int i = 0; i < names.size(); i++) {
 				String name = names.get(i);
@@ -341,11 +349,49 @@ public class CountReadsOnMarkers {
 
 				// Add column to chart
 				barchart.addColumn(name, columnValues);
+				barchartPercent.addColumn(name, columnValues);
 			}
 
 			// Add header and body
 			sbHead.append(barchart.toStringHtmlHeader());
 			sbBody.append(barchart.toStringHtmlBody());
+			barchartPercent.percentColumns();
+			sbHead.append(barchartPercent.toStringHtmlHeader());
+			sbBody.append(barchartPercent.toStringHtmlBody());
+		}
+
+		//---
+		// Barchart: By Marker types (one by file)
+		//---
+
+		// Add all files
+		for (int i = 0; i < names.size(); i++) {
+			String name = names.get(i);
+
+			// Create one barchart for each keySet
+			for (String ksname : keySetNames) {
+				// Sort keys
+				HashSet<String> keySet = keySets.get(ksname);
+				ArrayList<String> keys = new ArrayList<String>();
+				keys.addAll(keySet);
+				Collections.sort(keys);
+
+				GoogleBarChart barchart = new GoogleBarChart("Count by file " + name + " " + ksname);
+				barchart.setxLables(keys);
+
+				// Add all columns
+				CountByType ct = countTypesByFile.get(i);
+
+				// Add all values
+				ArrayList<String> columnValues = new ArrayList<String>();
+				for (String key : keys)
+					if (keys.contains(key)) columnValues.add(ct.get(key) + "");
+
+				// Create chart
+				barchart.addColumn(name, columnValues);
+				sbHead.append(barchart.toStringHtmlHeader());
+				sbBody.append(barchart.toStringHtmlBody());
+			}
 		}
 
 		//---
@@ -377,13 +423,14 @@ public class CountReadsOnMarkers {
 	 * @param snpEffectPredictor
 	 */
 	void init(SnpEffectPredictor snpEffectPredictor) {
-		samFileNames = new ArrayList<String>();
+		fileNames = new ArrayList<String>();
 		names = new ArrayList<String>();
 		countReadsByFile = new ArrayList<CountByKey<Marker>>();
 		countBasesByFile = new ArrayList<CountByKey<Marker>>();
 		countTypesByFile = new ArrayList<CountByType>();
 		markerTypes = new MarkerTypes();
 		coverageByFile = new ArrayList<CoverageByType>();
+		readsByFile = new CountByType();
 
 		if (snpEffectPredictor != null) this.snpEffectPredictor = snpEffectPredictor;
 		else this.snpEffectPredictor = new SnpEffectPredictor(new Genome());
@@ -414,7 +461,7 @@ public class CountReadsOnMarkers {
 
 			// Binomial probability model
 			double p = 0;
-			if (prob.contains(type)) {
+			if ((prob != null) && prob.contains(type)) {
 				p = prob.getScore(type);
 				sb.append("\t" + p);
 			} else sb.append("\t\t");
@@ -430,7 +477,7 @@ public class CountReadsOnMarkers {
 				long expected = Math.round(count.get(chrType) * p);
 				double pvalue = Binomial.get().cdfUpEq(p, k, n);
 
-				if (prob.contains(type)) sb.append("\t" + countTypesByFile.get(idx).get(type) + "\t" + expected + "\t" + pvalue);
+				if ((prob != null) && prob.contains(type)) sb.append("\t" + countTypesByFile.get(idx).get(type) + "\t" + expected + "\t" + pvalue);
 				else sb.append("\t" + countTypesByFile.get(idx).get(type) + "\t\t");
 			}
 			sb.append("\n");
