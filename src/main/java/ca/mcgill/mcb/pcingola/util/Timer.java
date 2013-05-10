@@ -14,16 +14,16 @@ public class Timer {
 	 * Show absolute timer value and a message
 	 * @param msg
 	 */
-	public static void show(String msg) {
-		System.out.println(timer + "\t" + msg);
+	public static void show(Object msg) {
+		System.out.println(timer + "\t" + (msg == null ? "null" : msg.toString()));
 	}
 
 	/**
 	 * Show absolute timer value and a message on STDERR
 	 * @param msg
 	 */
-	public static void showStdErr(String msg) {
-		System.err.println(timer + "\t" + msg);
+	public static void showStdErr(Object msg) {
+		System.err.println(timer + "\t" + (msg == null ? "null" : msg.toString()));
 	}
 
 	public Timer() {
