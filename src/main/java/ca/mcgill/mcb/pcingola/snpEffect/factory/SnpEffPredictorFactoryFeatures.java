@@ -154,8 +154,6 @@ public abstract class SnpEffPredictorFactoryFeatures extends SnpEffPredictorFact
 	@Override
 	public SnpEffectPredictor create() {
 		// Read gene intervals from a file
-		if (verbose) System.out.println("Config: " + config.getGenome());
-
 		try {
 			// Iterate over all features
 			for (Features features : featuresFile) {
