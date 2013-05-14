@@ -88,12 +88,12 @@ public class GenBank extends Features {
 		int fieldLineNum = 0;
 		String name = null;
 		String value = "";
-		Gpr.debug("NAME: " + name + "\tvalue: " + value);
+		if (debug) Gpr.debug("NAME: " + name + "\tvalue: " + value);
 
 		// Read file
 		for (String line : lineFileIterator) {
 			// End of current 'chromosome'?
-			if (line.equals("//")) break;
+			if (line.startsWith("//")) break;
 
 			value = line;
 
@@ -103,7 +103,7 @@ public class GenBank extends Features {
 				if (kv.length > 1) {
 					name = kv[0];
 					value = kv[1];
-					Gpr.debug("NAME: " + name + "\tvalue: " + value);
+					if (debug) Gpr.debug("NAME: " + name + "\tvalue: " + value);
 					fieldLineNum = 0;
 				}
 			}

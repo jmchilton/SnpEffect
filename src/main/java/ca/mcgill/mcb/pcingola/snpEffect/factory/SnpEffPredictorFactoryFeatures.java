@@ -48,10 +48,13 @@ public abstract class SnpEffPredictorFactoryFeatures extends SnpEffPredictorFact
 
 			// Add chromosome
 			if (f.getType() == Type.SOURCE) {
-				if (chromosome != null) throw new RuntimeException("SOURCE already assigned to chromosome");
-				String chrName = chromoName(features, f);
-				chromosome = new Chromosome(genome, start, end, 1, chrName);
-				add(chromosome);
+				if (chromosome == null) {
+					String chrName = chromoName(features, f);
+					chromosome = new Chromosome(genome, start, end, 1, chrName);
+					add(chromosome);
+				} else {
+					if (verbose) System.err.println("Warnign: 'SOURCE' already assigned to chromosome. Ignoring feature:\n" + f);
+				}
 			}
 		}
 
@@ -151,7 +154,7 @@ public abstract class SnpEffPredictorFactoryFeatures extends SnpEffPredictorFact
 	@Override
 	public SnpEffectPredictor create() {
 		// Read gene intervals from a file
-		System.out.println("Config: " + config.getGenome());
+		if (verbose) System.out.println("Config: " + config.getGenome());
 
 		try {
 			// Iterate over all features
@@ -171,7 +174,6 @@ public abstract class SnpEffPredictorFactoryFeatures extends SnpEffPredictorFact
 			finishUp();
 
 			// Check that exons have sequences
-			System.out.println(config.getGenome());
 			boolean error = config.getGenome().isMostExonsHaveSequence();
 			if (error) throw new RuntimeException("Most Exons do not have sequences!");
 		} catch (Exception e) {

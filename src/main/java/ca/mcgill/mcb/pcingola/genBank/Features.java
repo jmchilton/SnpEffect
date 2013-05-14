@@ -17,6 +17,8 @@ import ca.mcgill.mcb.pcingola.util.Gpr;
  */
 public abstract class Features implements Iterable<Feature> {
 
+	public static boolean debug = false;
+
 	public static final int MAX_LEN_TO_SHOW = 200;
 	public static final String COMPLEMENT = "complement";
 	public static final String JOIN = "join";
@@ -69,7 +71,7 @@ public abstract class Features implements Iterable<Feature> {
 	void addFeature(String typeStr, StringBuilder values) {
 		Feature.Type type = Feature.Type.parse(typeStr);
 		if (type == null) {
-			Gpr.debug("WARNING: Unknown feature '" + typeStr + "', not added.");
+			if (debug) Gpr.debug("WARNING: Unknown feature '" + typeStr + "', not added.");
 			return;
 		}
 
@@ -100,9 +102,6 @@ public abstract class Features implements Iterable<Feature> {
 
 		// Get first line (location)
 		int firstLine = def.indexOf("\n");
-		if (def.indexOf("SPAC3C7.03c") > 0) {
-			Gpr.debug("def=|" + def + "|\tfirstLine: " + firstLine);
-		}
 
 		String locStr = (firstLine >= 0) ? def.substring(0, firstLine) : def;
 
