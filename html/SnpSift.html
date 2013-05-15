@@ -796,35 +796,40 @@ Ts/Tv         :	2.123	2.139	2.154	2.163	2.159	2.106	2.114	2.158	2.145	2.153	2.15
 						</ul>
 					<li> SnpEff 'EFF' fields: 
 						<ul>
-							<li> EFF[*].EFFECT
-							<li> EFF[*].IMPACT
-							<li> EFF[*].FUNCLASS
-							<li> EFF[*].CODON
-							<li> EFF[*].AA
-							<li> EFF[*].AA_LEN
-							<li> EFF[*].GENE
-							<li> EFF[*].BIOTYPE
-							<li> EFF[*].CODING
-							<li> EFF[*].TRID
-							<li> EFF[*].RANK
+							<li> "EFF[*].EFFECT"
+							<li> "EFF[*].IMPACT"
+							<li> "EFF[*].FUNCLASS"
+							<li> "EFF[*].CODON"
+							<li> "EFF[*].AA"
+							<li> "EFF[*].AA_LEN"
+							<li> "EFF[*].GENE"
+							<li> "EFF[*].BIOTYPE"
+							<li> "EFF[*].CODING"
+							<li> "EFF[*].TRID"
+							<li> "EFF[*].RANK"
 						</ul>
 						<i class="icon-hand-right"></i> You can combine <code>vcfEffOnePerLine.pl</code> script with <code>SnpSift extractFields</code> if you want to have each effect in a seprarate line.
 					<li> SnpEff 'LOF' fields: 
 						<ul>
-							<li> LOF[*].GENE
-							<li> LOF[*].GENEID
-							<li> LOF[*].NUMTR
-							<li> LOF[*].PERC
+							<li> "LOF[*].GENE"
+							<li> "LOF[*].GENEID"
+							<li> "LOF[*].NUMTR"
+							<li> "LOF[*].PERC"
 						</ul>
 					<li> SnpEff' NMD' fields: 
 						<ul>
-							<li> NMD[*].GENE
-							<li> NMD[*].GENEID
-							<li> NMD[*].NUMTR
-							<li> NMD[*].PERC
+							<li> "NMD[*].GENE"
+							<li> "NMD[*].GENEID"
+							<li> "NMD[*].NUMTR"
+							<li> "NMD[*].PERC"
 						</ul>
 				</ul>
 
+				<br>
+				<br>
+				<i class="icon-warning-sign"></i>  When using multiple indexes (e.g. "EFF[*].EFFECT") you must remember to use quotes the command line. Otherwise, the shell would parse the asterisk changing the expression and producing unexpected results.
+				<br>
+				<br>
 				<p>
 				<b>Exmample 1:</b> Extracting chromosome, position, ID and allele frequency from a VCF file:
 				<pre>
@@ -844,7 +849,7 @@ $ java -jar SnpSift.jar extractFields s.vcf CHROM POS ID AF | head
 				<p>
 				<b>Exmample 2:</b> Extracting genotype fields
 <pre>
-$ java -jar SnpSift.jar extractFields file.vcf CHROM POS ID THETA GEN[0].GL[1] GEN[1].GL GEN[3].GL[*] GEN[*].GT
+$ java -jar SnpSift.jar extractFields file.vcf CHROM" "POS" "ID" "THETA" "GEN[0].GL[1]" "GEN[1].GL" "GEN[3].GL[*]" "GEN[*].GT"
 </pre>
 
 				This means to extract:
@@ -853,8 +858,8 @@ $ java -jar SnpSift.jar extractFields file.vcf CHROM POS ID THETA GEN[0].GL[1] G
 				  <li> THETA : This one is from INFO
 				  <li> GEN[0].GL[1] : Second likelihood from first genotype
 				  <li> GEN[1].GL : The whole GL fiels (all entries without separating them)
-				  <li> GEN[3].GL[*] : All likelihoods form genotype 3 (this time they will be tab separated, as opposed to the previous one).
-				  <li> GEN[*].GT : Genotype subfields (GT) from ALL samples (tab separated).
+				  <li> "GEN[3].GL[*]" : All likelihoods form genotype 3 (this time they will be tab separated, as opposed to the previous one).
+				  <li> "GEN[*].GT" : Genotype subfields (GT) from ALL samples (tab separated).
 				</ul>
 				The result will look something like:
 <pre>
