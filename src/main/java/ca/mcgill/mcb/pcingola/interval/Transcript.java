@@ -827,6 +827,37 @@ public class Transcript extends IntervalAndSubIntervals<Exon> {
 		return (seqChange.getEnd() >= cs) && (seqChange.getStart() <= ce);
 	}
 
+	/**
+	 * Check if coding length is multiple of 3 in protein coding transcripts
+	 * @return true on Error
+	 */
+	public boolean isErrorProteinLength() {
+		if (!Config.get().isTreatAllAsProteinCoding() && !isProteinCoding()) return false;
+		cds();
+		return (cds.length() % 3) != 0;
+	}
+
+	/**
+	 * Check if protein sequence has STOP codons in the middle of the coding sequence
+	 * @return true on Error
+	 */
+	public boolean isErrorStopCodon() {
+		if (!Config.get().isTreatAllAsProteinCoding() && !isProteinCoding()) return false;
+
+		// Get protein sequence
+		String prot = protein();
+		if (prot == null) return false;
+
+		// Any STOP codon before the end?
+		char bases[] = prot.toCharArray();
+		int max = bases.length - 1;
+		for (int i = 0; i < max; i++)
+			if (bases[i] == '*') return true;
+
+		// OK 
+		return false;
+	}
+
 	public boolean isProteinCoding() {
 		return proteinCoding;
 	}

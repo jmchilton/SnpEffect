@@ -196,6 +196,8 @@ public class ChangeEffect implements Cloneable, Comparable<ChangeEffect> {
 	public enum WarningType {
 		WARNING_SEQUENCE_NOT_AVAILABLE //
 		, WARNING_REF_DOES_NOT_MATCH_GENOME //
+		, WARNING_TRANSCRIPT_INCOMPLETE // 
+		, WARNING_TRANSCRIPT_MULTIPLE_STOP_CODONS //
 	};
 
 	static final boolean COMPATIBLE_v1_8 = true; // Activate this in order to get the same out as version 1.8. This is only for testing & debugging 

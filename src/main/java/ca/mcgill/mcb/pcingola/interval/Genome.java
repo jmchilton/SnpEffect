@@ -420,6 +420,8 @@ public class Genome extends Marker implements Serializable, Iterable<Chromosome>
 		int countGenes = 0, countGenesProteinCoding = 0;
 		int countTranscripts = 0, countTranscriptsProteinCoding = 0;
 		int countExons = 0, countCds = 0;
+		int errorProteinLength = 0;
+		int errorProteinStopCodons = 0;
 		Genes genes = getGenes();
 
 		// For each gene
@@ -441,6 +443,10 @@ public class Genome extends Marker implements Serializable, Iterable<Chromosome>
 					if (e.getSequence().isEmpty()) exonNoSeq++;
 					else exonSeq++;
 				}
+
+				// Sanity check
+				if (tr.isErrorProteinLength()) errorProteinLength++; // Protein length error
+				if (tr.isErrorStopCodon()) errorProteinStopCodons++; // Protein length error
 			}
 		}
 
@@ -456,6 +462,10 @@ public class Genome extends Marker implements Serializable, Iterable<Chromosome>
 		sb.append("# Transcripts                : " + countTranscripts + "\n");
 		sb.append(String.format("# Avg. transcripts per gene  : %.2f", avgTrPerGene) + "\n");
 		sb.append("# Protein coding transcripts : " + countTranscriptsProteinCoding + "\n");
+		sb.append("#              Length errors : " + errorProteinLength + "\n");
+		sb.append("#          STOP codon errors : " + errorProteinStopCodons + "\n");
+		sb.append(String.format("#              Length errors : %06d ( %.2f%% )\n", errorProteinLength, (100.0 * errorProteinLength / countTranscriptsProteinCoding)));
+		sb.append(String.format("#          STOP codon errors : %06d ( %.2f%% )\n", errorProteinStopCodons, (100.0 * errorProteinStopCodons / countTranscriptsProteinCoding)));
 		sb.append("# Cds                        : " + countCds + "\n");
 		sb.append("# Exons                      : " + countExons + "\n");
 		sb.append("# Exons with sequence        : " + exonSeq + "\n");
@@ -470,7 +480,6 @@ public class Genome extends Marker implements Serializable, Iterable<Chromosome>
 
 		return sb.toString();
 	}
-
 	//	@Override
 	//	public String toString() {
 	//		StringBuilder sb = new StringBuilder(version + ": " + species);

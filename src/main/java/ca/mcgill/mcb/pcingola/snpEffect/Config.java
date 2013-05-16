@@ -61,7 +61,7 @@ public class Config implements Serializable, Iterable<String> {
 
 	public Config() {
 		genome = new Genome();
-		treatAllAsProteinCoding = true;
+		treatAllAsProteinCoding = false;
 		onlyRegulation = false;
 		errorOnMissingChromo = false; // Empty genome => No chromos
 		errorChromoHit = false; // Empty genome => No chromos
@@ -73,7 +73,7 @@ public class Config implements Serializable, Iterable<String> {
 	 * @param genomeVersion
 	 */
 	public Config(String genomeVersion) {
-		treatAllAsProteinCoding = true;
+		treatAllAsProteinCoding = false;
 		onlyRegulation = false;
 		errorOnMissingChromo = true;
 		errorChromoHit = true;
@@ -90,7 +90,7 @@ public class Config implements Serializable, Iterable<String> {
 	 * @param configFileName
 	 */
 	public Config(String genomeVersion, String configFileName) {
-		treatAllAsProteinCoding = true;
+		treatAllAsProteinCoding = false;
 		onlyRegulation = false;
 		errorOnMissingChromo = true;
 		errorChromoHit = true;
