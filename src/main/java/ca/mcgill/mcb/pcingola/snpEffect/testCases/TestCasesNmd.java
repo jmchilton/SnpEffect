@@ -58,7 +58,8 @@ public class TestCasesNmd extends TestCase {
 					codingExons.add(exon);
 
 					// Create a seqChange
-					SeqChange seqChange = new SeqChange(tr.getChromosome(), expos, expos, "");
+					//					SeqChange seqChange = new SeqChange(tr.getChromosome(), expos, expos, "");
+					SeqChange seqChange = new SeqChange(tr.getChromosome(), expos, "A", "C", 1, "", -1, -1); // Create a seqChange
 
 					// Create a STOP_GAIN effect
 					ChangeEffect changeEffect = new ChangeEffect(seqChange);
@@ -67,7 +68,7 @@ public class TestCasesNmd extends TestCase {
 					changeEffects.add(changeEffect);
 
 					// Create a LOF object and analyze the effect
-					LossOfFunction lof = new LossOfFunction(changeEffects);
+					LossOfFunction lof = new LossOfFunction(config, changeEffects);
 					isNmd[pos] = lof.isNmd();
 
 					nmdStr.append(isNmd[pos] ? '+' : '.');
@@ -112,7 +113,8 @@ public class TestCasesNmd extends TestCase {
 		// Load database
 		String genomeVer = "testHg3766Chr1";
 		Gpr.debug("Loading database '" + genomeVer + "'");
-		Config config = new Config(genomeVer, Config.DEFAULT_CONFIG_FILE);
+		config = new Config(genomeVer, Config.DEFAULT_CONFIG_FILE);
+		config.setTreatAllAsProteinCoding(true); // For historical reasons...
 		config.loadSnpEffectPredictor();
 
 		// For each gene, transcript, check that NMD works

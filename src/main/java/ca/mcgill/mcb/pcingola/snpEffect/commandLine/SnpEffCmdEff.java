@@ -988,8 +988,10 @@ public class SnpEffCmdEff extends SnpEff {
 			outputFormatter = new TxtOutputFormatter();
 			break;
 		case VCF:
-			outputFormatter = new VcfOutputFormatter(vcfEntriesDebug);
-			((VcfOutputFormatter) outputFormatter).setLossOfFunction(lossOfFunction);
+			VcfOutputFormatter vof = new VcfOutputFormatter(vcfEntriesDebug);
+			vof.setLossOfFunction(lossOfFunction);
+			vof.setConfig(config);
+			outputFormatter = vof;
 			break;
 		case GATK:
 			outputFormatter = new VcfOutputFormatter(config.getGenome(), VcfEffect.FormatVersion.FORMAT_SNPEFF_2);

@@ -11,6 +11,7 @@ import ca.mcgill.mcb.pcingola.interval.Intron;
 import ca.mcgill.mcb.pcingola.interval.Marker;
 import ca.mcgill.mcb.pcingola.interval.Transcript;
 import ca.mcgill.mcb.pcingola.snpEffect.ChangeEffect;
+import ca.mcgill.mcb.pcingola.snpEffect.Config;
 
 /**
  * Formats output
@@ -37,6 +38,7 @@ public abstract class OutputFormatter {
 	Marker section;
 	ChangeEffectFilter changeEffectResutFilter = null; // Filter prediction results
 	ArrayList<ChangeEffect> changeEffects;
+	Config config;
 
 	public static String idChain(Marker marker) {
 		return idChain(marker, ";", true);
@@ -180,6 +182,10 @@ public abstract class OutputFormatter {
 
 	public void setCommandLineStr(String commandLineStr) {
 		this.commandLineStr = commandLineStr;
+	}
+
+	public void setConfig(Config config) {
+		this.config = config;
 	}
 
 	public void setOutOffset(int outOffset) {

@@ -92,12 +92,15 @@ public class TestCasesLof extends TestCase {
 	 */
 	void checkLofExonDeletedFirstExon(Transcript tr) {
 		Exon ex = tr.getFirstCodingExon();
-		SeqChange seqChange = new SeqChange(tr.getChromosome(), ex.getStart(), ex.getEnd(), ""); // Create a seqChange
+		SeqChange seqChange = new SeqChange(tr.getChromosome(), ex.getStart(), "AC", "A", 1, "", -1, -1);
+		seqChange.setStart(ex.getStart());
+		seqChange.setEnd(ex.getEnd());
 		seqChange.setChangeType(ChangeType.DEL);
+		if (debug) Gpr.debug("SeqChange:" + seqChange);
 		LinkedList<ChangeEffect> changeEffects = changeEffects(seqChange, EffectType.EXON_DELETED, ex);
 
 		// Calculate LOF
-		LossOfFunction lof = new LossOfFunction(changeEffects);
+		LossOfFunction lof = new LossOfFunction(config, changeEffects);
 		boolean islof = lof.isLof();
 		Assert.assertEquals(true, islof);
 	}
@@ -114,7 +117,10 @@ public class TestCasesLof extends TestCase {
 			// Create a random seqChange
 			int delStart = random.nextInt(tr.size() - 1) + tr.getStart();
 			int delEnd = random.nextInt(tr.getEnd() - delStart) + delStart + 1;
-			SeqChange seqChange = new SeqChange(tr.getChromosome(), delStart, delEnd, ""); // Create a seqChange
+			SeqChange seqChange = new SeqChange(tr.getChromosome(), delStart, "AC", "A", 1, "", -1, -1);
+			seqChange.setStart(delStart);
+			seqChange.setEnd(delEnd);
+			if (debug) Gpr.debug("SeqChange:" + seqChange);
 			seqChange.setChangeType(ChangeType.DEL);
 
 			// How many coding bases are affected?
@@ -130,7 +136,7 @@ public class TestCasesLof extends TestCase {
 
 				// Calculate LOF
 				LinkedList<ChangeEffect> changeEffects = changeEffects(seqChange, EffectType.TRANSCRIPT, tr); // Notice that we don't care what type of effect is, so we just use 'TRANSCRIPT'
-				LossOfFunction lof = new LossOfFunction(changeEffects);
+				LossOfFunction lof = new LossOfFunction(config, changeEffects);
 				boolean islof = lof.isLof();
 				Assert.assertEquals(delIsLof, islof);
 			}
@@ -152,8 +158,13 @@ public class TestCasesLof extends TestCase {
 
 			// All exonic positions
 			for (int pos = start; ex.intersects(pos); pos += step) {
-				SeqChange seqChange = new SeqChange(tr.getChromosome(), pos, pos, ""); // Create a seqChange
-				seqChange.setChangeType(random.nextBoolean() ? ChangeType.INS : ChangeType.DEL); // Randomly choose INS or DEL
+				// Create a seqChange
+				SeqChange seqChange;
+				boolean ins = random.nextBoolean(); // Randomly choose INS or DEL
+				if (ins) seqChange = new SeqChange(tr.getChromosome(), pos, "A", "AC", 1, "", -1, -1);
+				else seqChange = new SeqChange(tr.getChromosome(), pos, "AC", "A", 1, "", -1, -1);
+				seqChange.setChangeType(ins ? ChangeType.INS : ChangeType.DEL);
+				if (debug) Gpr.debug("SeqChange:" + seqChange);
 
 				// Create change effect
 				LinkedList<ChangeEffect> changeEffects = changeEffects(seqChange, EffectType.FRAME_SHIFT, ex);
@@ -170,7 +181,7 @@ public class TestCasesLof extends TestCase {
 				}
 
 				// Is LOF as expected?
-				LossOfFunction lof = new LossOfFunction(changeEffects);
+				LossOfFunction lof = new LossOfFunction(config, changeEffects);
 				boolean islof = lof.isLof();
 				Assert.assertEquals(isFsLof, islof);
 			}
@@ -194,7 +205,8 @@ public class TestCasesLof extends TestCase {
 	void checkLofStartLost(Transcript tr) {
 		// Find start codon position
 		int pos = tr.getCdsStart();
-		SeqChange seqChange = new SeqChange(tr.getChromosome(), pos, pos, ""); // Create a seqChange
+		SeqChange seqChange = new SeqChange(tr.getChromosome(), pos, "A", "C", 1, "", -1, -1); // Create a seqChange
+		if (debug) Gpr.debug("SeqChange:" + seqChange);
 
 		// Finr exon
 		Exon exon = null;
@@ -204,7 +216,7 @@ public class TestCasesLof extends TestCase {
 
 		// Create a LOF object and analyze the effect
 		LinkedList<ChangeEffect> changeEffects = changeEffects(seqChange, EffectType.START_LOST, exon);
-		LossOfFunction lof = new LossOfFunction(changeEffects);
+		LossOfFunction lof = new LossOfFunction(config, changeEffects);
 		boolean islof = lof.isLof();
 		Assert.assertEquals(true, islof);
 	}
@@ -233,13 +245,13 @@ public class TestCasesLof extends TestCase {
 			// For all position on splice site donor positions, make sure it is LOF
 			//---
 			for (int pos = posDonor, i = 0; i < maxSize; i++, pos += step) {
-				SeqChange seqChange = new SeqChange(tr.getChromosome(), pos, pos, ""); // Create a seqChange
+				SeqChange seqChange = new SeqChange(tr.getChromosome(), pos, "A", "C", 1, "", -1, -1); // Create a seqChange
 				Marker marker = findMarker(seqChange, EffectType.SPLICE_SITE_ACCEPTOR, null, ex);
 				LinkedList<ChangeEffect> changeEffects = changeEffects(seqChange, EffectType.SPLICE_SITE_ACCEPTOR, marker); // Create a SPLICE_SITE_ACCEPTOR effect
 				if (debug) Gpr.debug("SeqChange:" + seqChange);
 
 				// Create a LOF object and analyze the effect
-				LossOfFunction lof = new LossOfFunction(changeEffects);
+				LossOfFunction lof = new LossOfFunction(config, changeEffects);
 				boolean islof = lof.isLof();
 				Assert.assertEquals(true, islof);
 			}
@@ -272,13 +284,13 @@ public class TestCasesLof extends TestCase {
 			// For all position on splice site donor positions, make sure it is LOF
 			//---
 			for (int pos = posDonor, i = 0; i < maxSize; i++, pos += step) {
-				SeqChange seqChange = new SeqChange(tr.getChromosome(), pos, pos, ""); // Create a seqChange
+				SeqChange seqChange = new SeqChange(tr.getChromosome(), pos, "A", "C", 1, "", -1, -1); // Create a seqChange
 				Marker marker = findMarker(seqChange, EffectType.SPLICE_SITE_DONOR, null, ex);
 				LinkedList<ChangeEffect> changeEffects = changeEffects(seqChange, EffectType.SPLICE_SITE_DONOR, marker); // Create a SPLICE_DONOR effect
 				if (debug) Gpr.debug("SeqChange:" + seqChange);
 
 				// Create a LOF object and analyze the effect
-				LossOfFunction lof = new LossOfFunction(changeEffects);
+				LossOfFunction lof = new LossOfFunction(config, changeEffects);
 				boolean islof = lof.isLof();
 				Assert.assertEquals(true, islof);
 			}
@@ -317,6 +329,7 @@ public class TestCasesLof extends TestCase {
 		config = new Config(genomeVer, Config.DEFAULT_CONFIG_FILE);
 		config.loadSnpEffectPredictor();
 		Gpr.debug("Building forest");
+		config.setTreatAllAsProteinCoding(true); // For historical reasons...
 		config.getSnpEffectPredictor().buildForest();
 
 		// For each gene, transcript, check that NMD works

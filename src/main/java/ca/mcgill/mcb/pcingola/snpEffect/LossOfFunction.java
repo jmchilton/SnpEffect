@@ -91,7 +91,7 @@ public class LossOfFunction {
 	int lofCount = -1; // Number of loss of function effects
 	int nmdCount = -1; // Number of nonsense mediated decay effects
 
-	public LossOfFunction(Collection<ChangeEffect> changeEffects) {
+	public LossOfFunction(Config config, Collection<ChangeEffect> changeEffects) {
 		this.changeEffects = changeEffects;
 		transcriptsLof = new HashSet<Transcript>();
 		genesLof = new HashSet<Gene>();
@@ -99,7 +99,8 @@ public class LossOfFunction {
 		genesNmd = new HashSet<Gene>();
 
 		// Config parameters
-		config = Config.get();
+		// config = Config.get();
+		this.config = config;
 		ignoreProteinCodingBefore = config.getLofIgnoreProteinCodingBefore();
 		ignoreProteinCodingAfter = config.getLofIgnoreProteinCodingAfter();
 		deleteProteinCodingBases = config.getLofDeleteProteinCodingBases();

@@ -103,6 +103,7 @@ public class TestCasesSeqChange extends TestCase {
 		// Create a config and force out snpPredictor for hg37 chromosome Y
 		config = new Config(genomeName, Config.DEFAULT_CONFIG_FILE);
 		config.loadSnpEffectPredictor();
+		config.setTreatAllAsProteinCoding(true); // For historical reasons we set this one to 'true'....
 		genome = config.getGenome();
 		config.getSnpEffectPredictor().buildForest();
 	}

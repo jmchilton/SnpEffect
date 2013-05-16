@@ -253,7 +253,7 @@ public class VcfOutputFormatter extends OutputFormatter {
 		// Add LOF info?
 		if (lossOfFunction) {
 			// Perform LOF analysis and add annotations
-			LossOfFunction lof = new LossOfFunction(changeEffects);
+			LossOfFunction lof = new LossOfFunction(config, changeEffects);
 			if (lof.isLof()) vcfEntry.addInfo(VCF_INFO_LOF_NAME, lof.vcfLofValue());
 			if (lof.isNmd()) vcfEntry.addInfo(VCF_INFO_NMD_NAME, lof.vcfNmdValue());
 		}
@@ -270,6 +270,7 @@ public class VcfOutputFormatter extends OutputFormatter {
 			newOutputFormatter.needAddHeader = needAddHeader;
 			newOutputFormatter.lossOfFunction = lossOfFunction;
 			newOutputFormatter.genome = genome;
+			newOutputFormatter.config = config;
 			return newOutputFormatter;
 		} catch (Exception e) {
 			throw new RuntimeException(e);

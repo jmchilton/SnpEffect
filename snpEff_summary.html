@@ -115,6 +115,8 @@ th a:active, th a:hover {
 	<a href="#effectsImpact"> Number of variants by impact </a><br>
 	<a href="#effectsImpact"> Number of variants by functional class </a><br>
 	<a href="#effects"> Number of variants by effect </a><br>
+	<a href="#quality">Quality histogram</a><br>
+	<a href="#coverage">Coverage histogram</a><br>
 	<a href="#baseChages">Base change table</a><br>
 	<a href="#tstv">Transition vs transversions (ts/tv)</a><br>
 	<a href="#alleleFreq"> Frequency of alleles </a><br>
@@ -138,19 +140,19 @@ th a:active, th a:hover {
 <table border=0>
 	<tr bgcolor=ffffff> 
 		<td valign=top> <b> Genome </b> </td>
-		<td> testHg3766Chr1 </td>
+		<td> testHg3770Chr22 </td>
 	</tr>
 	<tr bgcolor=dddddd> 
 		<td valign=top> <b> Date </b> </td>
-		<td> 2013-05-09 10:30 </td>
+		<td> 2013-05-16 19:16 </td>
 	</tr>
 	<tr bgcolor=ffffff> 
 		<td valign=top> <b> SnpEff version </b> </td>
-		<td> <pre>SnpEff 3.3 (build 2013-05-06), by Pablo Cingolani</pre> </td>
+		<td> <pre>SnpEff 3.3 (build 2013-05-15), by Pablo Cingolani</pre> </td>
 	</tr>
 	<tr bgcolor=dddddd> 
 		<td valign=top> <b> Command line arguments </b> </td>
-		<td> <pre>SnpEff  testHg3766Chr1 ./tests/test.no_change_02.vcf 
+		<td> <pre>SnpEff  -motif -ud 0 testHg3770Chr22 tests/test_motif_03.vcf 
 </pre> </td>
 	</tr>
 	<tr bgcolor=ffffff> 
@@ -160,11 +162,11 @@ th a:active, th a:hover {
 	</tr>	
 	<tr bgcolor=dddddd>
 		<td valign=top> <b> Number of lines (input file) </b> </td>
-		<td> 966 </td>
+		<td> 1 </td>
 	</tr>
 	<tr bgcolor=ffffff>
 		<td valign=top> <b> Number of variants (before filter) </b> </td>
-		<td> 966 </td>
+		<td> 1 </td>
 	</tr>
 	<tr bgcolor=dddddd>
 		<td valign=top> <b> Filter </b> </td>
@@ -176,11 +178,11 @@ th a:active, th a:hover {
 	</tr>
 	<tr bgcolor=ffffff>
 		<td valign=top> <b> Number of not variants <br>(i.e. reference equals alternative) </b> </td>
-		<td> 966 </td>
+		<td> 0 </td>
 	</tr>
 	<tr bgcolor=dddddd>
 		<td valign=top> <b> Number of variants processed <br> (i.e. after filter and non-variants) </b> </td>
-		<td> 0 </td>
+		<td> 1 </td>
 	</tr>
 	<tr bgcolor=ffffff>
 		<td valign=top> <b> Number of known variants <br>(i.e. non-empty ID) </b> </td>
@@ -191,19 +193,19 @@ th a:active, th a:hover {
 	</tr>
 	<tr bgcolor=ffffff>
 		<td valign=top> <b> Number of effects </b> </td>
-		<td> 4,309 </td>
+		<td> 3 </td>
 	</tr>
 	<tr bgcolor=dddddd>
 		<td valign=top> <b> Genome total length </b> </td>
-		<td> 249,250,621 </td>
+		<td> 51,304,566 </td>
 	</tr>
 	<tr bgcolor=ffffff>
 		<td valign=top> <b> Genome effective length </b> </td>
-		<td> 0 </td>
+		<td> 51,304,566 </td>
 	</tr>
 	<tr bgcolor=dddddd>
 		<td valign=top> <b> Change rate </b> </td>
-		<td> 1 change every 0 bases </td>
+		<td> 1 change every 51,304,566 bases </td>
 	</tr>
 </table>
 <p>
@@ -221,11 +223,17 @@ th a:active, th a:hover {
 
 <table border=1>
 	<tr><th> Chromosome </th><th> Length </th><th> Changes </th><th> Change rate </th></tr> 
+		<tr>
+			<td> 22 </td>
+			<td class="numeric"> 51,304,566 </td>
+			<td class="numeric"> 1 </td>
+			<td class="numeric"> 51,304,566 </td>
+		</tr> 
 	<tr>
 		<th> Total </th>
-		<th class="numeric"> 0 </th>
-		<th class="numeric"> 0 </th>
-		<th class="numeric"> 0 </th>
+		<th class="numeric"> 51,304,566 </th>
+		<th class="numeric"> 1 </th>
+		<th class="numeric"> 51,304,566 </th>
 	</tr> 
 </table> 
 </center>
@@ -251,8 +259,8 @@ th a:active, th a:hover {
     <tbody>
 	    <tr>
 	    	<td> <b> SNP </b> </td>
-	    	<td class="numeric" bgcolor="ffffff"> 0 </td>
-	    	<td class="numeric" bgcolor="ffffff"> 0 </td>
+	    	<td class="numeric" bgcolor="ffffff"> 1 </td>
+	    	<td class="numeric" bgcolor="ffffff"> 1 </td>
 	    	<td class="numeric" bgcolor="ffffff"> 0 </td>
 	    </tr>
 	    <tr>
@@ -289,8 +297,8 @@ th a:active, th a:hover {
     <tfoot>
 	    <tr>
 	    	<th><b>Total </b> </th>
-	    	<th class="numeric"> 0 </th>
-	    	<th class="numeric"> 0 </th>
+	    	<th class="numeric"> 1 </th>
+	    	<th class="numeric"> 1 </th>
 	    	<th class="numeric"> 0 </th>
 	    </tr>
     </tfoot>
@@ -316,10 +324,16 @@ th a:active, th a:hover {
 		</tr>
 	</thead>
 		<tr> 
+			<td> <b> LOW </b> </td> 
+			<th> &nbsp; </th>
+			<td class="numeric" bgcolor="#00ff00"> 1 </td> 
+			<td class="numeric" bgcolor="#00ff00"> 33.333% </td>
+		</tr>
+		<tr> 
 			<td> <b> MODIFIER </b> </td> 
 			<th> &nbsp; </th>
-			<td class="numeric" bgcolor="ffffff"> 4,309 </td> 
-			<td class="numeric" bgcolor="ffffff"> 100% </td>
+			<td class="numeric" bgcolor="#ff0000"> 2 </td> 
+			<td class="numeric" bgcolor="#ff0000"> 66.667% </td>
 		</tr>
 </table><br>
 <p>
@@ -375,46 +389,16 @@ Missense / Silent ratio: </th><td class="numeric"> ?
 		</tr>
 	</thead>
 		<tr> 
-			<td> <b> DOWNSTREAM </b> </td> 
-			<th> &nbsp; </th>
-			<td class="numeric" bgcolor="#ff0000"> 1,438 </td> 
-			<td class="numeric" bgcolor="#ff0000"> 33.372% </td>
-		</tr>
-		<tr> 
-			<td> <b> EXON </b> </td> 
-			<th> &nbsp; </th>
-			<td class="numeric" bgcolor="#43bb00"> 382 </td> 
-			<td class="numeric" bgcolor="#43bb00"> 8.865% </td>
-		</tr>
-		<tr> 
-			<td> <b> INTERGENIC </b> </td> 
-			<th> &nbsp; </th>
-			<td class="numeric" bgcolor="#5f9f00"> 544 </td> 
-			<td class="numeric" bgcolor="#5f9f00"> 12.625% </td>
-		</tr>
-		<tr> 
 			<td> <b> INTRON </b> </td> 
 			<th> &nbsp; </th>
-			<td class="numeric" bgcolor="#dd2100"> 1,250 </td> 
-			<td class="numeric" bgcolor="#dd2100"> 29.009% </td>
+			<td class="numeric" bgcolor="#ff0000"> 2 </td> 
+			<td class="numeric" bgcolor="#ff0000"> 66.667% </td>
 		</tr>
 		<tr> 
-			<td> <b> SPLICE_SITE_ACCEPTOR </b> </td> 
+			<td> <b> MOTIF[MA0099.2:AP1] </b> </td> 
 			<th> &nbsp; </th>
-			<td class="numeric" bgcolor="#00ff00"> 5 </td> 
-			<td class="numeric" bgcolor="#00ff00"> 0.116% </td>
-		</tr>
-		<tr> 
-			<td> <b> SPLICE_SITE_DONOR </b> </td> 
-			<th> &nbsp; </th>
-			<td class="numeric" bgcolor="#00fe00"> 8 </td> 
-			<td class="numeric" bgcolor="#00fe00"> 0.186% </td>
-		</tr>
-		<tr> 
-			<td> <b> UPSTREAM </b> </td> 
-			<th> &nbsp; </th>
-			<td class="numeric" bgcolor="#788600"> 682 </td> 
-			<td class="numeric" bgcolor="#788600"> 15.827% </td>
+			<td class="numeric" bgcolor="#00ff00"> 1 </td> 
+			<td class="numeric" bgcolor="#00ff00"> 33.333% </td>
 		</tr>
 </table><br>
  </td>
@@ -428,46 +412,16 @@ Missense / Silent ratio: </th><td class="numeric"> ?
 		</tr>
 	</thead>
 		<tr> 
-			<td> <b> DOWNSTREAM </b> </td> 
-			<th> &nbsp; </th>
-			<td class="numeric" bgcolor="#ff0000"> 1,438 </td> 
-			<td class="numeric" bgcolor="#ff0000"> 33.372% </td>
-		</tr>
-		<tr> 
-			<td> <b> EXON </b> </td> 
-			<th> &nbsp; </th>
-			<td class="numeric" bgcolor="#43bb00"> 382 </td> 
-			<td class="numeric" bgcolor="#43bb00"> 8.865% </td>
-		</tr>
-		<tr> 
-			<td> <b> INTERGENIC </b> </td> 
-			<th> &nbsp; </th>
-			<td class="numeric" bgcolor="#5f9f00"> 544 </td> 
-			<td class="numeric" bgcolor="#5f9f00"> 12.625% </td>
-		</tr>
-		<tr> 
 			<td> <b> INTRON </b> </td> 
 			<th> &nbsp; </th>
-			<td class="numeric" bgcolor="#dd2100"> 1,250 </td> 
-			<td class="numeric" bgcolor="#dd2100"> 29.009% </td>
+			<td class="numeric" bgcolor="#ff0000"> 2 </td> 
+			<td class="numeric" bgcolor="#ff0000"> 66.667% </td>
 		</tr>
 		<tr> 
-			<td> <b> SPLICE_SITE_ACCEPTOR </b> </td> 
+			<td> <b> MOTIF </b> </td> 
 			<th> &nbsp; </th>
-			<td class="numeric" bgcolor="#00ff00"> 5 </td> 
-			<td class="numeric" bgcolor="#00ff00"> 0.116% </td>
-		</tr>
-		<tr> 
-			<td> <b> SPLICE_SITE_DONOR </b> </td> 
-			<th> &nbsp; </th>
-			<td class="numeric" bgcolor="#00fe00"> 8 </td> 
-			<td class="numeric" bgcolor="#00fe00"> 0.186% </td>
-		</tr>
-		<tr> 
-			<td> <b> UPSTREAM </b> </td> 
-			<th> &nbsp; </th>
-			<td class="numeric" bgcolor="#788600"> 682 </td> 
-			<td class="numeric" bgcolor="#788600"> 15.827% </td>
+			<td class="numeric" bgcolor="#00ff00"> 1 </td> 
+			<td class="numeric" bgcolor="#00ff00"> 33.333% </td>
 		</tr>
 </table><br>
  </td>
@@ -475,18 +429,52 @@ Missense / Silent ratio: </th><td class="numeric"> ?
 </table>
 <p>
 
-<img src="http://chart.apis.google.com/chart?cht=bvs&chbh=50,4,8&chs=800x300&chxt=y,y,x,x&chtt=Variations&chxp=1,50.0|3,50.0&chxr=0,0.0,33.37201206776514|1,0.0,100.0|3,0.0,100.0&chco=00FFFF,FA8072,FF0000,A52A2A,FFA500,DEB887,E9967A,7FFFD4,808080&chdl=Upstream|5%27UTR|Exon|Splice+Donor|Intron|Splice+Acceptor|3%27UTR|Downstream|Intergenic&chxl=1:|%25|2:|Intergenic|Up|5%27UTR|Exon|Donor|Intron|Acceptor|Exon|3%27UTR|Down|Intergenic|3:|&chd=e:AAeWAAAAAAAAAAAAAAAAAA,AAAAAAAAAAAAAAAAAAAAAA,AAAAAARAAAAAAARAAAAAAA,AAAAAAAAAXAAAAAAAAAAAA,AAAAAAAAAA3oAAAAAAAAAA,AAAAAAAAAAAAAOAAAAAAAA,AAAAAAAAAAAAAAAAAAAAAA,AAAAAAAAAAAAAAAAAA..AA,YNAAAAAAAAAAAAAAAAAAYN" border=1><p>
+<img src="http://chart.apis.google.com/chart?cht=bvs&chbh=50,4,8&chs=800x300&chxt=y,y,x,x&chtt=Variations&chxp=1,50.0|3,50.0&chxr=0,0.0,66.66666666666666|1,0.0,100.0|3,0.0,100.0&chco=00FFFF,FA8072,FF0000,A52A2A,FFA500,DEB887,E9967A,7FFFD4,808080&chdl=Upstream|5%27UTR|Exon|Splice+Donor|Intron|Splice+Acceptor|3%27UTR|Downstream|Intergenic&chxl=1:|%25|2:|Intergenic|Up|5%27UTR|Exon|Donor|Intron|Acceptor|Exon|3%27UTR|Down|Intergenic|3:|&chd=e:AAAAAAAAAAAAAAAAAAAAAA,AAAAAAAAAAAAAAAAAAAAAA,AAAAAAAAAAAAAAAAAAAAAA,AAAAAAAAAAAAAAAAAAAAAA,AAAAAAAAAA..AAAAAAAAAA,AAAAAAAAAAAAAAAAAAAAAA,AAAAAAAAAAAAAAAAAAAAAA,AAAAAAAAAAAAAAAAAAAAAA,AAAAAAAAAAAAAAAAAAAAAA" border=1><p>
 
 </center>
 <!--==========================================================================
 	Quality plots
 	========================================================================== -->
 
+	<hr> 
+	<a name="quality"> 
+	<b> Quality: </b> 
+	<p>
+	<pre>
+	<table class="histo">
+		<tr> <th width=15%>Min</th><td>100</td> </tr>
+		<tr> <th>Max</th><td>100</td> </tr>
+		<tr> <th>Mean</th><td>100</td> </tr>
+		<tr> <th>Median</th><td>50</td> </tr>
+		<tr> <th>Standard deviation</th><td>0</td> </tr>
+		<tr> <th>Values</th><td>100	</td> </tr>
+		<tr> <th>Count</th><td>1	</td> </tr>
+		</tr>
+	</table>
+		<img src="http://chart.apis.google.com/chart?cht=bvg&chd=e:..&chbh=8,4,2&chs=800x300&chxt=y,y,x,x&chxp=1,50.0|3,50.0&chtt=Quality+histogram&chxl=1:|Count|2:|100|3:|Quality&chxr=0,0.0,1.0|1,0.0,100.0|3,0.0,100.0"><br>
+	</pre>
 
 <!--==========================================================================
 	Coverage
 	========================================================================== -->
 
+	<hr> 
+	<a name="coverage"> 
+	<b> Coverage:</b> 
+	<p>
+	<pre>
+	<table class="histo">
+		<tr> <th width=15%>Min</th><td>1</td> </tr>
+		<tr> <th>Max</th><td>1</td> </tr>
+		<tr> <th>Mean</th><td>1</td> </tr>
+		<tr> <th>Median</th><td>0.5</td> </tr>
+		<tr> <th>Standard deviation</th><td>0</td> </tr>
+		<tr> <th>Values</th><td>1	</td> </tr>
+		<tr> <th>Count</th><td>1	</td> </tr>
+		</tr>
+	</table>
+		<img src="http://chart.apis.google.com/chart?cht=bvg&chd=e:..&chbh=8,4,2&chs=800x300&chxt=y,y,x,x&chxp=1,50.0|3,50.0&chtt=Coverage+histogram&chxl=1:|Count|2:|1|3:|Coverage&chxr=0,0.0,1.0|1,0.0,100.0|3,0.0,100.0"><br>
+	</pre>
 
 <!--==========================================================================
 	InDels
@@ -506,7 +494,7 @@ Missense / Silent ratio: </th><td class="numeric"> ?
     <tr>
     	<td> &nbsp; </td>  <th> <b> A </b> </th> <th> <b> C </b> </th> <th> <b> G </b> </th> <th> <b> T </b> </th>
     </tr>
-	    <tr> <th> <b> A </b> </th><td class="numeric" bgcolor="ffffff"> 0 </td><td class="numeric" bgcolor="ffffff"> 0 </td><td class="numeric" bgcolor="ffffff"> 0 </td><td class="numeric" bgcolor="ffffff"> 0 </td> </tr>
+	    <tr> <th> <b> A </b> </th><td class="numeric" bgcolor="ffffff"> 0 </td><td class="numeric" bgcolor="ffffff"> 0 </td><td class="numeric" bgcolor="ffffff"> 0 </td><td class="numeric" bgcolor="ffffff"> 1 </td> </tr>
 	    <tr> <th> <b> C </b> </th><td class="numeric" bgcolor="ffffff"> 0 </td><td class="numeric" bgcolor="ffffff"> 0 </td><td class="numeric" bgcolor="ffffff"> 0 </td><td class="numeric" bgcolor="ffffff"> 0 </td> </tr>
 	    <tr> <th> <b> G </b> </th><td class="numeric" bgcolor="ffffff"> 0 </td><td class="numeric" bgcolor="ffffff"> 0 </td><td class="numeric" bgcolor="ffffff"> 0 </td><td class="numeric" bgcolor="ffffff"> 0 </td> </tr>
 	    <tr> <th> <b> T </b> </th><td class="numeric" bgcolor="ffffff"> 0 </td><td class="numeric" bgcolor="ffffff"> 0 </td><td class="numeric" bgcolor="ffffff"> 0 </td><td class="numeric" bgcolor="ffffff"> 0 </td> </tr>
@@ -532,12 +520,21 @@ Missense / Silent ratio: </th><td class="numeric"> ?
 <center>
 <table border=1>
 	<tr> <th> Transitions </th><td class="numeric"> 0 </td> </tr>
-	<tr> <th> Transversions </th><td class="numeric"> 0 </td> </tr>
+	<tr> <th> Transversions </th><td class="numeric"> 1 </td> </tr>
 	<tr> <th> Ts/Tv ratio </th><td class="numeric"> 0 </td> </tr>
 </table>
 </center>
 <p>
 
+	<b>All variants:</b>
+	<pre>Sample        :	Total
+Transitions   :	0	0
+Transversions :	2	2
+Ts/Tv         :	0.000	0.000	
+</pre>
+	<p>
+	<b>Only known variants</b> (i.e. the ones having a non-empty ID field):
+	<pre>No results available (empty input?)</pre>
 <p>
 
 <!--==========================================================================
@@ -550,6 +547,30 @@ Missense / Silent ratio: </th><td class="numeric"> ?
 
 Note: Number of times an allele appears once (singleton), twice (doubletons), etc.<p>
 
+	<b>All variants:</b>
+	<img src="http://chart.apis.google.com/chart?cht=bvg&chd=e:..&chbh=8,4,2&chs=800x300&chxt=y,y,x,x&chxp=1,50.0|3,50.0&chtt=Alleles+frequencies&chxl=1:|Count|2:|2|3:|Alleles&chxr=0,0.0,1.0|1,0.0,100.0|3,0.0,100.0"><br>
+	<table class="histo">
+		<tr> <th width=15%>Min</th><td>2</td> </tr>
+		<tr> <th>Max</th><td>2</td> </tr>
+		<tr> <th>Mean</th><td>2</td> </tr>
+		<tr> <th>Median</th><td>1</td> </tr>
+		<tr> <th>Standard deviation</th><td>0</td> </tr>
+		<tr> <th>Values</th><td>2	</td> </tr>
+		<tr> <th>Count</th><td>1	</td> </tr>
+		</tr>
+	</table>
+	<p>
+	<b>Only known variants</b> (i.e. the ones having a non-empty ID field):
+	<table class="histo">
+		<tr> <th width=15%>Min</th><td>2,147,483,647</td> </tr>
+		<tr> <th>Max</th><td>-2,147,483,648</td> </tr>
+		<tr> <th>Mean</th><td>0</td> </tr>
+		<tr> <th>Median</th><td>0</td> </tr>
+		<tr> <th>Standard deviation</th><td>0</td> </tr>
+		<tr> <th>Values</th><td></td> </tr>
+		<tr> <th>Count</th><td></td> </tr>
+		</tr>
+	</table>
 <p>
 
 
@@ -620,6 +641,13 @@ Note: Number of times an allele appears once (singleton), twice (doubletons), et
 <b> Changes by chromosome</b><p> 
 
 <center>
+	<pre>
+		<img src="http://chart.apis.google.com/chart?cht=lc&chs=800x300&chxt=y,y,x,x&chxp=1,50.0|3,50.0&chtt=Changes+histogram%3A+22&chxr=0,0.0,1.0|1,0.0,100.0|3,0.0,100.0&chd=e:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA..AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA&chxl=1:|Changes%2F1000Kb|2:|0||||||||||10000000||||||||||20000000||||||||||30000000||||||||||40000000||||||||||50000000|51000000|3:|Position"><br>
+		22:
+	Position :	0	1000000	2000000	3000000	4000000	5000000	6000000	7000000	8000000	9000000	10000000	11000000	12000000	13000000	14000000	15000000	16000000	17000000	18000000	19000000	20000000	21000000	22000000	23000000	24000000	25000000	26000000	27000000	28000000	29000000	30000000	31000000	32000000	33000000	34000000	35000000	36000000	37000000	38000000	39000000	40000000	41000000	42000000	43000000	44000000	45000000	46000000	47000000	48000000	49000000	50000000	51000000	
+	Count    :	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	1	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	
+
+	</pre>
 </center>
 
 <!--==========================================================================
