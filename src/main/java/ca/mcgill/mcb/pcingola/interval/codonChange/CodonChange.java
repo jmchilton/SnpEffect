@@ -7,6 +7,7 @@ import ca.mcgill.mcb.pcingola.interval.Exon;
 import ca.mcgill.mcb.pcingola.interval.SeqChange;
 import ca.mcgill.mcb.pcingola.interval.Transcript;
 import ca.mcgill.mcb.pcingola.snpEffect.ChangeEffect;
+import ca.mcgill.mcb.pcingola.snpEffect.ChangeEffect.WarningType;
 
 /**
  * Analyze codon changes based on a SeqChange and a Transcript
@@ -60,6 +61,15 @@ public class CodonChange {
 				CodonChange codonChange = factory(seqChangeNew, transcript, changeEffectNew);
 				changes.addAll(codonChange.codonChange()); // Calculate codon change and add them to the list
 			}
+		}
+
+		// Should we add any errors
+		if (transcript.isErrorProteinLength()) {
+			for (ChangeEffect cheff : changes)
+				cheff.addWarning(WarningType.WARNING_TRANSCRIPT_INCOMPLETE);
+		} else if (transcript.isErrorStopCodon()) {
+			for (ChangeEffect cheff : changes)
+				cheff.addWarning(WarningType.WARNING_TRANSCRIPT_MULTIPLE_STOP_CODONS);
 		}
 
 		return changes;
