@@ -54,6 +54,7 @@ public class TestSuiteAll {
 		suite.addTestSuite(TestCasesSnpEnsembl.class);
 		suite.addTestSuite(TestCasesMissenseSilentRatio.class);
 		suite.addTestSuite(TestCasesNoChange.class);
+		suite.addTestSuite(TestCasesTranscriptError.class);
 
 		// Filter transcripts
 		suite.addTestSuite(TestCasesFilterTranscripts.class);

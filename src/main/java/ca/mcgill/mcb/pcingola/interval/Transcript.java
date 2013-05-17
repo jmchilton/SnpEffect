@@ -851,8 +851,14 @@ public class Transcript extends IntervalAndSubIntervals<Exon> {
 		// Any STOP codon before the end?
 		char bases[] = prot.toCharArray();
 		int max = bases.length - 1;
+		int countErrs = 0;
 		for (int i = 0; i < max; i++)
-			if (bases[i] == '*') return true;
+			if (bases[i] == '*') {
+				countErrs++;
+				// We allow up to one STOP codon because it can be a RARE_AMINO_ACID which is coded as a STOP codon.
+				// More than one STOP codon is not "normal", so it's probably an error in the genomic annotations (e.g. ENSEMBL or UCSC)
+				if (countErrs > 1) return true;
+			}
 
 		// OK 
 		return false;

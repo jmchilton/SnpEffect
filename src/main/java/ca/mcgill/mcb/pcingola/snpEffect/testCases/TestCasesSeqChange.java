@@ -469,9 +469,4 @@ public class TestCasesSeqChange extends TestCase {
 		snpEffectNegate("tests/start_gained_NOT_test.txt", null, true);
 	}
 
-	public void test_34_short_codon() {
-		initSnpEffPredictor("testHg3763Chr20");
-		snpEffectNegate("tests/short_codon_bug.vcf", null, true);
-	}
-
 }

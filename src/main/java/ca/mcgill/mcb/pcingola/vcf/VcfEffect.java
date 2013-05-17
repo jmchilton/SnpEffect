@@ -33,6 +33,7 @@ public class VcfEffect {
 	String transcriptId;
 	String exonId;
 	String genotype;
+	String errorsOrWarning;
 
 	/**
 	 * Convert from field name to field number
@@ -205,6 +206,10 @@ public class VcfEffect {
 		return effectDetails;
 	}
 
+	public String getErrorsOrWarning() {
+		return errorsOrWarning;
+	}
+
 	public String getExonId() {
 		return exonId;
 	}
@@ -282,6 +287,9 @@ public class VcfEffect {
 				else genotype = "";
 				index++;
 			}
+
+			if ((effectStrings.length > index) && !effectStrings[index].isEmpty()) errorsOrWarning = effectStrings[index];
+			index++;
 
 		} catch (Exception e) {
 			String fields = "";
@@ -395,6 +403,8 @@ public class VcfEffect {
 		sb.append("|");
 
 		if (genotype != null) sb.append(genotype);
+
+		if (errorsOrWarning != null) sb.append("|" + errorsOrWarning);
 
 		sb.append(")");
 
