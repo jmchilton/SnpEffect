@@ -173,6 +173,68 @@
 				<p> <h3>Citing</h3>
 				If you are using SnpEff or SnpSift, please cite our work as shown <a href="SnpEff.html#citing">here</a>. Thank you!
 				</p>
+
+				<p> <h3>Features</h3>
+				The following table shows the main SnpEff features:
+				<table class="table table-striped">
+					<tr> <th> Feature </th> <th> Comment</th> </tr>
+					<tr> 
+						<td> Local install </td> 
+						<td> 
+							SnpEff can be installed in your local computer or servers.
+							Local installations are preferred for processing genomic data. 
+							As opposed to remote web-based servcices, running a program locally has many advantages:
+							<ul>
+								<li> There no need to upload huge genomic dataset. 
+								<li> Processing doesn't depend on availability or processing capacity of remote servers.
+								<li> Service continuity: no need to worry if a remote service will be maintained in the future.
+								<li> Security and confidentiality issues of uploading data to third party servers are not a problem.
+								<li> Avoid legal problems of processing clinical data on "outside" servers.
+							</ul>
+						</td> 
+					</tr>
+					<tr> <td> Multi platform </td> <td> SnpEff is written in Java. It runs on Unix / Linux, OS.X and Windows. </td> </tr>
+					<tr> <td> Simple instalation </td> <td> Instalation is as simple as downloading a ZIP file and double clicking on it. </td> </tr>
+					<tr> <td> Genomes </td> <td> Human genome, as well as all model organisms are supported. Over 2,500 genomes are supported, which includes most mammalian, plant, bacterial and fungal genomes with published genomic data. </td> </tr>
+					<tr> <td> Speed </td> <td> SnpEff is really fast. It can annotate up to 1,000,000 variants per minute. </td> </tr>
+					<tr> <td> GUI </td> <td> Web based user interface via Galaxy project </td> </tr>
+					<tr> <td> Input and Output formats </td> 
+						<td> 
+						SnpEff accepts input files in the following format:
+							<ul>
+								<li> <code>VCF</code> format, which is the de-facto standard for sequencing variants.
+								<li> <code>TXT</code> format: Althought TXT format is deprecated, some people still find it useful.
+								<li> <code>BED</code> format: To annotate enrichment experiments (e.g. ChIP-Seq peaks) or other genomic data.
+							</ul>
+						</td> 
+					</tr>
+					<tr> <td> Variants supported </td> <td> SnpEff can annotate SNPs, MNPs, insertions and deletions. Support for mixed variants and structural variants is available (although sometimes limited). </td> </tr>
+					<tr> <td> Effect supported </td> <td> Many effects are calculated: such as SYNONYMOUS_CODING, NON_SYNONYMOUS_CODING, FRAME_SHIFT, STOP_GAINED just to name a few.</td> </tr>
+					<tr> <td> Variant impact </td> <td> SnpEff provides a simple assesment of the putative impact of the variant (e.g. HIGH, MODERATE or LOW impact).</td> </tr>
+					<tr> <td> Cancer tissue analysis </td> <td> Somatic vs Germline mutations can be calculated on the fly. This is very usefull for the cancer researcher community. </td> </tr>
+					<tr> <td> Loss of Function (LOF) assesment </td> <td> SnpEff can estimate if a variant is deemed to have a loss of function on the protein. </td> </tr>
+					<tr> <td> Nonsense mediate decay (NMD) assesment </td> <td> Some mutations may cause mRNA to be degraded thus not translated into a protein. MND analysis marks mutations that are estimated to trigger nonsense mediated decay.</td> </tr>
+					<tr> <td> HGVS notation</td> <td> SnpEff can provide output in HGVS notation, which is quite popular in clinical and translation research environments.</td> </tr>
+					<tr> <td> User annotations</td> <td> A user can provide cutoms annotations (by means of BED files).</td> </tr>
+					<tr> <td> Public databases </td> 
+						<td> 
+						SnpEff can annotate using publicly available data from well known databases, for instance:
+						<ul>
+							<li> <b>dbSnp</b> and <b>1,000 Genomes</b> Annotating "common" variants from dbSnp and 1000 genomes can be done via SnpSift.
+							<li> <b> Gwas catalog</b> Support for GWAS catalog annotations (via SnpSift) 
+							<li> <b>ENCODE</b> datasets are supported by SnpEff (by means of BigWig files provided by ENCODE project).
+							<li> <b>Epigenime Roadmap</b> provides data-sets that can be used with SnpEff.
+							<li> <b>TFBS</b> Transcription factor binding site predictions can be annotated. Motif data used in this annotations is generates by <code>Jasper</code> and <code>ENSEBML</code> projects
+							<li> <b>NextProt</b> database can be used to annotate protein domains as well as important functional sites in a protein (e.g. phosphorilation site)
+							<li> <b> PhastCons </b> Conservation score annotations (via SnpSift) 
+							<li> <b> DbNsfp</b> A comprehensive database providing many annotations and scores, such as: <code>SIFT</code> ,<code>Polyphen2</code> ,<code>GERP++</code>, <code>PhyloP</code> ,<code>MutationTaster</code> ,<code>SiPhy</code> ,<code>Interpro</code> ,<code>Haploinsufficiency</code> ,etc. (via SnpSift).
+						</ul>
+						</td> 
+					</tr>
+					<tr> <td> Non-coding annotations </td> <td> Regulatory and non-coding annotations are supported for different tissues and cell lines. Annotations supported include PolII ,H3K27ac ,H3K4me2 ,H3K4me3 ,H3K27me3 ,CTCF ,H3K36me3, just to name a few. </td> </tr>
+				</table>
+
+				</p>
         </section>
 
 		<!-- Examples
