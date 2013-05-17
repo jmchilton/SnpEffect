@@ -1023,9 +1023,6 @@ public class Transcript extends IntervalAndSubIntervals<Exon> {
 		// Create a list of changes
 		ArrayList<ChangeEffect> changeEffectList = new ArrayList<ChangeEffect>();
 
-		if (getId().equals("ENST00000434210")) //
-			Gpr.debug("DEBUG: " + this);
-
 		//---
 		// Hits a UTR region?
 		//---
