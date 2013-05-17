@@ -562,7 +562,12 @@ public class VcfEntry extends Marker implements Iterable<VcfGenotype> {
 
 			// REF and ALT
 			ref = vcfFileIterator.readField(fields, 3).toUpperCase(); // Reference and change
-			end = start + ref.length();
+
+			// Start & End coordinates are anchored to the reference genome, thus based on REF field (ALT is not taken into account)
+			end = start;
+			if (ref.length() >= 1) end += ref.length() - 1;
+
+			// Strand is alwats positive (defined in VCF spec.)
 			strand = 1;
 			String altsStr = vcfFileIterator.readField(fields, 4).toUpperCase();
 			parseAlts(altsStr);

@@ -66,6 +66,21 @@ public class TestCasesVcf extends TestCase {
 	}
 
 	/**
+	 * Check that the size is correct (at least for SNPs)
+	 * 
+	 * Louis Letourneau discovered this horrendous bug. This is 
+	 * my first attempt to fix it....
+	 */
+	public void test_00() {
+		String fileName = "./tests/1kg_head.vcf";
+		VcfFileIterator vcf = new VcfFileIterator(fileName);
+
+		for (VcfEntry ve : vcf) {
+			Assert.assertEquals(1, ve.size());
+		}
+	}
+
+	/**
 	 * Basic parsing
 	 */
 	public void test_01() {

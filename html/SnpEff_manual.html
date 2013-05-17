@@ -707,6 +707,24 @@ java -Xmx4g -jar snpEff.jar -vcf4 dm5.34 s.vcf > s_snpeff.txt
 						</td> 
 					</tr>
 					<tr> <td> WARNING_SEQUENCE_NOT_AVAILABLE </td> <td> For some reason the exon sequence is not available, so we cannot calculate effects.</td> </tr>
+					<tr> <td> WARNING_TRANSCRIPT_INCOMPLETE</td> 
+						<td> 
+						A protein coding transcript whose length is non-multiple of 3. 
+						This means that information is missing for one or more amino acids.
+						<br>
+						This is usualy due to errors in the genomic information (e.g. the genomic databases provided by UCSC or ENSEMBL).
+						Genomic information databases are constantly being improved and are getting more accurate, but some errors still remain.
+						</td> 
+					</tr>
+					<tr> <td> WARNING_TRANSCRIPT_MULTIPLE_STOP_CODONS </td> 
+						<td> 
+						A protein coding transcript has two or more STOP codons in the middle of the coding sequence (CDS).
+						This should not happen and it usualy means the genomic infromation may have an error in this transcript.
+						<br>
+						This is usualy due to errors in the genomic information (e.g. the genomic databases provided by UCSC or ENSEMBL).
+						Genomic information databases are constantly being improved and are getting more accurate, but some errors still remain.
+						</td> 
+					</tr>
 				</table>
 				</center>
 				</p>
