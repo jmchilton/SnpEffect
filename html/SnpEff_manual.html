@@ -461,6 +461,7 @@ $ ssh -i ./aws_amazon/pcingola_aws.pem ec2-user@ec2-54-234-14-244.compute-1.amaz
 				Complex databases, like human, require more time to load.
 				After the database is loaded, SnpEff can analyze thousands of variants per second.
 				</p>
+        </section>
 
         <!-- Sequence data analysis
         ================================================== -->
@@ -511,6 +512,7 @@ java -Xmx4g -jar snpEff.jar -vcf4 dm5.34 s.vcf > s_snpeff.txt
 					<li> Annotate variants (SnpEff)
 				</ul>
 				</p>
+        </section>
 				
         <!-- Input
         ================================================== -->
@@ -548,7 +550,9 @@ java -Xmx4g -jar snpEff.jar -vcf4 dm5.34 s.vcf > s_snpeff.txt
 20     17330   .         T      A       3    q10    NS=3;DP=11;AF=0.017   
 </pre>
 				Note that the first line is header information. Header lines start with '#'
-				<p>
+				<br>
+				<br>
+				</p>
 
 				<p><h3>TXT</h3>
 				<i class="icon-warning-sign"></i> TXT format is currently deprecated and discurraged.
@@ -580,6 +584,19 @@ java -Xmx4g -jar snpEff.jar -vcf4 dm5.34 s.vcf > s_snpeff.txt
 				<br>
 				When representing a heterozygous SNP you can use IUB codes: M=A/C, R=A/G, W=A/T, S=C/G, Y=C/T and K=G/T. 
 				Indels are indicated by, for example, */+A, -A/* or +CC/-C. There is no difference between */+A or +A/*.
+				<br>
+				<br>
+				</p>
+
+				<p><h3>BED</h3>
+				In an enrichment experiment, such as ChIP-Seq, the results are enrichemnt regions, usually called "peaks".
+				It is common for "peak callers" (algorithms that detect enrichment), write the results in a BED file.
+				SnpEff can annotate BED files in order to facilitate interpretation of enrichment experiments.
+				<br>
+				<br>
+				<i class="icon-warning-sign"></i> Column fifth onwards are ignored when using BED file format and they will be lost in the output file.
+				</p>
+        </section>
 
         <!-- Output
         ================================================== -->
@@ -920,8 +937,83 @@ tgctgcggctgcggctgcggctgcggctacggctgcggct    ALT (from VCF file)
 </pre>
 				So the two VCF and TXT representations are equivalent.
 				</p>
-
 				<br>
+				<br>
+
+				<p><h3>BED output format</h3>
+				<br>
+				SnpEff can annotate BED files in order to facilitate interpretation of enrichment experiments.
+				Annotations are added to the fourth column of the BED file.
+				<br>
+				E.g.: 
+<pre>
+$ java -Xmx4g -jar snpEff.jar eff -i bed BDGP5.69 chipSeq_peaks.bed 
+
+# SnpEff version 3.3 (build 2013-05-15), by Pablo Cingolani
+# Command line: SnpEff  -i bed BDGP5.69 /home/pcingola/fly_pvuseq/chipSeq/Sample_w1118_IP_w_5hmC/w1118_IP_w_5hmC_peaks.bed 
+# Chromo  Start     End       Name;Effect|Gene|BioType        Score
+2L        189463    190154    MACS_peak_1;Exon|exon_6_12_RETAINED|FBtr0078122|protein_coding|spen|protein_coding;Exon|exon_5_10_RETAINED|FBtr0078123|protein_coding|spen|protein_coding;Exon|exon_7_13_RETAINED|FBtr0306341|protein_coding|spen|protein_coding;Exon|exon_6_11_RETAINED|FBtr0078121|protein_coding|spen|protein_coding 245.41
+2L        195607    196120    MACS_peak_2;Exon|exon_6_12_RETAINED|FBtr0078122|protein_coding|spen|protein_coding;Exon|exon_5_10_RETAINED|FBtr0078123|protein_coding|spen|protein_coding;Exon|exon_7_13_RETAINED|FBtr0306341|protein_coding|spen|protein_coding;Exon|exon_6_11_RETAINED|FBtr0078121|protein_coding|spen|protein_coding 51.22
+2L        527253    527972    MACS_peak_3;Intron|intron_2_RETAINED-RETAINED|FBtr0078063|protein_coding|ush|protein_coding     55.97
+2L        711439    711764    MACS_peak_4;Intron|intron_1_RETAINED-RETAINED|FBtr0078045|protein_coding|ds|protein_coding      61.16
+2L        1365255   1365556   MACS_peak_5;Upstream|FBtr0077927|protein_coding|CG14346|protein_coding;Upstream|FBtr0077926|protein_coding|CG14346|protein_coding;Intergenic|NLaz...CG14346;Upstream|FBtr0077942|protein_coding|NLaz|protein_coding     62.78
+2L        1970199   1970405   MACS_peak_6;Upstream|FBtr0077813|protein_coding|Der-1|protein_coding;Intergenic|tRNA:CR31942...Der-1;Downstream|FBtr0077812|tRNA|tRNA:CR31942|tRNA      110.34
+2L        3345637   3346152   MACS_peak_7;Intron|intron_2_ALTTENATIVE_3SS-ALTTENATIVE_3SS|FBtr0089979|protein_coding|E23|protein_coding;Intron|intron_3_ALTTENATIVE_3SS-ALTTENATIVE_3SS|FBtr0089981|protein_coding|E23|protein_coding 65.49
+2L        4154734   4155027   MACS_peak_8;Intergenic|CG2955...Or24a;Downstream|FBtr0077468|protein_coding|CG2955|protein_coding       76.92
+2L        4643232   4643531   MACS_peak_9;Downstream|FBtr0110769|protein_coding|BG642163|protein_coding;Exon|exon_2_2_RETAINED|FBtr0300354|protein_coding|CG15635|protein_coding      76.92
+
+</pre>
+
+				When a peak intersects multiple transcripts or even multiple genes, each annotation is separated by a semicolon.
+				So if you look into the previous results in more detail, the fisrt line looks like this (format editted for readibility pourposes):
+<pre>
+2L  189463  190154  MACS_peak_1;Exon|exon_6_12_RETAINED|FBtr0078122|protein_coding|spen|protein_coding
+                               ;Exon|exon_5_10_RETAINED|FBtr0078123|protein_coding|spen|protein_coding
+                               ;Exon|exon_7_13_RETAINED|FBtr0306341|protein_coding|spen|protein_coding
+                               ;Exon|exon_6_11_RETAINED|FBtr0078121|protein_coding|spen|protein_coding
+</pre>
+				This peak is hitting four transcripts (FBtr0078122, FBtr0078123, FBtr0306341, FBtr0078121) in gene 'spen'.
+				</p>
+				<br>
+
+				<p><h3>Exon naming convention</h3>
+				The format for the exon identifier is <code>exon_Rank_Total_Type</code>, where:
+				<ul>
+					<li> <code>rank</code> is the exon rank in the transcript (position in the transcript)
+					<li> <code>total</code> is the total number of exons in that transcript
+					<li> <code>type</code> is the exon splice type.
+				</ul>
+				<br>
+				For instance <code>exon_5_10_RETAINED</code> would be the fifth exon in a 10 exon transcript. 
+				This exon is type "RETAINED", which means it is not spliced out.
+				<br>
+				<br>
+				Exons are categorized by splicing as follows:
+				<ul>
+					<li> <code>NONE</code> : Not spliced
+					<li> <code>RETAINED</code> : All transcripts have this exon
+					<li> <code>SKIPPED</code> : Some transcripts skip it
+					<li> <code>ALTTENATIVE_3SS</code> : Some transcripts have and alternative 3' exon start 
+					<li> <code>ALTTENATIVE_5SS</code> : Some transcripts have and alternative 5' exon end
+					<li> <code>MUTUALLY_EXCLUSIVE</code> : Mutually exclusive (respect to other exon)
+					<li> <code>ALTTENATIVE_PROMOMOTER</code> : The first exon is different in some transcripts.
+					<li> <code>ALTTENATIVE_POLY_A</code> : The last exon.
+				</ul>
+				See <a href="http://en.wikipedia.org/wiki/Alternative_splicing#Modes"> this Wikipedia</a> entry for more information on exon splice types.
+				</p>
+
+				<p><h3>Intron naming convention</h3>
+				Similarly to exons, introns are named as<code>intron_Rank_ExonTypeBefore-ExonTypeAfter</code>, where:
+				<ul>
+					<li> <code>Rank</code> :  the rank number for this inton in the transcript
+					<li> <code>ExonTypeBefore</code> :  the splicing type of the exon preceding this intron (see exon naming convetion for details).
+					<li> <code>ExonTypeAfter</code> :  the splicing type of the after this intron (see exon naming convetion for details).
+				</ul>
+				For instance <code>intron_9_SKIPPED-RETAINED</code> would be the ninth intron of the transcript. 
+				The intron is preceded by a <code>SKIPPED</code> exon and followed by a <code>RETAINED</code> exon.
+				
+				</p>
+        </section>
 
 
         <!-- Output Summary
@@ -1075,6 +1167,7 @@ tgctgcggctgcggctgcggctgcggctacggctgcggct    ALT (from VCF file)
 				</table>
 				</center>
 				</p>
+        </section>
 
         <!-- Effects
         ================================================== -->
@@ -1366,6 +1459,7 @@ chr5 137622242 . C T . . EFF=NON_SYNONYMOUS_CODING(MODERATE|MISSENSE|Gaa/Aaa|E/K
 
 				in this example (it was divided into multiple lines for legibility), the first transcript ENST0000051401 has a NON_SYNONYMOUS effect, but all other transcripts have a SYNONYMOUS effect.
 				</p>
+        </section>
 
 
         <!-- Non-coding
@@ -1419,6 +1513,7 @@ java -Xmx4g -jar snpEff.jar eff -reg HeLa-S3 -reg NHEK GRCh37.70 in.vcf > out.vc
 				<br>
 				<i class="icon-hand-right"></i> You can use <code>-onlyReg</code> command line option to perform only regulatory annotations (i.e. coding annotations will be omitted).
 				</p>
+        </section>
 
         <!-- Options
         ================================================== -->
@@ -1648,6 +1743,7 @@ CHROMOSOME1	10469	C	G	SNP	Hom	365.78	0		ENSG00000223972	DDX11L1	processed_transc
 CHROMOSOME1	10469	C	G	SNP	Hom	365.78	0		ENSG00000223972	DDX11L1	transcribed_unprocessed_pseudogene	ENST00000515242			UPSTREAM: 1403 bases								
 </pre>
 				</p>
+        </section>
 
 
         <!-- Cancer
@@ -1794,6 +1890,7 @@ EFF= Effect ( Effect_Impact | Functional_Class | Codon_Change | Amino_Acid_chang
     GT  1/1 2/2 
 </pre>
 				</p>
+        </section>
 				
         <!-- Databases
         ================================================== -->
@@ -2172,6 +2269,7 @@ cat sequence.fa  >> genes.gff
 java -jar snpEff.jar dump myGenome | less
 </pre>
 				</p>
+        </section>
 
         <!-- Databases Non-coding
         ================================================== -->
@@ -2303,6 +2401,7 @@ Finishing up
 						This makes it easier to load annotations only for the desired cell types when analyzing data.
 				</ol>
 				</p>
+        </section>
 
 
 		<!-- Integration
@@ -2472,6 +2571,7 @@ INFO  11:23:49,953 GATKRunReport - Uploaded run statistics report to AWS S3
 				<br>
 				<br>
 				<i class="icon-warning-sign"></i> When using <code>-o gatk</code>, SnpEff will report version as <code>2.0.5</code> followed by the real version number. This is because GATK refuses to run using another SnpEff version, due to an old bug in ENSEMBL databases. The bug has been fixed after ENSEMBL's release GRCh37.66, but GATK's module has not been updated yet, it will be done soon.
+        </section>
 
 		<!-- IntegrationL Galaxy
 		================================================== -->
@@ -2523,6 +2623,7 @@ vi tool_conf.xml
 </pre>
 
 				</p>
+        </section>
 				
 
 		<!-- Utilities
@@ -3012,6 +3113,7 @@ $ cat test.stop.vcf | ./scripts/vcfEffOnePerLine.pl
 
 
 				</p>
+        </section>
 
       </div>
     </div>

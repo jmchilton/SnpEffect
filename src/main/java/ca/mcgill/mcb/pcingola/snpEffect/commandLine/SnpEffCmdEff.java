@@ -535,15 +535,19 @@ public class SnpEffCmdEff extends SnpEff {
 
 						if (inFor.equals("TXT")) {
 							inputFormat = InputFormat.TXT;
+							outputFormat = OutputFormat.TXT;
 							inOffset = 1; // Implies '-1' since TXT coordinates are one-based
 						} else if (inFor.equals("PILEUP")) {
 							inputFormat = InputFormat.PILEUP;
+							outputFormat = OutputFormat.TXT;
 							inOffset = 1; // Implies '-1' since PILEUP coordinates are one-based
 						} else if (inFor.equals("VCF")) {
 							inputFormat = InputFormat.VCF;
+							outputFormat = OutputFormat.VCF;
 							inOffset = 1; // Implies '-1' since VCF coordinates are one-based
 						} else if (inFor.equals("BED")) {
 							inputFormat = InputFormat.BED;
+							outputFormat = OutputFormat.BED;
 							inOffset = 0; // Implies '-0' since Bed coordinates are zero-based
 						} else usage("Unknown input file format '" + inFor + "'");
 					}
@@ -608,11 +612,18 @@ public class SnpEffCmdEff extends SnpEff {
 			else usage("Unknow parameter '" + args[i] + "'");
 		}
 
+		//---
+		// Sanity checks
+		//---
+
 		// Check: Do we have all required parameters?
 		if (genomeVer.isEmpty()) usage("Missing genomer_version parameter");
-		if (inputFile.isEmpty()) inputFile = "-"; // Use STDIN
 
-		// Sanity checks
+		// Check input file
+		if (inputFile.isEmpty()) inputFile = "-"; // Use STDIN
+		else if (!Gpr.canRead(inputFile)) usage("Cannot read input file '" + inputFile + "'");
+
+		// Other sanity checks
 		if ((outputFormat == OutputFormat.VCF) && (inputFormat != InputFormat.VCF)) usage("Output in VCF format is only supported when the input is also in VCF format");
 		if (multiThreaded && (outputFormat != OutputFormat.VCF)) usage("Multi-threaded option is only supported when when output is in VCF format");
 		if (multiThreaded && createSummary) usage("Multi-threaded option should be used with 'noStats'.");
