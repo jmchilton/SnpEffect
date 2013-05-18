@@ -4,8 +4,10 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -239,7 +241,28 @@ public class GeneSets implements Iterable<GeneSet>, Serializable {
 		LinkedList<GeneSet> ll = new LinkedList<GeneSet>(geneSetsByName.values());
 		Collections.sort(ll);
 		return ll;
+	}
 
+	/**
+	 * Gene sets sorted by size (if same size, sort by name).
+	 * @param reverse : Reverse size sorting (does not affect name sorting)
+	 * @return
+	 */
+	public List<GeneSet> geneSetsSortedSize(final boolean reverse) {
+		ArrayList<GeneSet> ll = new ArrayList<GeneSet>(geneSetsByName.values());
+		Collections.sort(ll, new Comparator<GeneSet>() {
+
+			@Override
+			public int compare(GeneSet gs1, GeneSet gs2) {
+				// Compare by size
+				int diff = gs1.size() - gs2.size();
+				if (diff != 0) return (reverse ? -diff : diff);
+
+				// Same size? Sozr by name
+				return gs1.getName().compareTo(gs2.getName());
+			}
+		});
+		return ll;
 	}
 
 	/**

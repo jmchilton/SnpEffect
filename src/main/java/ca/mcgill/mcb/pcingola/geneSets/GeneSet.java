@@ -121,6 +121,26 @@ public class GeneSet implements Comparable<GeneSet>, Iterable<String>, Serializa
 	}
 
 	/**
+	 * COunt how many genes are in both GeneSets
+	 * @param gs
+	 * @return
+	 */
+	public int countOverlap(GeneSet gs) {
+		GeneSet gsSmall = this, gsLarge = gs;
+		if (size() > gs.size()) {
+			gsSmall = gs;
+			gsLarge = this;
+		}
+
+		// Iterate on smaller gene set. Count overlap
+		int count = 0;
+		for (String gene : gsSmall)
+			if (gsLarge.hasGene(gene)) count++;
+
+		return count;
+	}
+
+	/**
 	 * Return a sorted list of genes
 	 * @return
 	 */
@@ -183,6 +203,10 @@ public class GeneSet implements Comparable<GeneSet>, Iterable<String>, Serializa
 
 	public long getRankSum() {
 		return rankSum;
+	}
+
+	public boolean hasGene(String gene) {
+		return genes.contains(gene);
 	}
 
 	/**
