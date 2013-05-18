@@ -67,7 +67,7 @@ public class CodonChange {
 		if (transcript.isErrorProteinLength()) {
 			for (ChangeEffect cheff : changes)
 				cheff.addWarning(WarningType.WARNING_TRANSCRIPT_INCOMPLETE);
-		} else if (transcript.isErrorStopCodon()) {
+		} else if (transcript.isErrorStopCodonsInCds()) {
 			for (ChangeEffect cheff : changes)
 				cheff.addWarning(WarningType.WARNING_TRANSCRIPT_MULTIPLE_STOP_CODONS);
 		}

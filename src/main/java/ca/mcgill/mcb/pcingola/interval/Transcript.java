@@ -36,6 +36,7 @@ public class Transcript extends IntervalAndSubIntervals<Exon> {
 	int cdsStart, cdsEnd;
 	String bioType = ""; // Transcript biotype
 	String cds; // Coding sequence
+	String protein; // Protein sequence
 	ArrayList<SpliceSiteBranch> spliceBranchSites; // Branch splice sites
 	ArrayList<Utr> utrs; // UTRs
 	ArrayList<Cds> cdss; // CDS information
@@ -838,10 +839,40 @@ public class Transcript extends IntervalAndSubIntervals<Exon> {
 	}
 
 	/**
+	 * Is the first codon a START codon?
+	 * @return
+	 */
+	public boolean isErrorStartCodon() {
+		if (!Config.get().isTreatAllAsProteinCoding() && !isProteinCoding()) return false;
+
+		// Not even one codon in this protein? Error
+		String cds = cds();
+		if (cds.length() < 3) return true;
+
+		String codon = cds.substring(0, 3);
+		return !codonTable().isStart(codon);
+	}
+
+	/**
+	 * Is the last codon a STOP codon?
+	 * @return
+	 */
+	public boolean isErrorStopCodon() {
+		if (!Config.get().isTreatAllAsProteinCoding() && !isProteinCoding()) return false;
+
+		// Not even one codon in this protein? Error
+		String cds = cds();
+		if (cds.length() < 3) return true;
+
+		String codon = cds.substring(cds.length() - 3);
+		return !codonTable().isStop(codon);
+	}
+
+	/**
 	 * Check if protein sequence has STOP codons in the middle of the coding sequence
 	 * @return true on Error
 	 */
-	public boolean isErrorStopCodon() {
+	public boolean isErrorStopCodonsInCds() {
 		if (!Config.get().isTreatAllAsProteinCoding() && !isProteinCoding()) return false;
 
 		// Get protein sequence
@@ -937,8 +968,11 @@ public class Transcript extends IntervalAndSubIntervals<Exon> {
 	 * @return
 	 */
 	public String protein() {
-		if (!Config.get().isTreatAllAsProteinCoding() && !isProteinCoding()) return "";
-		return codonTable().aa(cds());
+		if (protein == null) {
+			if (!Config.get().isTreatAllAsProteinCoding() && !isProteinCoding()) protein = "";
+			else protein = codonTable().aa(cds());
+		}
+		return protein;
 	}
 
 	/**

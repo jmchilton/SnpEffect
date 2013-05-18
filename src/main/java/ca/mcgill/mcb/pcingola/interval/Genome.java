@@ -422,6 +422,9 @@ public class Genome extends Marker implements Serializable, Iterable<Chromosome>
 		int countExons = 0, countCds = 0;
 		int errorProteinLength = 0;
 		int errorProteinStopCodons = 0;
+		int warningStopCodon = 0;
+		int errorStartCodon = 0;
+		int errorTr = 0;
 		Genes genes = getGenes();
 
 		// For each gene
@@ -444,9 +447,33 @@ public class Genome extends Marker implements Serializable, Iterable<Chromosome>
 					else exonSeq++;
 				}
 
-				// Sanity check
-				if (tr.isErrorProteinLength()) errorProteinLength++; // Protein length error
-				if (tr.isErrorStopCodon()) errorProteinStopCodons++; // Protein length error
+				//---
+				// Transcript sanity check: Check if there are any common errors in the transcript
+				//---
+				boolean hasError = false;
+
+				if (tr.isErrorProteinLength()) {
+					hasError = true;
+					errorProteinLength++; // Protein length error
+				}
+
+				if (tr.isErrorStopCodonsInCds()) {
+					hasError = true;
+					errorProteinStopCodons++; // Protein has STOP codons in CDS
+					Gpr.debug("STOPS in CDS:\n" + tr);
+				}
+
+				if (tr.isErrorStopCodon()) {
+					// Note: This is considered a warning, not an error (sometimes the annotations exclude STOP codon on pourpose, although GTF say they should not)
+					warningStopCodon++; // Protein does not end with STOP codon
+				}
+
+				if (tr.isErrorStartCodon()) {
+					hasError = true;
+					errorStartCodon++; // Protein does not start with START codon
+				}
+
+				if (hasError) errorTr++;
 			}
 		}
 
@@ -463,7 +490,10 @@ public class Genome extends Marker implements Serializable, Iterable<Chromosome>
 		sb.append(String.format("# Avg. transcripts per gene  : %.2f", avgTrPerGene) + "\n");
 		sb.append("# Protein coding transcripts : " + countTranscriptsProteinCoding + "\n");
 		sb.append(String.format("#              Length errors : %6d ( %.2f%% )\n", errorProteinLength, (100.0 * errorProteinLength / countTranscriptsProteinCoding)));
-		sb.append(String.format("#          STOP codon errors : %6d ( %.2f%% )\n", errorProteinStopCodons, (100.0 * errorProteinStopCodons / countTranscriptsProteinCoding)));
+		sb.append(String.format("#  STOP codons in CDS errors : %6d ( %.2f%% )\n", errorProteinStopCodons, (100.0 * errorProteinStopCodons / countTranscriptsProteinCoding)));
+		sb.append(String.format("#         START codon errors : %6d ( %.2f%% )\n", errorStartCodon, (100.0 * errorStartCodon / countTranscriptsProteinCoding)));
+		sb.append(String.format("#        STOP codon warnings : %6d ( %.2f%% )\n", warningStopCodon, (100.0 * warningStopCodon / countTranscriptsProteinCoding)));
+		sb.append(String.format("#               Total Errors : %6d ( %.2f%% )\n", errorTr, (100.0 * errorTr / countTranscriptsProteinCoding)));
 		sb.append("# Cds                        : " + countCds + "\n");
 		sb.append("# Exons                      : " + countExons + "\n");
 		sb.append("# Exons with sequence        : " + exonSeq + "\n");
