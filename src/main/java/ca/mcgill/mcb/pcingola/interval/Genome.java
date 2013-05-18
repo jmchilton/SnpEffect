@@ -460,7 +460,6 @@ public class Genome extends Marker implements Serializable, Iterable<Chromosome>
 				if (tr.isErrorStopCodonsInCds()) {
 					hasError = true;
 					errorProteinStopCodons++; // Protein has STOP codons in CDS
-					Gpr.debug("STOPS in CDS:\n" + tr);
 				}
 
 				if (tr.isErrorStopCodon()) {

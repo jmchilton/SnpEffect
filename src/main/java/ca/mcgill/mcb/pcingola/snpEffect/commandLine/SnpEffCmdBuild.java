@@ -212,6 +212,13 @@ public class SnpEffCmdBuild extends SnpEff {
 	void readRegulationGff() {
 		if (verbose) Timer.showStdErr("[Optional] Reading regulation elements: GFF");
 		String regulationFileName = config.getBaseFileNameRegulation() + ".gff";
+
+		// If file does not exists, no problem
+		if (!Gpr.canRead(regulationFileName)) {
+			if (verbose) Timer.showStdErr("Warning: Cannot read optional regulation file '" + regulationFileName + "', nothing done.");
+			return;
+		}
+
 		try {
 			// Open the regulation file and create a consensus
 			RegulationFileIterator regulationFileIterator = new RegulationGffFileIterator(regulationFileName);
@@ -220,8 +227,6 @@ public class SnpEffCmdBuild extends SnpEff {
 			regulationGffConsensus.save(config.getDirDataVersion()); // Save database
 			if (verbose) Timer.showStdErr("Done.");
 		} catch (Throwable t) {
-			// If file does not exists, no problem
-			if (verbose) Timer.showStdErr("Warning: Cannot read optional regulation file '" + regulationFileName + "', nothing done.");
 			if (debug) t.printStackTrace();
 		}
 	}
