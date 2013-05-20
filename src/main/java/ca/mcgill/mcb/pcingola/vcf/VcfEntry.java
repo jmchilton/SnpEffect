@@ -811,6 +811,33 @@ public class VcfEntry extends Marker implements Iterable<VcfGenotype> {
 	public String toString() {
 		boolean deleteLastTab = true;
 
+		StringBuilder sb = new StringBuilder(toStringNoGt());
+		sb.append("\t");
+
+		// Is there any 'format' field? It is optional, so it could be 'null'
+		if (format != null) {
+			sb.append((format.isEmpty() ? "." : format) + "\t");
+
+			// If we have vcfGenotypes parsed, use them
+			if ((vcfGenotypes != null) && !vcfGenotypes.isEmpty()) {
+				for (VcfGenotype vg : vcfGenotypes)
+					sb.append(vg + "\t");
+			} else if (genotypeFieldsStr != null) { // If vcfGenotypes have not been parsed, use raw fields
+				sb.append(genotypeFieldsStr);
+				deleteLastTab = false;
+			}
+		}
+
+		if (deleteLastTab) sb.deleteCharAt(sb.length() - 1); // Delete last tab
+
+		return sb.toString();
+	}
+
+	/**
+	 * Show only first eight fields (no genotype entries)
+	 * @return
+	 */
+	public String toStringNoGt() {
 		// Use original chromosome name or named from chromosome object
 		String chr = chromosomeName != null ? chromosomeName : null;
 		if (chromosomeName != null) chr = chromosomeName;
@@ -836,23 +863,6 @@ public class VcfEntry extends Marker implements Iterable<VcfGenotype> {
 		sb.append("\t" + (quality != null ? quality + "" : "."));
 		sb.append("\t" + ((filterPass == null) || filterPass.isEmpty() ? "." : filterPass));
 		sb.append("\t" + ((infoStr == null) || infoStr.isEmpty() ? "." : infoStr));
-		sb.append("\t");
-
-		// Is there any 'format' field? It is optional, so it could be 'null'
-		if (format != null) {
-			sb.append((format.isEmpty() ? "." : format) + "\t");
-
-			// If we have vcfGenotypes parsed, use them
-			if ((vcfGenotypes != null) && !vcfGenotypes.isEmpty()) {
-				for (VcfGenotype vg : vcfGenotypes)
-					sb.append(vg + "\t");
-			} else if (genotypeFieldsStr != null) { // If vcfGenotypes have not been parsed, use raw fields
-				sb.append(genotypeFieldsStr);
-				deleteLastTab = false;
-			}
-		}
-
-		if (deleteLastTab) sb.deleteCharAt(sb.length() - 1); // Delete last tab
 
 		return sb.toString();
 	}
