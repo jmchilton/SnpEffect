@@ -74,6 +74,7 @@ import freemarker.template.TemplateException;
 public class SnpEffCmdEff extends SnpEff {
 
 	public static final String SUMMARY_TEMPLATE = "snpEff_summary.ftl"; // Summary template file name
+	public static final String SUMMARY_CSV_TEMPLATE = "snpEff_csv_summary.ftl"; // Summary template file name
 	public static final String SUMMARY_GENES_TEMPLATE = "snpEff_genes.ftl"; // Genes template file name
 
 	boolean cancer = false; // Perform cancer comparisons
@@ -91,6 +92,7 @@ public class SnpEffCmdEff extends SnpEff {
 	boolean useGeneId = false; // Use gene ID instead of gene name (VCF output)
 	boolean nextProt = false; // Annotate using NextProt database
 	boolean motif = false; // Annotate using motifs
+	boolean createCsvSummary = false; // Use a CSV as output summary
 	int upDownStreamLength = SnpEffectPredictor.DEFAULT_UP_DOWN_LENGTH; // Upstream & downstream interval length
 	int spliceSiteSize = SpliceSite.CORE_SPLICE_SITE_SIZE; // Splice site size default: 2 bases (canonical splice site)
 	int totalErrs = 0;
@@ -490,15 +492,19 @@ public class SnpEffCmdEff extends SnpEff {
 				} else if ((args[i].equals("-s") || args[i].equalsIgnoreCase("-stats"))) {
 					if ((i + 1) < args.length) {
 						summaryFile = args[++i];
+						String base = Gpr.baseName(Gpr.baseName(summaryFile, ".html"), ".csv"); // Extension can be either HTML or CSV
 						String dir = Gpr.dirName(summaryFile);
-						summaryGenesFile = (dir != null ? dir + "/" : "") + Gpr.baseName(summaryFile, ".html") + ".genes.txt";
+						summaryGenesFile = (dir != null ? dir + "/" : "") + base + ".genes.txt";
 					}
+				} else if (args[i].equalsIgnoreCase("-noStats")) createSummary = false; // Do not create summary file. It can be much faster (e.g. when parsing VCF files with many samples)
+				else if (args[i].equalsIgnoreCase("-csvStats")) {
+					createCsvSummary = true; // Create a CSV formatted summary file.
+					if (summaryFile.equals(DEFAULT_SUMMARY_FILE)) summaryFile = DEFAULT_SUMMARY_CSV_FILE;
 				} else if ((args[i].equals("-of") || args[i].equalsIgnoreCase("-outOffset"))) {
 					if ((i + 1) < args.length) outOffset = Gpr.parseIntSafe(args[++i]);
 				} else if (args[i].equalsIgnoreCase("-chr")) chrStr = args[++i];
 				else if (args[i].equalsIgnoreCase("-useLocalTemplate")) useLocalTemplate = true; // Undocumented option (only used for development & debugging)
 				else if (args[i].equalsIgnoreCase("-noOut")) supressOutput = true; // Undocumented option (only used for development & debugging)
-				else if (args[i].equalsIgnoreCase("-noStats")) createSummary = false; // Do not create summary file. It can be much faster (e.g. when parsing VCF files with many samples)
 				else if (args[i].equalsIgnoreCase("-noChromoPlots")) chromoPlots = false;
 				//---
 				// Annotation options
@@ -1047,7 +1053,7 @@ public class SnpEffCmdEff extends SnpEff {
 		if (createSummary && (summaryFile != null)) {
 			// Creates a summary output file
 			if (verbose) Timer.showStdErr("Creating summary file: " + summaryFile);
-			summary(SUMMARY_TEMPLATE, summaryFile, false);
+			summary(createCsvSummary ? SUMMARY_CSV_TEMPLATE : SUMMARY_TEMPLATE, summaryFile, false);
 
 			// Creates genes output file
 			if (verbose) Timer.showStdErr("Creating genes file: " + summaryGenesFile);
@@ -1142,6 +1148,8 @@ public class SnpEffCmdEff extends SnpEff {
 		System.err.println("\t-chr <string>           : Prepend 'string' to chromosome name (e.g. 'chr1' instead of '1'). Only on TXT output.");
 		System.err.println("\t-s,  -stats             : Name of stats file (summary). Default is '" + DEFAULT_SUMMARY_FILE + "'");
 		System.err.println("\t-t                      : Use multiple threads (implies '-noStats'). Default 'off'");
+		System.err.println("\t-noStats                : Do not create stats (summary) file");
+		System.err.println("\t-csvStats               : Create CSV summary file instead of HTML");
 		System.err.println("\nSequence change filter options:");
 		System.err.println("\t-del                    : Analyze deletions only");
 		System.err.println("\t-ins                    : Analyze insertions only");
@@ -1183,7 +1191,6 @@ public class SnpEffCmdEff extends SnpEff {
 		System.err.println("\t-if, -inOffset          : Offset input by a number of bases. E.g. '-inOffset 1' for one-based input files");
 		System.err.println("\t-of, -outOffset         : Offset output by a number of bases. E.g. '-outOffset 1' for one-based output files");
 		System.err.println("\t-noLog                  : Do not report usage statistics to server");
-		System.err.println("\t-noStats                : Do not create stats (summary) file");
 		System.err.println("\t-q , -quiet             : Quiet mode (do not show any messages or errors)");
 		System.err.println("\t-v , -verbose           : Verbose mode");
 		System.exit(-1);

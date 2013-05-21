@@ -1,0 +1,176 @@
+
+# Summary table 
+
+Genome , testHg3763Chr20 
+Date , 2013-05-21 12:36
+SnpEff_version , SnpEff 3.3 (build 2013-05-15), by Pablo Cingolani
+Command_line_arguments , SnpEff  -cvsStats testHg3763Chr20 /Users/pablocingolani/snpEff/test.vcf 
+
+Warnings , 7 
+Number_of_lines_in_input_file, 994
+Number_of_variants_before_filter, 994
+Filter, 
+Number_of_variants_filtered_out, 0
+Number_of_not_variants , 0
+Number_of_variants_processed , 994
+Number_of_known_variants <br>(i.e. non-empty ID) , 67, 6.74% 
+Number_of_effects , 1,241 
+Genome_total_length ,63,025,520 
+Genome_effective_length ,63,025,520 
+Change_rate , 63,405 
+
+# Change rate by chromosome
+
+Chromosome , Length , Changes , Change_rate 
+20 , 63,025,520 , 994 , 63,405
+
+# Changes by type
+
+Type, Total, Homo, Hetero
+SNP , 994 , 0 , 0
+MNP , 0 , 0 , 0
+INS , 0 , 0 , 0
+DEL , 0 , 0 , 0
+MIXED , 0 , 0 , 0
+Interval , 0 , 0 , 0
+
+# Effects by impact
+
+Type , Count , Percent 
+LOW , 6 , 0.483% 
+MODERATE , 9 , 0.725% 
+MODIFIER , 1,226 , 98.791% 
+
+# Effects by functional class
+
+Type , Count , Percent 
+MISSENSE , 9 , 75% 
+SILENT , 3 , 25% 
+
+Missense_Silent_ratio, 3
+
+# Count by effects
+
+Type , Count , Percent 
+DOWNSTREAM , 113 , 9.106% 
+INTERGENIC , 903 , 72.764% 
+INTRON , 88 , 7.091% 
+NON_SYNONYMOUS_CODING , 9 , 0.725% 
+START_GAINED , 1 , 0.081% 
+SYNONYMOUS_CODING , 5 , 0.403% 
+UPSTREAM , 119 , 9.589% 
+UTR_3_PRIME , 3 , 0.242% 
+
+# Count by genomic region
+
+Type , Count , Percent 
+DOWNSTREAM , 113 , 9.106% 
+EXON , 14 , 1.128% 
+INTERGENIC , 903 , 72.764% 
+INTRON , 88 , 7.091% 
+UPSTREAM , 119 , 9.589% 
+UTR_3_PRIME , 3 , 0.242% 
+UTR_5_PRIME , 1 , 0.081% 
+
+# Quality 
+
+ Values , 100	
+Count , 994	
+ 
+
+# Coverage
+
+ Values , 0	
+Count , 994	
+ 
+
+# InDel lengths
+
+
+
+# Base changes
+
+base  , A  , C  , G  , T 
+ A  , 0  , 37  , 119  , 34 
+ C  , 46  , 0  , 55  , 176 
+ G  , 229  , 51  , 0  , 42 
+ T  , 39  , 122  , 44  , 0 
+
+# Ts/Tv summary
+
+Transitions , 646 
+Transversions , 348 
+Ts_Tv_ratio , 1.856
+
+# Ts/Tv : All variants
+Sample        :	HG00096	HG00097	HG00099	HG00100	HG00101	HG00102	Total
+Transitions   :	192	257	215	194	212	251	1321
+Transversions :	115	143	125	108	129	153	773
+Ts/Tv         :	1.670	1.797	1.720	1.796	1.643	1.641	1.709	
+
+
+# Ts/Tv : Known variants
+Sample        :	HG00096	HG00097	HG00099	HG00100	HG00101	HG00102	Total
+Transitions   :	14	16	12	15	15	17	89
+Transversions :	14	18	12	13	9	19	85
+Ts/Tv         :	1.000	0.889	1.000	1.154	1.667	0.895	1.047	
+
+
+# Allele frequency
+
+# Allele frequency : All variants
+Values , 1	2	3	4	5	6	7	8	9	10	11	12	
+Count , 96	88	74	87	50	50	31	19	8	18	3	4	
+
+# Allele frequency : : Known variants
+Values , 1	2	3	4	5	6	7	8	9	10	11	12	
+Count , 8	7	8	4	5	1	3	1	1	2	1	1	
+
+# Codon change table
+	
+codons  , AAA  , AAC  , AAG  , ACC  , ACG  , ACT  , AGA  , AGT  , ATG  , CAA  , CCA  , CCT  , CGA  , CTA  , CTG  , CTT  , GAA  , GAT  , GGA  , GGT  , GTG  , TCT 
+ AAA   , 1  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0 
+ AAC   , 0  , 0  , 0  , 1  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0 
+ AAG   , 1  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0 
+ ACC   , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0 
+ ACG   , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0 
+ ACT   , 0  , 0  , 0  , 0  , 1  , 0  , 0  , 0  , 0  , 0  , 0  , 1  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0 
+ AGA   , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 1  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0 
+ AGT   , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0 
+ ATG   , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0 
+ CAA   , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 1  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0 
+ CCA   , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0 
+ CCT   , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0 
+ CGA   , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0 
+ CTA   , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 1  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0 
+ CTG   , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 1  , 0  , 0  , 0  , 0  , 0  , 0 
+ CTT   , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0 
+ GAA   , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0 
+ GAT   , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 1  , 0  , 0 
+ GGA   , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 1  , 0  , 0  , 0  , 1  , 0  , 0  , 0  , 0  , 0 
+ GGT   , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0 
+ GTG   , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 1  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0 
+ TCT   , 0  , 0  , 0  , 0  , 0  , 1  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0 
+
+# Amino acid change table
+aa  , D  , E  , G  , K  , L  , M  , N  , P  , Q  , R  , S  , T  , V 
+ D  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0 
+ E  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0 
+ G  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0 
+ K  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0 
+ L  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0 
+ M  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0 
+ N  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0 
+ P  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0 
+ Q  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0 
+ R  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0 
+ S  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0 
+ T  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0 
+ V  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0  , 0 
+
+# Chromosome change table
+
+20:
+	Position :	0	1000000	2000000	3000000	4000000	5000000	6000000	7000000	8000000	9000000	10000000	11000000	12000000	13000000	14000000	15000000	16000000	17000000	18000000	19000000	20000000	21000000	22000000	23000000	24000000	25000000	26000000	27000000	28000000	29000000	30000000	31000000	32000000	33000000	34000000	35000000	36000000	37000000	38000000	39000000	40000000	41000000	42000000	43000000	44000000	45000000	46000000	47000000	48000000	49000000	50000000	51000000	52000000	53000000	54000000	55000000	56000000	57000000	58000000	59000000	60000000	61000000	62000000	63000000	
+	Count    :	994	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	
+
