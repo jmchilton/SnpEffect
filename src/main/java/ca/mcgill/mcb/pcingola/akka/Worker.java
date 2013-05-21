@@ -17,7 +17,7 @@ public class Worker<TI, TO> extends UntypedActor {
 	private static int WORKER_ID = 0;
 	private static String WORKER_ID_MUTEX = "WORKER_ID_MUTEX";
 
-	int id;
+	protected int id;
 
 	public static int getId() {
 		synchronized (WORKER_ID_MUTEX) {

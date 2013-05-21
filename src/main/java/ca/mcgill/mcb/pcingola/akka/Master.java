@@ -34,14 +34,14 @@ public abstract class Master<TI, TO> extends UntypedActor implements Iterable<TI
 	// Debug mode?
 	public static boolean debug = false;
 
-	int batchSize; // Number of input objects sent to each worker per 'Work' message 
-	int showEvery; // Show progress (print '.' on STDOUT)
-	long nextOutput; // Serial number of next output
-	int countInputObjects; // Count number of input objects
-	int numWorkers; // Number of workers (threads)
-	int sentWorks; // Number of workers still working
-	ActorRef workerRouter;
-	HashMap<Long, Result<TO>> worksBySerial;
+	protected int batchSize; // Number of input objects sent to each worker per 'Work' message 
+	protected int showEvery; // Show progress (print '.' on STDOUT)
+	protected long nextOutput; // Serial number of next output
+	protected int countInputObjects; // Count number of input objects
+	protected int numWorkers; // Number of workers (threads)
+	protected int sentWorks; // Number of workers still working
+	protected ActorRef workerRouter;
+	protected HashMap<Long, Result<TO>> worksBySerial;
 
 	/**
 	 * Constructor
@@ -92,7 +92,7 @@ public abstract class Master<TI, TO> extends UntypedActor implements Iterable<TI
 						for (int i = 0; (i < batchSize) && hasNext(); i++) {
 							data[i] = master.next();
 							if (debug) Gpr.debug("countInputObjects:" + countInputObjects);
-							Gpr.showMark(countInputObjects++, showEvery);
+							if (showEvery > 0) Gpr.showMark(countInputObjects++, showEvery);
 						}
 
 						// Create work
