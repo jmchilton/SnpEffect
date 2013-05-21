@@ -897,6 +897,36 @@ $ cat test.snpeff.vcf | ./scripts/vcfEffOnePerLine.pl | java -jar SnpSift.jar ex
 				Now we obtain one effect per line, while all other parameters in the line are repeated across mutiple lines (e.g. there are three 1:10303 lines).
 				<br>
 				<i class="icon-hand-right"></i> Note that in SnpSift, we used <code>-</code> as input file name, which denotes STDIN.
+				<br>
+				<br>
+				<i class="icon-warning-sign"></i> <code>SnpSift extractFields</code> can get confused if the VCF field has non-alphanumeric charaters in the name (e.g. <code>dbnsfpGERP++_RS</code> has two "+" signs).
+				A quick fix, it so is to change the field names in the VCF file.
+				Here is an example:
+				<br>
+				<br>
+<pre>
+# Change field names in VCF
+$ cat kath.vcf | sed "s/dbnsfpGERP++/dbnsfpGERP/g" > kath.gerp.vcf
+
+# Use new names to extract fields
+$ java -jar SnpSift.jar  extractFields kath.gerp.vcf CHROM POS REF ALT dbnsfpGERP_RS dbnsfpGERP_NS
+#CHROM	POS	REF	ALT	dbnsfpGERP_RS
+1	142827044	G	A		
+2	132914561	G	A		
+7	151933217	C	A		
+7	151933251	T	C		
+7	151933302	T	C		
+7	151945101	G	C	-0.892	
+7	151945167	G	T		
+7	151962176	T	A		
+7	151970672	A	T		
+7	151970856	T	A	3.71	
+18	14183638	G	C		
+18	14183710	A	G		
+18	14542909	G	A		
+18	14543039	T	C	-0.942	
+</pre>
+				
 				</p>
         </section>
 
