@@ -1,12 +1,17 @@
 package ca.mcgill.mcb.pcingola;
 
-import ca.mcgill.mcb.pcingola.codons.CodonTable;
-import ca.mcgill.mcb.pcingola.codons.CodonTables;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedList;
+
 import ca.mcgill.mcb.pcingola.interval.Exon;
 import ca.mcgill.mcb.pcingola.interval.Gene;
 import ca.mcgill.mcb.pcingola.interval.Transcript;
 import ca.mcgill.mcb.pcingola.snpEffect.Config;
 import ca.mcgill.mcb.pcingola.snpEffect.SnpEffectPredictor;
+import ca.mcgill.mcb.pcingola.stats.CoverageByType;
+import ca.mcgill.mcb.pcingola.stats.PosStats;
+import ca.mcgill.mcb.pcingola.stats.plot.GoogleLineChart;
 import ca.mcgill.mcb.pcingola.util.Gpr;
 import ca.mcgill.mcb.pcingola.util.Timer;
 
@@ -17,22 +22,26 @@ public class Zzz {
 	byte bases[];
 
 	public static void main(String[] args) {
-
-		String cds = "GATATCTGCTTGGTATCTTCTCAATATCTTGACCATCTGTGACAATTTTAATCCTCATTT";
-		CodonTable ct = CodonTables.getInstance().getTable(CodonTables.STANDARD_TABLE_NAME);
-
-		for (int i = 0; i < cds.length(); i++) {
-			String c = cds.substring(i);
-			String aa = ct.aa(c);
-			System.out.println("AA: " + aa + "\t" + c);
-		}
-
-		//		Zzz zzz = new Zzz();
-		//		zzz.load("testHg3770Chr22");
-		//		zzz.run();
+		Zzz zzz = new Zzz();
+		zzz.runTrBugs();
 	}
 
 	public Zzz() {
+	}
+
+	GoogleLineChart lineChart(String chr, PosStats posstats) {
+		GoogleLineChart glc = new GoogleLineChart("Histogram");
+		glc.setTitle("Chromosome: " + chr);
+		glc.setWidth(1200);
+		glc.setvAxis("Transcripts");
+		glc.sethAxis("Position");
+
+		ArrayList<String> col = new ArrayList<String>();
+		for (int i = 0; i < posstats.size(); i++)
+			col.add(posstats.getCount(i) + "");
+		glc.addColumn("Chr" + chr, col);
+
+		return glc;
 	}
 
 	void load(String genVer) {
@@ -91,6 +100,97 @@ public class Zzz {
 				}
 			}
 		}
+	}
+
+	public void runTrBugs() {
+		//		String genome = "testHg3766Chr1";
+		String genome = "GRCh37.70";
+		Timer.showStdErr("Loading");
+
+		Config config = new Config(genome);
+		SnpEffectPredictor sep = config.loadSnpEffectPredictor();
+
+		CoverageByType coverageByType = new CoverageByType();
+
+		StringBuilder sb = new StringBuilder();
+		int count = 1;
+		for (Gene g : sep.getGenome().getGenes()) {
+			for (Transcript tr : g) {
+				if (tr.isProteinCoding()) {
+					boolean hasError = false;
+
+					if (tr.isErrorProteinLength()) {
+						hasError = true;
+					}
+
+					if (tr.isErrorStopCodonsInCds()) {
+						hasError = true;
+					}
+
+					if (tr.isErrorStopCodon()) {
+						// hasError = true;
+					}
+
+					if (tr.isErrorStartCodon()) {
+						hasError = true;
+					}
+
+					if (hasError) {
+						int perc = (int) (100.0 * (((double) tr.getStart()) / tr.getChromosome().getEnd()));
+
+						String out = count //
+								+ "\t" + g.getGeneName() //
+								+ "\t" + g.getId() //
+								+ "\t" + tr.getId() //
+								+ "\t" + tr.getChromosomeName() //
+								+ "\t" + tr.getStart() //
+								+ "\t" + tr.getEnd() //
+								+ "\t" + perc//
+						;
+
+						coverageByType.getOrCreate(tr.getChromosomeName()).sample(tr, tr.getChromosome());
+
+						System.out.println(out);
+						sb.append(out + "\n");
+
+						count++;
+					}
+				}
+			}
+		}
+
+		//---
+		// Save data to file
+		//---
+		String fileName = Gpr.HOME + "/tr_bugs.txt";
+		Timer.showStdErr("Saving to file " + fileName);
+		Gpr.toFile(fileName, sb.toString());
+
+		//---
+		// Show charts
+		//---
+		ArrayList<String> chrs = new ArrayList<String>();
+		chrs.addAll(coverageByType.keySet());
+		Collections.sort(chrs);
+		LinkedList<GoogleLineChart> glcs = new LinkedList<GoogleLineChart>();
+		for (String chr : chrs) {
+			if (chr.length() <= 2) {
+				PosStats posstats = coverageByType.get(chr);
+				glcs.add(lineChart(chr, posstats));
+			}
+		}
+
+		// Save charts to HTML file
+		StringBuilder html = new StringBuilder();
+		for (GoogleLineChart glc : glcs)
+			html.append(glc.toStringHtmlHeader());
+		for (GoogleLineChart glc : glcs)
+			html.append(glc.toStringHtmlBody());
+		fileName = Gpr.HOME + "/tr_bugs.html";
+		Timer.showStdErr("Saving to file " + fileName);
+		Gpr.toFile(fileName, html.toString());
+
+		Timer.showStdErr("Done.");
 	}
 
 	void set(Gene g, int pos) {

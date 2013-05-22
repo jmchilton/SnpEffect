@@ -448,31 +448,33 @@ public class Genome extends Marker implements Serializable, Iterable<Chromosome>
 				}
 
 				//---
-				// Transcript sanity check: Check if there are any common errors in the transcript
+				// Transcript sanity check: Check if there are any common errors in protein coding transcript
 				//---
-				boolean hasError = false;
+				if (tr.isProteinCoding()) {
+					boolean hasError = false;
 
-				if (tr.isErrorProteinLength()) {
-					hasError = true;
-					errorProteinLength++; // Protein length error
+					if (tr.isErrorProteinLength()) {
+						hasError = true;
+						errorProteinLength++; // Protein length error
+					}
+
+					if (tr.isErrorStopCodonsInCds()) {
+						hasError = true;
+						errorProteinStopCodons++; // Protein has STOP codons in CDS
+					}
+
+					if (tr.isErrorStopCodon()) {
+						// Note: This is considered a warning, not an error (sometimes the annotations exclude STOP codon on pourpose, although GTF say they should not)
+						warningStopCodon++; // Protein does not end with STOP codon
+					}
+
+					if (tr.isErrorStartCodon()) {
+						hasError = true;
+						errorStartCodon++; // Protein does not start with START codon
+					}
+
+					if (hasError) errorTr++;
 				}
-
-				if (tr.isErrorStopCodonsInCds()) {
-					hasError = true;
-					errorProteinStopCodons++; // Protein has STOP codons in CDS
-				}
-
-				if (tr.isErrorStopCodon()) {
-					// Note: This is considered a warning, not an error (sometimes the annotations exclude STOP codon on pourpose, although GTF say they should not)
-					warningStopCodon++; // Protein does not end with STOP codon
-				}
-
-				if (tr.isErrorStartCodon()) {
-					hasError = true;
-					errorStartCodon++; // Protein does not start with START codon
-				}
-
-				if (hasError) errorTr++;
 			}
 		}
 

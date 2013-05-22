@@ -53,7 +53,7 @@ public class ChrPosStats {
 			count[i] = 0;
 	}
 
-	int[] posArray() {
+	public int[] posArray() {
 		int pos[] = new int[count.length];
 		for (int i = 0; i < pos.length; i++)
 			pos[i] = i * factor;
@@ -76,6 +76,10 @@ public class ChrPosStats {
 			count[i]++;
 			total++;
 		} else Gpr.debug("Error counting samples on chromosome '" + name + "'. Position '" + position + "' => count[" + i + "]  (count.length: " + count.length + ", factor: " + factor + ", chrLength: " + length + ").");
+	}
+
+	public int size() {
+		return count.length;
 	}
 
 	@Override
