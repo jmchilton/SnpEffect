@@ -1053,7 +1053,8 @@ public class SnpEffCmdEff extends SnpEff {
 		if (createSummary && (summaryFile != null)) {
 			// Creates a summary output file
 			if (verbose) Timer.showStdErr("Creating summary file: " + summaryFile);
-			summary(createCsvSummary ? SUMMARY_CSV_TEMPLATE : SUMMARY_TEMPLATE, summaryFile, false);
+			if (createCsvSummary) summary(SUMMARY_CSV_TEMPLATE, summaryFile, true);
+			else summary(SUMMARY_TEMPLATE, summaryFile, false);
 
 			// Creates genes output file
 			if (verbose) Timer.showStdErr("Creating genes file: " + summaryGenesFile);
