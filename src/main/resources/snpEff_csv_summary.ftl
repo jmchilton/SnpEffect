@@ -13,6 +13,7 @@ Count , ${intstats.toStringCounts()}
 
 # Summary table 
 
+Name , Value
 Genome , ${genomeVersion} 
 Date , ${date}
 SnpEff_version , ${version}
@@ -63,15 +64,15 @@ Missense_Silent_ratio, ${changeStats.silentRatio}
 
 # Quality 
 
-<#if seqStats.qualityStats.validData> <@intstatsTable seqStats.qualityStats /> </#if>
+<#if seqStats.qualityStats.validData><@intstatsTable seqStats.qualityStats /></#if>
 
 # Coverage
 
-<#if seqStats.coverageStats.validData> <@intstatsTable seqStats.coverageStats /> </#if>
+<#if seqStats.coverageStats.validData><@intstatsTable seqStats.coverageStats /></#if>
 
 # InDel lengths
 
-<#if seqStats.indelLen.validData> <@intstatsTable seqStats.indelLen /> </#if>
+<#if seqStats.indelLen.validData><@intstatsTable seqStats.indelLen /></#if>
 
 # Base changes
 
@@ -88,9 +89,11 @@ Ts_Tv_ratio , ${seqStats.tsTvRatio}
 <#assign tstv=vcfStats.hasData()>
 <#if tstv>
 # Ts/Tv : All variants
+
 ${vcfStats.tsTvStats}
 
 # Ts/Tv : Known variants
+
 ${vcfStats.tsTvStatsKnown}
 </#if>
 
@@ -99,9 +102,11 @@ ${vcfStats.tsTvStatsKnown}
 <#assign af=vcfStats.hasData()>
 <#if af>
 # Allele frequency : All variants
+
 <@intstatsTable vcfStats.alleleFrequencyStats.count />
 
-# Allele frequency : : Known variants
+# Allele frequency : Known variants
+
 <@intstatsTable vcfStats.alleleFrequencyStatsKnown.count />
 </#if>
 
@@ -112,8 +117,9 @@ codons <#list changeStats.codonList as newCodon> , ${newCodon} </#list>
 </#list>
 
 # Amino acid change table
+
 aa <#list changeStats.aaList as newAa> , ${newAa} </#list>
-<#list changeStats.aaList as oldAa> ${oldAa} <#list changeStats.aaList as newAa> , ${count} </#list>
+<#list changeStats.aaList as oldAa>, ${oldAa} <#list changeStats.aaList as newAa><#assign count = changeStats.getAaChangeCount(oldAa, newAa)>, ${count} </#list>
 </#list>
 
 # Chromosome change table

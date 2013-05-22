@@ -85,19 +85,20 @@ public class ChrPosStats {
 	@Override
 	public String toString() {
 		StringBuffer sb = new StringBuffer();
-		sb.append(name + ":\n");
-		sb.append("\tPosition :\t");
+		sb.append(name + ", Position,");
 
 		// Position
 		int pos[] = posArray();
 		for (int i = 0; i < count.length; i++)
-			sb.append(pos[i] + "\t");
+			sb.append(pos[i] + ",");
+		sb.deleteCharAt(sb.length() - 1);
 		sb.append("\n");
 
 		// Counts
-		sb.append("\tCount    :\t");
+		sb.append(name + ",Count,");
 		for (int i = 0; i < count.length; i++)
-			sb.append(count[i] + "\t");
+			sb.append(count[i] + ",");
+		sb.deleteCharAt(sb.length() - 1);
 		sb.append("\n");
 
 		return sb.toString();

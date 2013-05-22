@@ -291,7 +291,6 @@ public class SeqChangeStats implements SamplingStats<SeqChange> {
 	 * @return
 	 */
 	public double getTsTvRatio() {
-		// return 2.0 * (getTransitions()) / (getTransversions());
 		double ts = getTransitions();
 		double tv = getTransversions();
 		return tv > 0 ? ts / tv : 0;

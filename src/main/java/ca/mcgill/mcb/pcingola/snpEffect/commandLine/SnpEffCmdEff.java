@@ -1105,7 +1105,7 @@ public class SnpEffCmdEff extends SnpEff {
 	HashMap<String, Object> summaryCreateHash() {
 		// Create the root hash (where data objects are)
 		HashMap<String, Object> root = new HashMap<String, Object>();
-		root.put("args", commandLineStr(true));
+		root.put("args", commandLineStr(createCsvSummary ? false : true));
 		root.put("changeStats", changeEffectResutStats);
 		root.put("chromoPlots", chromoPlots);
 		root.put("countEffects", countEffects);
