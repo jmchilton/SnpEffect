@@ -135,8 +135,7 @@ public abstract class FileIterator<T> implements Iterable<T>, Iterator<T> {
 		nextLine = reader.readLine(); // Read a line (only if needed)
 
 		// Remove trailing '\r'
-		while (nextLine.charAt(nextLine.length() - 1) == '\r')
-			nextLine = nextLine.substring(0, nextLine.length() - 1);
+		if (nextLine.charAt(nextLine.length() - 1) == '\r') nextLine = nextLine.substring(0, nextLine.length() - 1);
 
 		if (nextLine != null) lineNum++;
 		return nextLine;
