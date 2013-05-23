@@ -509,26 +509,4 @@ public class Genome extends Marker implements Serializable, Iterable<Chromosome>
 
 		return sb.toString();
 	}
-	//	@Override
-	//	public String toString() {
-	//		StringBuilder sb = new StringBuilder(version + ": " + species);
-	//
-	//		if (chromosomeNames.size() > 0) {
-	//			sb.append("\n\tChromosomes: ");
-	//			for (String chr : chromosomeNames)
-	//				sb.append(chr + " ");
-	//			sb.append("\n");
-	//		}
-	//
-	//		if ((chromoFastaFiles != null) && (chromoFastaFiles.length > 0)) {
-	//			sb.append("\tFasta files: ");
-	//			for (String ff : chromoFastaFiles)
-	//				sb.append(fastaDir + "/" + ff + " ");
-	//
-	//			sb.append("\n");
-	//		}
-	//
-	//		return sb.toString();
-	//	}
-
 }
