@@ -419,7 +419,7 @@ public abstract class SnpEffPredictorFactory {
 	 * Finish up procedure to ensure consistency
 	 */
 	void finishUp() {
-		// Remove suspicious transcripts
+		// Fix suspicious transcripts
 		fixSuspiciousTranscripts(MARK);
 
 		// Adjust
@@ -443,8 +443,9 @@ public abstract class SnpEffPredictorFactory {
 
 	/** 
 	 * Fix suspicious transcripts. 
-	 * Transcripts whose first exon has a non-zero frame are removed. According 
-	 * to ENSEMBL, there is no enough evidence to define these transcripts properly.
+	 * 
+	 * Transcripts whose first exon has a non-zero frame ma indicate problems.
+	 * We add a 'fake' UTR5 to compensate for reading frame.
 	 * 
 	 * @param showEvery
 	 */
@@ -466,7 +467,7 @@ public abstract class SnpEffPredictorFactory {
 			}
 
 		// Mark Transcripts for removal
-		if (verbose) System.out.print("\n\tFiltering out suspicious transcripts (first exon has non-zero frame): ");
+		if (verbose) System.out.print("\n\tFixing suspicious transcripts (first exon has non-zero frame): ");
 		HashSet<Transcript> trToDelete = new HashSet<Transcript>();
 		for (Gene gene : genome.getGenes())
 			for (Transcript tr : gene) {
@@ -489,19 +490,9 @@ public abstract class SnpEffPredictorFactory {
 					utr5 = new Utr5prime(exonFirst, start, exonFirst.getEnd(), tr.getStrand(), exonFirst.getId());
 				}
 
-				Gpr.debug("ADDING: " + utr5);
+				// Add UTR5'
 				tr.add(utr5);
-
-				//				trToDelete.add(tr);
-				//				if (debug) System.out.print(tr.getId() + " ");
-				//				else mark(i++);
 			}
-
-		//		// Remove transcripts
-		//		for (Transcript tr : trToDelete) {
-		//			Gene gene = (Gene) tr.getParent();
-		//			gene.remove(tr);
-		//		}
 
 		if (verbose) System.out.print((trToDelete.size() > 0 ? "\n\t" : "") + "\tTotal: " + trToDelete.size() + " removed.");
 	}

@@ -21,7 +21,6 @@ public class FastaFileIterator extends FileIterator<String> {
 	}
 
 	Pattern transcriptPattern = Pattern.compile("transcript:(\\S*)");
-
 	String header = null;
 	String nextHeader = null;
 
