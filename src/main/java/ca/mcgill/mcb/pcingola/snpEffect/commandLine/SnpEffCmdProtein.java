@@ -122,7 +122,7 @@ public class SnpEffCmdProtein extends SnpEff {
 
 		if (protein.equals(proteinRef)) return true;
 
-		// Replace last AA in reference by an 'unknown' (i.e. erase it)
+		// Remove last AA in Ref sequence (e.g. when las AA in reference by is 'unknown')
 		String refUnk = "";
 		if (proteinRef.length() > 0) {
 			refUnk = proteinRef.substring(0, proteinRef.length() - 1);
@@ -255,6 +255,9 @@ public class SnpEffCmdProtein extends SnpEff {
 
 		// We use '?' as unknown protein
 		protein = protein.replace('X', '?');
+
+		// Remove staring '?' codons
+		if (protein.startsWith("?")) protein = protein.substring(1);
 
 		return protein;
 	}

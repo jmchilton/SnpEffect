@@ -16,6 +16,7 @@ import ca.mcgill.mcb.pcingola.interval.IntervalComparatorByEnd;
 import ca.mcgill.mcb.pcingola.interval.IntervalComparatorByStart;
 import ca.mcgill.mcb.pcingola.interval.Marker;
 import ca.mcgill.mcb.pcingola.interval.Transcript;
+import ca.mcgill.mcb.pcingola.interval.Utr5prime;
 import ca.mcgill.mcb.pcingola.snpEffect.Config;
 import ca.mcgill.mcb.pcingola.snpEffect.SnpEffectPredictor;
 import ca.mcgill.mcb.pcingola.util.Gpr;
@@ -419,7 +420,7 @@ public abstract class SnpEffPredictorFactory {
 	 */
 	void finishUp() {
 		// Remove suspicious transcripts
-		removerSuspiciousTranscripts(MARK);
+		fixSuspiciousTranscripts(MARK);
 
 		// Adjust
 		adjustTranscripts(); // Adjust transcripts: recalculate start, end, strand, etc.
@@ -438,6 +439,71 @@ public abstract class SnpEffPredictorFactory {
 
 		// Done
 		if (verbose) System.out.println("");
+	}
+
+	/** 
+	 * Fix suspicious transcripts. 
+	 * Transcripts whose first exon has a non-zero frame are removed. According 
+	 * to ENSEMBL, there is no enough evidence to define these transcripts properly.
+	 * 
+	 * @param showEvery
+	 */
+	void fixSuspiciousTranscripts(int showEvery) {
+		// Update Exon.frame data (if not available)
+		if (verbose) System.out.print("\n\tUpdating frame info from CDSs to Exons.");
+		for (Gene gene : genome.getGenes())
+			for (Transcript tr : gene) {
+				for (Exon ex : tr) {
+					// No frame info? => try to find matching CDS
+					if (ex.getFrame() < 0) {
+						for (Cds cds : tr.getCds()) {
+							// CDS matches the exon coordinates? => Copy frame info
+							if (tr.isStrandPlus() && (ex.getStart() == cds.getStart())) ex.setFrame(cds.getFrame());
+							else if (tr.isStrandMinus() && (ex.getEnd() == cds.getEnd())) ex.setFrame(cds.getFrame());
+						}
+					}
+				}
+			}
+
+		// Mark Transcripts for removal
+		if (verbose) System.out.print("\n\tFiltering out suspicious transcripts (first exon has non-zero frame): ");
+		HashSet<Transcript> trToDelete = new HashSet<Transcript>();
+		for (Gene gene : genome.getGenes())
+			for (Transcript tr : gene) {
+				List<Exon> exons = tr.sortedStrand();
+
+				// No exons? Nothing to do
+				if ((exons == null) || exons.isEmpty()) continue;
+
+				Exon exonFirst = exons.get(0); // Get first exon
+				if (exonFirst.getFrame() <= 0) continue; // Frame OK (or missing), nothing to do
+
+				// First exon is not zero? => Create a UTR5 prime to compensate
+				Utr5prime utr5 = null;
+				int frame = exonFirst.getFrame();
+				if (tr.isStrandPlus()) {
+					int end = exonFirst.getStart() + (frame - 1);
+					utr5 = new Utr5prime(exonFirst, exonFirst.getStart(), end, tr.getStrand(), exonFirst.getId());
+				} else {
+					int start = exonFirst.getEnd() - (frame - 1);
+					utr5 = new Utr5prime(exonFirst, start, exonFirst.getEnd(), tr.getStrand(), exonFirst.getId());
+				}
+
+				Gpr.debug("ADDING: " + utr5);
+				tr.add(utr5);
+
+				//				trToDelete.add(tr);
+				//				if (debug) System.out.print(tr.getId() + " ");
+				//				else mark(i++);
+			}
+
+		//		// Remove transcripts
+		//		for (Transcript tr : trToDelete) {
+		//			Gene gene = (Gene) tr.getParent();
+		//			gene.remove(tr);
+		//		}
+
+		if (verbose) System.out.print((trToDelete.size() > 0 ? "\n\t" : "") + "\tTotal: " + trToDelete.size() + " removed.");
 	}
 
 	/**
@@ -554,56 +620,6 @@ public abstract class SnpEffPredictorFactory {
 				System.out.println("");
 			}
 		}
-	}
-
-	/** 
-	 * Remove suspicious transcripts. 
-	 * Transcripts whose first exon has a non-zero frame are removed. According 
-	 * to ENSEMBL, there is no enough evidence to define these transcripts properly.
-	 * 
-	 * @param showEvery
-	 */
-	void removerSuspiciousTranscripts(int showEvery) {
-		// Update Exon.frame data (if not available)
-		if (verbose) System.out.print("\n\tUpdating frame info from CDSs to Exons.");
-		int i = 0;
-		for (Gene gene : genome.getGenes())
-			for (Transcript tr : gene) {
-				for (Exon ex : tr) {
-					// No frame info? => try to find matching CDS
-					if (ex.getFrame() < 0) {
-						for (Cds cds : tr.getCds()) {
-							// Found same cds as exon? => Copy frame info
-							if ((ex.getStart() == cds.getStart()) && (ex.getEnd() == cds.getEnd())) ex.setFrame(cds.getFrame());
-						}
-					}
-				}
-			}
-
-		// Mark Transcripts for removal
-		i = 1;
-		if (verbose) System.out.print("\n\tFiltering out suspicious transcripts (first exon has non-zero frame): ");
-		HashSet<Transcript> trToDelete = new HashSet<Transcript>();
-		for (Gene gene : genome.getGenes())
-			for (Transcript tr : gene) {
-				List<Exon> exons = tr.sortedStrand();
-				if ((exons != null) && !exons.isEmpty()) {
-					Exon exon = exons.get(0); // Get first exon
-					if (exon.getFrame() > 0) {
-						trToDelete.add(tr); // First exon is not zero? => Mark for deletion
-						if (debug) System.out.print(tr.getId() + " ");
-						else mark(i++);
-					}
-				}
-			}
-
-		// Remove transcripts
-		for (Transcript tr : trToDelete) {
-			Gene gene = (Gene) tr.getParent();
-			gene.remove(tr);
-		}
-
-		if (verbose) System.out.print((trToDelete.size() > 0 ? "\n\t" : "") + "\tTotal: " + trToDelete.size() + " removed.");
 	}
 
 	public void setDebug(boolean debug) {

@@ -63,14 +63,17 @@ public class CodonChange {
 			}
 		}
 
-		// Should we add any errors
-		if (transcript.isErrorProteinLength()) {
-			for (ChangeEffect cheff : changes)
-				cheff.addWarning(WarningType.WARNING_TRANSCRIPT_INCOMPLETE);
-		} else if (transcript.isErrorStopCodonsInCds()) {
-			for (ChangeEffect cheff : changes)
-				cheff.addWarning(WarningType.WARNING_TRANSCRIPT_MULTIPLE_STOP_CODONS);
-		}
+		//---
+		// Should we add any warnings?
+		//---
+		WarningType warn = null;
+		if (transcript.isErrorProteinLength()) warn = WarningType.WARNING_TRANSCRIPT_INCOMPLETE;
+		else if (transcript.isErrorStopCodonsInCds()) warn = WarningType.WARNING_TRANSCRIPT_MULTIPLE_STOP_CODONS;
+		else if (transcript.isErrorStartCodon()) warn = WarningType.WARNING_TRANSCRIPT_NO_START_CODON;
+
+		// Add warning
+		if (warn != null) for (ChangeEffect cheff : changes)
+			cheff.addWarning(warn);
 
 		return changes;
 	}

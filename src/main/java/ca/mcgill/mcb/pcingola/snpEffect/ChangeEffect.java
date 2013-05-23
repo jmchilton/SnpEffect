@@ -198,8 +198,7 @@ public class ChangeEffect implements Cloneable, Comparable<ChangeEffect> {
 		, WARNING_REF_DOES_NOT_MATCH_GENOME //
 		, WARNING_TRANSCRIPT_INCOMPLETE // 
 		, WARNING_TRANSCRIPT_MULTIPLE_STOP_CODONS //
-		// TODO : Add WARNING_TRANSCRIPT_NO_FINAL_STOP_CODON of a transcript does not end with a STOP codon
-		// TODO : Add WARNING_TRANSCRIPT_NO_START_CODON of a transcript does not start with a START codon
+		, WARNING_TRANSCRIPT_NO_START_CODON //
 	};
 
 	static final boolean COMPATIBLE_v1_8 = true; // Activate this in order to get the same out as version 1.8. This is only for testing & debugging 

@@ -58,6 +58,7 @@ public class SnpEffCmdBuild extends SnpEff {
 			// Use FASTA format
 			SnpEffCmdCds snpEffCmdCds = new SnpEffCmdCds(config);
 			snpEffCmdCds.setVerbose(verbose);
+			snpEffCmdCds.setDebug(debug);
 			snpEffCmdCds.run();
 		} else if (verbose) System.out.println("\tOptional file '" + cdsFile + "' not found, nothing done.");
 
@@ -69,6 +70,7 @@ public class SnpEffCmdBuild extends SnpEff {
 		if (Gpr.canRead(protFile)) {
 			SnpEffCmdProtein snpEffCmdProtein = new SnpEffCmdProtein(config);
 			snpEffCmdProtein.setVerbose(verbose);
+			snpEffCmdProtein.setDebug(debug);
 			snpEffCmdProtein.run();
 		} else if (geneDatabaseFormat == GeneDatabaseFormat.GENBANK) {
 			// GenBank format
