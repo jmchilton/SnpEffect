@@ -407,6 +407,10 @@ public class VcfEntry extends Marker implements Iterable<VcfGenotype> {
 		return vcfFileIterator.getVcfHeader().getVcfInfo(filedName) != null;
 	}
 
+	public boolean hasGenotypes() {
+		return (vcfGenotypes != null) || (genotypeFieldsStr != null);
+	}
+
 	public boolean hasInfo(String infoFieldName) {
 		if (info == null) parseInfo();
 		return info.containsKey(infoFieldName);
@@ -797,6 +801,10 @@ public class VcfEntry extends Marker implements Iterable<VcfGenotype> {
 
 	public void setFilterPass(String filterPass) {
 		this.filterPass = filterPass;
+	}
+
+	public void setFormat(String format) {
+		this.format = format;
 	}
 
 	public void setGenotypeStr(String genotypeFieldsStr) {

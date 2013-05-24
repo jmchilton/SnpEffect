@@ -45,14 +45,16 @@ public class SnpEff implements CommandLine {
 
 	public static final int COMMAND_LINE_WIDTH = 40;
 
+	// Version info
 	public static final String SOFTWARE_NAME = "SnpEff";
 	public static final String REVISION = "";
-	public static final String BUILD = "2013-05-23";
-	//	public static final String VERSION_MAJOR = "3.3";
-	public static final String VERSION_MAJOR = "3.2";
+	public static final String BUILD = "2013-05-24";
+	public static final String VERSION_MAJOR = "3.3";
+	//	public static final String VERSION_MAJOR = "3.2";
 	public static final String VERSION_SHORT = VERSION_MAJOR + REVISION;
 	public static final String VERSION_NO_NAME = VERSION_SHORT + " (build " + BUILD + "), by " + Pcingola.BY;
 	public static final String VERSION = SOFTWARE_NAME + " " + VERSION_NO_NAME;
+
 	public static final String DEFAULT_SUMMARY_FILE = "snpEff_summary.html";
 	public static final String DEFAULT_SUMMARY_CSV_FILE = "snpEff_summary.csv";
 	public static final String DEFAULT_SUMMARY_GENES_FILE = "snpEff_genes.txt";

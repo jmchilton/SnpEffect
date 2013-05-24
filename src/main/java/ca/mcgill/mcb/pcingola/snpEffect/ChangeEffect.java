@@ -478,7 +478,7 @@ public class ChangeEffect implements Cloneable, Comparable<ChangeEffect> {
 				case NEXT_PROT:
 					// TODO: Refactor.This code should be in NextProt marker, not here
 					if (marker == null) effectImpact = EffectImpact.MODIFIER;
-					else if (((NextProt) marker).isHighlyConservedAaSequence()) effectImpact = EffectImpact.HIGH;
+					else if (((NextProt) marker).isHighlyConservedAaSequence()) effectImpact = EffectImpact.MODERATE;
 					else effectImpact = EffectImpact.LOW;
 					break;
 
