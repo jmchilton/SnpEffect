@@ -119,7 +119,7 @@ codons <#list changeStats.codonList as newCodon> , ${newCodon} </#list>
 # Amino acid change table
 
 aa <#list changeStats.aaList as newAa> , ${newAa} </#list>
-<#list changeStats.aaList as oldAa>, ${oldAa} <#list changeStats.aaList as newAa><#assign count = changeStats.getAaChangeCount(oldAa, newAa)>, ${count} </#list>
+<#list changeStats.aaList as oldAa> ${oldAa} <#list changeStats.aaList as newAa><#assign count = changeStats.getAaChangeCount(oldAa, newAa)>, ${count} </#list>
 </#list>
 
 # Chromosome change table
