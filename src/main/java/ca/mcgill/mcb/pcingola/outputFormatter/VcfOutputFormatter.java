@@ -36,7 +36,7 @@ public class VcfOutputFormatter extends OutputFormatter {
 	public static final String VCF_INFO_LOF_NAME = "LOF";
 	public static final String VCF_INFO_NMD_NAME = "NMD";
 
-	public static final String GATK_ACCEPTED_VERSION = "2.0.5"; // GATK refuses to run if we report another version, so we have to lie...
+	//	public static final String GATK_ACCEPTED_VERSION = "2.0.5"; // GATK refuses to run if we report another version, so we have to lie...
 
 	boolean needAddInfo = false;
 	boolean needAddHeader = true;
@@ -98,6 +98,9 @@ public class VcfOutputFormatter extends OutputFormatter {
 		HashSet<String> effs = new HashSet<String>();
 		HashSet<String> oicr = (useOicr ? new HashSet<String>() : null);
 		for (ChangeEffect changeEffect : changeEffects) {
+			// In GATK mode, skip changeEffects having errors or warnings
+			if (gatk && (changeEffect.hasError() || changeEffect.hasWarning())) continue;
+
 			// If it is not filtered out by changeEffectResutFilter  => Show it
 			if ((changeEffectResutFilter == null) || (!changeEffectResutFilter.filter(changeEffect))) {
 				StringBuilder effBuff = new StringBuilder();
@@ -298,9 +301,10 @@ public class VcfOutputFormatter extends OutputFormatter {
 	public List<String> getNewHeaderLines() {
 		ArrayList<String> newLines = new ArrayList<String>();
 
-		if (gatk) newLines.add("##SnpEffVersion=\"" + GATK_ACCEPTED_VERSION + " Real version: " + version + "\""); // We have to lie to GATK, otherwise it refuses to run...
-		else newLines.add("##SnpEffVersion=\"" + version + "\"");
+		//		if (gatk) newLines.add("##SnpEffVersion=\"" + GATK_ACCEPTED_VERSION + " Real version: " + version + "\""); // We have to lie to GATK, otherwise it refuses to run...
+		//		else newLines.add("##SnpEffVersion=\"" + version + "\"");
 
+		newLines.add("##SnpEffVersion=\"" + version + "\"");
 		newLines.add("##SnpEffCmd=\"" + commandLineStr + "\"");
 		newLines.add("##INFO=<ID=EFF,Number=.,Type=String,Description=\"Predicted effects for this variant.Format: 'Effect ( Effect_Impact | Functional_Class | Codon_Change | Amino_Acid_change| Amino_Acid_length | Gene_Name | Transcript_BioType | Gene_Coding | Transcript_ID | Exon  | GenotypeNum [ | ERRORS | WARNINGS ] )' \">");
 

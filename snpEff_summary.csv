@@ -3,8 +3,8 @@
 
 Name , Value
 Genome , testHg3766Chr1 
-Date , 2013-05-24 10:27
-SnpEff_version , SnpEff 3.3 (build 2013-05-23), by Pablo Cingolani
+Date , 2013-05-24 19:01
+SnpEff_version , SnpEff 3.3 (build 2013-05-24), by Pablo Cingolani
 Command_line_arguments , SnpEff  -csvStats testHg3766Chr1 /home/pcingola/snpEff/test.1K.vcf 
 Warnings , 0 
 Number_of_lines_in_input_file, 966
