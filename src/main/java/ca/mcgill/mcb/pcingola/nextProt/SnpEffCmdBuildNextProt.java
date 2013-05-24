@@ -742,7 +742,7 @@ public class SnpEffCmdBuildNextProt extends SnpEff {
 				String protein = tr.protein();
 
 				// Remove trailing stop codon ('*')
-				if (protein.charAt(protein.length() - 1) == '*') protein = protein.substring(0, protein.length() - 1);
+				if (!protein.isEmpty() && (protein.charAt(protein.length() - 1) == '*')) protein = protein.substring(0, protein.length() - 1);
 
 				// Sanity check: Do protein sequences match?
 				if (protein.equals(sequence)) {
