@@ -482,6 +482,8 @@ public class Genome extends Marker implements Serializable, Iterable<Chromosome>
 		double avgTrPerGene = countTranscripts / ((double) countGenes);
 		double avgExonPerTr = countExons / ((double) countTranscripts);
 
+		if (countTranscriptsProteinCoding == 0) countTranscriptsProteinCoding = 1; // Avoid division by zero
+
 		sb.append("# Genome name                : '" + species + "'" + "\n");
 		sb.append("# Genome version             : '" + version + "'\n");
 		sb.append("# Has protein coding info    : " + hasCodingInfo() + "\n");
