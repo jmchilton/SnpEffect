@@ -37,6 +37,7 @@ public class VcfInfo {
 	int number;
 	boolean onePerAllele;
 	boolean onePerGenotype;
+	boolean implicit; // Is this field implicit? (Added automatically by VcfHeade class)
 	String description;
 
 	/**
@@ -105,6 +106,10 @@ public class VcfInfo {
 		return vcfInfoType;
 	}
 
+	public boolean isImplicit() {
+		return implicit;
+	}
+
 	public boolean isOnePerAllele() {
 		return onePerAllele;
 	}
@@ -118,6 +123,10 @@ public class VcfInfo {
 		if (number.equals("A")) onePerAllele = true;
 		else if (number.equals("G")) onePerGenotype = true;
 		else this.number = Gpr.parseIntSafe(number);
+	}
+
+	public void setImplicit(boolean implicit) {
+		this.implicit = implicit;
 	}
 
 	@Override

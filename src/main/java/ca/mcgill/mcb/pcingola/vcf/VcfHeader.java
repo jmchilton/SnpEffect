@@ -23,6 +23,20 @@ public class VcfHeader {
 	}
 
 	/**
+	 * Add a VCF INFO header definition
+	 * @param vcfInfo
+	 */
+	public void add(VcfInfo vcfInfo) {
+		parseInfoLines();
+
+		// Not already added?
+		if (!vcfInfoById.containsKey(vcfInfo.getId())) {
+			addLine(vcfInfo.toString()); // Add line
+			resetCache(); // Invalidate cache
+		}
+	}
+
+	/**
 	 * Add a 'FORMAT' meta info
 	 * @param vcfGenotypeStr
 	 */
@@ -36,6 +50,9 @@ public class VcfHeader {
 	 * @return
 	 */
 	public void addLine(String newHeaderLine) {
+		// Nothing to do?
+		if (newHeaderLine == null) return;
+
 		// Split header
 		String headerLines[] = header.toString().split("\n");
 		header = new StringBuffer();
@@ -44,14 +61,13 @@ public class VcfHeader {
 		boolean added = false;
 		for (String line : headerLines) {
 
-			if (newHeaderLine != null) { // Anything to add?
-				if (line.equals(newHeaderLine)) {
-					newHeaderLine = null; // Line already present? => Don't add
-					added = true;
+			if (!added) { // Anything to add?
+
+				if (line.equals(newHeaderLine)) { // Header already added?
+					added = true; // Line already present? => Don't add
 				} else if (line.startsWith("#CHROM")) {
 					header.append(newHeaderLine + "\n"); // Add new header right before title line
 					added = true;
-					newHeaderLine = null;
 				}
 			}
 
@@ -60,6 +76,9 @@ public class VcfHeader {
 
 		// Not added yet? => Add to the end
 		if (!added) header.append(newHeaderLine + "\n"); // Add new header right before title line
+
+		// Cache is no longer valid
+		resetCache();
 	}
 
 	public String[] getLines() {
@@ -183,6 +202,7 @@ public class VcfHeader {
 	}
 
 	public HashMap<String, VcfInfo> getVcfInfoById() {
+		parseInfoLines();
 		return vcfInfoById;
 	}
 
@@ -277,7 +297,13 @@ public class VcfHeader {
 			vcfInfoById.put("NMD.NUMTR", new VcfInfo("NMD.NUMTR", VcfInfoType.Integer, ".", "SnpEff NMD number of transcripts in gene"));
 			vcfInfoById.put("NMD.PERC", new VcfInfo("NMD.PERC", VcfInfoType.Float, ".", "SnpEff NMD percentage of transcripts in this gene that are affected"));
 
+			// Set all automatically added fields as "implicit"
+			for (VcfInfo vcfInfo : vcfInfoById.values())
+				vcfInfo.setImplicit(true);
+
+			//---
 			// Add all INFO fields from header
+			//---
 			for (String line : getLines()) {
 				if (line.startsWith("##INFO=") || line.startsWith("##FORMAT=")) {
 					VcfInfo vcfInfo = new VcfInfo(line);
@@ -285,6 +311,10 @@ public class VcfHeader {
 				}
 			}
 		}
+	}
+
+	void resetCache() {
+		vcfInfoById = null;
 	}
 
 	/**
