@@ -69,71 +69,72 @@ wget="wget --wait=$wget_wait -r -nc "
 # 	mkdir -p data/$genome
 # 	cp $fasta data/genomes/$genome.fa.gz
 # done
-
-# CDS genomes files
-for fasta in *.cdna.all.fa.gz
-do
-	genome=`../scripts/file2GenomeName.pl $fasta | cut -f 5`
-	echo CDS: $genome $fasta
-
-	mkdir -p data/$genome
-	cp $fasta data/$genome/cds.fa.gz
-done
-
-# Protein seuqence files
-for pep in *.pep.all.fa.gz
-do
-	short=`../scripts/file2GenomeName.pl $pep | cut -f 5`
-	echo PROTEIN: $short
-
-	mkdir -p data/$short
-	cp $pep data/$short/protein.fa.gz
-done
-
-#---
-# Config file entries
-#---
-
-(
-for fasta in *.cdna.all.fa.gz
-do
-	genome=`../scripts/file2GenomeName.pl $fasta | cut -f 4`
-	short=`../scripts/file2GenomeName.pl $fasta | cut -f 5`
-
-	# Individual genome entry
-	echo -e "$short.genome : $genome"
-	echo -e "$short.reference : ftp://ftp.ensembl.org/pub/release-$ENSEMBL_BFMPP_RELEASE/gtf/"
-	echo
-done
-) | tee ../snpEff.ensembl_bfmpp.$ENSEMBL_BFMPP_RELEASE.config
-
-# #---
-# # ENSEMBL is files in a way that is not fully compatible with Java's gzip library
-# #---
 # 
-# rm -vf queue_gunzip.txt queue_gunzip.txt
-# for g in `find . -iname "*.gz"`
+# # CDS genomes files
+# for fasta in *.cdna.all.fa.gz
 # do
-# 	f=`dirname $g`/`basename $g .gz`
-# 	echo "Un-compress / compress: $g"
-# 	echo "gunzip -v $g" >> queue_gunzip.txt
-# 	echo "gzip -v $f" >> queue_gzip.txt
+# 	genome=`../scripts/file2GenomeName.pl $fasta | cut -f 5`
+# 	echo CDS: $genome $fasta
+# 
+# 	mkdir -p data/$genome
+# 	cp $fasta data/$genome/cds.fa.gz
 # done
 # 
-# # Uncompress all files
-# ../scripts/queue.pl 22 22 1 queue_gunzip.txt
+# # Protein seuqence files
+# for pep in *.pep.all.fa.gz
+# do
+# 	short=`../scripts/file2GenomeName.pl $pep | cut -f 5`
+# 	echo PROTEIN: $short
 # 
-# # Compress all files
-# ../scripts/queue.pl 22 22 1 queue_gzip.txt
+# 	mkdir -p data/$short
+# 	cp $pep data/$short/protein.fa.gz
+# done
+# 
+# #---
+# # Config file entries
+# #---
+# 
+# (
+# for fasta in *.cdna.all.fa.gz
+# do
+# 	genome=`../scripts/file2GenomeName.pl $fasta | cut -f 4`
+# 	short=`../scripts/file2GenomeName.pl $fasta | cut -f 5`
+# 
+# 	# Individual genome entry
+# 	echo -e "$short.genome : $genome"
+# 	echo -e "$short.reference : ftp://ftp.ensembl.org/pub/release-$ENSEMBL_BFMPP_RELEASE/gtf/"
+# 	echo
+# done
+# ) | tee ../snpEff.ensembl_bfmpp.$ENSEMBL_BFMPP_RELEASE.config
 
 #---
-# Back to parent dir
+# ENSEMBL is files in a way that is not fully compatible with Java's gzip library
 #---
-cd - > /dev/null
 
-#---
-# Move data dir to 'real' data dir
-#---
+rm -vf queue_gunzip.txt queue_gunzip.txt
+for g in `find data -iname "*.gz"`
+do
+	f=`dirname $g`/`basename $g .gz`
+	echo "Un-compress / compress: $g"
+	echo "gunzip -v $g" >> queue_gunzip.txt
+	echo "gzip -v $f" >> queue_gzip.txt
+done
+
+# Uncompress all files
+../scripts/queue.pl 22 22 0 queue_gunzip.txt
+
+# Compress all files
+../scripts/queue.pl 22 22 0 queue_gzip.txt
+
+# #---
+# # Back to parent dir
+# #---
+# cd - > /dev/null
+# 
+# #---
+# # Move data dir to 'real' data dir
+# #---
 # mv download/data/genomes/* data/genomes/
+# rmdir download/data/genomes
 # mv download/data/* data/
 
