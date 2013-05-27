@@ -48,7 +48,7 @@ public class SnpEff implements CommandLine {
 	// Version info
 	public static final String SOFTWARE_NAME = "SnpEff";
 	public static final String REVISION = "";
-	public static final String BUILD = "2013-05-24";
+	public static final String BUILD = "2013-05-27";
 	public static final String VERSION_MAJOR = "3.3";
 	//	public static final String VERSION_MAJOR = "3.2";
 	public static final String VERSION_SHORT = VERSION_MAJOR + REVISION;
