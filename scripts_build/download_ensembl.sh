@@ -79,24 +79,24 @@ cd download
 # mkdir -p data/GRCm38.$ENSEMBL_RELEASE/
 # cp ftp.ensembl.org/pub/release-$ENSEMBL_RELEASE/regulation/mus_musculus/AnnotatedFeatures.gff.gz data/GRCm38.$ENSEMBL_RELEASE/regulation.gff.gz
 # cp ftp.ensembl.org/pub/release-$ENSEMBL_RELEASE/regulation/mus_musculus/MotifFeatures.gff.gz data/GRCm38.$ENSEMBL_RELEASE/motif.gff.gz
-
-#---
-# Config file entries
-#---
-
-(
-for fasta in *.cdna.all.fa.gz
-do
-	genome=`../scripts/file2GenomeName.pl $fasta | cut -f 4`
-	short=`../scripts/file2GenomeName.pl $fasta | cut -f 5`
-
-	# Individual genome entry
-	echo -e "$short.genome : $genome"
-	echo -e "$short.reference : ftp://ftp.ensembl.org/pub/release-$ENSEMBL_RELEASE/gtf/"
-	echo
-done
-) | tee ../snpEff.ensembl.$ENSEMBL_RELEASE.config
-
+# 
+# #---
+# # Config file entries
+# #---
+# 
+# (
+# for fasta in *.cdna.all.fa.gz
+# do
+# 	genome=`../scripts/file2GenomeName.pl $fasta | cut -f 4`
+# 	short=`../scripts/file2GenomeName.pl $fasta | cut -f 5`
+# 
+# 	# Individual genome entry
+# 	echo -e "$short.genome : $genome"
+# 	echo -e "$short.reference : ftp://ftp.ensembl.org/pub/release-$ENSEMBL_RELEASE/gtf/"
+# 	echo
+# done
+# ) | tee ../snpEff.ensembl.$ENSEMBL_RELEASE.config
+# 
 # #---
 # # ENSEMBL is compressing files in a way that is not fully compatible with Java's gzip library
 # #---
