@@ -1,200 +1,78 @@
 package ca.mcgill.mcb.pcingola;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedList;
+import java.util.Random;
 
 import ca.mcgill.mcb.pcingola.interval.Exon;
 import ca.mcgill.mcb.pcingola.interval.Gene;
 import ca.mcgill.mcb.pcingola.interval.Transcript;
 import ca.mcgill.mcb.pcingola.snpEffect.Config;
 import ca.mcgill.mcb.pcingola.snpEffect.SnpEffectPredictor;
-import ca.mcgill.mcb.pcingola.stats.CoverageByType;
-import ca.mcgill.mcb.pcingola.stats.PosStats;
-import ca.mcgill.mcb.pcingola.stats.plot.GoogleLineChart;
 import ca.mcgill.mcb.pcingola.util.Gpr;
 import ca.mcgill.mcb.pcingola.util.Timer;
 
 public class Zzz {
 
+	public static final int READ_LENGTH = 50;
+	public static final int NUM_READS_EXON = 10;
+
 	Config config;
 	SnpEffectPredictor sep;
-	byte bases[];
 
 	public static void main(String[] args) {
 		Zzz zzz = new Zzz();
-		zzz.runTrBugs();
+		zzz.run();
 	}
 
 	public Zzz() {
-	}
-
-	GoogleLineChart lineChart(String chr, PosStats posstats) {
-		GoogleLineChart glc = new GoogleLineChart("Histogram");
-		glc.setTitle("Chromosome: " + chr);
-		glc.setWidth(1200);
-		glc.setvAxis("Transcripts");
-		glc.sethAxis("Position");
-
-		ArrayList<String> col = new ArrayList<String>();
-		for (int i = 0; i < posstats.size(); i++)
-			col.add(posstats.getCount(i) + "");
-		glc.addColumn("Chr" + chr, col);
-
-		return glc;
-	}
-
-	void load(String genVer) {
 		Timer.showStdErr("Loading");
-		config = new Config(genVer);
+		config = new Config("BDGP5.69");
 		sep = config.loadSnpEffectPredictor();
-		System.out.println(sep.getGenome());
-	}
-
-	void run() {
-		Timer.showStdErr("Checking");
-
-		for (Gene g : sep.getGenome().getGenes()) {
-			// Initialize
-			bases = new byte[g.size()];
-			for (int i = 0; i < bases.length; i++)
-				bases[i] = 0;
-
-			run(g);
-
-			// Count
-			int count = 0;
-			for (int i = 0; i < bases.length; i++)
-				if (bases[i] > 0) count++;
-
-			System.out.println(g.getGeneName() + "\t" + count);
-		}
-
 		Timer.showStdErr("Done");
 	}
 
-	void run(Gene g) {
-		for (Transcript tr : g) {
-			int cdsStart, cdsEnd;
+	void run() {
+		Random random = new Random(20130601);
+		StringBuilder out = new StringBuilder();
 
-			if (tr.isStrandMinus()) {
-				cdsStart = tr.getCdsEnd();
-				cdsEnd = tr.getCdsStart();
-			} else {
-				cdsStart = tr.getCdsStart();
-				cdsEnd = tr.getCdsEnd();
-			}
-
-			Gpr.debug(tr.getStrand() + "\t" + cdsStart + "\t" + cdsEnd);
-
-			if (tr.isProteinCoding()) {
-				for (Exon e : tr) {
-					// Set bases in coding part
-					int min = Math.max(cdsStart, e.getStart());
-					int max = Math.min(cdsEnd, e.getEnd());
-
-					for (int i = min; i <= max; i++)
-						set(g, i);
-
-					// Set splice sites
-				}
-			}
-		}
-	}
-
-	public void runTrBugs() {
-		//		String genome = "testHg3766Chr1";
-		String genome = "GRCh37.70";
-		Timer.showStdErr("Loading");
-
-		Config config = new Config(genome);
-		SnpEffectPredictor sep = config.loadSnpEffectPredictor();
-
-		CoverageByType coverageByType = new CoverageByType();
-
-		StringBuilder sb = new StringBuilder();
-		int count = 1;
 		for (Gene g : sep.getGenome().getGenes()) {
 			for (Transcript tr : g) {
-				if (tr.isProteinCoding()) {
-					boolean hasError = false;
+				tr.rankExons();
 
-					if (tr.isErrorProteinLength()) {
-						hasError = true;
-					}
+				for (Exon e : tr) {
 
-					if (tr.isErrorStopCodonsInCds()) {
-						hasError = true;
-					}
+					for (int i = 0; i < NUM_READS_EXON; i++) {
+						int rand = 0;
 
-					if (tr.isErrorStopCodon()) {
-						// hasError = true;
-					}
+						if (e.getRank() % 3 == 1) {
+							int r1 = random.nextInt(e.size());
+							int r2 = random.nextInt(e.size());
+							rand = Math.min(r1, r2);
+						} else if (e.getRank() % 3 == 0) {
+							int r1 = random.nextInt(e.size());
+							int r2 = random.nextInt(e.size());
+							rand = Math.max(r1, r2);
+						} else {
+							rand = random.nextInt(e.size());
+						}
 
-					if (tr.isErrorStartCodon()) {
-						hasError = true;
-					}
+						int start, end;
+						if (tr.isStrandPlus()) {
+							start = e.getStart() + rand;
+							end = start + READ_LENGTH;
+						} else {
+							end = e.getEnd() - rand;
+							start = end - READ_LENGTH;
+						}
 
-					if (hasError) {
-						int perc = (int) (100.0 * (((double) tr.getStart()) / tr.getChromosome().getEnd()));
-
-						String out = count //
-								+ "\t" + g.getGeneName() //
-								+ "\t" + g.getId() //
-								+ "\t" + tr.getId() //
-								+ "\t" + tr.getChromosomeName() //
-								+ "\t" + tr.getStart() //
-								+ "\t" + tr.getEnd() //
-								+ "\t" + perc//
-						;
-
-						coverageByType.getOrCreate(tr.getChromosomeName()).sample(tr, tr.getChromosome());
-
-						System.out.println(out);
-						sb.append(out + "\n");
-
-						count++;
+						out.append(e.getChromosomeName() + "\t" + start + "\t" + end + "\n");
 					}
 				}
 			}
 		}
 
-		//---
-		// Save data to file
-		//---
-		String fileName = Gpr.HOME + "/tr_bugs.txt";
-		Timer.showStdErr("Saving to file " + fileName);
-		Gpr.toFile(fileName, sb.toString());
-
-		//---
-		// Show charts
-		//---
-		ArrayList<String> chrs = new ArrayList<String>();
-		chrs.addAll(coverageByType.keySet());
-		Collections.sort(chrs);
-		LinkedList<GoogleLineChart> glcs = new LinkedList<GoogleLineChart>();
-		for (String chr : chrs) {
-			if (chr.length() <= 2) {
-				PosStats posstats = coverageByType.get(chr);
-				glcs.add(lineChart(chr, posstats));
-			}
-		}
-
-		// Save charts to HTML file
-		StringBuilder html = new StringBuilder();
-		for (GoogleLineChart glc : glcs)
-			html.append(glc.toStringHtmlHeader());
-		for (GoogleLineChart glc : glcs)
-			html.append(glc.toStringHtmlBody());
-		fileName = Gpr.HOME + "/tr_bugs.html";
-		Timer.showStdErr("Saving to file " + fileName);
-		Gpr.toFile(fileName, html.toString());
-
-		Timer.showStdErr("Done.");
-	}
-
-	void set(Gene g, int pos) {
-		int i = pos - g.getStart();
-		bases[i] = 1;
+		// Save
+		String outFile = Gpr.HOME + "/fly_pvuseq/rand.bed";
+		Timer.showStdErr("Saving to " + outFile);
+		Gpr.toFile(outFile, out);
 	}
 }

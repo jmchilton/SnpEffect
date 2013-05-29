@@ -9,6 +9,7 @@ import java.util.List;
 import ca.mcgill.mcb.pcingola.interval.Exon;
 import ca.mcgill.mcb.pcingola.interval.Intron;
 import ca.mcgill.mcb.pcingola.interval.Marker;
+import ca.mcgill.mcb.pcingola.interval.Transcript;
 
 /**
  * Create a list of marker types (names or labels for markers)
@@ -60,6 +61,28 @@ public class MarkerTypes {
 		markerTypesClass.add(type);
 
 		return type;
+	}
+
+	/**
+	 * Get marker + rank (in case of exon or intron)
+	 * @param marker
+	 * @return
+	 */
+	public String getTypeRank(Marker marker) {
+		String typeRank = marker2type.get(marker);
+		if (typeRank != null) return typeRank;
+
+		if (marker instanceof Exon) {
+			Transcript tr = (Transcript) marker.findParent(Transcript.class);
+			typeRank = "Exon:" + ((Exon) marker).getRank() + ":" + tr.numChilds();
+		} else if (marker instanceof Intron) {
+			Transcript tr = (Transcript) marker.findParent(Transcript.class);
+			typeRank = "Intron:" + ((Intron) marker).getRank() + ":" + tr.numChilds();
+		} else typeRank = marker.getClass().getSimpleName();
+
+		if (typeRank != null) markerTypesClass.add(typeRank);
+
+		return typeRank;
 	}
 
 	public boolean isType(Marker m, String mtype) {

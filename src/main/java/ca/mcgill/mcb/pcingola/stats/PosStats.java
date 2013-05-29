@@ -63,25 +63,28 @@ public class PosStats extends ChrPosStats {
 	 * @param num
 	 */
 	public void sample(Marker marker, Marker markerReference) {
-		if (markerReference.intersects(marker)) {
-			double step = 1;
-			if (markerReference.size() > count.length) step = ((double) markerReference.size()) / count.length;
+		if (!markerReference.intersects(marker)) return;
 
-			int start = Math.max(marker.getStart(), markerReference.getStart());
-			int end = Math.min(marker.getEnd(), markerReference.getEnd());
+		int j = 0;
+		int start = Math.max(marker.getStart(), markerReference.getStart());
+		int end = Math.min(marker.getEnd(), markerReference.getEnd());
+		double step = ((double) markerReference.size()) / count.length;
 
+		if (markerReference.isStrandPlus()) {
 			double pos = start;
 			int jmin = (int) ((start - markerReference.getStart()) / step);
-
-			//			Gpr.debug("Name: "+ name + "Start: " + start + "\tend:" + end + "\tStep: " + step);
-
-			int j;
-			for (j = jmin; pos <= end; pos += step, j++)
+			for (j = jmin; (pos <= end) && (j < count.length); pos += step, j++)
 				count[j]++;
+		} else {
+			double pos = end;
+			int jmin = (int) ((markerReference.getEnd() - end) / step);
 
-			// Update maxIndex
-			maxIndex = Math.max(maxIndex, j - 1);
+			for (j = jmin; (start <= pos) && (j < count.length); pos -= step, j++)
+				count[j]++;
 		}
+
+		// Update maxIndex
+		maxIndex = Math.max(maxIndex, j - 1);
 	}
 
 	public int size() {

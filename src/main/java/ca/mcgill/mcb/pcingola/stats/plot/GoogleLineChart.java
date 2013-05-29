@@ -6,7 +6,7 @@ public class GoogleLineChart {
 
 	boolean stacked = false;
 
-	int width = 1024, height = 800;
+	int width = 1200, height = 800;
 	String title = "";
 	String vAxis = "";
 	String hAxis = "";

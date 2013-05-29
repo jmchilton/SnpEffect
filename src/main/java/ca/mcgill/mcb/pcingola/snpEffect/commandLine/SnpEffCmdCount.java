@@ -113,6 +113,10 @@ public class SnpEffCmdCount extends SnpEff {
 	 */
 	@Override
 	public boolean run() {
+		//---
+		// Initialize
+		//---
+
 		// Load Config
 		if (verbose) Timer.showStdErr("Reading configuration file '" + configFile + "'");
 		config = new Config(genomeVer, configFile); // Read configuration
@@ -146,12 +150,18 @@ public class SnpEffCmdCount extends SnpEff {
 		snpEffectPredictor.buildForest();
 		if (verbose) Timer.showStdErr("done");
 
+		//---
 		// Count reads
+		//---
+
 		countReadsOnMarkers.setVerbose(verbose);
 		for (String file : fileNames)
 			countReadsOnMarkers.addFile(file);
 		countReadsOnMarkers.count();
 
+		//---
+		// Show & save results
+		//---
 		if (!quiet) {
 			// Show results : Details marker by marker counts
 			if (outputBaseNames != null) {

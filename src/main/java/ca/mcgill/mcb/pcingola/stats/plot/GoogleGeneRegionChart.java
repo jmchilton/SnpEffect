@@ -14,7 +14,7 @@ import ca.mcgill.mcb.pcingola.stats.PosStats;
 
 public class GoogleGeneRegionChart {
 
-	String[] types = { Intergenic.class.getSimpleName() //
+	protected static final String[] DEFAULT_TYPES = { Intergenic.class.getSimpleName() //
 			, Upstream.class.getSimpleName() //
 			, Utr5prime.class.getSimpleName() //
 			, Exon.class.getSimpleName() //
@@ -23,9 +23,10 @@ public class GoogleGeneRegionChart {
 			, Downstream.class.getSimpleName() //
 	};
 
-	CoverageByType coverageByType;
-	GoogleLineChart lineChart;
-	String name, header, body;
+	protected String[] types;
+	protected CoverageByType coverageByType;
+	protected GoogleLineChart lineChart;
+	protected String name, header, body;
 
 	public GoogleGeneRegionChart(CoverageByType coverageByType, String name) {
 		this.coverageByType = coverageByType;
@@ -40,6 +41,8 @@ public class GoogleGeneRegionChart {
 	}
 
 	void createChart() {
+		initTypes();
+
 		int nullBefore = 0;
 		for (String type : types)
 			nullBefore = addCol(nullBefore, type);
@@ -55,14 +58,20 @@ public class GoogleGeneRegionChart {
 		for (int i = 0; i < nullBefore; i++)
 			col.add(null);
 
-		for (int i = 0; i < posStats.size(); i++)
-			col.add("" + posStats.getCount(i));
+		if (posStats != null) {
+			for (int i = 0; i < posStats.size(); i++)
+				col.add("" + posStats.getCount(i));
+		} else col.add("0");
 
 		return col;
 	}
 
 	void init() {
 		lineChart = new GoogleLineChart(name);
+	}
+
+	void initTypes() {
+		types = DEFAULT_TYPES;
 	}
 
 	public String toStringHtmlBody() {

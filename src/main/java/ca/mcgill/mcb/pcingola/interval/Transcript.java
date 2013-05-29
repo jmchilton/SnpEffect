@@ -982,26 +982,31 @@ public class Transcript extends IntervalAndSubIntervals<Exon> {
 	public Markers query(Marker marker) {
 		Markers markers = new Markers();
 
+		// Add exons
 		for (Exon e : this)
 			if (e.intersects(marker)) {
 				markers.add(e);
 				markers.add(e.query(marker));
 			}
 
+		// Ad splice sites
 		for (SpliceSiteBranch sb : spliceBranchSites)
 			if (sb.intersects(marker)) markers.add(sb);
 
+		// Ad UTRs
 		for (Utr u : utrs)
 			if (u.intersects(marker)) markers.add(u);
 
+		// Add CDSs
 		for (Cds m : cdss)
 			if (m.intersects(marker)) markers.add(m);
 
+		// Add introns
 		for (Intron m : introns())
 			if (m.intersects(marker)) markers.add(m);
 
+		// Add upstream & downstream
 		if (upstream.intersects(marker)) markers.add(upstream);
-
 		if (downstream.intersects(marker)) markers.add(downstream);
 
 		return markers;

@@ -1,6 +1,5 @@
 package ca.mcgill.mcb.pcingola.coverage;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -8,28 +7,19 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 
-import net.sf.samtools.SAMFileReader;
-import net.sf.samtools.SAMFileReader.ValidationStringency;
-import net.sf.samtools.SAMRecord;
-import ca.mcgill.mcb.pcingola.fileIterator.BedFileIterator;
-import ca.mcgill.mcb.pcingola.fileIterator.VcfFileIterator;
 import ca.mcgill.mcb.pcingola.interval.Chromosome;
 import ca.mcgill.mcb.pcingola.interval.Genome;
 import ca.mcgill.mcb.pcingola.interval.Marker;
-import ca.mcgill.mcb.pcingola.interval.Markers;
-import ca.mcgill.mcb.pcingola.interval.SeqChange;
 import ca.mcgill.mcb.pcingola.outputFormatter.OutputFormatter;
 import ca.mcgill.mcb.pcingola.probablility.Binomial;
 import ca.mcgill.mcb.pcingola.snpEffect.SnpEffectPredictor;
-import ca.mcgill.mcb.pcingola.stats.CountByKey;
 import ca.mcgill.mcb.pcingola.stats.CountByType;
 import ca.mcgill.mcb.pcingola.stats.CoverageByType;
-import ca.mcgill.mcb.pcingola.stats.PosStats;
 import ca.mcgill.mcb.pcingola.stats.plot.GoogleBarChart;
 import ca.mcgill.mcb.pcingola.stats.plot.GoogleGeneRegionChart;
+import ca.mcgill.mcb.pcingola.stats.plot.GoogleGeneRegionNumExonsChart;
 import ca.mcgill.mcb.pcingola.util.Gpr;
 import ca.mcgill.mcb.pcingola.util.Timer;
-import ca.mcgill.mcb.pcingola.vcf.VcfEntry;
 
 /**
  * Count how many reads map (from many SAM/BAM files) onto markers
@@ -37,27 +27,22 @@ import ca.mcgill.mcb.pcingola.vcf.VcfEntry;
  */
 public class CountReadsOnMarkers {
 
-	public static int SHOW_EVERY = 10000;
+	public static final int SHOW_EVERY = 10000;
+	public static final int MAX_EXONS_CHART = 10;
 	public static boolean debug = true;
 
 	boolean verbose = false; // Be verbose
-	int countExceptions = 0;
-	int readLengthCount;
-	long readLengthSum;
 	List<String> fileNames;
 	List<String> names;
-	ArrayList<CountByKey<Marker>> countReadsByFile;
-	ArrayList<CountByKey<Marker>> countBasesByFile;
-	ArrayList<CountByType> countTypesByFile;
-	SnpEffectPredictor snpEffectPredictor;
-	MarkerTypes markerTypes;
-	ArrayList<CoverageByType> coverageByFile;
-	CountByType readsByFile;
 	Genome genome;
+	SnpEffectPredictor snpEffectPredictor;
+	ArrayList<CountReads> countReadsByFile;
+	MarkerTypes markerTypes;
+	CountByType readsByFile;
 
-	public CountReadsOnMarkers() {
-		init(null);
-	}
+	//	public CountReadsOnMarkers() {
+	//		init(null);
+	//	}
 
 	public CountReadsOnMarkers(SnpEffectPredictor snpEffectPredictor) {
 		init(snpEffectPredictor);
@@ -83,8 +68,8 @@ public class CountReadsOnMarkers {
 	List<Marker> allMarkers() {
 		// Retrieve all possible keys, sort them
 		HashSet<Marker> keys = new HashSet<Marker>();
-		for (CountByKey<Marker> cbt : countReadsByFile)
-			keys.addAll(cbt.keySet());
+		for (CountReads cr : countReadsByFile)
+			keys.addAll(cr.allMarkers());
 
 		ArrayList<Marker> keysSorted = new ArrayList<Marker>(keys.size());
 		keysSorted.addAll(keys);
@@ -98,109 +83,19 @@ public class CountReadsOnMarkers {
 	public void count() {
 		genome = snpEffectPredictor.getGenome();
 
-		readLengthSum = 0;
-		readLengthCount = 0;
-
 		// Iterate over all BAM/SAM files
 		for (String fileName : fileNames) {
-			try {
-				if (verbose) Timer.showStdErr("Reading file '" + fileName + "'");
-				CountByKey<Marker> countReads = new CountByKey<Marker>();
-				CountByKey<Marker> countBases = new CountByKey<Marker>();
-				CountByType countTypes = new CountByType();
-				CoverageByType coverageByType = new CoverageByType();
+			if (verbose) Timer.showStdErr("Reading file '" + fileName + "'");
 
-				countFile(fileName, countReads, countBases, countTypes, coverageByType);
+			CountReads countReads = new CountReads(fileName, snpEffectPredictor);
+			countReads.setMarkerTypes(markerTypes);
+			countReads.setVerbose(verbose);
+			countReads.count();
 
-				// Add count to list
-				countReadsByFile.add(countReads);
-				countBasesByFile.add(countBases);
-				countTypesByFile.add(countTypes);
-				coverageByFile.add(coverageByType);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-
-			if (verbose) {
-				System.err.println("");
-				Timer.showStdErr("Finished reding file " + fileName + "\n\tTotal reads: " + readsByFile.get(fileName));
-			}
+			countReadsByFile.add(countReads); // Add count to list
 		}
+
 		if (verbose) Timer.showStdErr("Done.");
-	}
-
-	/**
-	 * Count all markers from a BED file
-	 */
-	void countBedFile(String fileName, CountByKey<Marker> countReads, CountByKey<Marker> countBases, CountByType countTypes, CoverageByType coverageByType) {
-		// Open file
-		int readNum = 1;
-
-		for (SeqChange read : new BedFileIterator(fileName)) {
-			try {
-				readLengthCount++;
-				readLengthSum += read.size();
-				countMarker(fileName, read, countReads, countBases, countTypes, coverageByType);
-				if (verbose) Gpr.showMark(readNum, SHOW_EVERY);
-				readNum++;
-			} catch (Exception e) {
-				countExceptions++;
-				if (countExceptions < 10) e.printStackTrace();
-				else if (countExceptions == 10) System.err.println("Not showing more exceptions!");
-			}
-		}
-	}
-
-	/**
-	 * Count all markers from a SAM/BAM file
-	 */
-	void countFile(String fileName, CountByKey<Marker> countReads, CountByKey<Marker> countBases, CountByType countTypes, CoverageByType coverageByType) {
-		String fl = fileName.toLowerCase();
-
-		if (fl.endsWith(".bam") || fl.endsWith(".sam")) countSamFile(fileName, countReads, countBases, countTypes, coverageByType);
-		else if (fl.endsWith(".vcf") || fl.endsWith(".vcf.gz")) countVcfFile(fileName, countReads, countBases, countTypes, coverageByType);
-		else if (fl.endsWith(".bed") || fl.endsWith(".bed.gz")) countBedFile(fileName, countReads, countBases, countTypes, coverageByType);
-		else throw new RuntimeException("Unrecognized file extention. Supported types: BAM, SAM, BED, VCF.");
-	}
-
-	/**
-	 * Count one marker
-	 */
-	void countMarker(String fileName, Marker read, CountByKey<Marker> countReads, CountByKey<Marker> countBases, CountByType countTypes, CoverageByType coverageByType) {
-		// Find all intersects
-		Markers regions = snpEffectPredictor.queryDeep(read);
-
-		// Count total reads
-		readsByFile.inc(fileName);
-
-		// Count each marker
-		HashSet<String> doneClass = new HashSet<String>();
-		for (Marker m : regions) {
-			countReads.inc(m); // Count reads
-			countBases.inc(m, m.intersectSize(read)); // Count number bases that intersect
-
-			// Count by marker type (make sure we only count once per read)
-			String type = markerTypes.getType(m);
-			String subtype = markerTypes.getSubType(m);
-
-			if (!doneClass.contains(type)) {
-				countTypes.inc(type); // Count reads
-				doneClass.add(type); // Do not count twice
-
-				PosStats posStats = coverageByType.getOrCreate(type);
-				posStats.sample(read, m);
-			}
-
-			// Count sub-type if any
-			if ((subtype != null) && !doneClass.contains(subtype)) {
-				countTypes.inc(subtype); // Count reads
-				doneClass.add(subtype); // Do not count twice
-
-				PosStats posStats = coverageByType.getOrCreate(subtype);
-				posStats.sample(read, m);
-			}
-		}
-
 	}
 
 	/**
@@ -218,63 +113,6 @@ public class CountReadsOnMarkers {
 		return countByMarkerType;
 	}
 
-	/**
-	 * Count all markers from a SAM/BAM file
-	 */
-	void countSamFile(String fileName, CountByKey<Marker> countReads, CountByKey<Marker> countBases, CountByType countTypes, CoverageByType coverageByType) {
-		// Open file
-		int readNum = 1;
-		SAMFileReader sam = new SAMFileReader(new File(fileName));
-		sam.setValidationStringency(ValidationStringency.SILENT);
-
-		for (SAMRecord samRecord : sam) {
-			try {
-				if (!samRecord.getReadUnmappedFlag()) { // Mapped?
-					Chromosome chr = genome.getOrCreateChromosome(samRecord.getReferenceName());
-					if (chr != null) {
-						// Create a marker from read
-						Marker read = new Marker(chr, samRecord.getAlignmentStart(), samRecord.getAlignmentEnd(), 1, "");
-						readLengthCount++;
-						readLengthSum += read.size();
-
-						countMarker(fileName, read, countReads, countBases, countTypes, coverageByType);
-					}
-				}
-
-				if (verbose) Gpr.showMark(readNum, SHOW_EVERY);
-				readNum++;
-			} catch (Exception e) {
-				countExceptions++;
-				if (countExceptions < 10) e.printStackTrace();
-				else if (countExceptions == 10) System.err.println("Not showing more exceptions!");
-			}
-
-		}
-		sam.close();
-	}
-
-	/**
-	 * Count all markers from a VCF file
-	 */
-	void countVcfFile(String fileName, CountByKey<Marker> countReads, CountByKey<Marker> countBases, CountByType countTypes, CoverageByType coverageByType) {
-		// Open file
-		int readNum = 1;
-
-		for (VcfEntry read : new VcfFileIterator(fileName)) {
-			try {
-				readLengthCount++;
-				readLengthSum += read.size();
-				countMarker(fileName, read, countReads, countBases, countTypes, coverageByType);
-				if (verbose) Gpr.showMark(readNum, SHOW_EVERY);
-				readNum++;
-			} catch (Exception e) {
-				countExceptions++;
-				if (countExceptions < 10) e.printStackTrace();
-				else if (countExceptions == 10) System.err.println("Not showing more exceptions!");
-			}
-		}
-	}
-
 	public MarkerTypes getMarkerTypes() {
 		return markerTypes;
 	}
@@ -284,6 +122,14 @@ public class CountReadsOnMarkers {
 	 * @return
 	 */
 	public int getReadLengthAvg() {
+		long readLengthCount = 0;
+		long readLengthSum = 0;
+
+		for (CountReads cr : countReadsByFile) {
+			readLengthSum += cr.getReadLengthSum();
+			readLengthCount += cr.getReadLengthCount();
+		}
+
 		if (readLengthCount <= 0) return 0;
 		double rl = ((double) readLengthSum) / readLengthCount;
 		return (int) Math.round(rl);
@@ -300,6 +146,9 @@ public class CountReadsOnMarkers {
 		//---
 		// Barchart: By Marker types (all files toghether)
 		//---
+		ArrayList<CountByType> countTypesByFile = new ArrayList<CountByType>();
+		for (CountReads cr : countReadsByFile)
+			countTypesByFile.add(cr.getCountTypes());
 
 		// Create 3 charts: One for all intervals, one for Exons and one for Introns.
 		HashSet<String> keySetAll = new HashSet<String>();
@@ -400,10 +249,21 @@ public class CountReadsOnMarkers {
 		ArrayList<GoogleGeneRegionChart> genRegCharts = new ArrayList<GoogleGeneRegionChart>();
 		for (int i = 0; i < names.size(); i++) {
 			String name = names.get(i);
-			CoverageByType cvt = coverageByFile.get(i);
+			CoverageByType cvt = countReadsByFile.get(i).getCoverageByType();
 
 			GoogleGeneRegionChart grc = new GoogleGeneRegionChart(cvt, name);
 			genRegCharts.add(grc);
+
+			// Show for each transcript length
+			ArrayList<CoverageByType> coverageByExons = countReadsByFile.get(i).getCoverageByExons();
+			for (int exons = 1; exons < coverageByExons.size(); exons++) {
+				CoverageByType cbt = coverageByExons.get(exons);
+
+				if (!cbt.isEmpty() && (exons <= MAX_EXONS_CHART)) {
+					GoogleGeneRegionNumExonsChart grcCbt = new GoogleGeneRegionNumExonsChart(cbt, name + " [ " + exons + " exons ]", exons);
+					genRegCharts.add(grcCbt);
+				}
+			}
 		}
 
 		// Add all headers
@@ -425,11 +285,8 @@ public class CountReadsOnMarkers {
 	void init(SnpEffectPredictor snpEffectPredictor) {
 		fileNames = new ArrayList<String>();
 		names = new ArrayList<String>();
-		countReadsByFile = new ArrayList<CountByKey<Marker>>();
-		countBasesByFile = new ArrayList<CountByKey<Marker>>();
-		countTypesByFile = new ArrayList<CountByType>();
+		countReadsByFile = new ArrayList<CountReads>();
 		markerTypes = new MarkerTypes();
-		coverageByFile = new ArrayList<CoverageByType>();
 		readsByFile = new CountByType();
 
 		if (snpEffectPredictor != null) this.snpEffectPredictor = snpEffectPredictor;
@@ -468,17 +325,18 @@ public class CountReadsOnMarkers {
 
 			// Show counts for each file
 			for (int idx = 0; idx < countReadsByFile.size(); idx++) {
-				CountByType count = countTypesByFile.get(idx);
+				CountByType countTypesFile = countReadsByFile.get(idx).getCountTypes();
 
 				// Stats
-				int n = (int) count.get(chrType); // Number of reads in the file
-				int k = (int) count.get(type); // Number of reads hitting this marker type
+				int n = (int) countTypesFile.get(chrType); // Number of reads in the file
+				int k = (int) countTypesFile.get(type); // Number of reads hitting this marker type
 
-				long expected = Math.round(count.get(chrType) * p);
+				long expected = Math.round(countTypesFile.get(chrType) * p);
 				double pvalue = Binomial.get().cdfUpEq(p, k, n);
 
-				if ((prob != null) && prob.contains(type)) sb.append("\t" + countTypesByFile.get(idx).get(type) + "\t" + expected + "\t" + pvalue);
-				else sb.append("\t" + countTypesByFile.get(idx).get(type) + "\t\t");
+				long countType = countTypesFile.get(type);
+				if ((prob != null) && prob.contains(type)) sb.append("\t" + countType + "\t" + expected + "\t" + pvalue);
+				else sb.append("\t" + countType + "\t\t");
 			}
 			sb.append("\n");
 		}
@@ -517,7 +375,9 @@ public class CountReadsOnMarkers {
 
 			// Show counts for each file
 			for (int idx = 0; idx < countReadsByFile.size(); idx++)
-				sb.append("\t" + countReadsByFile.get(idx).get(key) + "\t" + countBasesByFile.get(idx).get(key));
+				sb.append("\t" + countReadsByFile.get(idx).getCountReads().get(key) //
+						+ "\t" + countReadsByFile.get(idx).getCountBases().get(key) //
+				);
 			sb.append("\n");
 		}
 		sb.append("\n");
