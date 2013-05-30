@@ -26,6 +26,7 @@
 </#macro>
 
 <#macro intstatsTable intstats>
+	<#if intstats.validData>
 	<table class="histo">
 		<tr> <th width=15%>Min</th><td>${intstats.min}</td> </tr>
 		<tr> <th>Max</th><td>${intstats.max}</td> </tr>
@@ -36,6 +37,7 @@
 		<tr> <th>Count</th><td>${intstats.toStringCounts()}</td> </tr>
 		</tr>
 	</table>
+	</#if>
 </#macro>
 
 <!--==========================================================================
