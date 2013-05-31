@@ -12,7 +12,7 @@ import ca.mcgill.mcb.pcingola.interval.Marker;
  */
 public class PosStats extends ChrPosStats {
 
-	public static final int DEFAULT_BINS = 100;
+	public static final int DEFAULT_BINS = 101;
 
 	int maxIndex = 0;
 
