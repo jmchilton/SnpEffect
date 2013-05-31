@@ -629,13 +629,16 @@ public class SnpEffCmdEff extends SnpEff {
 		if (inputFile.isEmpty()) inputFile = "-"; // Use STDIN
 		else if (!Gpr.canRead(inputFile)) usage("Cannot read input file '" + inputFile + "'");
 
-		// Other sanity checks
-		if ((outputFormat == OutputFormat.VCF) && (inputFormat != InputFormat.VCF)) usage("Output in VCF format is only supported when the input is also in VCF format");
-		if (multiThreaded && (outputFormat != OutputFormat.VCF)) usage("Multi-threaded option is only supported when when output is in VCF format");
+		// Sanity checks for VCF output format
+		boolean isOutVcf = (outputFormat == OutputFormat.VCF) || (outputFormat == OutputFormat.GATK);
+		if (isOutVcf && (inputFormat != InputFormat.VCF)) usage("Output in VCF format is only supported when the input is also in VCF format");
+		if (!isOutVcf && lossOfFunction) usage("Loss of function annotation is only supported when when output is in VCF format");
+		if (!isOutVcf && cancer) usage("Canccer annotation is only supported when when output is in VCF format");
+
+		// Sanity check for multi-threaded version
+		if (multiThreaded && cancer) usage("Cancer analysis is currently not supported in multi-threaded mode.");
+		if (multiThreaded && !isOutVcf) usage("Multi-threaded option is only supported when when output is in VCF format");
 		if (multiThreaded && createSummary) usage("Multi-threaded option should be used with 'noStats'.");
-		if (lossOfFunction && (outputFormat != OutputFormat.VCF)) usage("Loss of function annotation is only supported when when output is in VCF format");
-		if (cancer && (outputFormat != OutputFormat.VCF)) usage("Canccer annotation is only supported when when output is in VCF format");
-		if (cancer && multiThreaded) usage("Cancer analysis is currently not supported in multi-threaded mode.");
 	}
 
 	/**
