@@ -12,7 +12,6 @@ import ca.mcgill.mcb.pcingola.interval.Markers;
 import ca.mcgill.mcb.pcingola.interval.SeqChange;
 import ca.mcgill.mcb.pcingola.interval.SpliceSite;
 import ca.mcgill.mcb.pcingola.interval.Transcript;
-import ca.mcgill.mcb.pcingola.outputFormatter.OutputFormatter;
 import ca.mcgill.mcb.pcingola.snpEffect.Config;
 import ca.mcgill.mcb.pcingola.snpEffect.SnpEffectPredictor;
 import ca.mcgill.mcb.pcingola.util.Gpr;
@@ -88,7 +87,7 @@ public class SnpEffCmdClosest extends SnpEff {
 
 					// Append all closest markers
 					for (Marker closestMarker : closestMarkers)
-						idsb.append(";" + OutputFormatter.idChain(closestMarker, ",", false));
+						idsb.append(";" + closestMarker.idChain(",", false));
 
 					id = idsb.toString();
 				}
@@ -156,7 +155,7 @@ public class SnpEffCmdClosest extends SnpEff {
 			// Find marker at distance less than 'distance'
 			int dist = m.distance(queryMarker);
 			if ((dist <= maxDistance) && (findTranscript(m) != null)) {
-				String idChain = OutputFormatter.idChain(m);
+				String idChain = m.idChain();
 				if (!done.contains(idChain)) { // Do not repeat information
 					closest.add(m);
 					done.add(idChain);
@@ -332,7 +331,7 @@ public class SnpEffCmdClosest extends SnpEff {
 
 					// Append all closest markers
 					for (Marker closestMarker : closestMarkers)
-						closestsb.append("|" + OutputFormatter.idChain(closestMarker, ",", false));
+						closestsb.append("|" + closestMarker.idChain(",", false));
 
 					ve.addInfo(CLOSEST, closestsb.toString());
 				}

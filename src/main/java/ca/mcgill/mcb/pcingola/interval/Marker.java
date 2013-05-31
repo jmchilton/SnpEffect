@@ -301,6 +301,63 @@ public class Marker extends Interval implements TxtSerializable {
 		return hashCode;
 	}
 
+	public String idChain() {
+		return idChain(";", true);
+	}
+
+	/**
+	 * A list of all IDs and parent IDs until chromosome
+	 * @param m
+	 * @return
+	 */
+	public String idChain(String separator, boolean useGeneId) {
+		StringBuilder sb = new StringBuilder();
+
+		for (Marker m = this; (m != null) && !(m instanceof Chromosome) && !(m instanceof Genome); m = m.getParent()) {
+			if (sb.length() > 0) sb.append(separator);
+
+			switch (m.getType()) {
+			case EXON:
+				Transcript tr = (Transcript) m.getParent();
+				Exon ex = (Exon) m;
+				sb.append("exon_" + ex.getRank() + "_" + tr.numChilds() + "_" + ex.getSpliceType());
+				break;
+
+			case INTRON:
+				Intron intron = (Intron) m;
+				sb.append("intron_" + intron.getRank() + "_" + intron.getSpliceType());
+				break;
+
+			case GENE:
+				Gene g = (Gene) m;
+				sb.append(useGeneId ? m.getId() : g.getGeneName());
+				sb.append(separator + g.getBioType());
+				break;
+
+			case TRANSCRIPT:
+				sb.append(m.getId());
+				sb.append(separator + ((Transcript) m).getBioType());
+				break;
+
+			case CHROMOSOME:
+			case INTERGENIC:
+				sb.append(m.getId());
+				break;
+
+			default:
+				break;
+			}
+		}
+
+		// Empty? Add ID
+		if (sb.length() <= 0) sb.append(getId());
+
+		// Prepend type
+		sb.insert(0, this.getClass().getSimpleName() + separator);
+
+		return sb.toString();
+	}
+
 	/**
 	 * Is 'interval' completely included in 'this'?
 	 * @return  return true if 'this' includes 'interval' 

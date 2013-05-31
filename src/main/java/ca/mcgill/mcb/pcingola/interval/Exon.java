@@ -11,7 +11,6 @@ import ca.mcgill.mcb.pcingola.snpEffect.ChangeEffect.WarningType;
  * Interval for an exon
  * 
  * @author pcingola
- *
  */
 public class Exon extends MarkerSeq {
 

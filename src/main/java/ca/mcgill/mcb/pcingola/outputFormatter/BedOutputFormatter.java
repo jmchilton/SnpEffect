@@ -54,14 +54,7 @@ public class BedOutputFormatter extends OutputFormatter {
 				sb.append(changeEffect.effect(true, false, false, useSequenceOntolgy));
 
 				Marker m = changeEffect.getMarker();
-
-				//				Gene gene = changeEffect.getGene();
-				//				if (gene != null) sb.append( //
-				//						"|" + (useGeneId ? gene.getId() : gene.getGeneName()) // Gene name (or ID)
-				//								+ "|" + gene.getBioType() // Gene biotype
-				//						); // Always show gene, add BioType
-
-				chEffs.add(OutputFormatter.idChain(m, "|", useGeneId));
+				chEffs.add(m.idChain("|", useGeneId));
 			}
 
 		}

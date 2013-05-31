@@ -13,7 +13,7 @@ import ca.mcgill.mcb.pcingola.util.Timer;
 public class Zzz {
 
 	public static final int READ_LENGTH = 50;
-	public static final int NUM_READS_EXON = 10;
+	public static final int NUM_READS_EXON = 5;
 
 	Config config;
 	SnpEffectPredictor sep;
@@ -38,32 +38,24 @@ public class Zzz {
 			for (Transcript tr : g) {
 				tr.rankExons();
 
-				for (Exon e : tr) {
+				for (Exon e : tr.sortedStrand()) {
+
+					if (tr.getStrand() != e.getStrand()) {
+						System.err.println("WTF!?!?\n\t" + tr.getId() + "\t" + tr.getStrand() + "\n\t" + e.getId() + "\t" + e.getStrand());
+						continue;
+					}
 
 					for (int i = 0; i < NUM_READS_EXON; i++) {
-						int rand = 0;
+						// Up
+						int r1 = random.nextInt(e.size());
+						int r2 = random.nextInt(e.size());
 
-						if (e.getRank() % 3 == 1) {
-							int r1 = random.nextInt(e.size());
-							int r2 = random.nextInt(e.size());
-							rand = Math.min(r1, r2);
-						} else if (e.getRank() % 3 == 0) {
-							int r1 = random.nextInt(e.size());
-							int r2 = random.nextInt(e.size());
-							rand = Math.max(r1, r2);
-						} else {
-							rand = random.nextInt(e.size());
-						}
+						int rand;
+						if (e.isStrandPlus()) rand = Math.max(r1, r2);
+						else rand = Math.min(r1, r2);
 
-						int start, end;
-						if (tr.isStrandPlus()) {
-							start = e.getStart() + rand;
-							end = start + READ_LENGTH;
-						} else {
-							end = e.getEnd() - rand;
-							start = end - READ_LENGTH;
-						}
-
+						int start = e.getStart() + rand;
+						int end = start + READ_LENGTH;
 						out.append(e.getChromosomeName() + "\t" + start + "\t" + end + "\n");
 					}
 				}
@@ -71,7 +63,7 @@ public class Zzz {
 		}
 
 		// Save
-		String outFile = Gpr.HOME + "/fly_pvuseq/rand.bed";
+		String outFile = Gpr.HOME + "/fly_pvuseq/rand_up.bed";
 		Timer.showStdErr("Saving to " + outFile);
 		Gpr.toFile(outFile, out);
 	}

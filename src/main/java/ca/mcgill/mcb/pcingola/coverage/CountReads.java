@@ -143,43 +143,41 @@ public class CountReads {
 		countTotalReads++;
 
 		// Count each marker
-		HashSet<String> doneType = new HashSet<String>();
-		HashSet<String> doneSubType = new HashSet<String>();
-		HashSet<String> doneTypeRank = new HashSet<String>();
+		HashSet<Marker> done = new HashSet<Marker>();
 		for (Marker m : regions) {
-			countReads.inc(m); // Count reads
-			countBases.inc(m, m.intersectSize(read)); // Count number bases that intersect
+			// Make sure we count only once each marker
+			if (!done.contains(m)) {
+				done.add(m);
 
-			// Count by marker type (make sure we only count once per read)
-			String type = markerTypes.getType(m);
-			String subtype = markerTypes.getSubType(m);
-			String typeRank = markerTypes.getTypeRank(m);
+				countReads.inc(m); // Count reads
+				countBases.inc(m, m.intersectSize(read)); // Count number bases that intersect
 
-			if (!doneType.contains(type)) {
+				// Count by marker type (make sure we only count once per read)
+				String type = markerTypes.getType(m);
+				String subtype = markerTypes.getSubType(m);
+				String typeRank = markerTypes.getTypeRank(m);
+
 				countTypes.inc(type); // Count reads
-				//doneType.add(type); // Do not count twice
 
 				// Coverage by type
 				PosStats posStats = coverageByType.getOrCreate(type);
 				posStats.sample(read, m);
-			}
 
-			// Coverage by type (exons length)
-			if (!doneTypeRank.contains(typeRank)) {
+				// Coverage by number of exons
 				coverageByExons(read, m, typeRank);
-				//doneTypeRank.add(typeRank); // Do not count twice
-			}
 
-			// Count sub-type if any
-			if ((subtype != null) && !doneSubType.contains(subtype)) {
-				countTypes.inc(subtype); // Count reads
-				//doneSubType.add(subtype); // Do not count twice
+				// Count sub-type if any
+				if (subtype != null) {
+					if (m.getClass().getSimpleName().equals("Upstream")) //
+						Gpr.debug(read.toStr() + "\t" + m.idChain());
 
-				PosStats posStats = coverageByType.getOrCreate(subtype);
-				posStats.sample(read, m);
+					countTypes.inc(subtype); // Count reads
+
+					posStats = coverageByType.getOrCreate(subtype);
+					posStats.sample(read, m);
+				}
 			}
 		}
-
 	}
 
 	/**

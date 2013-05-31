@@ -34,12 +34,18 @@ public class GoogleGeneRegionChart {
 		init();
 	}
 
+	/**
+	 * Add a data column
+	 */
 	int addCol(int nullBefore, String type) {
 		ArrayList<String> values = createCol(nullBefore, type);
 		lineChart.addColumn(type, values);
 		return values.size();
 	}
 
+	/**
+	 * Create chart
+	 */
 	void createChart() {
 		initTypes();
 
@@ -51,6 +57,12 @@ public class GoogleGeneRegionChart {
 		body = lineChart.toStringHtmlBody();
 	}
 
+	/**
+	 * Create a data column
+	 * @param nullBefore
+	 * @param type
+	 * @return
+	 */
 	ArrayList<String> createCol(int nullBefore, String type) {
 		ArrayList<String> col = new ArrayList<String>();
 		PosStats posStats = coverageByType.get(type);
@@ -59,8 +71,11 @@ public class GoogleGeneRegionChart {
 			col.add(null);
 
 		if (posStats != null) {
-			for (int i = 0; i < posStats.size(); i++)
-				col.add("" + posStats.getCount(i));
+			if (posStats.size() <= 0) col.add("0");
+			else {
+				for (int i = 0; i < posStats.size(); i++)
+					col.add("" + posStats.getCount(i));
+			}
 		} else col.add("0");
 
 		return col;

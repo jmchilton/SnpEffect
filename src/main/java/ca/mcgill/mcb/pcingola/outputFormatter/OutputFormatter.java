@@ -3,13 +3,7 @@ package ca.mcgill.mcb.pcingola.outputFormatter;
 import java.util.ArrayList;
 
 import ca.mcgill.mcb.pcingola.filter.ChangeEffectFilter;
-import ca.mcgill.mcb.pcingola.interval.Chromosome;
-import ca.mcgill.mcb.pcingola.interval.Exon;
-import ca.mcgill.mcb.pcingola.interval.Gene;
-import ca.mcgill.mcb.pcingola.interval.Genome;
-import ca.mcgill.mcb.pcingola.interval.Intron;
 import ca.mcgill.mcb.pcingola.interval.Marker;
-import ca.mcgill.mcb.pcingola.interval.Transcript;
 import ca.mcgill.mcb.pcingola.snpEffect.ChangeEffect;
 import ca.mcgill.mcb.pcingola.snpEffect.Config;
 
@@ -39,65 +33,6 @@ public abstract class OutputFormatter {
 	ChangeEffectFilter changeEffectResutFilter = null; // Filter prediction results
 	ArrayList<ChangeEffect> changeEffects;
 	Config config;
-
-	public static String idChain(Marker marker) {
-		return idChain(marker, ";", true);
-	}
-
-	/**
-	 * A list of all IDs and parent IDs until chromosome
-	 * @param m
-	 * @return
-	 */
-	public static String idChain(Marker marker, String separator, boolean useGeneId) {
-		if (marker == null) return "";
-
-		StringBuilder sb = new StringBuilder();
-
-		for (Marker m = marker; (m != null) && !(m instanceof Chromosome) && !(m instanceof Genome); m = m.getParent()) {
-			if (sb.length() > 0) sb.append(separator);
-
-			switch (m.getType()) {
-			case EXON:
-				Transcript tr = (Transcript) m.getParent();
-				Exon ex = (Exon) m;
-				sb.append("exon_" + ex.getRank() + "_" + tr.numChilds() + "_" + ex.getSpliceType());
-				break;
-
-			case INTRON:
-				Intron intron = (Intron) m;
-				sb.append("intron_" + intron.getRank() + "_" + intron.getSpliceType());
-				break;
-
-			case GENE:
-				Gene g = (Gene) m;
-				sb.append(useGeneId ? m.getId() : g.getGeneName());
-				sb.append(separator + g.getBioType());
-				break;
-
-			case TRANSCRIPT:
-				sb.append(m.getId());
-				sb.append(separator + ((Transcript) m).getBioType());
-				break;
-
-			case CHROMOSOME:
-			case INTERGENIC:
-				sb.append(m.getId());
-				break;
-
-			default:
-				break;
-			}
-		}
-
-		// Empty? Add ID
-		if (sb.length() <= 0) sb.append(marker.getId());
-
-		// Prepend type
-		sb.insert(0, marker.getClass().getSimpleName() + separator);
-
-		return sb.toString();
-	}
 
 	public OutputFormatter() {
 		changeEffects = new ArrayList<ChangeEffect>();

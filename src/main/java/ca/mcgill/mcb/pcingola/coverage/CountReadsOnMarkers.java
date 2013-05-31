@@ -10,7 +10,6 @@ import java.util.List;
 import ca.mcgill.mcb.pcingola.interval.Chromosome;
 import ca.mcgill.mcb.pcingola.interval.Genome;
 import ca.mcgill.mcb.pcingola.interval.Marker;
-import ca.mcgill.mcb.pcingola.outputFormatter.OutputFormatter;
 import ca.mcgill.mcb.pcingola.probablility.Binomial;
 import ca.mcgill.mcb.pcingola.snpEffect.SnpEffectPredictor;
 import ca.mcgill.mcb.pcingola.stats.CountByType;
@@ -39,10 +38,6 @@ public class CountReadsOnMarkers {
 	ArrayList<CountReads> countReadsByFile;
 	MarkerTypes markerTypes;
 	CountByType readsByFile;
-
-	//	public CountReadsOnMarkers() {
-	//		init(null);
-	//	}
 
 	public CountReadsOnMarkers(SnpEffectPredictor snpEffectPredictor) {
 		init(snpEffectPredictor);
@@ -179,6 +174,9 @@ public class CountReadsOnMarkers {
 			keys.addAll(keySet);
 			Collections.sort(keys);
 
+			// Do not create empty charts
+			if (keys.size() <= 0) continue;
+
 			// Add all columns
 			GoogleBarChart barchart = new GoogleBarChart("Count by file " + ksname);
 			barchart.setxLables(keys);
@@ -204,9 +202,11 @@ public class CountReadsOnMarkers {
 			// Add header and body
 			sbHead.append(barchart.toStringHtmlHeader());
 			sbBody.append(barchart.toStringHtmlBody());
+
 			barchartPercent.percentColumns();
 			sbHead.append(barchartPercent.toStringHtmlHeader());
 			sbBody.append(barchartPercent.toStringHtmlBody());
+
 		}
 
 		//---
@@ -224,6 +224,9 @@ public class CountReadsOnMarkers {
 				ArrayList<String> keys = new ArrayList<String>();
 				keys.addAll(keySet);
 				Collections.sort(keys);
+
+				// Do not create empty charts
+				if (keys.size() <= 0) continue;
 
 				GoogleBarChart barchart = new GoogleBarChart("Count by file " + name + " " + ksname);
 				barchart.setxLables(keys);
@@ -370,7 +373,7 @@ public class CountReadsOnMarkers {
 			sb.append(key.getChromosomeName() //
 					+ "\t" + (key.getStart() + 1) //
 					+ "\t" + (key.getEnd() + 1) //
-					+ "\t" + OutputFormatter.idChain(key) //
+					+ "\t" + key.idChain() //
 			);
 
 			// Show counts for each file

@@ -73,12 +73,12 @@ public class PosStats extends ChrPosStats {
 		if (markerReference.isStrandPlus()) {
 			double pos = start;
 			int jmin = (int) ((start - markerReference.getStart()) / step);
+
 			for (j = jmin; (pos <= end) && (j < count.length); pos += step, j++)
 				count[j]++;
 		} else {
 			double pos = end;
 			int jmin = (int) ((markerReference.getEnd() - end) / step);
-
 			for (j = jmin; (start <= pos) && (j < count.length); pos -= step, j++)
 				count[j]++;
 		}
@@ -87,8 +87,9 @@ public class PosStats extends ChrPosStats {
 		maxIndex = Math.max(maxIndex, j - 1);
 	}
 
+	@Override
 	public int size() {
-		return maxIndex;
+		return maxIndex + 1;
 	}
 
 }
