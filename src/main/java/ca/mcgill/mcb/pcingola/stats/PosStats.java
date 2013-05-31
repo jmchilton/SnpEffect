@@ -68,17 +68,21 @@ public class PosStats extends ChrPosStats {
 		int j = 0;
 		int start = Math.max(marker.getStart(), markerReference.getStart());
 		int end = Math.min(marker.getEnd(), markerReference.getEnd());
-		double step = ((double) markerReference.size()) / count.length;
 
+		double step = ((double) markerReference.size()) / count.length;
+		if (step <= 0) step = 1; // This should never happen!
+
+		// Increment all 'bins' covered by this 'read'
 		if (markerReference.isStrandPlus()) {
 			double pos = start;
-			int jmin = (int) ((start - markerReference.getStart()) / step);
+			int jmin = (int) Math.round((start - markerReference.getStart()) / step);
 
 			for (j = jmin; (pos <= end) && (j < count.length); pos += step, j++)
 				count[j]++;
 		} else {
 			double pos = end;
-			int jmin = (int) ((markerReference.getEnd() - end) / step);
+			int jmin = (int) Math.round((markerReference.getEnd() - end) / step);
+
 			for (j = jmin; (start <= pos) && (j < count.length); pos -= step, j++)
 				count[j]++;
 		}

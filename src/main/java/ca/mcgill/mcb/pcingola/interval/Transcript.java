@@ -573,15 +573,15 @@ public class Transcript extends IntervalAndSubIntervals<Exon> {
 	 */
 	public void createUpDownStream(int upDownLength) {
 		Chromosome chr = getChromosome();
-		int min = chr.getStart(), max = chr.getEnd();
+		int chrMin = chr.getStart(), chrMax = chr.getEnd();
 
 		// Create up/down stream intervals and add them to the list
 		if (isStrandPlus()) {
-			upstream = new Upstream(this, Math.max(start - upDownLength, min), Math.max(start - 1, min), 1, id);
-			downstream = new Downstream(this, Math.min(end + 1, max), Math.min(end + upDownLength, max), 1, id);
+			upstream = new Upstream(this, Math.max(start - upDownLength, chrMin), Math.max(start - 1, chrMin), 1, id);
+			downstream = new Downstream(this, Math.min(end + 1, chrMax), Math.min(end + upDownLength, chrMax), 1, id);
 		} else {
-			upstream = new Upstream(this, Math.min(end + 1, max), Math.min(end + upDownLength, max), 1, id);
-			downstream = new Downstream(this, Math.max(start - upDownLength, min), Math.max(start - 1, min), 1, id);
+			upstream = new Upstream(this, Math.min(end + 1, chrMax), Math.min(end + upDownLength, chrMax), 1, id);
+			downstream = new Downstream(this, Math.max(start - upDownLength, chrMin), Math.max(start - 1, chrMin), 1, id);
 		}
 	}
 

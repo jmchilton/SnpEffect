@@ -168,9 +168,6 @@ public class CountReads {
 
 				// Count sub-type if any
 				if (subtype != null) {
-					if (m.getClass().getSimpleName().equals("Upstream")) //
-						Gpr.debug(read.toStr() + "\t" + m.idChain());
-
 					countTypes.inc(subtype); // Count reads
 
 					posStats = coverageByType.getOrCreate(subtype);
