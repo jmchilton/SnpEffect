@@ -434,8 +434,7 @@ public class TestCasesSeqChange extends TestCase {
 	}
 
 	/**
-	 * Test effect when hits a gene, but not any transcript within a gene. 
-	 * This is an extremely weird case, might be an annotation problem.
+	 * Rare Amino acid
 	 */
 	public void test_30_RareAa() {
 		initSnpEffPredictor("testHg3765Chr22");
@@ -443,8 +442,7 @@ public class TestCasesSeqChange extends TestCase {
 	}
 
 	/**
-	 * Test effect when hits a gene, but not any transcript within a gene. 
-	 * This is an extremely weird case, might be an annotation problem.
+	 * MT chromo
 	 */
 	public void test_31_CodonTable() {
 		initSnpEffPredictor("testHg3767Chr21Mt");
@@ -452,8 +450,7 @@ public class TestCasesSeqChange extends TestCase {
 	}
 
 	/**
-	 * Test effect when hits a gene, but not any transcript within a gene. 
-	 * This is an extremely weird case, might be an annotation problem.
+	 * Start gained
 	 */
 	public void test_32_StartGained() {
 		initSnpEffPredictor("testHg3769Chr12");
@@ -461,12 +458,27 @@ public class TestCasesSeqChange extends TestCase {
 	}
 
 	/**
-	 * Test effect when hits a gene, but not any transcript within a gene. 
-	 * This is an extremely weird case, might be an annotation problem.
+	 * Not start gained
 	 */
 	public void test_33_StartGained_NOT() {
 		initSnpEffPredictor("testHg3769Chr12");
 		snpEffectNegate("tests/start_gained_NOT_test.txt", null, true);
+	}
+
+	/**
+	 * Start gained
+	 */
+	public void test_34_StartGained() {
+		initSnpEffPredictor("testHg3766Chr1");
+		snpEffect("tests/start_gained_test_2.txt", null, true);
+	}
+
+	/**
+	 * Not start gained
+	 */
+	public void test_35_StartGained_NOT() {
+		initSnpEffPredictor("testHg3766Chr1");
+		snpEffectNegate("tests/start_gained_NOT_test_2.txt", null, true);
 	}
 
 }

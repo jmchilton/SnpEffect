@@ -75,10 +75,7 @@ public class Utr5prime extends Utr {
 		// Analyze all frames
 		for (int i = Math.max(0, pos - 2); (i <= pos) && ((i + 2) < chars.length); i++) {
 			String codon = "" + chars[i] + chars[i + 1] + chars[i + 2];
-			if (ctable.isStart(codon)) {
-				// Gpr.debug("\t\tCodon: '" + codon + "'\t" + i);
-				return codon.toUpperCase(); // This frame has a start codon?
-			}
+			if (ctable.isStart(codon)) return codon.toUpperCase(); // This frame has a start codon?
 		}
 		return "";
 	}
@@ -114,7 +111,6 @@ public class Utr5prime extends Utr {
 		chars[pos] = snpBase;
 
 		// Do we gain a new start codon?
-		// Gpr.debug("START (" + tr.getId() + " , " + tr.getStrand() + " , " + pos + ") :  '" + (new String(chars)) + "'\n" + tr);
 		return startGained(chars, pos);
 	}
 
