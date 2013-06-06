@@ -1,9 +1,11 @@
 package ca.mcgill.mcb.pcingola.snpEffect.testCases;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 
+import junit.framework.Assert;
 import junit.framework.TestCase;
 import ca.mcgill.mcb.pcingola.binseq.DnaSequence;
 import ca.mcgill.mcb.pcingola.interval.Chromosome;
@@ -367,6 +369,71 @@ public class TestCasesIntervals extends TestCase {
 		minusInt = it.next();
 		assertEquals(61, minusInt.getStart());
 		assertEquals(90, minusInt.getEnd());
+	}
+
+	/**
+	 * Test distance (in bases) from a list of markers
+	 */
+	public void test_08() {
+		Chromosome chr = genome.getChromosome("1");
+		Marker m1 = new Marker(chr, 0, 100, 1, "");
+
+		ArrayList<Marker> list = new ArrayList<Marker>();
+		list.add(m1);
+
+		int last = m1.getEnd() + 10;
+		for (int i = m1.getStart(); i <= last; i++) {
+			Marker m = new Marker(chr, i, i, 1, "");
+
+			int dist = m.distanceBases(list, false);
+			Assert.assertEquals(i, dist);
+		}
+	}
+
+	/**
+	 * Test distance (in bases) from a list of markers
+	 */
+	public void test_08_02() {
+		Chromosome chr = genome.getChromosome("1");
+		Marker m1 = new Marker(chr, 0, 99, 1, "");
+		Marker m2 = new Marker(chr, 200, 299, 1, "");
+		Marker m3 = new Marker(chr, 400, 499, 1, "");
+
+		ArrayList<Marker> list = new ArrayList<Marker>();
+		list.add(m1);
+		list.add(m2);
+		list.add(m3);
+
+		int last = m3.getEnd() + 10;
+		for (int i = m1.getStart(); i <= last; i++) {
+			Marker m = new Marker(chr, i, i, 1, "");
+
+			int dist = m.distanceBases(list, false);
+			Assert.assertEquals(i % 100, dist % 100);
+		}
+	}
+
+	/**
+	 * Test distance (in bases) from a list of markers
+	 */
+	public void test_08_03() {
+		Chromosome chr = genome.getChromosome("1");
+		Marker m1 = new Marker(chr, 0, 99, 1, "");
+		Marker m2 = new Marker(chr, 200, 299, 1, "");
+		Marker m3 = new Marker(chr, 400, 499, 1, "");
+
+		ArrayList<Marker> list = new ArrayList<Marker>();
+		list.add(m1);
+		list.add(m2);
+		list.add(m3);
+
+		int last = m3.getEnd() + 10;
+		for (int i = m1.getStart(); i <= last; i++) {
+			Marker m = new Marker(chr, i, i, 1, "");
+
+			int dist = m.distanceBases(list, true);
+			Assert.assertEquals((m3.getEnd() - i) % 100, dist % 100);
+		}
 	}
 
 }

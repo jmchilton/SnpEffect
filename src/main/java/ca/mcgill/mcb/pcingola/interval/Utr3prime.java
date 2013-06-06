@@ -64,7 +64,7 @@ public class Utr3prime extends Utr {
 	String utrDistance(SeqChange snp, Transcript tint) {
 		List<Utr3prime> utrs = tint.get3primeUtrs();
 		boolean fromEnd = strand < 0; // We want distance from end of transcript (beginning of 3'UTR)
-		int dist = snp.distanceFrom(utrs, fromEnd) + 1;
+		int dist = snp.distanceBases(utrs, fromEnd) + 1;
 		return dist + " bases from CDS";
 	}
 

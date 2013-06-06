@@ -1,9 +1,5 @@
 package ca.mcgill.mcb.pcingola.interval;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 import ca.mcgill.mcb.pcingola.snpEffect.ChangeEffect.EffectType;
 import ca.mcgill.mcb.pcingola.util.GprSeq;
 
@@ -84,34 +80,6 @@ public class SeqChange extends Marker {
 	 */
 	public String change() {
 		return strand >= 0 ? change : GprSeq.reverseWc(change);
-	}
-
-	/**
-	 * Distance from the beginning/end of a list of intervals, until this SNP
-	 * @param ints
-	 * @return
-	 */
-	public int distanceFrom(List<? extends Marker> ints, boolean fromEnd) {
-		// Create a new list of sorted intervals
-		ArrayList<Marker> intsSort = new ArrayList<Marker>();
-		intsSort.addAll(ints);
-		if (fromEnd) Collections.sort(intsSort, new IntervalComparatorByEnd(true));
-		else Collections.sort(intsSort, new IntervalComparatorByStart());
-
-		// Calculate distance
-		int len = 0, latest = 0;
-		for (Marker i : intsSort) {
-			if (fromEnd) {
-				if (intersects(i)) return len + (i.getEnd() - start);
-				latest = i.getStart();
-			} else {
-				if (intersects(i)) return len + (start - i.getStart());
-				latest = i.getEnd();
-			}
-			len += i.getEnd() - i.getStart();
-		}
-
-		return len + (start - latest);
 	}
 
 	public String getChange() {

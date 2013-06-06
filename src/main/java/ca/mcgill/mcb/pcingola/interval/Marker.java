@@ -1,5 +1,7 @@
 package ca.mcgill.mcb.pcingola.interval;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import ca.mcgill.mcb.pcingola.codons.CodonTable;
@@ -227,6 +229,49 @@ public class Marker extends Interval implements TxtSerializable {
 		if (interval.getStart() > end) return interval.getStart() - end;
 
 		throw new RuntimeException("This should never happen!");
+	}
+
+	/**
+	 * Distance from the beginning/end of a list of intervals, until this SNP
+	 * It count the number of bases in 'markers'
+	 * @param markers
+	 * @return
+	 */
+	public int distanceBases(List<? extends Marker> markers, boolean fromEnd) {
+
+		// Create a new list of sorted intervals
+		ArrayList<Marker> markersSort = new ArrayList<Marker>();
+		markersSort.addAll(markers);
+		if (fromEnd) Collections.sort(markersSort, new IntervalComparatorByEnd(true));
+		else Collections.sort(markersSort, new IntervalComparatorByStart());
+
+		// Calculate distance
+		int len = 0, latest = -1;
+		for (Marker m : markersSort) {
+
+			// Initialize
+			if (latest < 0) {
+				if (fromEnd) latest = m.getEnd() + 1;
+				else latest = m.getStart() - 1;
+			}
+
+			if (fromEnd) {
+				if (intersects(m)) return len + (m.getEnd() - start);
+				else if (start > m.getEnd()) return len - 1 + (latest - start);
+
+				latest = m.getStart();
+			} else {
+				if (intersects(m)) return len + (start - m.getStart());
+				else if (start < m.getStart()) return len - 1 + (start - latest);
+
+				latest = m.getEnd();
+			}
+
+			len += m.size();
+		}
+
+		if (fromEnd) return len - 1 + (latest - start);
+		return len - 1 + (start - latest);
 	}
 
 	/**

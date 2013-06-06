@@ -8,7 +8,6 @@ import ca.mcgill.mcb.pcingola.codons.CodonTables;
 import ca.mcgill.mcb.pcingola.interval.SeqChange.ChangeType;
 import ca.mcgill.mcb.pcingola.snpEffect.ChangeEffect;
 import ca.mcgill.mcb.pcingola.snpEffect.ChangeEffect.EffectType;
-import ca.mcgill.mcb.pcingola.util.Gpr;
 import ca.mcgill.mcb.pcingola.util.GprSeq;
 
 /**
@@ -77,7 +76,7 @@ public class Utr5prime extends Utr {
 		for (int i = Math.max(0, pos - 2); (i <= pos) && ((i + 2) < chars.length); i++) {
 			String codon = "" + chars[i] + chars[i + 1] + chars[i + 2];
 			if (ctable.isStart(codon)) {
-				Gpr.debug("\t\tCodon: '" + codon + "'\t" + i);
+				// Gpr.debug("\t\tCodon: '" + codon + "'\t" + i);
 				return codon.toUpperCase(); // This frame has a start codon?
 			}
 		}
@@ -106,7 +105,7 @@ public class Utr5prime extends Utr {
 		}
 
 		// Calculate SNP position relative to UTRs
-		int pos = seqChange.distanceFrom(utrs, isStrandMinus());
+		int pos = seqChange.distanceBases(utrs, isStrandMinus());
 
 		// Change base at SNP position
 		char[] chars = sb.toString().toCharArray();
@@ -115,7 +114,7 @@ public class Utr5prime extends Utr {
 		chars[pos] = snpBase;
 
 		// Do we gain a new start codon?
-		Gpr.debug("START (" + tr.getId() + " , " + tr.getStrand() + " , " + pos + ") :  '" + (new String(chars)) + "'\n" + tr);
+		// Gpr.debug("START (" + tr.getId() + " , " + tr.getStrand() + " , " + pos + ") :  '" + (new String(chars)) + "'\n" + tr);
 		return startGained(chars, pos);
 	}
 
@@ -127,10 +126,10 @@ public class Utr5prime extends Utr {
 	 * @return
 	 */
 	@Override
-	String utrDistance(SeqChange seqChange, Transcript tint) {
-		List<Utr5prime> utrs = tint.get5primeUtrs();
+	String utrDistance(SeqChange seqChange, Transcript tr) {
+		List<Utr5prime> utrs = tr.get5primeUtrs();
 		boolean fromEnd = !(strand < 0); // We want distance from begining of transcript (TSS = End of 5'UTR)
-		int dist = seqChange.distanceFrom(utrs, fromEnd) + 1;
+		int dist = seqChange.distanceBases(utrs, fromEnd) + 1;
 		return dist + " bases from TSS";
 	}
 
