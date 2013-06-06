@@ -28,6 +28,11 @@ public class VcfEntry extends Marker implements Iterable<VcfGenotype> {
 		Common, LowFrequency, Rare
 	}
 
+	public static final String VCF_INFO_HOMS = "HO";
+	public static final String VCF_INFO_HETS = "HE";
+
+	public static final String VCF_INFO_NAS = "NA";
+
 	private static final long serialVersionUID = 4226374412681243433L;
 
 	protected String line; // Line from VCF file
@@ -176,6 +181,41 @@ public class VcfEntry extends Marker implements Iterable<VcfGenotype> {
 		if ((genotypeFields != null) && (genotypeFields.length == 1)) isHetero = getVcfGenotype(0).isHeterozygous();
 
 		return isHetero;
+	}
+
+	/**
+	 * Compress genotypes into "HO/HE/NA" INFO fields
+	 * @param vcfEntry
+	 * @return
+	 */
+	public boolean compressGenotypes() {
+		if (getAlts().length > 1) return false;
+
+		StringBuilder homs = new StringBuilder();
+		StringBuilder hets = new StringBuilder();
+		StringBuilder nas = new StringBuilder();
+
+		// Add all genotype codes
+		int idx = 0;
+		for (VcfGenotype gen : getVcfGenotypes()) {
+			int score = gen.getGenotypeCode();
+
+			if (score == 0) {
+				; //Nothing to do
+			} else if (score < 0) nas.append((nas.length() > 0 ? "," : "") + idx);
+			else if (score == 1) hets.append((hets.length() > 0 ? "," : "") + idx);
+			else if (score == 2) homs.append((homs.length() > 0 ? "," : "") + idx);
+			else return false; // Cannot compress
+
+			idx++;
+		}
+
+		// Update INFO fields
+		if (homs.length() > 0) addInfo(VCF_INFO_HOMS, homs.toString());
+		if (hets.length() > 0) addInfo(VCF_INFO_HETS, hets.toString());
+		if (nas.length() > 0) addInfo(VCF_INFO_NAS, nas.toString());
+
+		return true;
 	}
 
 	/**
@@ -414,6 +454,14 @@ public class VcfEntry extends Marker implements Iterable<VcfGenotype> {
 	public boolean hasInfo(String infoFieldName) {
 		if (info == null) parseInfo();
 		return info.containsKey(infoFieldName);
+	}
+
+	/**
+	 * Do we have compressed genotypes in "HO,HE,NA" INFO fields?
+	 * @return
+	 */
+	public boolean isCompressedGenotypes() {
+		return !hasGenotypes();
 	}
 
 	public boolean isDel() {
@@ -735,6 +783,28 @@ public class VcfEntry extends Marker implements Iterable<VcfGenotype> {
 	}
 
 	/**
+	 * Parse genotype string (sparse matrix) and set all entries using 'value'
+	 * 
+	 * @param str
+	 * @param gt
+	 * @param value
+	 */
+	void parseSparseGt(String str, byte gt[], int valueInt) {
+		if (str == null) return;
+
+		// Split comma separated indeces
+		String idxs[] = str.split(",");
+		byte value = (byte) valueInt;
+
+		// Set all entries
+		for (String idx : idxs) {
+			int i = Gpr.parseIntSafe(idx);
+			gt[i] = value;
+		}
+
+	}
+
+	/**
 	 * Parse INFO fields
 	 */
 	public boolean rmInfo(String info) {
@@ -873,6 +943,62 @@ public class VcfEntry extends Marker implements Iterable<VcfGenotype> {
 		sb.append("\t" + ((infoStr == null) || infoStr.isEmpty() ? "." : infoStr));
 
 		return sb.toString();
+	}
+
+	/**
+	 * Uncompress VCF entry having genotypes in "HO,HE,NA" fields
+	 * @param vcfEntry
+	 * @return
+	 */
+	public VcfEntry uncompressGenotypes() {
+		// Not compressed? Nothing to do
+		if (!isCompressedGenotypes()) return this;
+
+		// Get 'sparse' matrix entries
+		String hoStr = getInfo(VCF_INFO_HOMS);
+		String heStr = getInfo(VCF_INFO_HETS);
+		String naStr = getInfo(VCF_INFO_NAS);
+
+		// Parse 'sparse' entries
+		int numSamples = getVcfFileIterator().getVcfHeader().getSampleNames().size();
+		byte gt[] = new byte[numSamples];
+		parseSparseGt(naStr, gt, -1);
+		parseSparseGt(heStr, gt, 1);
+		parseSparseGt(hoStr, gt, 2);
+
+		// Remove info fields
+		if (hoStr != null) rmInfo(VCF_INFO_HOMS);
+		if (heStr != null) rmInfo(VCF_INFO_HETS);
+		if (naStr != null) rmInfo(VCF_INFO_NAS);
+		setFormat("GT");
+
+		// Create output string
+		for (int i = 0; i < gt.length; i++) {
+			String gtStr;
+			switch (gt[i]) {
+			case -1:
+				gtStr = "./.";
+				break;
+
+			case 0:
+				gtStr = "\0/0";
+				break;
+
+			case 1:
+				gtStr = "0/1";
+				break;
+
+			case 2:
+				gtStr = "1/1";
+				break;
+
+			default:
+				throw new RuntimeException("Unknown code '" + gt[i] + "'");
+			}
+			addGenotype(gtStr);
+		}
+
+		return this;
 	}
 
 	public VariantByFrequency variantByFrequency() {

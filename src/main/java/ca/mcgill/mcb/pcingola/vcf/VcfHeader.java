@@ -17,6 +17,7 @@ public class VcfHeader {
 
 	StringBuffer header;
 	HashMap<String, VcfInfo> vcfInfoById;
+	ArrayList<String> sampleNames;
 
 	public VcfHeader() {
 		header = new StringBuffer();
@@ -147,7 +148,7 @@ public class VcfHeader {
 					pe.sampleNumbers(sampleNames);
 					list.add(pe);
 
-				} else throw new RuntimeException("UNable to parse pedigree line:\n\t'" + line + "'");
+				} else throw new RuntimeException("Unable to parse pedigree line:\n\t'" + line + "'");
 			}
 		}
 
@@ -159,6 +160,8 @@ public class VcfHeader {
 	 * @return
 	 */
 	public List<String> getSampleNames() {
+		if (sampleNames != null) return sampleNames;
+
 		// Split header
 		String headerLines[] = header.toString().split("\n");
 
@@ -169,7 +172,7 @@ public class VcfHeader {
 				String titles[] = line.split("\t");
 
 				// Create a list of names
-				ArrayList<String> sampleNames = new ArrayList<String>();
+				sampleNames = new ArrayList<String>();
 				for (int i = 9; i < titles.length; i++)
 					sampleNames.add(titles[i]);
 
