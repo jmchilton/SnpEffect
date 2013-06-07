@@ -339,6 +339,42 @@ public class VcfEntry extends Marker implements Iterable<VcfGenotype> {
 		return format;
 	}
 
+	/**
+	 * Return genotypes parsed as an array of codes
+	 * @return
+	 */
+	public byte[] getGenotypesScores() {
+		int numSamples = getVcfFileIterator().getVcfHeader().getSampleNames().size();
+
+		// Not compressed? Parse codes
+		if (!isCompressedGenotypes()) {
+			byte gt[] = new byte[numSamples];
+
+			int idx = 0;
+			for (VcfGenotype vgt : getVcfGenotypes())
+				gt[idx++] = (byte) vgt.getGenotypeCode();
+
+			return gt;
+		}
+
+		//---
+		// Uncompress (HO/HE/NA in info fields)
+		//---
+
+		// Get 'sparse' matrix entries
+		String hoStr = getInfo(VCF_INFO_HOMS);
+		String heStr = getInfo(VCF_INFO_HETS);
+		String naStr = getInfo(VCF_INFO_NAS);
+
+		// Parse 'sparse' entries
+		byte gt[] = new byte[numSamples];
+		parseSparseGt(naStr, gt, -1);
+		parseSparseGt(heStr, gt, 1);
+		parseSparseGt(hoStr, gt, 2);
+
+		return gt;
+	}
+
 	public String getInfo(String key) {
 		if (info == null) parseInfo();
 		return info.get(key);
