@@ -65,7 +65,7 @@ public class Result implements Comparable<Result> {
 	public double getPvalueAdjusted() {
 		double adj = 1.0;
 		for (int i = 0; i < list.size(); i++)
-			adj *= geneSetCount;
+			adj *= geneSetCount / (i + 1);
 		return Math.min(1.0, pValue.doubleValue() * adj);
 	}
 

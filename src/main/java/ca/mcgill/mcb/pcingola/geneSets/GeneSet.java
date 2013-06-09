@@ -228,12 +228,16 @@ public class GeneSet implements Comparable<GeneSet>, Iterable<String>, Serializa
 	 * @return rankSum
 	 */
 	public long rankSum() {
+		// Sanity check
+		if (!(geneSets instanceof GeneSetsRanked)) throw new RuntimeException("Cannot calculate rank: This is not a ranked gene set!");
+
 		if (rankSum >= 0) return rankSum;
 		rankSum = 0;
 		rankedGenesCount = 0;
 		maxRank = 0;
+		GeneSetsRanked geneSetsRanked = (GeneSetsRanked) geneSets;
 		for (String gene : getInterestingGenes()) {
-			int r = geneSets.getRank(gene);
+			int r = geneSetsRanked.getRank(gene);
 			if (r > 0) {
 				rankedGenesCount++;
 				rankSum += r;

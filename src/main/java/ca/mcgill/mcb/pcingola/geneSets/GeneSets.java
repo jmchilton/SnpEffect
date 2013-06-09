@@ -23,6 +23,8 @@ import ca.mcgill.mcb.pcingola.util.Timer;
 /**
  * A collection of GeneSets
  * 
+ * Genes have associated "experimental values"
+ * 
  * @author Pablo Cingolani
  */
 @SuppressWarnings("serial")
@@ -35,13 +37,11 @@ public class GeneSets implements Iterable<GeneSet>, Serializable {
 
 	boolean verbose = false; // Verbose mode for this class?
 	boolean doNotAddIfNotInGeneSet = false; // Do not add genes that don't belong to geneset
-	int maxRank; // Maximum rank in this collection
-	String label; // Label for this set of nodes 
+	String label; // Label, or name, for this GeneSet (e.g. "mSigDb.C2", or "GO")  
 	HashSet<String> genes; // All genes in this experiment
 	HashMap<String, GeneSet> geneSetsByName; // Gene sets indexed by GeneSet.name
 	HashMap<String, HashSet<GeneSet>> geneSetsByGene; // Gene sets indexed by gene name
 	HashSet<String> interestingGenes; // Interesting genes in this experiment
-	HashMap<String, Integer> rankByGene; // Ranked genes
 	HashMap<String, Double> valueByGene;
 
 	/**
@@ -70,21 +70,19 @@ public class GeneSets implements Iterable<GeneSet>, Serializable {
 	 * Default constructor
 	 */
 	public GeneSets() {
-		geneSetsByName = new HashMap<String, GeneSet>();
 		interestingGenes = new HashSet<String>();
+		valueByGene = new HashMap<String, Double>();
+		geneSetsByName = new HashMap<String, GeneSet>();
 		genes = new HashSet<String>();
-		rankByGene = new HashMap<String, Integer>();
 		geneSetsByGene = new HashMap<String, HashSet<GeneSet>>();
-		maxRank = 0;
 	}
 
 	public GeneSets(String msigDb) {
-		geneSetsByName = new HashMap<String, GeneSet>();
 		interestingGenes = new HashSet<String>();
+		valueByGene = new HashMap<String, Double>();
+		geneSetsByName = new HashMap<String, GeneSet>();
 		genes = new HashSet<String>();
-		rankByGene = new HashMap<String, Integer>();
 		geneSetsByGene = new HashMap<String, HashSet<GeneSet>>();
-		maxRank = 0;
 		loadMSigDb(msigDb, false);
 	}
 
@@ -129,29 +127,6 @@ public class GeneSets implements Iterable<GeneSet>, Serializable {
 	}
 
 	/**
-	 * Add a symbol as 'interesting' gene (to every corresponding GeneSet in this collection) 
-	 * @param gene : symbol's ID
-	 * @param rank : symbol's rank
-	 * @returns : true if it was added OK, false on error.
-	 */
-	public boolean add(String gene, int rank) {
-		boolean ok = true;
-
-		// Sanity check
-		if (!genes.contains(gene)) {
-			if (verbose) System.err.println("WARNING: Trying to add ranked gene. Gene  '" + gene + "' does not exist in GeneSets! " + (doNotAddIfNotInGeneSet ? "Ignored." : "Added anyway."));
-			ok = false;
-			if (doNotAddIfNotInGeneSet) return ok;
-		}
-
-		rankByGene.put(gene, rank); // Add gene -> rank pair 
-		interestingGenes.add(gene);
-		if (maxRank < rank) maxRank = rank;
-
-		return ok;
-	}
-
-	/**
 	 * Checks that every symboolID is in the set (as 'interesting' genes)
 	 * @param intGenes : A set of interesting genes
 	 * Throws an exception on error
@@ -164,27 +139,6 @@ public class GeneSets implements Iterable<GeneSet>, Serializable {
 
 		// Check that every interesting symbol in DAG is from genes
 		if (!interestingGenes.containsAll(intGenes)) { throw new RuntimeException("Not every gene marked as interesting in " + label + " is from intGenes\n\tInteresting genes(" + interestingGenes.size() + "): " + interestingGenes + "\n\tintGenes(" + intGenes.size() + "): " + intGenes); }
-
-		// Are ranks being used? => Check them
-		if ((rankByGene != null) && (rankByGene.keySet().size() > 0)) {
-			int maxRankTmp = intGenes.size();
-
-			// Check that every rank is being used
-			int ranksUsed[] = new int[maxRankTmp + 1];
-			for (int i = 0; i < maxRankTmp; i++)
-				ranksUsed[i] = 0;
-
-			// Check that every interestingSymbolId is ranked (if ranks are being used)
-			for (String gene : intGenes) {
-				Integer rank = rankByGene.get(gene);
-				if ((rank == null) || (rank <= 0) || (rank > maxRankTmp)) { throw new RuntimeException("Invalid rank for gene:" + gene + ", rank:" + rank + "(should be [1," + maxRankTmp + "]"); }
-				ranksUsed[rank]++;
-			}
-
-			for (int rank = 1; rank < maxRankTmp; rank++) {
-				if (ranksUsed[rank] != 1) { throw new RuntimeException("Rank number " + rank + " is used " + ranksUsed[rank] + " times (should be used exactly 1 time)"); }
-			}
-		}
 	}
 
 	/**
@@ -291,6 +245,10 @@ public class GeneSets implements Iterable<GeneSet>, Serializable {
 		return geneSetsByName.get(geneSetName.toUpperCase());
 	}
 
+	/**
+	 * Get number of gene sets
+	 * @return
+	 */
 	public int getGeneSetCount() {
 		if (geneSetsByName == null) { return 0; }
 		return geneSetsByName.size();
@@ -319,44 +277,6 @@ public class GeneSets implements Iterable<GeneSet>, Serializable {
 
 	public String getLabel() {
 		return label;
-	}
-
-	public int getMaxRank() {
-		// Calculate it if needed
-		if (maxRank <= 0) { // Find max rank used 
-
-			for (String gene : rankByGene.keySet()) {
-				int rank = rankByGene.get(gene);
-				if (rank > maxRank) maxRank = rank;
-			}
-		}
-		return maxRank;
-	}
-
-	/**
-	 * Get gene's rank
-	 * @param gene
-	 * @return
-	 */
-	public int getRank(String gene) {
-		Integer rank = rankByGene.get(gene);
-		if (rank == null) { return 0; }
-		return rank;
-	}
-
-	public HashMap<String, Integer> getRankByGene() {
-		return rankByGene;
-	}
-
-	/**
-	 * How many gene sets have ranked genes (i.e. rank sum > 0)
-	 * @return Number of gene set such that rankSum > 0
-	 */
-	public int getRankedSetsCount() {
-		int count = 0;
-		for (GeneSet gs : this)
-			if (gs.rankSum() > 0) count++;
-		return count;
 	}
 
 	/**
@@ -450,7 +370,7 @@ public class GeneSets implements Iterable<GeneSet>, Serializable {
 					String gene = fields[0];
 					if (!gene.isEmpty()) {
 						Double value = Double.parseDouble(fields[1]);
-						valueByGene.put(gene, value);
+						setValue(gene, value);
 
 						// Is this gene in this gene set collection
 						if (!genes.contains(gene)) notFound.add(gene);
@@ -465,16 +385,6 @@ public class GeneSets implements Iterable<GeneSet>, Serializable {
 			throw new RuntimeException(e);
 		}
 
-		//---
-		// Sort by experimental value then rank them
-		//---
-		LinkedList<String> geneNames = new LinkedList<String>(valueByGene.keySet());
-		Collections.sort(geneNames, new CompareByValue(valueByGene, false));
-		int rank = 1, errorsRank = 0;
-		for (String gene : geneNames)
-			if (!add(gene, rank++)) errorsRank++;
-
-		if (verbose) System.err.println("Genes added: " + geneNames.size() + "\nErrors adding ranked / interesting genes: " + errorsRank);
 		return notFound;
 	}
 
@@ -544,9 +454,7 @@ public class GeneSets implements Iterable<GeneSet>, Serializable {
 	 */
 	public void reset() {
 		interestingGenes = new HashSet<String>();
-		rankByGene = new HashMap<String, Integer>();
 		valueByGene = new HashMap<String, Double>();
-		maxRank = 0;
 
 		for (GeneSet gt : this) {
 			gt.reset();
@@ -572,9 +480,9 @@ public class GeneSets implements Iterable<GeneSet>, Serializable {
 					out.append("gene_" + gene + "\t");
 				out.append("\n");
 			}
-
-			// Save it 
 		}
+
+		// Save it 
 		Gpr.toFile(fileName, out);
 	}
 
@@ -590,29 +498,17 @@ public class GeneSets implements Iterable<GeneSet>, Serializable {
 		interestingGenes = interestingGenesIdSet;
 	}
 
-	public void setVerbose(boolean verbose) {
-		this.verbose = verbose;
+	/**
+	 * Set experimental value for this gene
+	 * @param geneId
+	 * @param value
+	 */
+	public void setValue(String geneId, double value) {
+		valueByGene.put(geneId, value);
 	}
 
-	/**
-	 * Sort and rank based on experimental value
-	 * @param orderAscending
-	 */
-	@SuppressWarnings("unchecked")
-	public void sortAndRank(HashMap<String, Double> valueByGene, boolean orderAscending) {
-		if (verbose) System.err.println("Sorting: " + (orderAscending ? "ascentding" : "descending"));
-
-		// Sort genes, rank them and add them to GeneSets
-		LinkedList<String> geneNames = new LinkedList<String>(valueByGene.keySet());
-		Collections.sort(geneNames, new CompareByValue(valueByGene, orderAscending));
-		int rank = 1;
-		int showEvery = geneNames.size() / 100 + 1;
-		for (String gene : geneNames) {
-			if (verbose && (((rank - 1) % showEvery) == 0)) System.err.println("\tRank: " + rank + "\tGene: " + gene + "\tValue: " + valueByGene.get(gene));
-			if (add(gene, rank)) rank++;
-		}
-
-		if (verbose) System.err.println("Total genes added: :" + interestingGenes.size() + "\tMax rank: " + getMaxRank());
+	public void setVerbose(boolean verbose) {
+		this.verbose = verbose;
 	}
 
 	@Override

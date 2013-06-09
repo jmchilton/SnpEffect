@@ -141,6 +141,8 @@ public class Gpr {
 	 * @return
 	 */
 	public static boolean canRead(String fileName) {
+		if (fileName.equals("-")) return true; // Assume we can always read STDIN
+
 		File inputFile = new File(fileName);
 		if (inputFile.exists() && inputFile.canRead() && inputFile.isFile()) return true;
 

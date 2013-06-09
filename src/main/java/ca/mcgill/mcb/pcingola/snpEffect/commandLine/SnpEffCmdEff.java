@@ -98,7 +98,7 @@ public class SnpEffCmdEff extends SnpEff {
 	int totalErrs = 0;
 	long countInputLines = 0, countVariants = 0, countEffects = 0, countVariantsFilteredOut = 0;
 	String chrStr = "";
-	String inputFile = "-"; // Input file
+	String inputFile = ""; // Input file
 	String summaryFile; // Summary output file
 	String summaryGenesFile; // Gene table file
 	String onlyTranscriptsFile = null; // Only use the transcripts in this file (Format: One transcript ID per line)
@@ -445,26 +445,28 @@ public class SnpEffCmdEff extends SnpEff {
 		this.args = args;
 		for (int i = 0; i < args.length; i++) {
 
-			// Argument starts with '-'?
-			if (args[i].startsWith("-")) {
+			String arg = args[i];
+
+			// Is it a command line option?
+			if (isOpt(arg)) {
 
 				//---
 				// Generic options.
 				// Note: OPtions config, verbose, debug, quiet, etc. at parse by SnpEff (parent class) 
 				//---
-				if (args[i].equals("-1")) inOffset = outOffset = 1;
-				else if (args[i].equals("-0")) inOffset = outOffset = 0;
-				else if (args[i].equals("-h") || args[i].equalsIgnoreCase("-help")) {
+				if (arg.equals("-1")) inOffset = outOffset = 1;
+				else if (arg.equals("-0")) inOffset = outOffset = 0;
+				else if (arg.equals("-h") || arg.equalsIgnoreCase("-help")) {
 					usage(null);
 					System.exit(0);
-				} else if (args[i].equals("-t")) {
+				} else if (arg.equals("-t")) {
 					multiThreaded = true;
 					createSummary = false; // Implies '-noStats'
 				}
 				//---
 				// Output options
 				//---
-				else if (args[i].equals("-o")) {
+				else if (arg.equals("-o")) {
 					// Output format
 					if ((i + 1) < args.length) {
 						String outFor = args[++i].toUpperCase();
@@ -486,55 +488,55 @@ public class SnpEffCmdEff extends SnpEff {
 							outOffset = 0; // Implies '0' since BED coordinates are zero-based
 						} else usage("Unknown output file format '" + outFor + "'");
 					}
-				} else if ((args[i].equals("-a") || args[i].equalsIgnoreCase("-around"))) {
+				} else if ((arg.equals("-a") || arg.equalsIgnoreCase("-around"))) {
 					if ((i + 1) < args.length) CodonChange.SHOW_CODONS_AROUND_CHANGE = Gpr.parseIntSafe(args[++i]);
 					else usage("Option '-i' without config interval_file argument");
-				} else if ((args[i].equals("-s") || args[i].equalsIgnoreCase("-stats"))) {
+				} else if ((arg.equals("-s") || arg.equalsIgnoreCase("-stats"))) {
 					if ((i + 1) < args.length) {
 						summaryFile = args[++i];
 						String base = Gpr.baseName(Gpr.baseName(summaryFile, ".html"), ".csv"); // Extension can be either HTML or CSV
 						String dir = Gpr.dirName(summaryFile);
 						summaryGenesFile = (dir != null ? dir + "/" : "") + base + ".genes.txt";
 					}
-				} else if (args[i].equalsIgnoreCase("-noStats")) createSummary = false; // Do not create summary file. It can be much faster (e.g. when parsing VCF files with many samples)
-				else if (args[i].equalsIgnoreCase("-csvStats")) {
+				} else if (arg.equalsIgnoreCase("-noStats")) createSummary = false; // Do not create summary file. It can be much faster (e.g. when parsing VCF files with many samples)
+				else if (arg.equalsIgnoreCase("-csvStats")) {
 					createCsvSummary = true; // Create a CSV formatted summary file.
 					if (summaryFile.equals(DEFAULT_SUMMARY_FILE)) summaryFile = DEFAULT_SUMMARY_CSV_FILE;
-				} else if ((args[i].equals("-of") || args[i].equalsIgnoreCase("-outOffset"))) {
+				} else if ((arg.equals("-of") || arg.equalsIgnoreCase("-outOffset"))) {
 					if ((i + 1) < args.length) outOffset = Gpr.parseIntSafe(args[++i]);
-				} else if (args[i].equalsIgnoreCase("-chr")) chrStr = args[++i];
-				else if (args[i].equalsIgnoreCase("-useLocalTemplate")) useLocalTemplate = true; // Undocumented option (only used for development & debugging)
-				else if (args[i].equalsIgnoreCase("-noOut")) supressOutput = true; // Undocumented option (only used for development & debugging)
-				else if (args[i].equalsIgnoreCase("-noChromoPlots")) chromoPlots = false;
+				} else if (arg.equalsIgnoreCase("-chr")) chrStr = args[++i];
+				else if (arg.equalsIgnoreCase("-useLocalTemplate")) useLocalTemplate = true; // Undocumented option (only used for development & debugging)
+				else if (arg.equalsIgnoreCase("-noOut")) supressOutput = true; // Undocumented option (only used for development & debugging)
+				else if (arg.equalsIgnoreCase("-noChromoPlots")) chromoPlots = false;
 				//---
 				// Annotation options
 				//---
-				else if (args[i].equalsIgnoreCase("-treatAllAsProteinCoding")) {
+				else if (arg.equalsIgnoreCase("-treatAllAsProteinCoding")) {
 					if ((i + 1) < args.length) {
 						i++;
 						if (args[i].equalsIgnoreCase("auto")) treatAllAsProteinCoding = null;
 						else treatAllAsProteinCoding = Gpr.parseBoolSafe(args[i]);
 					}
-				} else if (args[i].equalsIgnoreCase("-cancer")) cancer = true; // Perform cancer comparissons
-				else if (args[i].equalsIgnoreCase("-canon")) canonical = true; // Use canonical transcripts
-				else if (args[i].equalsIgnoreCase("-lof")) lossOfFunction = true; // Add LOF tag
-				else if (args[i].equalsIgnoreCase("-hgvs")) useHgvs = true; // Use HGVS notation
-				else if (args[i].equalsIgnoreCase("-geneId")) useGeneId = true; // Use gene ID instead of gene name
-				else if (args[i].equalsIgnoreCase("-sequenceOntolgy")) useSequenceOntolgy = true; // Use SO temrs
-				else if (args[i].equalsIgnoreCase("-oicr")) useOicr = true; // Use OICR tag
-				else if (args[i].equalsIgnoreCase("-onlyTr")) {
+				} else if (arg.equalsIgnoreCase("-cancer")) cancer = true; // Perform cancer comparissons
+				else if (arg.equalsIgnoreCase("-canon")) canonical = true; // Use canonical transcripts
+				else if (arg.equalsIgnoreCase("-lof")) lossOfFunction = true; // Add LOF tag
+				else if (arg.equalsIgnoreCase("-hgvs")) useHgvs = true; // Use HGVS notation
+				else if (arg.equalsIgnoreCase("-geneId")) useGeneId = true; // Use gene ID instead of gene name
+				else if (arg.equalsIgnoreCase("-sequenceOntolgy")) useSequenceOntolgy = true; // Use SO temrs
+				else if (arg.equalsIgnoreCase("-oicr")) useOicr = true; // Use OICR tag
+				else if (arg.equalsIgnoreCase("-onlyTr")) {
 					if ((i + 1) < args.length) onlyTranscriptsFile = args[++i]; // Only use the transcripts in this file
 				}
 				//---
 				// Input options
 				//---
-				else if (args[i].equalsIgnoreCase("-interval")) {
+				else if (arg.equalsIgnoreCase("-interval")) {
 					if ((i + 1) < args.length) customIntervalBedFiles.add(args[++i]);
 					else usage("Option '-i' without config interval_file argument");
-				} else if ((args[i].equals("-fi") || args[i].equalsIgnoreCase("-filterInterval"))) {
+				} else if ((arg.equals("-fi") || arg.equalsIgnoreCase("-filterInterval"))) {
 					if ((i + 1) < args.length) filterIntervalFiles.add(args[++i]);
 					else usage("Option '-fi' without config filter_interval_file argument");
-				} else if (args[i].equals("-i")) {
+				} else if (arg.equals("-i")) {
 					// Input format
 					if ((i + 1) < args.length) {
 						String inFor = args[++i].toUpperCase();
@@ -556,49 +558,49 @@ public class SnpEffCmdEff extends SnpEff {
 							outputFormat = OutputFormat.BED;
 							inOffset = 0; // Implies '-0' since Bed coordinates are zero-based
 						} else usage("Unknown input file format '" + inFor + "'");
-					}
-				} else if ((args[i].equals("-if") || args[i].equalsIgnoreCase("-inOffset"))) {
+					} else usage("Missing input format in command line option '-i'");
+				} else if ((arg.equals("-if") || arg.equalsIgnoreCase("-inOffset"))) {
 					if ((i + 1) < args.length) inOffset = Gpr.parseIntSafe(args[++i]);
 				}
 				//---
 				// Regulation options
 				//---
-				else if (args[i].equals("-onlyReg")) onlyRegulation = true;
-				else if (args[i].equals("-reg")) {
+				else if (arg.equals("-onlyReg")) onlyRegulation = true;
+				else if (arg.equals("-reg")) {
 					if ((i + 1) < args.length) regulationTracks.add(args[++i]); // Add this track to the list
 				}
 				//---
 				// NextProt database
 				//---
-				else if (args[i].equalsIgnoreCase("-nextProt")) nextProt = true; // Use NextProt database
-				else if (args[i].equalsIgnoreCase("-motif")) motif = true; // Use motif database
+				else if (arg.equalsIgnoreCase("-nextProt")) nextProt = true; // Use NextProt database
+				else if (arg.equalsIgnoreCase("-motif")) motif = true; // Use motif database
 				//---
 				// Filters
 				//---
-				else if ((args[i].equals("-minQ") || args[i].equalsIgnoreCase("-minQuality"))) {
+				else if ((arg.equals("-minQ") || arg.equalsIgnoreCase("-minQuality"))) {
 					if ((i + 1) < args.length) seqChangeFilter.setMinQuality(Gpr.parseIntSafe(args[++i]));
-				} else if ((args[i].equals("-maxQ") || args[i].equalsIgnoreCase("-maxQuality"))) {
+				} else if ((arg.equals("-maxQ") || arg.equalsIgnoreCase("-maxQuality"))) {
 					if ((i + 1) < args.length) seqChangeFilter.setMaxQuality(Gpr.parseIntSafe(args[++i]));
-				} else if ((args[i].equals("-minC") || args[i].equalsIgnoreCase("-minCoverage"))) {
+				} else if ((arg.equals("-minC") || arg.equalsIgnoreCase("-minCoverage"))) {
 					if ((i + 1) < args.length) seqChangeFilter.setMinCoverage(Gpr.parseIntSafe(args[++i]));
-				} else if ((args[i].equals("-maxC") || args[i].equalsIgnoreCase("-maxCoverage"))) {
+				} else if ((arg.equals("-maxC") || arg.equalsIgnoreCase("-maxCoverage"))) {
 					if ((i + 1) < args.length) seqChangeFilter.setMaxCoverage(Gpr.parseIntSafe(args[++i]));
-				} else if ((args[i].equals("-ud") || args[i].equalsIgnoreCase("-upDownStreamLen"))) {
+				} else if ((arg.equals("-ud") || arg.equalsIgnoreCase("-upDownStreamLen"))) {
 					if ((i + 1) < args.length) upDownStreamLength = Gpr.parseIntSafe(args[++i]);
-				} else if ((args[i].equals("-ss") || args[i].equalsIgnoreCase("-spliceSiteSize"))) {
+				} else if ((arg.equals("-ss") || arg.equalsIgnoreCase("-spliceSiteSize"))) {
 					if ((i + 1) < args.length) spliceSiteSize = Gpr.parseIntSafe(args[++i]);
-				} else if (args[i].equals("-hom")) seqChangeFilter.setHeterozygous(false);
-				else if (args[i].equals("-het")) seqChangeFilter.setHeterozygous(true);
-				else if (args[i].equals("-snp")) seqChangeFilter.setChangeType(SeqChange.ChangeType.SNP);
-				else if (args[i].equals("-mnp")) seqChangeFilter.setChangeType(SeqChange.ChangeType.MNP);
-				else if (args[i].equals("-ins")) seqChangeFilter.setChangeType(SeqChange.ChangeType.INS);
-				else if (args[i].equals("-del")) seqChangeFilter.setChangeType(SeqChange.ChangeType.DEL);
-				else if (args[i].equalsIgnoreCase("-no-downstream")) changeEffectResutFilter.setDownstream(true);
-				else if (args[i].equalsIgnoreCase("-no-upstream")) changeEffectResutFilter.setUpstream(true);
-				else if (args[i].equalsIgnoreCase("-no-intergenic")) changeEffectResutFilter.setIntergenic(true);
-				else if (args[i].equalsIgnoreCase("-no-intron")) changeEffectResutFilter.setIntron(true);
-				else if (args[i].equalsIgnoreCase("-no-utr")) changeEffectResutFilter.setUtr(true);
-				else if (args[i].equalsIgnoreCase("-no")) {
+				} else if (arg.equals("-hom")) seqChangeFilter.setHeterozygous(false);
+				else if (arg.equals("-het")) seqChangeFilter.setHeterozygous(true);
+				else if (arg.equals("-snp")) seqChangeFilter.setChangeType(SeqChange.ChangeType.SNP);
+				else if (arg.equals("-mnp")) seqChangeFilter.setChangeType(SeqChange.ChangeType.MNP);
+				else if (arg.equals("-ins")) seqChangeFilter.setChangeType(SeqChange.ChangeType.INS);
+				else if (arg.equals("-del")) seqChangeFilter.setChangeType(SeqChange.ChangeType.DEL);
+				else if (arg.equalsIgnoreCase("-no-downstream")) changeEffectResutFilter.setDownstream(true);
+				else if (arg.equalsIgnoreCase("-no-upstream")) changeEffectResutFilter.setUpstream(true);
+				else if (arg.equalsIgnoreCase("-no-intergenic")) changeEffectResutFilter.setIntergenic(true);
+				else if (arg.equalsIgnoreCase("-no-intron")) changeEffectResutFilter.setIntron(true);
+				else if (arg.equalsIgnoreCase("-no-utr")) changeEffectResutFilter.setUtr(true);
+				else if (arg.equalsIgnoreCase("-no")) {
 					String filterOut = "";
 					if ((i + 1) < args.length) filterOut = args[++i];
 
@@ -612,10 +614,10 @@ public class SnpEffCmdEff extends SnpEff {
 						else if (filterStr.equalsIgnoreCase("None")) ; // OK, nothing to do
 						else usage("Unknown filter option '" + filterStr + "'");
 					}
-				} else usage("Unknow option '" + args[i] + "'");
-			} else if (genomeVer.length() <= 0) genomeVer = args[i];
-			else if (inputFile.length() <= 0) inputFile = args[i];
-			else usage("Unknow parameter '" + args[i] + "'");
+				} else usage("Unknow option '" + arg + "'");
+			} else if (genomeVer.isEmpty()) genomeVer = arg;
+			else if (inputFile.isEmpty()) inputFile = arg;
+			else usage("Unknow parameter '" + arg + "'");
 		}
 
 		//---
@@ -626,7 +628,7 @@ public class SnpEffCmdEff extends SnpEff {
 		if (genomeVer.isEmpty()) usage("Missing genomer_version parameter");
 
 		// Check input file
-		if (inputFile.isEmpty()) inputFile = "-"; // Use STDIN
+		if (inputFile.isEmpty()) inputFile = "-"; // Use STDIN as default
 		else if (!Gpr.canRead(inputFile)) usage("Cannot read input file '" + inputFile + "'");
 
 		// Sanity checks for VCF output format
@@ -886,7 +888,7 @@ public class SnpEffCmdEff extends SnpEff {
 		}
 
 		// Check if we can open the input file (no need to check if it is STDIN)
-		if (!inputFile.equals("-") && !new File(inputFile).canRead()) usage("Cannot open input file '" + inputFile + "'");
+		if (!Gpr.canRead(inputFile)) usage("Cannot open input file '" + inputFile + "'");
 
 		// Set 'treatAllAsProteinCoding'
 		if (treatAllAsProteinCoding != null) config.setTreatAllAsProteinCoding(treatAllAsProteinCoding);
@@ -1140,7 +1142,7 @@ public class SnpEffCmdEff extends SnpEff {
 		}
 
 		System.err.println("snpEff version " + VERSION);
-		System.err.println("Usage: snpEff [eff] [options] genome_version [variants_file]");
+		System.err.println("Usage: snpEff [eff] [options] genome_version [input_file]");
 		System.err.println("\n");
 		System.err.println("\nvariants_file           : Default is STDIN");
 		System.err.println("\n");
