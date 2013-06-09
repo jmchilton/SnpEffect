@@ -15,18 +15,20 @@ import ca.mcgill.mcb.pcingola.interval.Chromosome;
 public class ChrPosPvalueList {
 
 	ArrayList<Chromosome> chromosomes;
-	TIntArrayList positions;
+	TIntArrayList starts;
+	TIntArrayList ends;
 	TDoubleArrayList pValues;
 
 	public ChrPosPvalueList() {
 		chromosomes = new ArrayList<Chromosome>();
-		positions = new TIntArrayList();
+		starts = new TIntArrayList();
 		pValues = new TDoubleArrayList();
 	}
 
-	public void add(Chromosome chr, int pos, double pvalue) {
+	public void add(Chromosome chr, int start, int end, double pvalue) {
 		chromosomes.add(chr);
-		positions.add(pos);
+		starts.add(start);
+		ends.add(start);
 		pValues.add(pvalue);
 	}
 
@@ -38,12 +40,16 @@ public class ChrPosPvalueList {
 		return chromosomes.get(index).getId();
 	}
 
-	public int getPosition(int index) {
-		return positions.get(index);
+	public int getEnd(int index) {
+		return ends.get(index);
 	}
 
 	public double getPvalue(int index) {
 		return pValues.get(index);
+	}
+
+	public int getStart(int index) {
+		return starts.get(index);
 	}
 
 	public int size() {
@@ -55,7 +61,7 @@ public class ChrPosPvalueList {
 		StringBuilder sb = new StringBuilder();
 
 		for (int i = 0; i < size(); i++)
-			sb.append(getChromosomeName(i) + "\t" + getPosition(i) + "\t" + getPvalue(i) + "\n");
+			sb.append(getChromosomeName(i) + "\t" + getStart(i) + "\t" + getPvalue(i) + "\n");
 
 		return sb.toString();
 	}

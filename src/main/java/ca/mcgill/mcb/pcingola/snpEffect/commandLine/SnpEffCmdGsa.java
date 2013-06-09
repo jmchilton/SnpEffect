@@ -7,6 +7,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import ca.mcgill.mcb.pcingola.collections.AutoHashMap;
+import ca.mcgill.mcb.pcingola.fileIterator.BedFileIterator;
 import ca.mcgill.mcb.pcingola.fileIterator.LineFileIterator;
 import ca.mcgill.mcb.pcingola.fileIterator.VcfFileIterator;
 import ca.mcgill.mcb.pcingola.geneSets.GeneSets;
@@ -24,6 +25,7 @@ import ca.mcgill.mcb.pcingola.interval.Gene;
 import ca.mcgill.mcb.pcingola.interval.Genome;
 import ca.mcgill.mcb.pcingola.interval.Marker;
 import ca.mcgill.mcb.pcingola.interval.Markers;
+import ca.mcgill.mcb.pcingola.interval.SeqChange;
 import ca.mcgill.mcb.pcingola.snpEffect.Config;
 import ca.mcgill.mcb.pcingola.snpEffect.SnpEffectPredictor;
 import ca.mcgill.mcb.pcingola.util.Gpr;
@@ -186,7 +188,7 @@ public class SnpEffCmdGsa extends SnpEff {
 		//---
 		int unmapped = 0, mappedMultiple = 0;
 		for (int i = 0; i < chrPosPvalueList.size(); i++) {
-			List<String> geneIds = mapToGenes(chrPosPvalueList.getChromosomeName(i), chrPosPvalueList.getPosition(i));
+			List<String> geneIds = mapToGenes(chrPosPvalueList.getChromosomeName(i), chrPosPvalueList.getStart(i), chrPosPvalueList.getEnd(i));
 
 			// Update counters
 			if (geneIds == null || geneIds.isEmpty()) {
@@ -224,14 +226,14 @@ public class SnpEffCmdGsa extends SnpEff {
 	/**
 	 * Map a position to a geneId
 	 * @param chr
-	 * @param pos
+	 * @param start
 	 * @return
 	 */
-	List<String> mapToGenes(String chr, int pos) {
+	List<String> mapToGenes(String chr, int start, int end) {
 		LinkedList<String> geneIds = new LinkedList<String>();
 
 		// Query 
-		Marker m = new Marker(genome.getChromosome(chr), pos, pos, 1, "");
+		Marker m = new Marker(genome.getChromosome(chr), start, end, 1, "");
 
 		// Map only to closest gene?
 		if (useClosestGene) {
@@ -266,13 +268,8 @@ public class SnpEffCmdGsa extends SnpEff {
 
 				if (arg.equals("-i")) {
 					// Input format
-					if ((i + 1) < args.length) {
-						String inFor = args[++i].toUpperCase();
-						if (inFor.equals("TXT")) inputFormat = InputFormat.TXT;
-						else if (inFor.equals("VCF")) inputFormat = InputFormat.VCF;
-						else usage("Unknown input file format '" + inFor + "'");
-					} else usage("Missing input format in command line option '-i'");
-
+					if ((i + 1) < args.length) inputFormat = InputFormat.valueOf(args[++i].toUpperCase());
+					else usage("Missing input format in command line option '-i'");
 				} else if (arg.equals("-info")) {
 					// INFO field name
 					if ((i + 1) < args.length) infoName = args[++i];
@@ -293,7 +290,9 @@ public class SnpEffCmdGsa extends SnpEff {
 						String algo = args[++i].toUpperCase();
 						enrichmentAlgorithmType = EnrichmentAlgorithmType.valueOf(algo);
 					} else usage("Missing value in command line option '-algo'");
-				} else if (arg.equals("-mapClosestGene")) useClosestGene = true;
+				} else if (arg.equals("-minSetSize")) minGeneSetSize = Gpr.parseIntSafe(args[++i]);
+				else if (arg.equals("-maxSetSize")) maxGeneSetSize = Gpr.parseIntSafe(args[++i]);
+				else if (arg.equals("-mapClosestGene")) useClosestGene = true;
 				else if (arg.equals("-geneId")) useGeneId = true;
 
 			} else if (genomeVer.isEmpty()) genomeVer = arg;
@@ -314,6 +313,9 @@ public class SnpEffCmdGsa extends SnpEff {
 		if (!Gpr.canRead(msigdb)) fatalError("Cannot read Gene-Sets file '" + msigdb + "'");
 
 		if (genomeVer.isEmpty()) usage("Missing genome version.");
+
+		if (maxGeneSetSize <= 0) usage("MaxSetSize must be a positive number.");
+		if (minGeneSetSize >= maxGeneSetSize) usage("MaxSetSize (" + maxGeneSetSize + ") must larger than MinSetSize (" + minGeneSetSize + ").");
 	}
 
 	/**
@@ -330,6 +332,11 @@ public class SnpEffCmdGsa extends SnpEff {
 		case TXT:
 			chrPosPvalueList = readInputTxt();
 			break;
+
+		case BED:
+			chrPosPvalueList = readInputBed();
+			break;
+
 		default:
 			fatalError("Input format '" + inputFormat + "' not supported!");
 		}
@@ -343,12 +350,33 @@ public class SnpEffCmdGsa extends SnpEff {
 			// Show data
 			System.err.println("P-values:\n\tchr\tpos\tp_value");
 			for (int i = 0; i < chrPosPvalueList.size(); i++)
-				System.err.println("\t" + chrPosPvalueList.getChromosomeName(i) + "\t" + chrPosPvalueList.getPosition(i) + "\t" + chrPosPvalueList.getPvalue(i));
+				System.err.println("\t" + chrPosPvalueList.getChromosomeName(i) + "\t" + chrPosPvalueList.getStart(i) + "\t" + chrPosPvalueList.getPvalue(i));
 		}
 	}
 
 	/**
-	 * Red input in TXT format
+	 * Read input in BED format
+	 * 
+	 * Format: "chr \t start \t end \t id \t pValue \n"
+	 *         start : zero-based
+	 *         end   : zero-based open
+	 *
+	 */
+	ChrPosPvalueList readInputBed() {
+		ChrPosPvalueList cppList = new ChrPosPvalueList();
+
+		int num = 1;
+		BedFileIterator bfi = new BedFileIterator(inputFile);
+		for (SeqChange sc : bfi) {
+			cppList.add(sc.getChromosome(), sc.getStart(), sc.getEnd(), sc.getScore());
+			if (verbose) Gpr.showMark(num++, READ_INPUT_SHOW_EVERY);
+		}
+
+		return cppList;
+	}
+
+	/**
+	 * Read input in TXT format
 	 * 
 	 * Format: "chr \t pos \t p-value \n"
 	 * 
@@ -365,7 +393,7 @@ public class SnpEffCmdGsa extends SnpEff {
 			String fields[] = line.split("\t");
 
 			// Sanity check
-			if (fields.length < 3) {
+			if (fields.length < 4) {
 				System.err.println("Warning: Ignoring line number " + lfi.getLineNum() + "." //
 						+ " Exepcting format 'chr\tpos\tp_value\n'.\n" //
 						+ "\tLine:\t'" + line + "'" //
@@ -375,12 +403,13 @@ public class SnpEffCmdGsa extends SnpEff {
 
 			// Parse fields
 			String chr = fields[0];
-			int pos = Gpr.parseIntSafe(fields[1]) - 1; // Input format is 1-based
+			int start = Gpr.parseIntSafe(fields[1]) - 1; // Input format is 1-based
+			int end = Gpr.parseIntSafe(fields[2]) - 1; // Input format is 1-based
 			double pvalue = Gpr.parseDoubleSafe(fields[2]);
 
 			// Add data to list
 			Chromosome chromo = genome.getOrCreateChromosome(chr);
-			cppList.add(chromo, pos, pvalue);
+			cppList.add(chromo, start, end, pvalue);
 
 			if (verbose) Gpr.showMark(num++, READ_INPUT_SHOW_EVERY);
 		}
@@ -390,7 +419,7 @@ public class SnpEffCmdGsa extends SnpEff {
 	}
 
 	/**
-	 * Red input in VCF format
+	 * Read input in VCF format
 	 */
 	ChrPosPvalueList readInputVcf() {
 		ChrPosPvalueList cppList = new ChrPosPvalueList();
@@ -405,7 +434,7 @@ public class SnpEffCmdGsa extends SnpEff {
 				System.err.println("Warning: Cannot find INFO field '" + infoName + "'.\n\tIgnoring VCF entry." + vcf.getLineNum() + "\n\t" + ve);
 			} else {
 				// Add to list
-				cppList.add(ve.getChromosome(), ve.getStart(), pvalue);
+				cppList.add(ve.getChromosome(), ve.getStart(), ve.getEnd(), pvalue);
 			}
 
 			if (verbose) Gpr.showMark(num++, READ_INPUT_SHOW_EVERY);
@@ -460,13 +489,15 @@ public class SnpEffCmdGsa extends SnpEff {
 		if (message != null) System.err.println("Error: " + message + "\n");
 		System.err.println("snpEff version " + SnpEff.VERSION);
 		System.err.println("Usage: snpEff gsa [options] genome_version geneSets.gmt input_file");
-		System.err.println("\t-algo              : Gene set enrichment algorithm {}. Default: " + enrichmentAlgorithmType);
+		System.err.println("\t-algo <name>       : Gene set enrichment algorithm {}. Default: " + enrichmentAlgorithmType);
 		System.err.println("\t-geneId            : Use geneID instead of gene names. Default: " + useGeneId);
 		System.err.println("\t-genePvalue        : Method to summarize gene p-values {MIN, AVG, AVG10}. Default: " + pvalueSummary);
 		System.err.println("\t-genePvalueCorr    : Correction method for gene-summarized p-values {NONE}. Default: " + correctionMethod);
-		System.err.println("\t-i <format>        : Input format {vcf, txt}. Default: " + inputFormat);
+		System.err.println("\t-i <format>        : Input format {vcf, bed, txt}. Default: " + inputFormat);
 		System.err.println("\t-info <name>       : INFO tag used for p-values (in VCF input format).");
 		System.err.println("\t-mapClosestGene    : Map to closest gene. Default: " + useClosestGene);
+		System.err.println("\t-minSetSize <num>  : Minimum number of genes in a gene set. Default: " + minGeneSetSize);
+		System.err.println("\t-maxSetSize <num>  : Maximum number of genes in a gene set. Default: " + maxGeneSetSize);
 		System.exit(-1);
 	}
 }
