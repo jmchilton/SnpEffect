@@ -31,7 +31,6 @@ public abstract class EnrichmentAlgorithm {
 	double maxPValue = 1.0;
 	GeneSets geneSets;
 	Set<String> filterOutputGeneSets;
-
 	public static long PRINT_SOMETHING_TIME = 5000; // Print something every X milliseconds
 
 	public EnrichmentAlgorithm(GeneSets geneSets, int numberToSelect) {
@@ -188,6 +187,10 @@ public abstract class EnrichmentAlgorithm {
 		}
 
 		return best;
+	}
+
+	public void setDebug(boolean debug) {
+		this.debug = debug;
 	}
 
 	public void setFilterOutputGeneSets(Set<String> filterOutputGeneSets) {

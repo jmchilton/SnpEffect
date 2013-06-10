@@ -13,6 +13,7 @@ import ca.mcgill.mcb.pcingola.fileIterator.VcfFileIterator;
 import ca.mcgill.mcb.pcingola.geneSets.GeneSets;
 import ca.mcgill.mcb.pcingola.geneSets.GeneSetsRanked;
 import ca.mcgill.mcb.pcingola.geneSets.algorithm.EnrichmentAlgorithm;
+import ca.mcgill.mcb.pcingola.geneSets.algorithm.EnrichmentAlgorithmGreedyVariableSize;
 import ca.mcgill.mcb.pcingola.geneSets.algorithm.FisherPValueAlgorithm;
 import ca.mcgill.mcb.pcingola.geneSets.algorithm.FisherPValueGreedyAlgorithm;
 import ca.mcgill.mcb.pcingola.geneSets.algorithm.RankSumPValueAlgorithm;
@@ -63,6 +64,7 @@ public class SnpEffCmdGsa extends SnpEff {
 	int minGeneSetSize = 0;
 	int maxGeneSetSize = Integer.MAX_VALUE;
 	int numberofGeneSetsToSelect = Integer.MAX_VALUE; // TODO : Add a command line option to limit this
+	int initGeneSetSize = 100;
 	double maxPvalue = 1.0;
 	String inputFile = "";
 	String infoName = "";
@@ -132,11 +134,15 @@ public class SnpEffCmdGsa extends SnpEff {
 			throw new RuntimeException("Unimplemented algorithm!");
 		}
 
-		// Run algorithm
+		// Initialize algorithm parameters
 		algorithm.setMaxGeneSetSize(maxGeneSetSize);
 		algorithm.setMinGeneSetSize(minGeneSetSize);
-		algorithm.setVerbose(verbose);
 		algorithm.setMaxPValue(maxPvalue);
+		algorithm.setVerbose(verbose);
+		algorithm.setDebug(debug);
+		if (enrichmentAlgorithmType.isRank()) ((EnrichmentAlgorithmGreedyVariableSize) algorithm).setInitialSize(initGeneSetSize);
+
+		// Run algorithm
 		algorithm.select();
 	}
 
@@ -291,6 +297,7 @@ public class SnpEffCmdGsa extends SnpEff {
 					} else usage("Missing value in command line option '-algo'");
 				} else if (arg.equals("-minSetSize")) minGeneSetSize = Gpr.parseIntSafe(args[++i]);
 				else if (arg.equals("-maxSetSize")) maxGeneSetSize = Gpr.parseIntSafe(args[++i]);
+				else if (arg.equals("-initSetSize")) initGeneSetSize = Gpr.parseIntSafe(args[++i]);
 				else if (arg.equals("-mapClosestGene")) useClosestGene = true;
 				else if (arg.equals("-geneId")) useGeneId = true;
 
@@ -497,6 +504,7 @@ public class SnpEffCmdGsa extends SnpEff {
 		System.err.println("\t-mapClosestGene    : Map to closest gene. Default: " + useClosestGene);
 		System.err.println("\t-minSetSize <num>  : Minimum number of genes in a gene set. Default: " + minGeneSetSize);
 		System.err.println("\t-maxSetSize <num>  : Maximum number of genes in a gene set. Default: " + maxGeneSetSize);
+		System.err.println("\t-initSetSize <num> : Initial number of genes in a gene set (size range algorithm). Default: " + initGeneSetSize);
 		System.exit(-1);
 	}
 }
