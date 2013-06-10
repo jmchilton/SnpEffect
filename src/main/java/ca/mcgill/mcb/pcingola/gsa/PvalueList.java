@@ -12,7 +12,7 @@ import ca.mcgill.mcb.pcingola.util.Gpr;
 public class PvalueList {
 
 	public enum PvalueSummary {
-		MIN, AVG, AVG10, FISHER_CHI_SQUARE, Z_SCORES
+		MIN, AVG, AVG10, FISHER_CHI_SQUARE, Z_SCORES, SIMES
 	};
 
 	String geneId;
@@ -70,6 +70,9 @@ public class PvalueList {
 
 		case Z_SCORES:
 			return pValueZScore();
+
+		case SIMES:
+			return pValueSimes();
 
 		default:
 			throw new RuntimeException("Unimplemented method for summary '" + pvalueSummary + "'");
@@ -154,11 +157,49 @@ public class PvalueList {
 	}
 
 	/**
+	 * Combine p-values using Simes's procedure
+	 * 
+	 * References: http://biomet.oxfordjournals.org/content/73/3/751
+	 * 
+	 * @return A combined p-value
+	 */
+	double pValueSimes() {
+		if (size() <= 0) return 1.0;
+
+		// Count non-zero p-values (we treat zero p-values as errors, so we skip them) 
+		int total = 0;
+		for (int i = 0; i < size(); i++)
+			if (getPvalue(i) > 0) total++;
+		double tot = total;
+
+		// No p-value? => We are done
+		if (total <= 0) return 1.0;
+
+		pValues.sort(); // Sort collection
+
+		// Perform Simes's method
+		int count = 0;
+		double pSimesMin = 1.0;
+		for (int i = 0; i < size(); i++) {
+			double pvalue = getPvalue(i);
+
+			// We treat zero p-values as errors, so we skip them 
+			if (pvalue > 0) {
+				count++;
+				double pSimes = pvalue / (count / tot);
+				pSimesMin = Math.min(pSimesMin, pSimes);
+			}
+		}
+
+		return pSimesMin;
+	}
+
+	/**
 	 * Combine p-values using Stouffer's Z-score method
 	 * 
 	 * References: http://en.wikipedia.org/wiki/Fisher's_method  (scroll down to Stouffer's method)
 	 * 
-	 * @return A combines p-value
+	 * @return A combined p-value
 	 */
 	double pValueZScore() {
 		if (size() <= 0) return 1.0;
