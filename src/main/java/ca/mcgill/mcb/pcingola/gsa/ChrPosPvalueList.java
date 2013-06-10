@@ -22,6 +22,7 @@ public class ChrPosPvalueList {
 	public ChrPosPvalueList() {
 		chromosomes = new ArrayList<Chromosome>();
 		starts = new TIntArrayList();
+		ends = new TIntArrayList();
 		pValues = new TDoubleArrayList();
 	}
 
