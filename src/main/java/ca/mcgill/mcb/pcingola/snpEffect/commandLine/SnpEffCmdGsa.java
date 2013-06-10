@@ -405,7 +405,7 @@ public class SnpEffCmdGsa extends SnpEff {
 			String chr = fields[0];
 			int start = Gpr.parseIntSafe(fields[1]) - 1; // Input format is 1-based
 			int end = Gpr.parseIntSafe(fields[2]) - 1; // Input format is 1-based
-			double pvalue = Gpr.parseDoubleSafe(fields[2]);
+			double pvalue = Gpr.parseDoubleSafe(fields[3]);
 
 			// Add data to list
 			Chromosome chromo = genome.getOrCreateChromosome(chr);
