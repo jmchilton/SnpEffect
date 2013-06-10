@@ -13,7 +13,7 @@ import ca.mcgill.mcb.pcingola.geneSets.GeneSets;
 import ca.mcgill.mcb.pcingola.geneSets.Result;
 
 /**
- * A generic greedy enrichment algorithm for selecting gene-sets from a collection of gene-sets
+ * A generic greedy enrichment algorithm for selecting gene-sets
  * 
  * @author pcingola
  */
