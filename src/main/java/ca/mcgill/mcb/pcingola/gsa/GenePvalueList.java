@@ -12,7 +12,7 @@ import ca.mcgill.mcb.pcingola.util.Gpr;
 public class GenePvalueList {
 
 	public enum PvalueSummary {
-		MIN, AVG, AVG10, FISHER_CHI_SQUARE
+		MIN, AVG, AVG10, FISHER_CHI_SQUARE, Z_SCORES
 	};
 
 	String geneId;
@@ -67,6 +67,9 @@ public class GenePvalueList {
 
 		case FISHER_CHI_SQUARE:
 			return pValueFisherChi2();
+
+		case Z_SCORES:
+			return pValueZScore();
 
 		default:
 			throw new RuntimeException("Unimplemented method for summary '" + pvalueSummary + "'");
@@ -148,6 +151,40 @@ public class GenePvalueList {
 		for (int i = 0; i < size(); i++)
 			min = Math.min(min, getPvalue(i));
 		return min;
+	}
+
+	/**
+	 * Combine p-values using Stouffer's Z-score method
+	 * 
+	 * References: http://en.wikipedia.org/wiki/Fisher's_method  (scroll down to Stouffer's method)
+	 * 
+	 * @return A combines p-value
+	 */
+	double pValueZScore() {
+		if (size() <= 0) return 1.0;
+
+		double sum = 0.0;
+		int count = 0;
+		for (int i = 0; i < size(); i++) {
+			double pvalue = getPvalue(i);
+
+			// If pvalue == 0, it produces an error (normal inverse is -Inf)
+			if (pvalue > 0) {
+				double z = Stat.normalInverseCDF(pvalue);
+				sum += z;
+
+				count++;
+			}
+		}
+
+		// Nothing added? 
+		if (count <= 0) return 1.0;
+
+		// Get new p-value
+		double zsum = sum / Math.sqrt(count);
+		double pValue = Stat.normalCDF(0.0, 1.0, zsum);
+
+		return pValue;
 	}
 
 	public void setGeneId(String geneId) {
