@@ -4,8 +4,8 @@ import java.util.Random;
 
 import junit.framework.Assert;
 import junit.framework.TestCase;
-import ca.mcgill.mcb.pcingola.gsa.GenePvalueList;
-import ca.mcgill.mcb.pcingola.gsa.GenePvalueList.PvalueSummary;
+import ca.mcgill.mcb.pcingola.gsa.PvalueList;
+import ca.mcgill.mcb.pcingola.gsa.PvalueList.PvalueSummary;
 import flanagan.analysis.Stat;
 
 /**
@@ -22,7 +22,7 @@ public class TestGenePvalueList extends TestCase {
 		double pvals[] = { 0.01, 0.2, 0.3 };
 
 		// Create p values
-		GenePvalueList gpl = new GenePvalueList();
+		PvalueList gpl = new PvalueList();
 		for (double pval : pvals)
 			gpl.add(pval);
 
@@ -38,7 +38,7 @@ public class TestGenePvalueList extends TestCase {
 		double pvals[] = { 0.01, 0.2, 0.3 };
 
 		// Create p values
-		GenePvalueList gpl = new GenePvalueList();
+		PvalueList gpl = new PvalueList();
 		for (double pval : pvals)
 			gpl.add(pval);
 
@@ -54,7 +54,7 @@ public class TestGenePvalueList extends TestCase {
 		double pvals[] = { 0.01, 0.9, 0.2, 0.9, 0.3, 0.9, 0.01, 0.9, 0.2, 0.9, 0.3, 0.9, 0.01, 0.9, 0.2, 0.9, 0.3, 0.9, 0.17, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9 };
 
 		// Create p values
-		GenePvalueList gpl = new GenePvalueList();
+		PvalueList gpl = new PvalueList();
 		for (double pval : pvals)
 			gpl.add(pval);
 
@@ -83,7 +83,7 @@ public class TestGenePvalueList extends TestCase {
 			}
 
 			// Calculate complementary probabilities
-			double pval = GenePvalueList.chiSquareCDFComplementary(chi2, degOfFreedom);
+			double pval = PvalueList.chiSquareCDFComplementary(chi2, degOfFreedom);
 			double prob = Stat.chiSquareCDF(chi2, degOfFreedom);
 
 			// Assert that statistics add to 1.0
@@ -98,7 +98,7 @@ public class TestGenePvalueList extends TestCase {
 		double pvals[] = { 0.01, 0.2, 0.3 };
 
 		// Create p values
-		GenePvalueList gpl = new GenePvalueList();
+		PvalueList gpl = new PvalueList();
 		for (double pval : pvals)
 			gpl.add(pval);
 
@@ -114,7 +114,7 @@ public class TestGenePvalueList extends TestCase {
 		double pvals[] = { 0.01, 0.2, 0.3 };
 
 		// Create p values
-		GenePvalueList gpl = new GenePvalueList();
+		PvalueList gpl = new PvalueList();
 		for (double pval : pvals)
 			gpl.add(pval);
 

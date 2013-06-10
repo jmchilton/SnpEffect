@@ -18,8 +18,8 @@ import ca.mcgill.mcb.pcingola.geneSets.algorithm.FisherPValueGreedyAlgorithm;
 import ca.mcgill.mcb.pcingola.geneSets.algorithm.RankSumPValueAlgorithm;
 import ca.mcgill.mcb.pcingola.geneSets.algorithm.RankSumPValueGreedyAlgorithm;
 import ca.mcgill.mcb.pcingola.gsa.ChrPosPvalueList;
-import ca.mcgill.mcb.pcingola.gsa.GenePvalueList;
-import ca.mcgill.mcb.pcingola.gsa.GenePvalueList.PvalueSummary;
+import ca.mcgill.mcb.pcingola.gsa.PvalueList;
+import ca.mcgill.mcb.pcingola.gsa.PvalueList.PvalueSummary;
 import ca.mcgill.mcb.pcingola.interval.Chromosome;
 import ca.mcgill.mcb.pcingola.interval.Gene;
 import ca.mcgill.mcb.pcingola.interval.Genome;
@@ -73,7 +73,7 @@ public class SnpEffCmdGsa extends SnpEff {
 	Genome genome;
 	GeneSets geneSets;
 	ChrPosPvalueList chrPosPvalueList; // List of <chr,pos,pvalue>
-	AutoHashMap<String, GenePvalueList> genePvalues; // A map of geneId -> List[pValues]
+	AutoHashMap<String, PvalueList> genePvalues; // A map of geneId -> List[pValues]
 	HashMap<String, Double> genePvalue; // A <gene, pValue> map
 	EnrichmentAlgorithmType enrichmentAlgorithmType = EnrichmentAlgorithmType.RANKSUM_GREEDY;
 
@@ -110,7 +110,6 @@ public class SnpEffCmdGsa extends SnpEff {
 		// Run enrichment algorithm
 		//---
 		EnrichmentAlgorithm algorithm = null;
-		int numberofGeneSetsToSelect = 1;
 
 		switch (enrichmentAlgorithmType) {
 		case RANKSUM_GREEDY:
@@ -181,7 +180,7 @@ public class SnpEffCmdGsa extends SnpEff {
 		if (verbose) Timer.showStdErr("Mapping p-values to genes.");
 
 		// Create an auto-hash
-		genePvalues = new AutoHashMap<String, GenePvalueList>(new GenePvalueList());
+		genePvalues = new AutoHashMap<String, PvalueList>(new PvalueList());
 
 		//---
 		// Map every chr:pos
@@ -199,7 +198,7 @@ public class SnpEffCmdGsa extends SnpEff {
 			// Add pValue to every geneId
 			double pvalue = chrPosPvalueList.getPvalue(i);
 			for (String geneId : geneIds) {
-				GenePvalueList gpl = genePvalues.getOrCreate(geneId);
+				PvalueList gpl = genePvalues.getOrCreate(geneId);
 				gpl.setGeneId(geneId);
 				gpl.add(pvalue);
 			}
@@ -470,7 +469,7 @@ public class SnpEffCmdGsa extends SnpEff {
 		if (debug) System.err.println("\tp-value\tgeneId");
 		for (String geneId : genePvalues.keySet()) {
 			// Calculate aggregated score
-			GenePvalueList gpl = genePvalues.get(geneId);
+			PvalueList gpl = genePvalues.get(geneId);
 			double pValue = gpl.pValue(pvalueSummary);
 
 			// Add to map

@@ -9,7 +9,7 @@ import ca.mcgill.mcb.pcingola.util.Gpr;
  * 
  * @author pcingola
  */
-public class GenePvalueList {
+public class PvalueList {
 
 	public enum PvalueSummary {
 		MIN, AVG, AVG10, FISHER_CHI_SQUARE, Z_SCORES
@@ -29,7 +29,7 @@ public class GenePvalueList {
 		return Stat.incompleteGammaComplementary(nu / 2.0D, chiSquare / 2.0D);
 	}
 
-	public GenePvalueList() {
+	public PvalueList() {
 		pValues = new TDoubleArrayList();
 	}
 
