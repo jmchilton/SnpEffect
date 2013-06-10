@@ -114,7 +114,7 @@ public abstract class EnrichmentAlgorithm {
 						+ "\t" + geneSet.getName() //
 						+ "\t" + geneSet.size() //
 						+ "\t" + geneSet.getDescription() //
-						+ "\t" + result.getList() //
+						+ "\t" + result.getGeneSets() //
 						+ "\t" + interestingGenes //
 						+ "\t" + geneSet.rankSum() //
 				);
@@ -152,10 +152,10 @@ public abstract class EnrichmentAlgorithm {
 	 * @return
 	 */
 	public Result select() {
-		Result best = new Result(null, 1, 0);
+		Result best = new Result();
 
 		//---
-		// Calculate pValues
+		// Calculate pValues for each gene set mathing our criteria
 		//---
 		List<Result> results = new ArrayList<Result>();
 		for (GeneSet geneSet : geneSets) {
@@ -169,10 +169,6 @@ public abstract class EnrichmentAlgorithm {
 				results.add(result);
 			}
 		}
-
-		// Update geneSetCounts
-		for (Result r : results)
-			r.setGeneSetCount(results.size());
 
 		//---
 		// Show results

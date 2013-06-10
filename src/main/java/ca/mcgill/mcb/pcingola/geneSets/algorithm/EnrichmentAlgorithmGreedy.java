@@ -36,20 +36,24 @@ public abstract class EnrichmentAlgorithmGreedy extends EnrichmentAlgorithm {
 	Result greedyPvalue(Result prevResult) {
 		Apfloat pValue = Apcomplex.ONE;
 		int geneSetCount = 0;
-		Result best = new Result(prevResult.getList(), 1, 0);
 		HashSet<GeneSet> genesetSet = new HashSet<GeneSet>();
-		if (prevResult.getList() != null) genesetSet.addAll(prevResult.getList());
+		if (prevResult.getGeneSets() != null) genesetSet.addAll(prevResult.getGeneSets());
 		Date start = new Date(), latest = new Date();
 
-		// For each term...
+		// Use previous result as "best"
+		Result best = new Result(prevResult);
+		best.setPvalue(1.0);
+
+		// For each geneSet...
 		for (GeneSet geneSet : geneSets) {
+
 			// Check GeneSet's conditions
 			if ((geneSet.getGeneCount() > 0) // This term is empty? => skip it
 					&& ((genesetSet == null) || (!genesetSet.contains(geneSet))) // Is this term already in the list? => skip it
 					&& (geneSet.getGeneCount() >= minGeneSetSize) // Use gene sets bigger than minGeneSetSize
 					&& (geneSet.getGeneCount() <= maxGeneSetSize) // Use gene sets smaller than maxGeneSetSize
 			) {
-				// Create a list of terms by joining the original list and adding a new term
+				// Create a new geneSet by joining the original genes and adding a new one
 				List<GeneSet> geneSetListNew = new LinkedList<GeneSet>();
 				if (genesetSet != null) geneSetListNew.addAll(genesetSet);
 				geneSetListNew.add(geneSet);
@@ -58,13 +62,7 @@ public abstract class EnrichmentAlgorithmGreedy extends EnrichmentAlgorithm {
 				pValue = pValue(geneSetListNew);
 
 				// Is it better? => Store it
-				if ((pValue.compareTo(Apcomplex.ZERO) > 0) && (pValue.compareTo(best.getPvalue()) < 0)) {
-					// Copy latest list
-					LinkedList<GeneSet> list = new LinkedList<GeneSet>();
-					list.addAll(geneSetListNew);
-					best.setPvalue(pValue);
-					best.setList(list);
-				}
+				if ((pValue.compareTo(Apcomplex.ZERO) > 0) && (pValue.compareTo(best.getPvalue()) < 0)) best.set(geneSetListNew, pValue);
 
 				// Show something every now and then?
 				Date now = new Date();
@@ -72,14 +70,16 @@ public abstract class EnrichmentAlgorithmGreedy extends EnrichmentAlgorithm {
 				long elapsedStart = now.getTime() - start.getTime();
 				if (verbose && (elapsed > PRINT_SOMETHING_TIME)) {
 					latest = now;
-					System.err.println("\t\t\tElapsed:" + (elapsedStart / 1000) + " secs\tGene sets: " + geneSetListNew + "\tpValue: " + pValue + "\tbestPvalue: " + best.getPvalue() + "\t" + best.getList());
+					System.err.println("\t\t\tElapsed:" + (elapsedStart / 1000) + " secs\tGene sets: " + geneSetListNew + "\tpValue: " + pValue + "\tbestPvalue: " + best.getPvalue() + "\t" + best.getGeneSets());
 				}
 
 				geneSetCount++;
 			}
 		}
 
-		best.setGeneSetCount(geneSetCount); // This is used in order to adjust pValue
+		// Update gene set counts. This is used in order to adjust pValue
+		best.addGeneSetCount(geneSetCount);
+
 		return best;
 	}
 
@@ -100,8 +100,13 @@ public abstract class EnrichmentAlgorithmGreedy extends EnrichmentAlgorithm {
 		Result result = new Result();
 		int iteration;
 		for (iteration = 1; iteration <= numberToSelect; iteration++) {
+			// Use greedy algorithm to select next item
 			result = greedyPvalue(result);
-			if (verbose) printResult(iteration, result); // Show something
+
+			// Show something
+			if (verbose) printResult(iteration, result);
+
+			// Stop here
 			if (stopCriteria(result)) {
 				if (verbose) System.out.println("\tStop criteria met.");
 				break;

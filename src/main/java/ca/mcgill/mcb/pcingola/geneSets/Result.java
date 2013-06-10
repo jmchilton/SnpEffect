@@ -1,10 +1,12 @@
 package ca.mcgill.mcb.pcingola.geneSets;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apfloat.Apcomplex;
 import org.apfloat.Apfloat;
+
+import ca.mcgill.mcb.pcingola.util.Gpr;
 
 /**
  * Store a result form a greedy search algorithm
@@ -13,26 +15,41 @@ import org.apfloat.Apfloat;
  */
 public class Result implements Comparable<Result> {
 
-	private List<GeneSet> list;
+	private List<GeneSet> geneSets;
 	private Apfloat pValue;
-	private double geneSetCount;
+	private List<Integer> geneSetCount;
 
 	public Result() {
-		list = null;
+		geneSets = new ArrayList<GeneSet>();
 		pValue = Apcomplex.ONE;
+		geneSetCount = new ArrayList<Integer>();
 	}
 
-	public Result(GeneSet geneSet, Apfloat pValue, double geneSetCount) {
-		list = new LinkedList<GeneSet>();
-		list.add(geneSet);
+	public Result(GeneSet geneSet, Apfloat pValue, long geneSetCount) {
+		geneSets = new ArrayList<GeneSet>();
+		geneSets.add(geneSet);
 		this.pValue = pValue;
-		this.geneSetCount = geneSetCount;
+		this.geneSetCount = new ArrayList<Integer>();
 	}
 
-	public Result(List<GeneSet> list, double pValue, double geneSetCount) {
-		this.list = list;
+	public Result(List<GeneSet> list, double pValue) {
+		setGeneSets(list);
 		this.pValue = new Apfloat(pValue);
-		this.geneSetCount = geneSetCount;
+		geneSetCount = new ArrayList<Integer>();
+	}
+
+	public Result(Result res) {
+		setGeneSets(res.geneSets);
+		setGeneSetCount(res.geneSetCount);
+		pValue = res.pValue;
+	}
+
+	/**
+	 * Add an item to the list of counts
+	 * @param count
+	 */
+	public void addGeneSetCount(int count) {
+		geneSetCount.add(count);
 	}
 
 	@Override
@@ -41,17 +58,17 @@ public class Result implements Comparable<Result> {
 		return 0;
 	}
 
-	public double getGeneSetCount() {
+	public List<Integer> getGeneSetCount() {
 		return geneSetCount;
 	}
 
-	public GeneSet getLatestGeneSet() {
-		if ((list == null) || (list.size() == 0)) { return null; }
-		return list.get(list.size() - 1);
+	public List<GeneSet> getGeneSets() {
+		return geneSets;
 	}
 
-	public List<GeneSet> getList() {
-		return list;
+	public GeneSet getLatestGeneSet() {
+		if ((geneSets == null) || (geneSets.size() == 0)) { return null; }
+		return geneSets.get(geneSets.size() - 1);
 	}
 
 	public Apfloat getPvalue() {
@@ -59,13 +76,17 @@ public class Result implements Comparable<Result> {
 	}
 
 	/**
-	 * P-Value adjusted using FDR
+	 * P-Value adjusted using
 	 * @return
 	 */
 	public double getPvalueAdjusted() {
+		if (geneSetCount.size() != geneSets.size()) throw new RuntimeException("Incompatible gene count sizes.\n\tGeneSetCount.size : " + geneSetCount.size() + "\n\tGeneSets.size: " + geneSets.size());
+
 		double adj = 1.0;
-		for (int i = 0; i < list.size(); i++)
-			adj *= geneSetCount / (i + 1);
+		for (int i = 0; i < geneSetCount.size(); i++)
+			adj *= ((double) geneSetCount.get(i)) / (i + 1);
+
+		Gpr.debug("ADJ: " + adj);
 		return Math.min(1.0, pValue.doubleValue() * adj);
 	}
 
@@ -73,19 +94,54 @@ public class Result implements Comparable<Result> {
 		return pValue.doubleValue();
 	}
 
-	public void setGeneSetCount(double geneSetCount) {
-		this.geneSetCount = geneSetCount;
+	/**
+	 * Ser a new list and pvalue
+	 * @param geneSets
+	 * @param pvalue
+	 */
+	public void set(List<GeneSet> geneSets, Apfloat pValue) {
+		setGeneSets(geneSets);
+		setPvalue(pValue);
 	}
 
-	public void setList(List<GeneSet> list) {
-		this.list = list;
+	/**
+	 * Assign geneSets 
+	 * @param geneSets
+	 */
+	public void setGeneSets(List<GeneSet> geneSets) {
+		ArrayList<GeneSet> l = new ArrayList<GeneSet>();
+		l.addAll(geneSets);
+		this.geneSets = l;
+	}
+
+	public void setGeneSetCount(List<Integer> geneSetCount) {
+		ArrayList<Integer> l = new ArrayList<Integer>();
+		l.addAll(geneSetCount);
+		this.geneSetCount = l;
 	}
 
 	public void setPvalue(Apfloat pValue) {
 		this.pValue = pValue;
 	}
 
-	public void setPvalueDouble(double pValue) {
+	public void setPvalue(double pValue) {
 		this.pValue = new Apfloat(pValue);
+	}
+
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+
+		sb.append("Gene sets: " + geneSets.size());
+		sb.append("\tpValue: " + pValue + "\t[");
+		sb.append("\tpValue.adj: " + getPvalueAdjusted() + "\t[");
+		sb.append("\t[");
+		for (Integer count : geneSetCount)
+			sb.append(" " + count);
+		sb.append("]\t");
+
+		for (GeneSet gs : geneSets)
+			sb.append(" " + gs.getName() + "(" + gs.size() + ")");
+
+		return sb.toString();
 	}
 }
