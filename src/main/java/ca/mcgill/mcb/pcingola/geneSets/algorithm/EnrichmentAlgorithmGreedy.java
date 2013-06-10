@@ -19,6 +19,12 @@ import ca.mcgill.mcb.pcingola.geneSets.Result;
  */
 public abstract class EnrichmentAlgorithmGreedy extends EnrichmentAlgorithm {
 
+	public static final double DEFAULT_MAX_PVALUE = 0.05;
+
+	protected boolean adjustedPvalue = true;
+	protected double maxPvalue = DEFAULT_MAX_PVALUE;
+	protected double maxPvalueAjusted = DEFAULT_MAX_PVALUE;
+
 	public EnrichmentAlgorithmGreedy(GeneSets geneSets, int numberToSelect) {
 		super(geneSets, numberToSelect);
 	}
@@ -108,9 +114,21 @@ public abstract class EnrichmentAlgorithmGreedy extends EnrichmentAlgorithm {
 		return result;
 	}
 
+	public void setAdjustedPvalue(boolean adjustedPvalue) {
+		this.adjustedPvalue = adjustedPvalue;
+	}
+
 	@Override
 	public void setMaxGeneSetSize(int maxGeneSetSize) {
 		this.maxGeneSetSize = maxGeneSetSize;
+	}
+
+	public void setMaxPvalue(double maxPvalue) {
+		this.maxPvalue = maxPvalue;
+	}
+
+	public void setMaxPvalueAjusted(double maxPvalueAjusted) {
+		this.maxPvalueAjusted = maxPvalueAjusted;
 	}
 
 	@Override
@@ -129,6 +147,16 @@ public abstract class EnrichmentAlgorithmGreedy extends EnrichmentAlgorithm {
 	 * @return true if stop criteria has been met and algorithm should stop iterating.
 	 */
 	protected boolean stopCriteria(Result result) {
-		return false;
+		// No result? => Stop
+		if (result == null) return true;
+
+		// No geneSet selected? => Stop
+		GeneSet geneSet = result.getLatestGeneSet();
+		if (geneSet == null) return true;
+
+		// Compare p-value to 'maxPvalue'
+		if (adjustedPvalue) return result.getPvalueAdjusted() > maxPvalueAjusted;
+		return result.getPvalue().doubleValue() > maxPvalue;
 	}
+
 }

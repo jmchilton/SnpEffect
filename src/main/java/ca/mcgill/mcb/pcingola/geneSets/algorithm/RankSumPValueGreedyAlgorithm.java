@@ -32,16 +32,10 @@ public class RankSumPValueGreedyAlgorithm extends EnrichmentAlgorithmGreedy {
 	 */
 	@Override
 	protected boolean stopCriteria(Result result) {
-		// No result? => Stop
-		if (result == null) return true;
-
-		// No geneSet selected? => Stop
-		GeneSet geneSet = result.getLatestGeneSet();
-		if (geneSet == null) return true;
-
 		// No rank sum? => stop
+		GeneSet geneSet = result.getLatestGeneSet();
 		if (geneSet.rankSum() <= 0) return true;
 
-		return false;
+		return super.stopCriteria(result);
 	}
 }
