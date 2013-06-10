@@ -34,6 +34,16 @@ public abstract class EnrichmentAlgorithmGreedy extends EnrichmentAlgorithm {
 	 * @return
 	 */
 	protected Result greedyPvalue(Result prevResult) {
+		return greedyPvalue(prevResult, minGeneSetSize, maxGeneSetSize);
+	}
+
+	/**
+	 * Calculate best list of terms by adding a new term to a list that minimize p-value (rank sum)
+	 * Only look for genesets within [minGeneSetSize, maxGeneSetSize] size range
+	 * 
+	 * @return
+	 */
+	protected Result greedyPvalue(Result prevResult, int minGeneSetSize, int maxGeneSetSize) {
 		Apfloat pValue = Apcomplex.ONE;
 		int geneSetCount = 0;
 		HashSet<GeneSet> genesetSet = new HashSet<GeneSet>();

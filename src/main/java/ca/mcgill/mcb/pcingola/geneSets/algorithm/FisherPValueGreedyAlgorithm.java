@@ -7,7 +7,7 @@ import ca.mcgill.mcb.pcingola.geneSets.GeneSets;
 import ca.mcgill.mcb.pcingola.probablility.FisherExactTest;
 import ca.mcgill.mcb.pcingola.util.Gpr;
 
-public class FisherPValueGreedyAlgorithm extends EnrichmentAlgorithmGreedy {
+public class FisherPValueGreedyAlgorithm extends EnrichmentAlgorithmGreedyVariableSize {
 
 	double threshold = 0.1;
 

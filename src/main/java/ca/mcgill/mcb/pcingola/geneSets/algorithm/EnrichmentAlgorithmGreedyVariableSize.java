@@ -31,21 +31,25 @@ public abstract class EnrichmentAlgorithmGreedyVariableSize extends EnrichmentAl
 	 */
 	@Override
 	protected Result greedyPvalue(Result prevResult) {
-		minGeneSetSize = 1;
-		maxGeneSetSize = initialSize;
+		// Min or Max gene sizes have been set? => Use 'regular algorthm"
+		if ((this.maxGeneSetSize < Integer.MAX_VALUE) || (this.minGeneSetSize > 0)) return super.greedyPvalue(prevResult);
 
-		// Focus on smaller gene set sizes first
+		// Use "search by size ranges" algorithm (look for small gene sets first, then for larger ones)
+		int minGeneSetSize = 1;
+		int maxGeneSetSize = initialSize;
+
+		// Iterate until we covered all sizes
 		while (minGeneSetSize < maxSize) {
 			if (debug) System.err.println("Trying size range [ " + minGeneSetSize + " , " + maxGeneSetSize + " ]");
 
 			// Run greedy algorithm from parent class
-			Result best = super.greedyPvalue(prevResult);
+			Result best = greedyPvalue(prevResult, minGeneSetSize, maxGeneSetSize);
 
 			// Update real count size.
 			// Note: We are changing the search order, but "search space size" remains the same as when we have all geneSets.
 			best.setGeneSetCountLast(geneSets.getGeneSetCount() - best.getGeneSets().size());
 
-			// Found something better? => we are done
+			// Found a smaller p-value? => We are done
 			double bestPval = best.getPvalueAdjusted();
 			if (bestPval <= prevResult.getPvalueAdjusted() && (bestPval <= maxPvalueAjusted)) return best;
 
