@@ -69,9 +69,9 @@ public class SnpEffCmdGsa extends SnpEff {
 	String msigdb = "";
 	PvalueSummary pvalueSummary = PvalueSummary.MIN;
 	CorrectionMethod correctionMethod = CorrectionMethod.NONE;
-	GeneSets geneSets;
 	SnpEffectPredictor snpEffectPredictor;
 	Genome genome;
+	GeneSets geneSets;
 	ChrPosPvalueList chrPosPvalueList; // List of <chr,pos,pvalue>
 	AutoHashMap<String, GenePvalueList> genePvalues; // A map of geneId -> List[pValues]
 	HashMap<String, Double> genePvalue; // A <gene, pValue> map

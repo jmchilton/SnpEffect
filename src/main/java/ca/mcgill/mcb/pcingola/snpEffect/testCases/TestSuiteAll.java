@@ -22,6 +22,7 @@ public class TestSuiteAll {
 		suite.addTestSuite(TestCasesHypergeometric.class);
 		suite.addTestSuite(TestCasesIntStats.class);
 		suite.addTestSuite(TestCochranArmitage.class);
+		suite.addTestSuite(TestGenePvalueList.class);
 
 		// Binary sequences
 		suite.addTestSuite(TestCasesNmers.class);
