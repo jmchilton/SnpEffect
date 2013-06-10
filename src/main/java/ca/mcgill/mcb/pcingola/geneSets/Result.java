@@ -6,8 +6,6 @@ import java.util.List;
 import org.apfloat.Apcomplex;
 import org.apfloat.Apfloat;
 
-import ca.mcgill.mcb.pcingola.util.Gpr;
-
 /**
  * Store a result form a greedy search algorithm
  *
@@ -62,6 +60,14 @@ public class Result implements Comparable<Result> {
 		return geneSetCount;
 	}
 
+	public int getGeneSetCountLast() {
+		if (geneSetCount.size() <= 0) return 0;
+
+		// Set last element
+		int index = geneSetCount.size() - 1;
+		return geneSetCount.get(index);
+	}
+
 	public List<GeneSet> getGeneSets() {
 		return geneSets;
 	}
@@ -86,7 +92,6 @@ public class Result implements Comparable<Result> {
 		for (int i = 0; i < geneSetCount.size(); i++)
 			adj *= ((double) geneSetCount.get(i)) / (i + 1);
 
-		Gpr.debug("ADJ: " + adj);
 		return Math.min(1.0, pValue.doubleValue() * adj);
 	}
 
@@ -104,6 +109,23 @@ public class Result implements Comparable<Result> {
 		setPvalue(pValue);
 	}
 
+	public void setGeneSetCount(List<Integer> geneSetCount) {
+		ArrayList<Integer> l = new ArrayList<Integer>();
+		l.addAll(geneSetCount);
+		this.geneSetCount = l;
+	}
+
+	public void setGeneSetCountLast(int count) {
+		if (geneSetCount.size() <= 0) {
+			geneSetCount.add(count);
+			return;
+		}
+
+		// Set last element
+		int index = geneSetCount.size() - 1;
+		geneSetCount.set(index, count);
+	}
+
 	/**
 	 * Assign geneSets 
 	 * @param geneSets
@@ -114,12 +136,6 @@ public class Result implements Comparable<Result> {
 		this.geneSets = l;
 	}
 
-	public void setGeneSetCount(List<Integer> geneSetCount) {
-		ArrayList<Integer> l = new ArrayList<Integer>();
-		l.addAll(geneSetCount);
-		this.geneSetCount = l;
-	}
-
 	public void setPvalue(Apfloat pValue) {
 		this.pValue = pValue;
 	}
@@ -128,6 +144,7 @@ public class Result implements Comparable<Result> {
 		this.pValue = new Apfloat(pValue);
 	}
 
+	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 

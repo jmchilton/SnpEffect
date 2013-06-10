@@ -33,7 +33,7 @@ public abstract class EnrichmentAlgorithmGreedy extends EnrichmentAlgorithm {
 	 * Calculate best list of terms by adding a new term to a list that minimize p-value (rank sum)
 	 * @return
 	 */
-	Result greedyPvalue(Result prevResult) {
+	protected Result greedyPvalue(Result prevResult) {
 		Apfloat pValue = Apcomplex.ONE;
 		int geneSetCount = 0;
 		HashSet<GeneSet> genesetSet = new HashSet<GeneSet>();

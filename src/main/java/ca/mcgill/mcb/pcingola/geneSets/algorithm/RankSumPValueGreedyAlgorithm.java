@@ -7,7 +7,7 @@ import ca.mcgill.mcb.pcingola.geneSets.GeneSetsRanked;
 import ca.mcgill.mcb.pcingola.geneSets.Result;
 import ca.mcgill.mcb.pcingola.probablility.RankSumNoReplacementPdf;
 
-public class RankSumPValueGreedyAlgorithm extends EnrichmentAlgorithmGreedy {
+public class RankSumPValueGreedyAlgorithm extends EnrichmentAlgorithmGreedyVariableSize {
 
 	public RankSumPValueGreedyAlgorithm(GeneSetsRanked geneSets, int numberToSelect) {
 		super(geneSets, numberToSelect);
