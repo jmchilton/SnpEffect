@@ -62,7 +62,7 @@ public class ChrPosPvalueList {
 		StringBuilder sb = new StringBuilder();
 
 		for (int i = 0; i < size(); i++)
-			sb.append(getChromosomeName(i) + "\t" + getStart(i) + "\t" + getPvalue(i) + "\n");
+			sb.append(getChromosomeName(i) + "\t" + getStart(i) + "\t" + getEnd(i) + "\t" + getPvalue(i) + "\n");
 
 		return sb.toString();
 	}
