@@ -99,6 +99,10 @@ public class Result implements Comparable<Result> {
 		return pValue.doubleValue();
 	}
 
+	public boolean isEmpty() {
+		return geneSets.isEmpty();
+	}
+
 	/**
 	 * Ser a new list and pvalue
 	 * @param geneSets

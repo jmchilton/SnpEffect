@@ -52,7 +52,7 @@ public abstract class EnrichmentAlgorithmGreedy extends EnrichmentAlgorithm {
 
 		// Use previous result as "best"
 		Result best = new Result(prevResult);
-		best.setPvalue(1.0);
+		best.setPvalue(1.0); // Any p-value should be less than this one
 
 		// For each geneSet...
 		for (GeneSet geneSet : geneSets) {

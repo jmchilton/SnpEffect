@@ -486,8 +486,8 @@ public class SnpEffCmdGsa extends SnpEff {
 			enrichmentAnalysis();
 		}
 
-		if (verbose) Timer.showStdErr("Done.");
 		genePvalue = genePvalueOri; // Restore original values
+		if (verbose) Timer.showStdErr("Done.");
 		return true;
 	}
 

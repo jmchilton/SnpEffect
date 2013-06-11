@@ -17,8 +17,6 @@ public class FisherPValueGreedyAlgorithm extends EnrichmentAlgorithmGreedyVariab
 
 	@Override
 	Apfloat pValue(GeneSet geneSet) {
-		// GeneSets geneSets = geneSet.getGeneSets();
-
 		// Notes:
 		//     White: Interesting
 		//     Drawn: In this gene set
@@ -28,7 +26,7 @@ public class FisherPValueGreedyAlgorithm extends EnrichmentAlgorithmGreedyVariab
 		int n = geneSet.getGeneCount(); // marbles drawn
 
 		double pValue = FisherExactTest.get().fisherExactTestUpThreshold(k, N, D, n, threshold);
-		if (debug) Gpr.debug("k: " + k + "\tN: " + N + "\tD: " + D + "\tn: " + n + "\tpValue: " + pValue);
+		if (debug) Gpr.debug("Fisher exact test\tk: " + k + "\tN: " + N + "\tD: " + D + "\tn: " + n + "\tpValue: " + pValue);
 		return new Apfloat(pValue);
 	}
 }
