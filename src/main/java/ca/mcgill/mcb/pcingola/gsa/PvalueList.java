@@ -2,7 +2,6 @@ package ca.mcgill.mcb.pcingola.gsa;
 
 import flanagan.analysis.Stat;
 import gnu.trove.list.array.TDoubleArrayList;
-import ca.mcgill.mcb.pcingola.util.Gpr;
 
 /**
  * A list of pvalues for a gene
@@ -12,8 +11,10 @@ import ca.mcgill.mcb.pcingola.util.Gpr;
 public class PvalueList {
 
 	public enum PvalueSummary {
-		MIN, AVG, AVG10, FISHER_CHI_SQUARE, Z_SCORES, SIMES
-	};
+		MIN, AVG, AVG10, FISHER_CHI_SQUARE, Z_SCORES, SIMES, BONFERRONI, FDR
+	}
+
+	public static final double SIGNIFICANCE_LEVEL_95 = 0.05;
 
 	String geneId;
 	TDoubleArrayList pValues;
@@ -74,6 +75,12 @@ public class PvalueList {
 		case SIMES:
 			return pValueSimes();
 
+		case BONFERRONI:
+			return pValueBonferroni();
+
+		case FDR:
+			return pValueFdr(SIGNIFICANCE_LEVEL_95);
+
 		default:
 			throw new RuntimeException("Unimplemented method for summary '" + pvalueSummary + "'");
 		}
@@ -112,6 +119,53 @@ public class PvalueList {
 	}
 
 	/**
+	 * Minimum p-value corrected using Bonferroni
+	 * @return
+	 */
+	double pValueBonferroni() {
+		if (pValues.size() <= 0) return 1.0;
+		return Math.min(1.0, pValueMin() * pValues.size());
+	}
+
+	/**
+	 * Combine p-values using FDR procedure
+	 * 
+	 * References: http://en.wikipedia.org/wiki/False_discovery_rate
+	 * 
+	 * @return A combined p-value
+	 */
+	double pValueFdr(double alpha) {
+		if (size() <= 0) return 1.0;
+
+		// Count non-zero p-values (we treat zero p-values as errors, so we skip them) 
+		int total = 0;
+		for (int i = 0; i < size(); i++)
+			if (getPvalue(i) > 0) total++;
+		double tot = total;
+
+		// No p-value? => We are done
+		if (total <= 0) return 1.0;
+
+		pValues.sort(); // Sort collection
+
+		// Perform Simes's method
+		int count = 0;
+		double pFdrMax = 0.0;
+		for (int i = 0; i < size(); i++) {
+			double pvalue = getPvalue(i);
+
+			// We treat zero p-values as errors, so we skip them 
+			if (pvalue > 0) {
+				count++;
+				double pFdr = tot * pvalue / count;
+				if (pFdr <= alpha) pFdrMax = pFdr;
+			}
+		}
+
+		return pFdrMax;
+	}
+
+	/**
 	 * Combine p-values using Fisher's method
 	 * 
 	 * References: http://en.wikipedia.org/wiki/Fisher's_method
@@ -140,7 +194,6 @@ public class PvalueList {
 		double chi2 = -2.0 * sum;
 		int k = 2 * count;
 		double pValue = chiSquareCDFComplementary(chi2, k); // 1 - ChiSquareCDF_{k}( chi2 )
-		Gpr.debug("Chi2 : " + chi2 + "\tk: " + k + "\tpval: " + pValue);
 
 		return pValue;
 	}
@@ -186,7 +239,7 @@ public class PvalueList {
 			// We treat zero p-values as errors, so we skip them 
 			if (pvalue > 0) {
 				count++;
-				double pSimes = pvalue / (count / tot);
+				double pSimes = (pvalue * tot) / count;
 				pSimesMin = Math.min(pSimesMin, pSimes);
 			}
 		}

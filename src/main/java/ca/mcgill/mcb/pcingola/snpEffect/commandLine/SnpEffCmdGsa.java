@@ -497,7 +497,7 @@ public class SnpEffCmdGsa extends SnpEff {
 		System.err.println("Usage: snpEff gsa [options] genome_version geneSets.gmt input_file");
 		System.err.println("\t-algo <name>       : Gene set enrichment algorithm {}. Default: " + enrichmentAlgorithmType);
 		System.err.println("\t-geneId            : Use geneID instead of gene names. Default: " + useGeneId);
-		System.err.println("\t-genePvalue        : Method to summarize gene p-values {MIN, AVG, AVG10}. Default: " + pvalueSummary);
+		System.err.println("\t-genePvalue        : Method to summarize gene p-values {MIN, AVG, AVG10, FISHER_CHI_SQUARE, Z_SCORES, SIMES}. Default: " + pvalueSummary);
 		System.err.println("\t-genePvalueCorr    : Correction method for gene-summarized p-values {NONE}. Default: " + correctionMethod);
 		System.err.println("\t-i <format>        : Input format {vcf, bed, txt}. Default: " + inputFormat);
 		System.err.println("\t-info <name>       : INFO tag used for p-values (in VCF input format).");
