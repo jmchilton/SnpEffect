@@ -125,8 +125,17 @@ public class TestGenePvalueList extends TestCase {
 
 	/**
 	 * Combined p-value : FDR
+	 * 
+	 * Reference for this test: http://stat.ethz.ch/R-manual/R-devel/library/stats/html/p.adjust.html
+	 * 
+	 * R code:
+	 * 		set.seed(123)
+	 * 		x <- rnorm(50, mean = c(rep(0, 25), rep(3, 25)))
+	 * 		p <- 2*pnorm(sort(-abs(x)))
+	 * 		p.adjust(p, "fdr")
 	 */
 	public void test_07() {
+
 		double pvals[] = { 2.354054e-07, 2.101590e-05, 2.576842e-05, 9.814783e-05, 1.052610e-04, 1.241481e-04, 1.325988e-04, 1.568503e-04, 2.254557e-04, 3.795380e-04, 6.114943e-04, 1.613954e-03, 3.302430e-03, 3.538342e-03, 5.236997e-03, 6.831909e-03, 7.059226e-03, 8.805129e-03, 9.401040e-03, 1.129798e-02, 2.115017e-02, 4.922736e-02, 6.053298e-02, 6.262239e-02, 7.395153e-02, 8.281103e-02, 8.633331e-02, 1.190654e-01, 1.890796e-01, 2.058494e-01, 2.209214e-01, 2.856000e-01, 3.048895e-01, 4.660682e-01, 4.830809e-01, 4.921755e-01, 5.319453e-01, 5.751550e-01, 5.783195e-01, 6.185894e-01, 6.363620e-01, 6.448587e-01, 6.558414e-01, 6.885884e-01, 7.189864e-01, 8.179539e-01, 8.274487e-01, 8.971300e-01, 9.118680e-01, 9.437890e-01 };
 
 		// Create p values
@@ -137,6 +146,19 @@ public class TestGenePvalueList extends TestCase {
 		// Check pvalues
 		double pvalue = gpl.pValue(PvalueSummary.FDR);
 		Assert.assertEquals(0.028244949999999998, pvalue);
+
+		// Check p-value for the second and third entries in the array
+		/*
+		 * > cbind( p, p.adjust(p, "fdr"))
+		 * 			 [1,] 2.354054e-07 1.177027e-05
+		 * 			 [2,] 2.101590e-05 4.294736e-04
+		 * 			 [3,] 2.576842e-05 4.294736e-04		<-- Same as previous line (this is because an adjusted p-value cannot decrease) 
+		 */
+		pvalue = gpl.pValueFdr(0.0005);
+		Assert.assertEquals(4.294736666666667E-4, pvalue);
+		pvalue = gpl.pValueFdr(0.0006);
+		Assert.assertEquals(4.294736666666667E-4, pvalue);
+
 	}
 
 }

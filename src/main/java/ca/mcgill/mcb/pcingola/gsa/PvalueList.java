@@ -122,7 +122,7 @@ public class PvalueList {
 	 * Minimum p-value corrected using Bonferroni
 	 * @return
 	 */
-	double pValueBonferroni() {
+	public double pValueBonferroni() {
 		if (pValues.size() <= 0) return 1.0;
 		return Math.min(1.0, pValueMin() * pValues.size());
 	}
@@ -134,7 +134,7 @@ public class PvalueList {
 	 * 
 	 * @return A combined p-value
 	 */
-	double pValueFdr(double alpha) {
+	public double pValueFdr(double alpha) {
 		if (size() <= 0) return 1.0;
 
 		// Count non-zero p-values (we treat zero p-values as errors, so we skip them) 
@@ -158,7 +158,7 @@ public class PvalueList {
 			if (pvalue > 0) {
 				count++;
 				double pFdr = tot * pvalue / count;
-				if (pFdr <= alpha) pFdrMax = pFdr;
+				if ((pFdr <= alpha) || (pFdr < pFdrMax)) pFdrMax = pFdr;
 			}
 		}
 
@@ -172,7 +172,7 @@ public class PvalueList {
 	 * 
 	 * @return
 	 */
-	double pValueFisherChi2() {
+	public double pValueFisherChi2() {
 		if (size() <= 0) return 1.0;
 
 		double sum = 0.0;
@@ -216,7 +216,7 @@ public class PvalueList {
 	 * 
 	 * @return A combined p-value
 	 */
-	double pValueSimes() {
+	public double pValueSimes() {
 		if (size() <= 0) return 1.0;
 
 		// Count non-zero p-values (we treat zero p-values as errors, so we skip them) 
@@ -254,7 +254,7 @@ public class PvalueList {
 	 * 
 	 * @return A combined p-value
 	 */
-	double pValueZScore() {
+	public double pValueZScore() {
 		if (size() <= 0) return 1.0;
 
 		double sum = 0.0;

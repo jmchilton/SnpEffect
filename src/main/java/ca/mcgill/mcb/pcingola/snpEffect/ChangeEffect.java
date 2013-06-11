@@ -153,7 +153,7 @@ public class ChangeEffect implements Cloneable, Comparable<ChangeEffect> {
 			case INTERGENIC_CONSERVED:
 				return "intergenic_variant";
 			case INTRAGENIC:
-				return "intergenic_variant";
+				return "intragenic_variant";
 			case REGULATION:
 				return "regulatory_region_variant";
 			case RARE_AMINO_ACID:
