@@ -47,7 +47,7 @@ public class GeneSetsRanked extends GeneSets {
 
 		// Sanity check
 		if (!genes.contains(gene)) {
-			if (verbose) System.err.println("WARNING: Trying to add ranked gene. Gene  '" + gene + "' does not exist in GeneSets. " + (doNotAddIfNotInGeneSet ? "Ignored." : "Added anyway."));
+			if (debug) System.err.println("WARNING: Trying to add ranked gene. Gene  '" + gene + "' does not exist in GeneSets. " + (doNotAddIfNotInGeneSet ? "Ignored." : "Added anyway."));
 			ok = false;
 			if (doNotAddIfNotInGeneSet) return ok;
 		}

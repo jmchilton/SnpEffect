@@ -65,6 +65,7 @@ public class SnpEffCmdGsa extends SnpEff {
 	int maxGeneSetSize = Integer.MAX_VALUE;
 	int numberofGeneSetsToSelect = Integer.MAX_VALUE; // TODO : Add a command line option to limit this
 	int initGeneSetSize = 100;
+	int randIterations = 0;
 	double maxPvalue = 1.0;
 	String inputFile = "";
 	String infoName = "";
@@ -298,6 +299,7 @@ public class SnpEffCmdGsa extends SnpEff {
 				} else if (arg.equals("-minSetSize")) minGeneSetSize = Gpr.parseIntSafe(args[++i]);
 				else if (arg.equals("-maxSetSize")) maxGeneSetSize = Gpr.parseIntSafe(args[++i]);
 				else if (arg.equals("-initSetSize")) initGeneSetSize = Gpr.parseIntSafe(args[++i]);
+				else if (arg.equals("-rand")) randIterations = Gpr.parseIntSafe(args[++i]);
 				else if (arg.equals("-mapClosestGene")) useClosestGene = true;
 				else if (arg.equals("-geneId")) useGeneId = true;
 
@@ -460,8 +462,32 @@ public class SnpEffCmdGsa extends SnpEff {
 		scoreGenes(); // Get one score (pValue) per gene
 		correctPvalues(); // Correct gene scores
 		enrichmentAnalysis(); // Perform enrichment analysis
+		if (randIterations > 0) runRand(); // Perform random iterations
 
 		if (verbose) Timer.showStdErr("Done.");
+		return true;
+	}
+
+	/**
+	* Run enrichment analysis using random p-values
+	*/
+	public boolean runRand() {
+		HashMap<String, Double> genePvalueOri = genePvalue; // Save original p-values
+
+		for (int iter = 1; iter <= randIterations; iter++) {
+			Timer.showStdErr("Random p-values. Iteration " + iter);
+
+			// Create random pvalues based on input 
+			genePvalue = new HashMap<String, Double>();
+			for (String gene : genePvalueOri.keySet())
+				genePvalue.put(gene, Math.random());
+
+			// Perform enrichment analysis
+			enrichmentAnalysis();
+		}
+
+		if (verbose) Timer.showStdErr("Done.");
+		genePvalue = genePvalueOri; // Restore original values
 		return true;
 	}
 
@@ -505,6 +531,7 @@ public class SnpEffCmdGsa extends SnpEff {
 		System.err.println("\t-minSetSize <num>  : Minimum number of genes in a gene set. Default: " + minGeneSetSize);
 		System.err.println("\t-maxSetSize <num>  : Maximum number of genes in a gene set. Default: " + maxGeneSetSize);
 		System.err.println("\t-initSetSize <num> : Initial number of genes in a gene set (size range algorithm). Default: " + initGeneSetSize);
+		System.err.println("\t-rand <num>        : Perform 'num' iterations using random p-values. Default: " + randIterations);
 		System.exit(-1);
 	}
 }
