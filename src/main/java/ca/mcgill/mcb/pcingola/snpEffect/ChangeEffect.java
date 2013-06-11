@@ -88,6 +88,7 @@ public class ChangeEffect implements Cloneable, Comparable<ChangeEffect> {
 			switch (this) {
 			case CHROMOSOME:
 				return "chromosome";
+			case INTERGENIC_CONSERVED:
 			case INTERGENIC:
 				return "intergenic_region";
 			case UPSTREAM:
@@ -150,8 +151,6 @@ public class ChangeEffect implements Cloneable, Comparable<ChangeEffect> {
 				return "downstream_gene_variant";
 			case INTRON_CONSERVED:
 				return "intron_variant";
-			case INTERGENIC_CONSERVED:
-				return "intergenic_variant";
 			case INTRAGENIC:
 				return "intragenic_variant";
 			case REGULATION:
