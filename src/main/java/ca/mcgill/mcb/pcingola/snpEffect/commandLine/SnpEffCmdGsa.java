@@ -116,7 +116,7 @@ public class SnpEffCmdGsa extends SnpEff {
 			double realPerc = (100.0 * count) / genePvalue.size();
 			double realPercAdded = (100.0 * countAdded) / genePvalue.size();
 			Timer.showStdErr(String.format("P-value threshold:"//
-					+ "\n\tQuantile                  : %.2f%%"//
+					+ "\n\tQuantile                 : %.2f%%"//
 					+ "\n\tThreshold                : %f"//
 					+ "\n\tInteresting genes        : %d  (%.2f%%)" //
 					+ "\n\tInteresting genes  added : %d  (%.2f%%)" //

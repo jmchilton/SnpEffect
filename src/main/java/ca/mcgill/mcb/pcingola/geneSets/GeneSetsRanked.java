@@ -138,6 +138,11 @@ public class GeneSetsRanked extends GeneSets {
 		return count;
 	}
 
+	@Override
+	public boolean isRanked() {
+		return false;
+	}
+
 	/**
 	 * Reads a file with a list of genes and experimental values.
 	 * Format: "gene \t value \n"

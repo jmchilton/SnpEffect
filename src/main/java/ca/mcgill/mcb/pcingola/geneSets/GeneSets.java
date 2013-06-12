@@ -313,6 +313,10 @@ public class GeneSets implements Iterable<GeneSet>, Serializable {
 		return valueByGene;
 	}
 
+	public boolean isRanked() {
+		return false;
+	}
+
 	/**
 	 * Iterate through each GeneSet in this GeneSets
 	 */

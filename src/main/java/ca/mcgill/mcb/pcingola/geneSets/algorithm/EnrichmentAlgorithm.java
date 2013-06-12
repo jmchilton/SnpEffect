@@ -126,7 +126,7 @@ public abstract class EnrichmentAlgorithm {
 							+ "</td>\t<td nowrap>" + geneSet.size() //
 							+ "</td>\t<td nowrap>" + descr //
 							+ "</td>\t<td nowrap>" + intGenes //
-							+ "</td>\t<td nowrap>" + geneSet.rankSum() //
+							+ "</td>\t<td nowrap>" + (geneSets.isRanked() ? geneSet.rankSum() : 0) //
 							+ "</td>\t</tr>");
 				} else System.out.println("\t" + it //
 						+ "\t" + result.getPvalue() //
@@ -136,7 +136,7 @@ public abstract class EnrichmentAlgorithm {
 						+ "\t" + geneSet.getDescription() //
 						+ "\t" + result.getGeneSets() //
 						+ "\t" + interestingGenes //
-						+ "\t" + geneSet.rankSum() //
+						+ "\t" + (geneSets.isRanked() ? geneSet.rankSum() : 0) //
 				);
 			}
 		} else System.out.println("\t" + it + "\tNULL");
