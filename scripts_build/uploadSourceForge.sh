@@ -24,12 +24,6 @@ echo
 echo "Upload databases"
 scp snpEff_v${SNPEFF_VERSION}_*.zip pcingola,snpeff@frs.sourceforge.net:/home/frs/project/s/sn/snpeff/databases/v${SNPEFF_VERSION}/
 
-# SnpSift
-echo
-echo "Upload SnpSift.jar"
-cp SnpSift.jar SnpSift_v${SNPSIFT_VERSION}.jar
-scp SnpSift.jar SnpSift_v${SNPSIFT_VERSION}.jar pcingola,snpeff@frs.sourceforge.net:/home/frs/project/s/sn/snpeff/
-
 #---
 # Update SnpEff web pages
 #---

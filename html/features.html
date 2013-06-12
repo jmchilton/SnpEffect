@@ -87,34 +87,11 @@
           </div>
 				<p class="lead"> Major features planned:
 				<ul>
-					<li> <b>Cancer projects:</b> Somatic vs Germline mutations "on the fly" differences. This will speed up considerable analysis of Cancer tissues.
-					<li> <b>Microbiome:</b> Support for all bacterial and fungi genomes available at NCBI (over 2,100 bacterial genomes)
-					<li> <b>Strunctural variants:</b> Compatibility with structural VCF variants (i.e. '&lt;DUP&gt;' and '&lt;DEL&gt;' ALT markers).
-					<li> <b>ENCODE & Regulation:</b> Reguation elements (also from ENCODE project), such as: 
-						<pre>DNase1, Ap2alpha, H3K36ac, H3K9me1, Nfyb, Ap2gamma, Tcf12, Nrsf, H3K79me2, EBF, 
-BATF, FAIRE, H2BK5me1, Sin3Ak20, H3K9me3, Gabp, H2BK12ac, TAF1, Jund, H2AZ , 
-USF1, PU1, HEY1, Rad21, H2BK5ac, Cfos, H4K8ac, Cjun, H4K20me1, SP1, 
-H3K4ac, H2BK20ac, H4K5ac, H3K36me3, Max, H2BK120ac, H3K18ac, H4K91ac, H3K27me3, Cmyc, 
-H3K4me1, H3K9ac, H3K27ac, PolII, H3K4me2, H3K4me3, CTCF, .... etc. </pre>
-						 This feature is available for human (GRCh37) and mouse (GRCm37).
-					<li> <b>Splicing:</b> 
-					<ul>
-						<li> Extended splice sites using conservation and entropy based metrics.
-						<li> Exon characterization: {RETAINED, SKIPPED, ALTTENATIVE_3SS, ALTTENATIVE_5SS, MUTUALLY_EXCLUSIVE, ALTTENATIVE_PROMOMOTER, ALTTENATIVE_POLY_A} 
-						<li> Add predicted U12 branch sites.
-					</ul>
 					<li> <b>Mixed variants:</b> Full support for MIXED variants: E.g. Some variants maybe a combination of Insertions, Deletions, SNPs or MNPs.
+					<li> <b>BCF</b>: Add support for BCF files (binary VCF)
+					<li> <b>Gene set enrichment analysis</b>: Algorithms for gene set enrichment analyss of sequencing variants (particularly for case control studies).
 				</ul>
 				</p>
-
-				Other features planned:
-				<ul>
-					<li> SnpSift dbNSFP: Add '-a' option to select annotation fields.
-					<li> SnpSift interval: Add '-x' option to exclude intervals.
-					<li> SnpEff: Only use a selected subset of transcripts. Command line option '-onlyTr file.txt'.
-					<li> O(m) algorithm: Current algorithm is O[ log(n) + m ], where <b>n</b> is the number of intervals (genes + exons + etc.) and <b>m</b> is the number of results. Under certain conditions the algorithm can be improved to be just O[m].
-					<li> [Done] Backwards compatible database format: Current database is a binary format incompatible across versions. Using a cross-version compatible database will avoid re-building all the databases for each new release.
-				</ul>
         </section>
 
         <!-- Features
@@ -125,14 +102,14 @@ H3K4me1, H3K9ac, H3K27ac, PolII, H3K4me2, H3K4me3, CTCF, .... etc. </pre>
           </div>
 				<p class="lead"> Features by version</p>
 
-				<p class="lead"> <b> Version: 3.1 (2012-11-02).</b></p>
+				<p class="lead"> <b> Version: 3.3 (2013-06-12).</b></p>
                 <ul>
 					<li> Over <b>8,500</b> genomes supported.
-					<li> ENSEMBL: Bacteria, Fungi, Metazoa, Plants and Protist genomes added.
+					<li> All ENSEMBL (version 18) : Bacteria, Fungi, Metazoa, Plants and Protist genomes added.
+					<li> NextProt annotaions added
+                    <li> Motif annotations support added
                     <li> SnpSift: GeneSet annotations
-                    <li> SnpEff count (greatly improves 'countReads')
-					<li> Warnings added when a transcript is suspected of bas annotations
-					<li> SnpEff summary in CSV for easy downstram processing
+                    <li> SnpEff count: Genomic region statistics counting reads, variants, intervals, etc.
                 </ul>
               </p>
 
