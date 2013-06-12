@@ -103,21 +103,24 @@ public class SnpEffCmdGsa extends SnpEff {
 		double pThreshold = pvalues.quantile(1.0 - interestingPerc);
 
 		// Mark all p-values lower than that as 'interesting'
-		int count = 0;
+		int count = 0, countAdded = 0;
+		geneSets.setDoNotAddIfNotInGeneSet(true);
 		for (String geneId : genePvalue.keySet())
 			if (genePvalue.get(geneId) <= pThreshold) {
-				geneSets.addInteresting(geneId);
+				if (geneSets.addInteresting(geneId)) countAdded++; // Count added genes
 				count++;
 			}
 
 		// Show info
 		if (verbose) {
 			double realPerc = (100.0 * count) / genePvalue.size();
+			double realPercAdded = (100.0 * countAdded) / genePvalue.size();
 			Timer.showStdErr(String.format("P-value threshold:"//
-					+ "\n\tQuantile           : %.2f%%"//
-					+ "\n\tThreshold          : %f"//
-					+ "\n\tInteresting genes  : %d  (%.2f%%)" //
-			, 100.0 * interestingPerc, pThreshold, count, realPerc));
+					+ "\n\tQuantile                  : %.2f%%"//
+					+ "\n\tThreshold                : %f"//
+					+ "\n\tInteresting genes        : %d  (%.2f%%)" //
+					+ "\n\tInteresting genes  added : %d  (%.2f%%)" //
+			, 100.0 * interestingPerc, pThreshold, count, realPerc, countAdded, realPercAdded));
 		}
 	}
 

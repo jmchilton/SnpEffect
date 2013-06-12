@@ -138,6 +138,7 @@ public class GeneSets implements Iterable<GeneSet>, Serializable {
 			if (debug) System.err.println("WARNING: Trying to add ranked gene. Gene  '" + gene + "' does not exist in GeneSets. " + (doNotAddIfNotInGeneSet ? "Ignored." : "Added anyway."));
 			ok = false;
 			if (doNotAddIfNotInGeneSet) return ok;
+			add(gene);
 		}
 
 		interestingGenes.add(gene);
