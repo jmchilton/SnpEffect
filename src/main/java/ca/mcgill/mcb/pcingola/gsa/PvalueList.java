@@ -281,6 +281,18 @@ public class PvalueList {
 		return pValue;
 	}
 
+	/**
+	 * Get pvalue quantile
+	 * @return
+	 */
+	public double quantile(double quantile) {
+		if (size() <= 0) return 1.0;
+
+		pValues.sort(); // Sort collection
+		int num = (int) (quantile * size());
+		return pValues.get(num);
+	}
+
 	public void setGeneId(String geneId) {
 		this.geneId = geneId;
 	}

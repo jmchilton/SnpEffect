@@ -18,6 +18,27 @@ import ca.mcgill.mcb.pcingola.geneSets.Result;
  */
 public abstract class EnrichmentAlgorithm {
 
+	public enum EnrichmentAlgorithmType {
+		FISHER_GREEDY, RANKSUM_GREEDY, FISHER, RANKSUM;
+
+		/**
+		 * Is the algorithm base on "interesting / not-interesting" binary clasification?
+		 * @return
+		 */
+		public boolean isBinary() {
+			return (this == FISHER) || (this == FISHER_GREEDY);
+		}
+
+		/**
+		 * Does the algorithm need a rank statistic?
+		 * @return
+		 */
+		public boolean isRank() {
+			return (this == RANKSUM) || (this == RANKSUM_GREEDY);
+		}
+
+	}
+
 	public static final int HTML_TD_GENES_MAX_LEN = 40;
 	public static final String HTML_BG_COLOR[] = { "dddddd", "eeeeee" };
 	public static final String HTML_BG_COLOR_TITLE = "cccccc";

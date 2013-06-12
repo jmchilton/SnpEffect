@@ -35,7 +35,7 @@ public class GeneSetsRanked extends GeneSets {
 	}
 
 	/**
-	 * Add a symbol as 'interesting' gene (to every corresponding GeneSet in this collection) 
+	 * Add a 'ranked' gene (to every corresponding GeneSet in this collection) 
 	 * @param gene : symbol's ID
 	 * @param rank : symbol's rank
 	 * @returns : true if it was added OK, false on error.

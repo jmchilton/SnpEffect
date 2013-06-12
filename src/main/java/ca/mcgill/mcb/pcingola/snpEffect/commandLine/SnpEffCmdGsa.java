@@ -13,6 +13,7 @@ import ca.mcgill.mcb.pcingola.fileIterator.VcfFileIterator;
 import ca.mcgill.mcb.pcingola.geneSets.GeneSets;
 import ca.mcgill.mcb.pcingola.geneSets.GeneSetsRanked;
 import ca.mcgill.mcb.pcingola.geneSets.algorithm.EnrichmentAlgorithm;
+import ca.mcgill.mcb.pcingola.geneSets.algorithm.EnrichmentAlgorithm.EnrichmentAlgorithmType;
 import ca.mcgill.mcb.pcingola.geneSets.algorithm.EnrichmentAlgorithmGreedyVariableSize;
 import ca.mcgill.mcb.pcingola.geneSets.algorithm.FisherPValueAlgorithm;
 import ca.mcgill.mcb.pcingola.geneSets.algorithm.FisherPValueGreedyAlgorithm;
@@ -46,15 +47,6 @@ public class SnpEffCmdGsa extends SnpEff {
 		NONE
 	}
 
-	public enum EnrichmentAlgorithmType {
-		FISHER_GREEDY, RANKSUM_GREEDY, FISHER, RANKSUM;
-
-		public boolean isRank() {
-			return (this == RANKSUM) || (this == RANKSUM_GREEDY);
-		}
-
-	}
-
 	public static int READ_INPUT_SHOW_EVERY = 1000;;
 
 	InputFormat inputFormat = InputFormat.VCF;
@@ -67,6 +59,7 @@ public class SnpEffCmdGsa extends SnpEff {
 	int initGeneSetSize = 100;
 	int randIterations = 0;
 	double maxPvalue = 1.0;
+	double interestingPerc = 0.95;
 	String inputFile = "";
 	String infoName = "";
 	String msigdb = "";
@@ -98,6 +91,37 @@ public class SnpEffCmdGsa extends SnpEff {
 	}
 
 	/**
+	 * Create interesting genes
+	 */
+	void createInterestingGenes() {
+		// Get 
+		PvalueList pvalues = new PvalueList();
+		for (double pval : genePvalue.values())
+			pvalues.add(pval);
+
+		// Get p-value threshold
+		double pThreshold = pvalues.quantile(1.0 - interestingPerc);
+
+		// Mark all p-values lower than that as 'interesting'
+		int count = 0;
+		for (String geneId : genePvalue.keySet())
+			if (genePvalue.get(geneId) <= pThreshold) {
+				geneSets.addInteresting(geneId);
+				count++;
+			}
+
+		// Show info
+		if (verbose) {
+			double realPerc = (100.0 * count) / genePvalue.size();
+			Timer.showStdErr(String.format("P-value threshold:"//
+					+ "\n\tQuantile           : %.2f%%"//
+					+ "\n\tThreshold          : %f"//
+					+ "\n\tInteresting genes  : %d  (%.2f%%)" //
+			, 100.0 * interestingPerc, pThreshold, count, realPerc));
+		}
+	}
+
+	/**
 	 * Perform enrichment analysis
 	 */
 	void enrichmentAnalysis() {
@@ -119,12 +143,12 @@ public class SnpEffCmdGsa extends SnpEff {
 			algorithm = new RankSumPValueGreedyAlgorithm((GeneSetsRanked) geneSets, numberofGeneSetsToSelect);
 			break;
 
-		case FISHER_GREEDY:
-			algorithm = new FisherPValueGreedyAlgorithm(geneSets, numberofGeneSetsToSelect);
-			break;
-
 		case RANKSUM:
 			algorithm = new RankSumPValueAlgorithm((GeneSetsRanked) geneSets, numberofGeneSetsToSelect);
+			break;
+
+		case FISHER_GREEDY:
+			algorithm = new FisherPValueGreedyAlgorithm(geneSets, numberofGeneSetsToSelect);
 			break;
 
 		case FISHER:
@@ -134,6 +158,9 @@ public class SnpEffCmdGsa extends SnpEff {
 		default:
 			throw new RuntimeException("Unimplemented algorithm!");
 		}
+
+		// Create 'interesting' genes
+		if (enrichmentAlgorithmType.isBinary()) createInterestingGenes();
 
 		// Initialize algorithm parameters
 		algorithm.setMaxGeneSetSize(maxGeneSetSize);
@@ -300,6 +327,7 @@ public class SnpEffCmdGsa extends SnpEff {
 				else if (arg.equals("-maxSetSize")) maxGeneSetSize = Gpr.parseIntSafe(args[++i]);
 				else if (arg.equals("-initSetSize")) initGeneSetSize = Gpr.parseIntSafe(args[++i]);
 				else if (arg.equals("-rand")) randIterations = Gpr.parseIntSafe(args[++i]);
+				else if (arg.equals("-interesting")) interestingPerc = Gpr.parseDoubleSafe(args[++i]);
 				else if (arg.equals("-mapClosestGene")) useClosestGene = true;
 				else if (arg.equals("-geneId")) useGeneId = true;
 
@@ -324,6 +352,8 @@ public class SnpEffCmdGsa extends SnpEff {
 
 		if (maxGeneSetSize <= 0) usage("MaxSetSize must be a positive number.");
 		if (minGeneSetSize >= maxGeneSetSize) usage("MaxSetSize (" + maxGeneSetSize + ") must larger than MinSetSize (" + minGeneSetSize + ").");
+
+		if ((interestingPerc < 0) || (interestingPerc > 1)) usage("Interesting percentile must be in the [0 , 1.0] range.");
 	}
 
 	/**
@@ -521,17 +551,22 @@ public class SnpEffCmdGsa extends SnpEff {
 		if (message != null) System.err.println("Error: " + message + "\n");
 		System.err.println("snpEff version " + SnpEff.VERSION);
 		System.err.println("Usage: snpEff gsa [options] genome_version geneSets.gmt input_file");
-		System.err.println("\t-algo <name>       : Gene set enrichment algorithm {}. Default: " + enrichmentAlgorithmType);
+		System.err.println("\n\tInput data options:");
 		System.err.println("\t-geneId            : Use geneID instead of gene names. Default: " + useGeneId);
-		System.err.println("\t-genePvalue        : Method to summarize gene p-values {MIN, AVG, AVG10, FISHER_CHI_SQUARE, Z_SCORES, SIMES}. Default: " + pvalueSummary);
-		System.err.println("\t-genePvalueCorr    : Correction method for gene-summarized p-values {NONE}. Default: " + correctionMethod);
 		System.err.println("\t-i <format>        : Input format {vcf, bed, txt}. Default: " + inputFormat);
 		System.err.println("\t-info <name>       : INFO tag used for p-values (in VCF input format).");
+		System.err.println("\n\tAlgorithm options:");
+		System.err.println("\t-algo <name>       : Gene set enrichment algorithm {FISHER_GREEDY, RANKSUM_GREEDY, FISHER, RANKSUM}. Default: " + enrichmentAlgorithmType);
+		System.err.println("\t-genePvalue        : Method to summarize gene p-values {MIN, AVG, AVG10, FISHER_CHI_SQUARE, Z_SCORES, SIMES}. Default: " + pvalueSummary);
+		System.err.println("\t-genePvalueCorr    : Correction method for gene-summarized p-values {NONE}. Default: " + correctionMethod);
 		System.err.println("\t-mapClosestGene    : Map to closest gene. Default: " + useClosestGene);
+		System.err.println("\t-rand <num>        : Perform 'num' iterations using random p-values. Default: " + randIterations);
+		System.err.println("\n\tAlgorithm specific options: FISHER and FISHER_GREEDY");
+		System.err.println("\t-interesting <num> : Consider a gene 'interesting' if the p-value is in the 'num' percentile. Default: " + interestingPerc);
+		System.err.println("\n\tGene Set options:");
 		System.err.println("\t-minSetSize <num>  : Minimum number of genes in a gene set. Default: " + minGeneSetSize);
 		System.err.println("\t-maxSetSize <num>  : Maximum number of genes in a gene set. Default: " + maxGeneSetSize);
 		System.err.println("\t-initSetSize <num> : Initial number of genes in a gene set (size range algorithm). Default: " + initGeneSetSize);
-		System.err.println("\t-rand <num>        : Perform 'num' iterations using random p-values. Default: " + randIterations);
 		System.exit(-1);
 	}
 }

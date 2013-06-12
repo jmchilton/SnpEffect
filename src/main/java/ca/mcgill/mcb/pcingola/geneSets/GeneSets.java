@@ -127,6 +127,24 @@ public class GeneSets implements Iterable<GeneSet>, Serializable {
 	}
 
 	/**
+	 * Add a symbol as 'interesting' gene (to every corresponding GeneSet in this collection) 
+	 * @returns : true if it was added OK, false on error.
+	 */
+	public boolean addInteresting(String gene) {
+		boolean ok = true;
+
+		// Sanity check
+		if (!genes.contains(gene)) {
+			if (debug) System.err.println("WARNING: Trying to add ranked gene. Gene  '" + gene + "' does not exist in GeneSets. " + (doNotAddIfNotInGeneSet ? "Ignored." : "Added anyway."));
+			ok = false;
+			if (doNotAddIfNotInGeneSet) return ok;
+		}
+
+		interestingGenes.add(gene);
+		return ok;
+	}
+
+	/**
 	 * Checks that every symboolID is in the set (as 'interesting' genes)
 	 * @param intGenes : A set of interesting genes
 	 * Throws an exception on error
