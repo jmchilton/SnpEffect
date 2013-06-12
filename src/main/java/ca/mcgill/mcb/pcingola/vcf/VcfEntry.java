@@ -1017,7 +1017,7 @@ public class VcfEntry extends Marker implements Iterable<VcfGenotype> {
 				break;
 
 			case 0:
-				gtStr = "\0/0";
+				gtStr = "0/0";
 				break;
 
 			case 1:

@@ -80,8 +80,6 @@ public class CountReadsOnMarkers {
 
 		// Iterate over all BAM/SAM files
 		for (String fileName : fileNames) {
-			if (verbose) Timer.showStdErr("Reading file '" + fileName + "'");
-
 			CountReads countReads = new CountReads(fileName, snpEffectPredictor);
 			countReads.setMarkerTypes(markerTypes);
 			countReads.setVerbose(verbose);

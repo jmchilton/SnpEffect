@@ -79,11 +79,13 @@ public class SnpEffCmdCount extends SnpEff {
 
 		// Sanity check
 		if ((genomeVer == null) || genomeVer.isEmpty()) usage("Missing genome version");
-		if (fileNames.size() < 1) usage("Missing SAM/BAM file/s");
+		if (fileNames.size() < 1) usage("Missing input file/s");
+
 		for (String file : fileNames)
-			if (!Gpr.canRead(file)) fatalError("Cannot read file '" + file + "'");
+			if (!Gpr.canRead(file)) fatalError("Cannot read input file '" + file + "'");
+
 		for (String file : customIntervals)
-			if (!Gpr.canRead(file)) fatalError("Cannot read file '" + file + "'");
+			if (!Gpr.canRead(file)) fatalError("Cannot read custom intervals file '" + file + "'");
 	}
 
 	/**
@@ -199,7 +201,7 @@ public class SnpEffCmdCount extends SnpEff {
 		System.err.println("\t-i intervals.bed : User defined intervals. Mutiple '-i' commands are allowed.");
 		System.err.println("\t-n name          : Output file base name. ");
 		System.err.println("\t-p               : Calculate probability model (binomial). Default: " + calcProbModel);
-		System.err.println("\tfile             : A file contianing intervals or reads. Either BAM, SAM, BED, BigBed format.");
+		System.err.println("\tfile             : A file contianing intervals or reads. Either BAM, SAM, VCF, BED or BigBed format.");
 		System.exit(-1);
 	}
 }

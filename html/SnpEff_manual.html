@@ -197,6 +197,7 @@
 					<tr> <td> Simple instalation </td> <td> Instalation is as simple as downloading a ZIP file and double clicking on it. </td> </tr>
 					<tr> <td> Genomes </td> <td> Human genome, as well as all model organisms are supported. Over 2,500 genomes are supported, which includes most mammalian, plant, bacterial and fungal genomes with published genomic data. </td> </tr>
 					<tr> <td> Speed </td> <td> SnpEff is really fast. It can annotate up to 1,000,000 variants per minute. </td> </tr>
+					<tr> <td> GATK integration </td> <td> SnpEff can be easily integrated with <a href="http://www.broadinstitute.org/gatk/">GATK</a> pipleines.</td> </tr>
 					<tr> <td> GUI </td> <td> Web based user interface via Galaxy project </td> </tr>
 					<tr> <td> Input and Output formats </td> 
 						<td> 
@@ -220,20 +221,27 @@
 						<td> 
 						SnpEff can annotate using publicly available data from well known databases, for instance:
 						<ul>
-							<li> <b>dbSnp</b> and <b>1,000 Genomes</b> Annotating "common" variants from dbSnp and 1000 genomes can be done via SnpSift.
-							<li> <b> Gwas catalog</b> Support for GWAS catalog annotations (via SnpSift) 
 							<li> <b>ENCODE</b> datasets are supported by SnpEff (by means of BigWig files provided by ENCODE project).
 							<li> <b>Epigenime Roadmap</b> provides data-sets that can be used with SnpEff.
 							<li> <b>TFBS</b> Transcription factor binding site predictions can be annotated. Motif data used in this annotations is generates by <code>Jasper</code> and <code>ENSEBML</code> projects
 							<li> <b>NextProt</b> database can be used to annotate protein domains as well as important functional sites in a protein (e.g. phosphorilation site)
-							<li> <b> PhastCons </b> Conservation score annotations (via SnpSift) 
-							<li> <b> DbNsfp</b> A comprehensive database providing many annotations and scores, such as: <code>SIFT</code> ,<code>Polyphen2</code> ,<code>GERP++</code>, <code>PhyloP</code> ,<code>MutationTaster</code> ,<code>SiPhy</code> ,<code>Interpro</code> ,<code>Haploinsufficiency</code> ,etc. (via SnpSift).
 						</ul>
 						</td> 
 					</tr>
+					<tr> <td> Common variants (dbSnp) </td> <td> Annotating "common" variants from <b>dbSnp</b> and <b>1,000 Genomes</b> can be easily done (see <code>SnpSift annotate</code>). </td> </tr>
+					<tr> <td> Gwas catalog </td> <td> Support for GWAS catalog annotations (see <code>SnpSift gwasCat</code> )  </td> </tr>
+					<tr> <td> Conservation scores </td> <td> PhastCons conservation score annotations support (see <code>SnpSift phastCons</code>)  </td> </tr>
+					<tr>
+						<td> DbNsfp </td> 
+						<td> 
+						A comprehensive database providing many annotations and scores, such as: <code>SIFT</code> ,<code>Polyphen2</code> ,<code>GERP++</code>, <code>PhyloP</code> ,<code>MutationTaster</code> ,<code>SiPhy</code> ,<code>Interpro</code> ,<code>Haploinsufficiency</code> ,etc. (via SnpSift). 
+						<p>
+						See <code>SnpSift dbnsfp</code> for details.
+						</td> 
+					</tr>
 					<tr> <td> Non-coding annotations </td> <td> Regulatory and non-coding annotations are supported for different tissues and cell lines. Annotations supported include PolII ,H3K27ac ,H3K4me2 ,H3K4me3 ,H3K27me3 ,CTCF ,H3K36me3, just to name a few. </td> </tr>
+					<tr> <td> Gene Sets annotations</td> <td> Gene sets (MSigDb, GO, BioCarta, KEGG, Reactome, etc.) can be used to annotate via <code>SnpSift geneSets</code> command.</td> </tr>
 				</table>
-
 				</p>
         </section>
 
@@ -2735,14 +2743,20 @@ $ snpeff closest -bed GRCh37.66 test.bed
 </pre>
 				</p>
 
-				<h3> SnpEff countReads </h3>
+				<h3> SnpEff count </h3>
 				<p>
-				As the name suggests, <code>snpEff countReads</code> command counts how many reads and bases from a BAM file hit a gene, transcript, exon, intron, etc.
+				As the name suggests, <code>snpEff count</code> command counts how many reads and bases from a BAM file hit a gene, transcript, exon, intron, etc.
+				Input files can be in BAM, SAM, VCF, BED or BigBed formats.
 				<br>
-				If you need to count how many reads (and bases) from a BAM file hit each genomic region, you can use 'countReads' utility.<br>
+				A summary HTML file with charts is generated. Here are some examples:
+				<img src="images/snpeff_count_01.png">
+				<p>
+				<img src="images/snpeff_count_02.png">
+				<br>
+				If you need to count how many reads (and bases) from a BAM file hit each genomic region, you can use 'count' utility.<br>
 				The command line is quite simple. E.g. in order to count how many reads (from N BAM files) hit regions of the human genome, you simply run: <br>
 <pre>
-java -Xmx4g -jar snpEff.jar countReads GRCh37.68 readsFile_1.bam readsFile_2.bam ...  readsFile_N.bam > countReads.txt 
+java -Xmx4g -jar snpEff.jar count GRCh37.68 readsFile_1.bam readsFile_2.bam ...  readsFile_N.bam > countReads.txt 
 </pre>
 				<br>
 				<br>
@@ -2784,10 +2798,10 @@ chr  start  end       type                IDs                         Reads:read
 				<br>
 				<b>Totals and Binomial model</b>
 				<br>
-				The command prints totals and p-values (based on a Binomial model) to STDER. 
+				Using command line option <code>-p</code>, you can calculate p-values based on a Binomial model.
 				For example (output edited for the sake of brevity):
 <pre>
-$ java -Xmx4g -jar snpEff.jar countReads -v BDGP5.69 fly.bam > countReads.txt
+$ java -Xmx4g -jar snpEff.jar count -v BDGP5.69 fly.bam > countReads.txt
 00:00:00.000	Reading configuration file 'snpEff.config'
 ...
 00:00:12.148	Calculating probability model for read length 50
@@ -2825,7 +2839,7 @@ Utr5prime          0.02765432673262785    8146       5675          7.90840684080
 				<br>
 				Example : You want to know how many reads intersect each peak from a peak detection algorithm:
 <pre>
-java -Xmx4g -jar snpEff.jar countReads -i peaks.bed GRCh37.68 reads.bam
+java -Xmx4g -jar snpEff.jar count -i peaks.bed GRCh37.68 reads.bam
 </pre>
 				</p>
 
