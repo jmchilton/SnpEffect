@@ -94,6 +94,7 @@
           <li><a href="#intersect"> <i class="icon-chevron-right"></i>  SnpSift Intersect</a></li>
           <li><a href="#rmInfo"> <i class="icon-chevron-right"></i>  SnpSift RmInfo</a></li>
           <li><a href="#geneSets"> <i class="icon-chevron-right"></i>  SnpSift GeneSets</a></li>
+          <li><a href="#gt"> <i class="icon-chevron-right"></i>  SnpSift GT</a></li>
         </ul>
       </div>
       <div class="span9">
@@ -1517,30 +1518,99 @@ $ java -jar SnpSift.jar rmInfo test.snpeff.vcf EFF
             <h1>21. SnpSift GeneSets </h1>
           </div>
 				<p class="lead">
-				This command removes INFO fields from a VCF file (i.e. removes annotations)
+				Annotating GeneSets, such as Gene Ontology (GO), KEGG, Reactome, etc.; can be quite useful to find significant variants.
 				</p>
 				<p>
-				Removing INFO fields is usually done because you want to re-annotate the VCF file, thus removing old INFO fields in order to add new ones later.
-				<br>
-				<br>
-				SnpEff & SnpSift only add annotations and do not change current ones. 
-				So, in order to re-annotate a file, you should first remove the old annotations and then re-annotate.
-				<br>
-				The reason for this behavior is simply because replacing annotation values is considered a bad practice. 
-				Imagine that you have a VCF entry  in your re-annotated file having the value "AA=1": How do you know if this is from the old annotations or from the new ones? 
-				This confision often leads to problems in downstream steps of your pipelines, so it's better to avoid the problem by first removing all the previous annotations and then adding the new ones.
+				Gene set annotations can be added to a SnpEff annotated file using <code>SnpSift geneSets</code> command.
+				The VCF file must be annotated using <code>SnpEff</code> before perforimg Gene Sets annotations.
+				This is because we must know which gene the variant affects).
 				<br>
 				<br>
 				Usage example:
 <pre>
-$ cat test.snpeff.vcf 
-#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO
-1	734462	1032	G	A	.	s50	AC=348;EFF=DOWNSTREAM(MODIFIER|||||RP11-206L10.8|processed_transcript|NON_CODING|ENST00000447500||1),INTRON(MODIFIER|||||RP11-206L10.6|processed_transcript|NON_CODING|ENST00000429505|1|1)
+$ java -jar SnpSift.jar geneSets -v db/msigDb/msigdb.v3.1.symbols.gmt test.eff.vcf > test.eff.geneSets.vcf
+00:00:00.000	Reading MSigDb from file: 'db/msigDb/msigdb.v3.1.symbols.gmt'
+00:00:01.168	Done. Total:
+	8513 gene sets
+	31847 genes
+00:00:01.168	Annotating variants from: 'test.eff.vcf'
+00:00:01.298	Done.
+# Summary
+#	gene_set	gene_set_size	variants
+#	ACEVEDO_METHYLATED_IN_LIVER_CANCER_DN	940	8
+#	CHR1P36	504	281
+#	KEGG_OLFACTORY_TRANSDUCTION	389	8
+#	REACTOME_GPCR_DOWNSTREAM_SIGNALING	805	8
+#	REACTOME_OLFACTORY_SIGNALING_PATHWAY	328	8
+...
+#	REACTOME_SIGNALING_BY_GPCR	920	8
 
-$ java -jar SnpSift.jar rmInfo test.snpeff.vcf EFF
-#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO
-1	734462	1032	G	A	.	s50	AC=348
+$ cat test.eff.geneSets.vcf
+##INFO=&lt;ID=MSigDb,Number=.,Type=String,Description="Gene set from MSigDB database (GSEA)">
+1	69849	.	G	A	454.73	PASS	AC=33;EFF=STOP_GAINED(HIGH|NONSENSE|tgG/tgA|W253*|305|OR4F5|protein_coding|CODING|ENST00000335137|1|1);MSigDb=ACEVEDO_METHYLATED_IN_LIVER_CANCER_DN,CHR1P36,KEGG_OLFACTORY_TRANSDUCTION,REACTOME_GPCR_DOWNSTREAM_SIGNALING,REACTOME_OLFACTORY_SIGNALING_PATHWAY,REACTOME_SIGNALING_BY_GPCR
 </pre>
+				</p>
+        </section>
+
+        <!-- GeneSets
+        ================================================== -->
+        <section id="gt">
+          <div class="page-header">
+            <h1>22. SnpSift GT </h1>
+          </div>
+				<p class="lead">
+				Compress genotype calls, reducing the overall size of the VCF file.
+				</p>
+				<p>
+				This is intended for compressing very large VCF in very large sequencing projects (e.g. thousands of samples).<br>
+				<br>
+				<i class="icon-hand-right"></i> For instance, we've reduced 1Tb (1,000 Gb) VCF file to roughly 1Gb in a project that has over 10,000 samples. 
+				<br>
+				<br>
+				The underlying idea is quite simple. 
+				In large re-sequenceing projects most of the variants are singletons. 
+				This means that most variants are present in only one of the samples.
+				For those variants, you have thousands of samples that are homozygous reference (i.e. genotype entry is "0/0") and one that is a variant (e.g. '0/1' or '1/1').
+				<br>
+				A trivial way to compress these VCF entries is just to state which sample has non-reference information.
+				Intuitively, this is simmilar to the way used to represent sparse matrices (only store non-zero elements).
+				<br>
+				<br>
+				<code>SnpSift gt</code> creates three INFO fields. These three fiels are composed of comma separated indeces of samples having:
+				<ul>
+					<li> HE: Indicated heterozygous variants (i.e. '0/1').
+					<li> HO: Indicated homozygous variants (i.e. '1/1').
+					<li> NA: Indicated missing genotype data (i.e. './.').
+				</ul>
+				<br>
+				You can use <code> -u </code> command line option to uncompress.
+				<br>
+				E.g.:
+<pre>
+$ cat test.vcf
+#CHROM  POS     ID  REF  ALT  QUAL  FILTER  INFO  FORMAT  Sample_1  Sample_2  Sample_3  Sample_4  Sample_5  Sample_6  Sample_7  Sample_8  Sample_9  Sample_10  Sample_11  Sample_12  Sample_13  Sample_14  Sample_15
+1       861276  .   A    G    .     PASS    AC=1  GT      0/0       1/1       0/0       0/0       0/0       0/0       0/0       0/0       0/0       0/0        0/0        0/0        0/0        0/0        0/0
+
+#---
+# Compress genotypes
+#---
+$ java -jar SnpSift.jar gt test.vcf | tee test.gt.vcf
+##INFO=&lt;ID=HO,Number=.,Type=Integer,Description="List of sample indexes having homozygous ALT genotypes">
+##INFO=&lt;ID=HE,Number=.,Type=Integer,Description="List of sample indexes having heterozygous ALT genotypes">
+##INFO=&lt;ID=NA,Number=.,Type=Integer,Description="List of sample indexes having missing genotypes">
+#CHROM  POS     ID  REF  ALT  QUAL  FILTER  INFO        FORMAT  Sample_1  Sample_2  Sample_3  Sample_4  Sample_5  Sample_6  Sample_7  Sample_8  Sample_9  Sample_10  Sample_11  Sample_12  Sample_13  Sample_14  Sample_15
+1       861276  .   A    G    .     PASS    AC=1;HO=1
+
+#---
+# Uncompress genotypes (command line option '-u')
+#---
+$ java -jar SnpSift.jar gt -u test.gt.vcf 
+#CHROM  POS     ID  REF  ALT  QUAL  FILTER  INFO  FORMAT  Sample_1  Sample_2  Sample_3  Sample_4  Sample_5  Sample_6  Sample_7  Sample_8  Sample_9  Sample_10  Sample_11  Sample_12  Sample_13  Sample_14  Sample_15
+1       861276  .   A    G    .     PASS    AC=1  GT      0/0       1/1       0/0       0/0       0/0       0/0       0/0       0/0       0/0       0/0        0/0        0/0        0/0        0/0        0/0
+</pre>
+				<br>
+				<br>
+				<i class="icon-warning-sign"></i> This is lossy compression. Note that only GT informations is compressed, all other information in genotype field is lost.
 				</p>
         </section>
       </div>
