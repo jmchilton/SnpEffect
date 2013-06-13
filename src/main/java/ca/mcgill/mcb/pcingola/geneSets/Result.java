@@ -23,11 +23,12 @@ public class Result implements Comparable<Result> {
 		geneSetCount = new ArrayList<Integer>();
 	}
 
-	public Result(GeneSet geneSet, Apfloat pValue, long geneSetCount) {
+	public Result(GeneSet geneSet, Apfloat pValue, int geneSetCount) {
 		geneSets = new ArrayList<GeneSet>();
 		geneSets.add(geneSet);
 		this.pValue = pValue;
 		this.geneSetCount = new ArrayList<Integer>();
+		this.geneSetCount.add(geneSetCount);
 	}
 
 	public Result(List<GeneSet> list, double pValue) {

@@ -27,6 +27,12 @@ public class GeneSetsRanked extends GeneSets {
 		maxRank = 0;
 	}
 
+	public GeneSetsRanked(GeneSets geneSets) {
+		super(geneSets);
+		rankByGene = new HashMap<String, Integer>();
+		maxRank = 0;
+	}
+
 	public GeneSetsRanked(String msigDb) {
 		super();
 		rankByGene = new HashMap<String, Integer>();
@@ -140,7 +146,7 @@ public class GeneSetsRanked extends GeneSets {
 
 	@Override
 	public boolean isRanked() {
-		return false;
+		return true;
 	}
 
 	/**

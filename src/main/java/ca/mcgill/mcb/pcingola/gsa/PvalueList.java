@@ -18,6 +18,7 @@ public class PvalueList {
 
 	String geneId;
 	TDoubleArrayList pValues;
+	boolean sorted = false;
 
 	/**
 	 * Upper tail 1 - ChiSquareCDF(p)
@@ -49,6 +50,23 @@ public class PvalueList {
 
 	public double getPvalue(int index) {
 		return pValues.get(index);
+	}
+
+	/**
+	 * Cumulative distribution function of p-values: 
+	 * 
+	 * 			P[ pValues <= p ]		(i.e. lower tail).
+	 * 
+	 * @param p
+	 * @return
+	 */
+	public double cdf(double p) {
+		sort();
+		int idx = pValues.binarySearch(p);
+		if (idx < 0) idx = -(idx + 1); // If 'p' is not found, idx is (-insertion_point - 1);
+		for (; (idx < pValues.size()) && (p < getPvalue(idx)); idx++); // Make sure we get the first position where p > pValue[idx]
+
+		return ((double) idx) / size();
 	}
 
 	/**
@@ -107,7 +125,7 @@ public class PvalueList {
 	public double pValueAvgTop(int topN) {
 		if (size() <= 0) return 1.0;
 
-		pValues.sort(); // Sort collection
+		sort(); // Sort collection
 
 		// Sum smallest values
 		double sum = 0.0;
@@ -146,7 +164,7 @@ public class PvalueList {
 		// No p-value? => We are done
 		if (total <= 0) return 1.0;
 
-		pValues.sort(); // Sort collection
+		sort(); // Sort collection
 
 		// Perform Simes's method
 		int count = 0;
@@ -228,7 +246,7 @@ public class PvalueList {
 		// No p-value? => We are done
 		if (total <= 0) return 1.0;
 
-		pValues.sort(); // Sort collection
+		sort(); // Sort collection
 
 		// Perform Simes's method
 		int count = 0;
@@ -286,9 +304,10 @@ public class PvalueList {
 	 * @return
 	 */
 	public double quantile(double quantile) {
+		if (quantile < 0.0 || quantile > 1.0) throw new RuntimeException("Quantile out of range: " + quantile + " .Expected range [0.0 , 1.0].");
 		if (size() <= 0) return 1.0;
 
-		pValues.sort(); // Sort collection
+		sort(); // Sort collection
 		int num = (int) (quantile * size());
 		return pValues.get(num);
 	}
@@ -299,6 +318,13 @@ public class PvalueList {
 
 	public int size() {
 		return pValues.size();
+	}
+
+	void sort() {
+		if (!sorted) {
+			pValues.sort();
+			sorted = true;
+		}
 	}
 
 	@Override

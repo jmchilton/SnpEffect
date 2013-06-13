@@ -17,6 +17,7 @@ import ca.mcgill.mcb.pcingola.geneSets.algorithm.EnrichmentAlgorithm.EnrichmentA
 import ca.mcgill.mcb.pcingola.geneSets.algorithm.EnrichmentAlgorithmGreedyVariableSize;
 import ca.mcgill.mcb.pcingola.geneSets.algorithm.FisherPValueAlgorithm;
 import ca.mcgill.mcb.pcingola.geneSets.algorithm.FisherPValueGreedyAlgorithm;
+import ca.mcgill.mcb.pcingola.geneSets.algorithm.LeadingEdgeFractionAlgorithm;
 import ca.mcgill.mcb.pcingola.geneSets.algorithm.RankSumPValueAlgorithm;
 import ca.mcgill.mcb.pcingola.geneSets.algorithm.RankSumPValueGreedyAlgorithm;
 import ca.mcgill.mcb.pcingola.gsa.ChrPosPvalueList;
@@ -133,8 +134,12 @@ public class SnpEffCmdGsa extends SnpEff {
 			geneSets.setValue(geneId, genePvalue.get(geneId));
 
 		// Do we need to rank? Rank them by ascending p-value
+		GeneSetsRanked geneSetsRanked = null;
 		geneSets.setVerbose(verbose);
-		if (enrichmentAlgorithmType.isRank()) ((GeneSetsRanked) geneSets).rankByValue(true);
+		if (enrichmentAlgorithmType.isRank()) {
+			geneSetsRanked = new GeneSetsRanked(geneSets);
+			geneSetsRanked.rankByValue(true);
+		}
 
 		//---
 		// Run enrichment algorithm
@@ -143,11 +148,11 @@ public class SnpEffCmdGsa extends SnpEff {
 
 		switch (enrichmentAlgorithmType) {
 		case RANKSUM_GREEDY:
-			algorithm = new RankSumPValueGreedyAlgorithm((GeneSetsRanked) geneSets, numberofGeneSetsToSelect);
+			algorithm = new RankSumPValueGreedyAlgorithm(geneSetsRanked, numberofGeneSetsToSelect);
 			break;
 
 		case RANKSUM:
-			algorithm = new RankSumPValueAlgorithm((GeneSetsRanked) geneSets, numberofGeneSetsToSelect);
+			algorithm = new RankSumPValueAlgorithm(geneSetsRanked, numberofGeneSetsToSelect);
 			break;
 
 		case FISHER_GREEDY:
@@ -156,6 +161,10 @@ public class SnpEffCmdGsa extends SnpEff {
 
 		case FISHER:
 			algorithm = new FisherPValueAlgorithm(geneSets, numberofGeneSetsToSelect);
+			break;
+
+		case LEADING_EDGE_FRACTION:
+			algorithm = new LeadingEdgeFractionAlgorithm(geneSets, numberofGeneSetsToSelect);
 			break;
 
 		default:

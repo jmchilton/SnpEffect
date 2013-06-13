@@ -19,7 +19,7 @@ import ca.mcgill.mcb.pcingola.geneSets.Result;
 public abstract class EnrichmentAlgorithm {
 
 	public enum EnrichmentAlgorithmType {
-		FISHER_GREEDY, RANKSUM_GREEDY, FISHER, RANKSUM;
+		FISHER_GREEDY, RANKSUM_GREEDY, FISHER, RANKSUM, LEADING_EDGE_FRACTION;
 
 		/**
 		 * Is the algorithm base on "interesting / not-interesting" binary clasification?
@@ -175,7 +175,7 @@ public abstract class EnrichmentAlgorithm {
 		Result best = new Result();
 
 		//---
-		// Calculate pValues for each gene set mathing our criteria
+		// Calculate pValues for each gene set matching our criteria
 		//---
 		List<Result> results = new ArrayList<Result>();
 		for (GeneSet geneSet : geneSets) {
@@ -189,6 +189,10 @@ public abstract class EnrichmentAlgorithm {
 				results.add(result);
 			}
 		}
+
+		// Update the geneSetCount 
+		for (Result res : results)
+			res.setGeneSetCountLast(results.size());
 
 		//---
 		// Show results

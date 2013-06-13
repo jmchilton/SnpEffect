@@ -70,19 +70,16 @@ public class GeneSets implements Iterable<GeneSet>, Serializable {
 	 * Default constructor
 	 */
 	public GeneSets() {
-		interestingGenes = new HashSet<String>();
-		valueByGene = new HashMap<String, Double>();
-		geneSetsByName = new HashMap<String, GeneSet>();
-		genes = new HashSet<String>();
-		geneSetsByGene = new HashMap<String, HashSet<GeneSet>>();
+		init();
+	}
+
+	public GeneSets(GeneSets geneSets) {
+		init();
+		copy(geneSets);
 	}
 
 	public GeneSets(String msigDb) {
-		interestingGenes = new HashSet<String>();
-		valueByGene = new HashMap<String, Double>();
-		geneSetsByName = new HashMap<String, GeneSet>();
-		genes = new HashSet<String>();
-		geneSetsByGene = new HashMap<String, HashSet<GeneSet>>();
+		init();
 		loadMSigDb(msigDb, false);
 	}
 
@@ -158,6 +155,22 @@ public class GeneSets implements Iterable<GeneSet>, Serializable {
 
 		// Check that every interesting symbol in DAG is from genes
 		if (!interestingGenes.containsAll(intGenes)) { throw new RuntimeException("Not every gene marked as interesting in " + label + " is from intGenes\n\tInteresting genes(" + interestingGenes.size() + "): " + interestingGenes + "\n\tintGenes(" + intGenes.size() + "): " + intGenes); }
+	}
+
+	/**
+	 * Copy all data from geneSets
+	 * @param geneSets
+	 */
+	protected void copy(GeneSets geneSets) {
+		interestingGenes.addAll(geneSets.interestingGenes);
+		genes.addAll(geneSets.genes);
+		valueByGene.putAll(geneSets.valueByGene);
+		geneSetsByName.putAll(geneSets.geneSetsByName);
+		geneSetsByGene.putAll(geneSets.geneSetsByGene);
+
+		// Set 'this' as the new GeneSets
+		for (GeneSet gs : geneSetsByName.values())
+			gs.setGeneSets(this);
 	}
 
 	/**
@@ -305,12 +318,24 @@ public class GeneSets implements Iterable<GeneSet>, Serializable {
 	 */
 	public double getValue(String gene) {
 		Double val = valueByGene.get(gene);
-		if (val == null) { return 0; }
+		if (val == null) return 0;
 		return val;
 	}
 
 	public HashMap<String, Double> getValueByGene() {
 		return valueByGene;
+	}
+
+	public boolean hasValue(String gene) {
+		return valueByGene.containsKey(gene);
+	}
+
+	void init() {
+		interestingGenes = new HashSet<String>();
+		valueByGene = new HashMap<String, Double>();
+		geneSetsByName = new HashMap<String, GeneSet>();
+		genes = new HashSet<String>();
+		geneSetsByGene = new HashMap<String, HashSet<GeneSet>>();
 	}
 
 	public boolean isRanked() {
