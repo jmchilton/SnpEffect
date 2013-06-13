@@ -286,6 +286,17 @@ public class GeneSet implements Comparable<GeneSet>, Iterable<String>, Serializa
 		return genes.size();
 	}
 
+	/**
+	 * Number of genes that have a value
+	 * @return
+	 */
+	public int sizeEffective() {
+		int count = 0;
+		for (String gene : this)
+			if (geneSets.hasValue(gene)) count++;
+		return count;
+	}
+
 	@Override
 	public String toString() {
 		return getName();

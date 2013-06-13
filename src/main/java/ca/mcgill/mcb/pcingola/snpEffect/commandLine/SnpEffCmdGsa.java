@@ -398,9 +398,9 @@ public class SnpEffCmdGsa extends SnpEff {
 
 		if (debug) {
 			// Show data
-			System.err.println("P-values:\n\tchr\tpos\tp_value");
+			System.err.println("P-values:\n\tchr\tstart\tend\tp_value");
 			for (int i = 0; i < chrPosPvalueList.size(); i++)
-				System.err.println("\t" + chrPosPvalueList.getChromosomeName(i) + "\t" + chrPosPvalueList.getStart(i) + "\t" + chrPosPvalueList.getPvalue(i));
+				System.err.println("\t" + chrPosPvalueList.getChromosomeName(i) + "\t" + chrPosPvalueList.getStart(i) + "\t" + chrPosPvalueList.getEnd(i) + "\t" + chrPosPvalueList.getPvalue(i));
 		}
 	}
 

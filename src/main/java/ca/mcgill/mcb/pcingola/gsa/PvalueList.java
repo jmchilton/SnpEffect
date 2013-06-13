@@ -44,14 +44,6 @@ public class PvalueList {
 		pValues.add(pvalue);
 	}
 
-	public String getGeneId() {
-		return geneId;
-	}
-
-	public double getPvalue(int index) {
-		return pValues.get(index);
-	}
-
 	/**
 	 * Cumulative distribution function of p-values: 
 	 * 
@@ -61,12 +53,22 @@ public class PvalueList {
 	 * @return
 	 */
 	public double cdf(double p) {
+		if (size() <= 0) return 1;
+
 		sort();
 		int idx = pValues.binarySearch(p);
 		if (idx < 0) idx = -(idx + 1); // If 'p' is not found, idx is (-insertion_point - 1);
 		for (; (idx < pValues.size()) && (p < getPvalue(idx)); idx++); // Make sure we get the first position where p > pValue[idx]
 
 		return ((double) idx) / size();
+	}
+
+	public String getGeneId() {
+		return geneId;
+	}
+
+	public double getPvalue(int index) {
+		return pValues.get(index);
 	}
 
 	/**

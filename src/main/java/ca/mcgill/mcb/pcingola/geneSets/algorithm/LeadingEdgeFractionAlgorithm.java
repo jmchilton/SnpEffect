@@ -8,7 +8,7 @@ import org.apfloat.Apfloat;
 import ca.mcgill.mcb.pcingola.geneSets.GeneSet;
 import ca.mcgill.mcb.pcingola.geneSets.GeneSets;
 import ca.mcgill.mcb.pcingola.gsa.PvalueList;
-import ca.mcgill.mcb.pcingola.util.Gpr;
+import ca.mcgill.mcb.pcingola.util.Timer;
 
 /**
  * Leading edge fraction algorithm
@@ -23,6 +23,8 @@ public class LeadingEdgeFractionAlgorithm extends EnrichmentAlgorithm {
 
 	public static final double P_VALUE_CUTOFF_QUANTILE_DEFAULT = 0.95; // This it the value used in the paper
 	public static final int FRACTIONS = 10000;
+	public static final int MAX_FRACTIONS = 1000 * FRACTIONS;
+	public static final Apfloat ONE = new Apfloat(1.0);
 
 	Random random = new Random();
 	double pValueCutOff = Double.NaN;
@@ -39,16 +41,34 @@ public class LeadingEdgeFractionAlgorithm extends EnrichmentAlgorithm {
 	 * Calculate a distribution of leading edge fractions of size 'size'
 	 * @return
 	 */
-	PvalueList distribution(int size) {
-		Gpr.debug("Calculating leading edge distribution for size : " + size);
+	PvalueList distribution(int size, double fraction) {
 		PvalueList list = new PvalueList();
 
-		for (int i = 0; i < FRACTIONS; i++) {
+		int countFractions = 0;
+		for (int i = 0; (i < FRACTIONS) && (countFractions > 0); i++) {
 			double lef = randLeadingEdgeFraction(size);
+			if (lef >= fraction) countFractions++;
 			list.add(lef);
+
+			if (i > MAX_FRACTIONS) break; // Too many iterations
 		}
 
 		return list;
+	}
+
+	/**
+	 * Initialize GenePvalues
+	 */
+	void initGenePvalues() {
+		GeneSet all = new GeneSet("", "", geneSets);
+		for (String geneId : geneSets.getGenes())
+			all.addGene(geneId);
+
+		// Create an array of p-values
+		genePvalues = new double[all.sizeEffective()];
+		int i = 0;
+		for (String geneId : geneSets.getGenes())
+			if (geneSets.hasValue(geneId)) genePvalues[i++] = geneSets.getValue(geneId);
 	}
 
 	/**
@@ -58,20 +78,15 @@ public class LeadingEdgeFractionAlgorithm extends EnrichmentAlgorithm {
 	 * @return
 	 */
 	double leadingEdgeFractionPvalue(double fraction, int size) {
+		if (size == 0) return 1.0;
+
 		// Initialize genePvalues
-		if (genePvalues == null) {
-			//!!!!!!! WHAT HAPPENS WHEN MOST GENES DO NOT HAVE VALUES?
-			genePvalues = new double[geneSets.getGenes().size()];
-			// Populate with p-values
-			int i = 0;
-			for (String geneId : geneSets.getGenes())
-				genePvalues[i++] = geneSets.getValue(geneId);
-		}
+		if (genePvalues == null) initGenePvalues();
 
 		// Do we have a distribution?
 		PvalueList pvals = distribution.get(size);
 		if (pvals == null) {
-			pvals = distribution(size);
+			pvals = distribution(size, fraction);
 			distribution.put(size, pvals);
 		}
 
@@ -88,15 +103,23 @@ public class LeadingEdgeFractionAlgorithm extends EnrichmentAlgorithm {
 		if (Double.isNaN(pValueCutOff)) pValueCutOff = pValueCutOff();
 
 		// Count number of pvalues less or equal to 'pValueCutOff'
-		int count = 0;
-		for (String geneId : geneSet)
-			if (geneSets.getValue(geneId) <= pValueCutOff) count++;
+		int count = 0, tot = 0;
+		for (String geneId : geneSet) {
+			if (geneSets.hasValue(geneId)) {
+				if (geneSets.getValue(geneId) <= pValueCutOff) count++;
+				tot++;
+			}
+		}
 
-		// Claculate 'leading edge fraction'
-		double leadingEdgeFraction = ((double) count / ((double) geneSet.size()));
+		// No genes have values? We are done
+		if (tot <= 0) return ONE;
+
+		// Calculate 'leading edge fraction'
+		double leadingEdgeFraction = ((double) count) / ((double) tot);
+		if (debug) Timer.showStdErr("Gene set: " + geneSet.getName() + "\tsize: " + geneSet.size() + "\tsize (eff): " + geneSet.sizeEffective() + "\t" + count + "\tleadingEdgeFraction: " + leadingEdgeFraction);
 
 		// Calculate p-value
-		double pvalue = leadingEdgeFractionPvalue(leadingEdgeFraction, geneSet.size());
+		double pvalue = leadingEdgeFractionPvalue(leadingEdgeFraction, tot);
 
 		return new Apfloat(pvalue);
 	}
@@ -109,9 +132,19 @@ public class LeadingEdgeFractionAlgorithm extends EnrichmentAlgorithm {
 		// Create a list of p-values
 		PvalueList pvlist = new PvalueList();
 		for (String geneId : geneSets.getGenes())
-			pvlist.add(geneSets.getValue(geneId));
+			if (geneSets.hasValue(geneId)) pvlist.add(geneSets.getValue(geneId));
 
-		return pvlist.quantile(1 - pValueCutOffQuantile);
+		double pco = pvlist.quantile(1 - pValueCutOffQuantile);
+
+		// Show
+		if (verbose) Timer.showStdErr("Calculate pValue_CutOff: " //
+				+ "\n\tSize (effective) : " + pvlist.size() //
+				+ "\n\tQuantile         : " + pValueCutOffQuantile //
+				+ "\n\tp-value CutOff   : " + pco //
+		);
+		if (debug) Timer.showStdErr("\tp-values: " + pvlist);
+
+		return pco;
 	}
 
 	/**
@@ -127,7 +160,6 @@ public class LeadingEdgeFractionAlgorithm extends EnrichmentAlgorithm {
 		}
 
 		double lef = ((double) count / size);
-		Gpr.debug("\t" + lef);
 		return lef;
 	}
 
