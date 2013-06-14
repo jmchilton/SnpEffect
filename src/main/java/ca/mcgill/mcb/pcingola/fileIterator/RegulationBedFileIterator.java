@@ -5,6 +5,7 @@ import java.io.IOException;
 import ca.mcgill.mcb.pcingola.interval.Chromosome;
 import ca.mcgill.mcb.pcingola.interval.Genome;
 import ca.mcgill.mcb.pcingola.interval.Regulation;
+import ca.mcgill.mcb.pcingola.util.Gpr;
 
 /**
  * Opens a GFF3 file and create regulatory elements.
@@ -39,18 +40,18 @@ public class RegulationBedFileIterator extends RegulationFileIterator {
 	protected Regulation readNext() {
 		// Try to read a line
 		try {
-			while(ready()) {
+			while (ready()) {
 				line = readLine();
 
-				if( line == null ) return null; // End of file?
+				if (line == null) return null; // End of file?
 
 				// Ignore empty lines and comment lines
-				if( (line.length() > 0) && (!line.startsWith("#")) ) {
+				if ((line.length() > 0) && (!line.startsWith("#"))) {
 					// Parse line
 					String fields[] = line.split("\t");
 
 					// Is line OK?
-					if( fields.length >= 3 ) {
+					if (fields.length >= 3) {
 						// Format: CHR \t START \t END \t ID \t SCORE \t ....
 						// Fields 
 						String chromosome = fields[0].trim();
@@ -62,11 +63,11 @@ public class RegulationBedFileIterator extends RegulationFileIterator {
 
 						// End
 						int end = start; // Default 'end is same as start (only if value is missing)
-						if( fields.length > 2 ) end = parsePosition(fields[2]) - 1; // The chromEnd base is not included
+						if (fields.length > 2) end = Gpr.parseIntSafe(fields[2]); // The chromEnd base is not included, but zero-based
 
 						// ID
 						String id = "line_" + lineNum;
-						if( (fields.length > 3) && (!fields[3].isEmpty()) ) id = fields[3];
+						if ((fields.length > 3) && (!fields[3].isEmpty())) id = fields[3];
 
 						// Score and all following fields are ignored 
 
@@ -75,7 +76,7 @@ public class RegulationBedFileIterator extends RegulationFileIterator {
 					}
 				}
 			}
-		} catch(IOException e) {
+		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
 		return null;
