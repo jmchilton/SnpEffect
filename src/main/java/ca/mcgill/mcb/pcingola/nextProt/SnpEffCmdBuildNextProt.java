@@ -580,11 +580,16 @@ public class SnpEffCmdBuildNextProt extends SnpEff {
 	@Override
 	public void parseArgs(String[] args) {
 		this.args = args;
+
+		if (args.length <= 0) usage(null);
+
 		for (int i = 0; i < args.length; i++) {
+			String arg = args[i];
 
 			// Argument starts with '-'?
-			if (args[i].startsWith("-")) {
+			if (isOpt(arg)) {
 				// All of them are parsed in SnpEff
+				usage("Unknonwn option '" + arg + "'");
 			} else if ((genomeVer == null) || genomeVer.isEmpty()) genomeVer = args[i];
 			else if ((xmlDirName == null) || xmlDirName.isEmpty()) xmlDirName = args[i];
 		}
