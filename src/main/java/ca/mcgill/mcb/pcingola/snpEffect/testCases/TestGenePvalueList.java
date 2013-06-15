@@ -161,4 +161,44 @@ public class TestGenePvalueList extends TestCase {
 
 	}
 
+	/**
+	 * Test quantile
+	 */
+	public void test_08() {
+		// Create pvalues
+		PvalueList pvlist = new PvalueList();
+		int max = 1000;
+		for (int i = 0; i < max; i++) {
+			double quantile = ((double) i) / max;
+			pvlist.add(quantile);
+		}
+
+		// Test 
+		for (int i = 0; i < max; i++) {
+			double quantile = ((double) i) / max;
+			double pval = pvlist.quantile(quantile);
+			Assert.assertEquals(quantile, pval); // Make sure they match
+		}
+	}
+
+	/**
+	 * Test CDF (cumulative distribution function)
+	 */
+	public void test_09() {
+		// Create pvalues
+		PvalueList pvlist = new PvalueList();
+		int max = 1000;
+		for (int i = 0; i < max; i++) {
+			double quantile = ((double) i) / max;
+			pvlist.add(quantile);
+		}
+
+		// Test 
+		for (int i = 0; i < max; i++) {
+			double quantile = ((double) i) / max;
+			double pval = pvlist.cdf(quantile);
+			Assert.assertEquals(quantile, pval); // Make sure they match
+		}
+	}
+
 }

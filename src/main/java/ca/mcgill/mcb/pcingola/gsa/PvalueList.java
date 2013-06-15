@@ -58,7 +58,11 @@ public class PvalueList {
 		sort();
 		int idx = pValues.binarySearch(p);
 		if (idx < 0) idx = -(idx + 1); // If 'p' is not found, idx is (-insertion_point - 1);
-		for (; (idx < pValues.size()) && (p < getPvalue(idx)); idx++); // Make sure we get the first position where p > pValue[idx]
+
+		//		Gpr.debug("idx: " + idx + "\t" + getPvalue(idx));
+		//		for (; (idx < pValues.size()) && (p > getPvalue(idx)); idx++) {
+		//			Gpr.debug("\t\t" + idx + "\t" + p + "\t<\t" + getPvalue(idx)); // Make sure we get the first position where p > pValue[idx]
+		//		}
 
 		return ((double) idx) / size();
 	}
