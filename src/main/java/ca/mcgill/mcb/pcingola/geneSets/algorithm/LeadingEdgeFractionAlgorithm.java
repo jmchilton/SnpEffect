@@ -1,6 +1,5 @@
 package ca.mcgill.mcb.pcingola.geneSets.algorithm;
 
-import java.util.HashMap;
 import java.util.Random;
 
 import org.apfloat.Apfloat;
@@ -19,42 +18,45 @@ import ca.mcgill.mcb.pcingola.util.Timer;
  * 
  * @author pablocingolani
  */
-public class LeadingEdgeFractionAlgorithm extends EnrichmentAlgorithm {
+public class LeadingEdgeFractionAlgorithm extends EnrichmentAlgorithmGreedy {
 
 	public static final double P_VALUE_CUTOFF_QUANTILE_DEFAULT = 0.95; // This it the value used in the paper
-	public static final int FRACTIONS = 10000;
-	public static final int MAX_FRACTIONS = 1000 * FRACTIONS;
+	public static final int NUM_FRACTIONS = 1000;
+	public static final int MAX_FRACTIONS = 100 * 1000 * NUM_FRACTIONS;
+	public static final int SHOW_EVERY = 1000000;
+	public static final int NUM_SELECT = 20;
+	public static final int MIN_COUNTS = 3;
+
 	public static final Apfloat ONE = new Apfloat(1.0);
 
 	Random random = new Random();
 	double pValueCutOff = Double.NaN;
 	double pValueCutOffQuantile = P_VALUE_CUTOFF_QUANTILE_DEFAULT;
 	double genePvalues[];
-	HashMap<Integer, PvalueList> distribution;
+
+	//	HashMap<Integer, PvalueList> distribution;
 
 	public LeadingEdgeFractionAlgorithm(GeneSets geneSets, int numberToSelect) {
 		super(geneSets, numberToSelect);
-		distribution = new HashMap<Integer, PvalueList>();
+		//		distribution = new HashMap<Integer, PvalueList>();
+		adjustedPvalue = false;
+		numberToSelect = NUM_SELECT; // Limit iterations
 	}
 
-	/**
-	 * Calculate a distribution of leading edge fractions of size 'size'
-	 * @return
-	 */
-	PvalueList distribution(int size, double fraction) {
-		PvalueList list = new PvalueList();
-
-		int countFractions = 0;
-		for (int i = 0; (i < FRACTIONS) && (countFractions > 0); i++) {
-			double lef = randLeadingEdgeFraction(size);
-			if (lef >= fraction) countFractions++;
-			list.add(lef);
-
-			if (i > MAX_FRACTIONS) break; // Too many iterations
-		}
-
-		return list;
-	}
+	//	/**
+	//	 * Calculate a distribution of leading edge fractions of size 'size'
+	//	 * @return
+	//	 */
+	//	PvalueList distribution(int size, double fraction) {
+	//		PvalueList list = new PvalueList();
+	//
+	//		for (int i = 0; i < NUM_FRACTIONS; i++) {
+	//			double lef = randLeadingEdgeFraction(size);
+	//			list.add(lef);
+	//		}
+	//
+	//		return list;
+	//	}
 
 	/**
 	 * Initialize GenePvalues
@@ -83,14 +85,32 @@ public class LeadingEdgeFractionAlgorithm extends EnrichmentAlgorithm {
 		// Initialize genePvalues
 		if (genePvalues == null) initGenePvalues();
 
-		// Do we have a distribution?
-		PvalueList pvals = distribution.get(size);
-		if (pvals == null) {
-			pvals = distribution(size, fraction);
-			distribution.put(size, pvals);
+		long count = 0, total = 0;
+		for (long i = 1; (total < NUM_FRACTIONS) || (count < MIN_COUNTS); total++, i++) {
+			double lef = randLeadingEdgeFraction(size);
+			if (fraction <= lef) count++;
+
+			if (i % SHOW_EVERY == 0) {
+				double pvalue = ((double) count) / total;
+				Timer.showStdErr("Pvalue(size: " + size + ", fraction: " + fraction + ")\tcount: " + count + "\titerations: " + i + "\tp-value: " + pvalue);
+			}
+
+			if (total > MAX_FRACTIONS) break;
+
 		}
 
-		return 1.0 - pvals.cdf(fraction);
+		if (count == 0) count = 1; // We shouldn't get a zero p-value
+		double pvalue = ((double) count) / total;
+		return pvalue;
+
+		//		// Do we have a distribution?
+		//		PvalueList pvals = distribution.get(size);
+		//		if (pvals == null) {
+		//			pvals = distribution(size, fraction);
+		//			distribution.put(size, pvals);
+		//		}
+		//
+		//		return pvals.cdfUpper(fraction);
 	}
 
 	/**
