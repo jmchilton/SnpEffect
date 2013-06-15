@@ -575,7 +575,7 @@ samtools sort s.bam s_sort
 samtools mpileup -uf dm5.34.fasta s_sort.bam | bcftools view -vcg - > s.vcf
 
 # Analyze variants using snpEff
-java -Xmx4g -jar snpEff.jar -vcf4 dm5.34 s.vcf > s_snpeff.txt
+java -Xmx4g -jar snpEff.jar dm5.34 s.vcf > s.eff.vcf
 </pre>
 
 				This highly simplified sequencing data analysis pipeline, has the common basic steps
