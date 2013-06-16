@@ -2,7 +2,6 @@ package ca.mcgill.mcb.pcingola.snpEffect.commandLine;
 
 import ca.mcgill.mcb.pcingola.fileIterator.VcfFileIterator;
 import ca.mcgill.mcb.pcingola.snpEffect.ChangeEffect.EffectImpact;
-import ca.mcgill.mcb.pcingola.util.Gpr;
 import ca.mcgill.mcb.pcingola.util.Timer;
 import ca.mcgill.mcb.pcingola.vcf.VcfEffect;
 import ca.mcgill.mcb.pcingola.vcf.VcfEntry;
@@ -62,10 +61,7 @@ public class SnpEffCmdAcat extends SnpEff {
 		for (VcfEffect veff : ve.parseEffects()) {
 
 			// Do not process is there are errors or warnings
-			if (veff.getErrorsOrWarning() != null) {
-				Gpr.debug("ERROR OR WARN:\t" + veff.getErrorsOrWarning() + "\t" + veff);
-				continue;
-			}
+			if (veff.getErrorsOrWarning() != null) continue;
 
 			// Impact andACAT score
 			EffectImpact impact = veff.getImpact();
