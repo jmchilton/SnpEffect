@@ -1,0 +1,212 @@
+package ca.mcgill.mcb.pcingola.snpEffect.commandLine;
+
+import ca.mcgill.mcb.pcingola.fileIterator.VcfFileIterator;
+import ca.mcgill.mcb.pcingola.snpEffect.ChangeEffect.EffectImpact;
+import ca.mcgill.mcb.pcingola.util.Gpr;
+import ca.mcgill.mcb.pcingola.util.Timer;
+import ca.mcgill.mcb.pcingola.vcf.VcfEffect;
+import ca.mcgill.mcb.pcingola.vcf.VcfEntry;
+import ca.mcgill.mcb.pcingola.vcf.VcfInfo;
+import ca.mcgill.mcb.pcingola.vcf.VcfInfoType;
+
+/**
+ * ACAT: Create ACAT score for T2D project
+ * 
+ * Note: This is just used to compile 'ACAT' score in T2D-GENES project, not useful at all for general audience.
+ * 
+ * @author pcingola
+ */
+public class SnpEffCmdAcat extends SnpEff {
+
+	// Coding score category
+	public static final String ACAT = "ACAT";
+
+	// Non-coding INFO fields
+	public static final String NCCAT = "NCCAT";
+	public static final String NCACTIVITY = "NCACTIVITY"; // We don't have this information at the moment
+	public static final String NCMARK = "NCMARK";
+	public static final String NCFACTOR = "NCFACTOR";
+	public static final String NCELEMENT = "NCELEMENT";
+	public static final String NCCONS = "NCCONS";
+
+	// Is this variant exclusive from T2D_GENES (i.e. not in dbSnp, 1000 Genomes or ESP)
+	public static final String T2D_GENES = "T2D_GENES";
+
+	// Conservation threshold
+	public static final double CONSERVATION_THRESHOLD = 0.99;
+
+	String vcfFile;
+	int testNum;
+
+	public SnpEffCmdAcat() {
+	}
+
+	/**
+	 * Calculate and add ACAT score on this entry
+	 * @param ve
+	 */
+	void acat(VcfEntry ve) {
+		boolean hasMotif = false, hasReg = false;
+		int minAcatScore = Integer.MAX_VALUE; // Lower values mean more deleterious
+		String acat = null;
+		int nccat = Integer.MAX_VALUE;
+		StringBuilder ncmark = new StringBuilder();
+		StringBuilder ncfactor = new StringBuilder();
+		StringBuilder ncelement = new StringBuilder();
+
+		// Get conservation score
+		double cons = ve.getInfoFloat("PhastCons");
+		if (Double.isNaN(cons)) cons = 0; // Not found, assing zero
+
+		// Parse all effects
+		for (VcfEffect veff : ve.parseEffects()) {
+
+			// Do not process is there are errors or warnings
+			if (veff.getErrorsOrWarning() != null) {
+				Gpr.debug("ERROR OR WARN:\t" + veff.getErrorsOrWarning() + "\t" + veff);
+				continue;
+			}
+
+			// Impact andACAT score
+			EffectImpact impact = veff.getImpact();
+			int acatScore = impact.ordinal() + 1;
+
+			if (acatScore < 4) {
+				//---
+				// Coding scores (ACAT)
+				//---
+
+				// Is this a better score?
+				if (acatScore < minAcatScore) {
+					minAcatScore = acatScore;
+
+					// Add as ACAT format
+					String gene = veff.getGene();
+					String trId = veff.getTranscriptId();
+					if (gene == null) gene = "";
+					if (trId == null) trId = "";
+					acat = gene + ":" + trId + ":" + acatScore;
+				}
+			} else {
+				//---
+				// NonCoding scores (NCCAT)
+				//---
+				switch (veff.getEffect()) {
+				case REGULATION:
+					// Add NCMARK 
+					if (ncmark.length() > 0) ncmark.append(",");
+					ncmark.append(veff.getBioType() + ":" + veff.getEffectDetails());
+
+					// Add NCELEMENT
+					if (ncelement.length() > 0) ncelement.append(",");
+					ncelement.append("CHROM");
+
+					hasReg = true;
+					break;
+
+				case MOTIF:
+					// Add NCFACTOR
+					if (ncfactor.length() > 0) ncfactor.append(",");
+					ncfactor.append(veff.getEffectDetails());
+
+					// Add NCELEMENT
+					if (ncelement.length() > 0) ncelement.append(",");
+					ncelement.append("TFBS");
+
+					hasMotif = true;
+					break;
+
+				default:
+				}
+			}
+		}
+
+		// Annotate
+		if (minAcatScore < 4) {
+			// If we have a coding annotation, we don't need to add non-coding annotations
+		} else if (hasMotif && hasReg) nccat = 1;
+		else if (hasMotif) nccat = 2;
+		else if (hasReg) nccat = 3;
+		else if (cons > CONSERVATION_THRESHOLD) nccat = 4;
+
+		// Anything found? Add INFO
+		if (acat != null) ve.addInfo(ACAT, acat);
+		if (minAcatScore >= 4) {
+			// If there is no coding annotation, add non-coding ones
+			if (ncmark.length() > 0) ve.addInfo(NCMARK, ncmark.toString());
+			if (ncfactor.length() > 0) ve.addInfo(NCFACTOR, ncfactor.toString());
+			if (nccat <= 4) ve.addInfo(NCCAT, nccat + "");
+			if (cons >= CONSERVATION_THRESHOLD) ve.addInfo(NCCONS, String.format("%.2f", cons));
+		}
+	}
+
+	/**
+	 * Add header lines
+	 * @param vcf
+	 */
+	void addHeader(VcfFileIterator vcf) {
+		vcf.getVcfHeader().add(new VcfInfo(ACAT, VcfInfoType.Integer, ".", "Variant coding impact category {1, 2, 3, 4} correspond to {HIGH, MODERATE, LOW, MODIFIER}. Most deleterious effect is selected."));
+
+		vcf.getVcfHeader().add(new VcfInfo(NCCAT, VcfInfoType.Integer, ".", "Variant non-coding impact category {1, 2, 3, 4} correspond to {MOTIF + REGULATORY, MOTIF, REGULATORY, CONSERVED }"));
+		vcf.getVcfHeader().add(new VcfInfo(NCACTIVITY, VcfInfoType.String, ".", "Chromatin state predicted activity. Format is Tissue:Activity (e.g. Liver:Enhancer, Adipose:Insulator, etc.)"));
+		vcf.getVcfHeader().add(new VcfInfo(NCMARK, VcfInfoType.String, ".", "Chromatin mark predicted. Format is Tissue:Mark (e.g. Liver:H3K4me1, Adipose:H3K27me3, etc.)"));
+		vcf.getVcfHeader().add(new VcfInfo(NCFACTOR, VcfInfoType.String, ".", "Transcription factor mark predicted. Format is Tissue:FactorId:FactorName (e.g. Liver:MA0139.1:CTCF, Adipose:MA0003.1:Ap2alpha, etc.)"));
+		vcf.getVcfHeader().add(new VcfInfo(NCELEMENT, VcfInfoType.String, ".", "Types of non-coding elements predicted {STATE, MARK, TFBS, etc.}"));
+		vcf.getVcfHeader().add(new VcfInfo(NCCONS, VcfInfoType.Float, ".", "Conservation score above threshold (threshold is " + CONSERVATION_THRESHOLD + "). Score used: PhastCons."));
+
+		vcf.getVcfHeader().add(new VcfInfo(T2D_GENES, VcfInfoType.Flag, ".", "Variant exclusive from T2D_GENES project (i.e. neither in dbSnp, 1000 Genomes nor ESP)"));
+	}
+
+	/**
+	 * Parse command line arguments
+	 */
+	@Override
+	public void parseArgs(String[] args) {
+		if (args.length != 1) usage("Missing file.vcf");
+		else vcfFile = args[0];
+	}
+
+	/**
+	 * Run command
+	 */
+	@Override
+	public boolean run() {
+		Timer.showStdErr("Calculating ACAT score on input: " + vcfFile);
+
+		VcfFileIterator vcf = new VcfFileIterator(vcfFile);
+		for (VcfEntry ve : vcf) {
+			if (vcf.isHeadeSection()) {
+				addHeader(vcf); // Add header lines
+				System.out.println(vcf.getVcfHeader()); // Show header
+			}
+
+			acat(ve); // Annotate ACAT
+			t2dGenes(ve); // Annotate T2D-Genes
+
+			// Show line
+			if (!quiet) System.out.println(ve);
+		}
+
+		Timer.showStdErr("Done.");
+		return true;
+	}
+
+	/**
+	 * Annotate if this variant exclusive from T2D_GENES (i.e. not in dbSnp, 1000 Genomes or ESP)
+	 * @param ve
+	 */
+	void t2dGenes(VcfEntry ve) {
+		if ((ve.getId() == null) || ve.getId().isEmpty()) ve.addInfo(T2D_GENES);
+	}
+
+	/**
+	 * Show usage and exit
+	 */
+	@Override
+	public void usage(String message) {
+		if (message != null) System.err.println("Error: " + message + "\n");
+		System.err.println("snpEff version " + SnpEff.VERSION);
+		System.err.println("Usage: snpEff acat file.vcf");
+		System.exit(-1);
+	}
+}

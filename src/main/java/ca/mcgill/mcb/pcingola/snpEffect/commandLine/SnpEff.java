@@ -198,6 +198,7 @@ public class SnpEff implements CommandLine {
 				|| args[0].equalsIgnoreCase("genes2bed") //
 				|| args[0].equalsIgnoreCase("gsa") //
 				|| args[0].equalsIgnoreCase("len") //
+				|| args[0].equalsIgnoreCase("acat") // 
 		) {
 			command = args[argNum++].toLowerCase();
 		} else {
@@ -285,6 +286,7 @@ public class SnpEff implements CommandLine {
 		else if (command.equalsIgnoreCase("count")) snpEff = new SnpEffCmdCount();
 		else if (command.equalsIgnoreCase("len")) snpEff = new SnpEffCmdLen();
 		else if (command.equalsIgnoreCase("gsa")) snpEff = new SnpEffCmdGsa();
+		else if (command.equalsIgnoreCase("acat")) snpEff = new SnpEffCmdAcat();
 		else if (command.equalsIgnoreCase("test")) snpEff = new SnpEffCmdTest();
 		else throw new RuntimeException("Unknown command '" + command + "'");
 
