@@ -2,6 +2,7 @@ package ca.mcgill.mcb.pcingola.snpEffect.commandLine;
 
 import ca.mcgill.mcb.pcingola.fileIterator.VcfFileIterator;
 import ca.mcgill.mcb.pcingola.snpEffect.ChangeEffect.EffectImpact;
+import ca.mcgill.mcb.pcingola.stats.CountByType;
 import ca.mcgill.mcb.pcingola.util.Timer;
 import ca.mcgill.mcb.pcingola.vcf.VcfEffect;
 import ca.mcgill.mcb.pcingola.vcf.VcfEntry;
@@ -36,6 +37,7 @@ public class SnpEffCmdAcat extends SnpEff {
 
 	String vcfFile;
 	int testNum;
+	CountByType countByType;
 
 	public SnpEffCmdAcat() {
 	}
@@ -48,6 +50,7 @@ public class SnpEffCmdAcat extends SnpEff {
 		boolean hasMotif = false, hasReg = false;
 		int minAcatScore = Integer.MAX_VALUE; // Lower values mean more deleterious
 		String acat = null;
+		String acatKey = null;
 		int nccat = Integer.MAX_VALUE;
 		StringBuilder ncmark = new StringBuilder();
 		StringBuilder ncfactor = new StringBuilder();
@@ -55,7 +58,7 @@ public class SnpEffCmdAcat extends SnpEff {
 
 		// Get conservation score
 		double cons = ve.getInfoFloat("PhastCons");
-		if (Double.isNaN(cons)) cons = 0; // Not found, assing zero
+		if (Double.isNaN(cons)) cons = 0; // Not found?
 
 		// Parse all effects
 		for (VcfEffect veff : ve.parseEffects()) {
@@ -66,6 +69,8 @@ public class SnpEffCmdAcat extends SnpEff {
 			// Impact andACAT score
 			EffectImpact impact = veff.getImpact();
 			int acatScore = impact.ordinal() + 1;
+
+			String key = null;
 
 			if (acatScore < 4) {
 				//---
@@ -82,6 +87,8 @@ public class SnpEffCmdAcat extends SnpEff {
 					if (gene == null) gene = "";
 					if (trId == null) trId = "";
 					acat = gene + ":" + trId + ":" + acatScore;
+
+					acatKey = "CODING:" + veff.getImpact() + ":" + veff.getEffect();
 				}
 			} else {
 				//---
@@ -97,6 +104,7 @@ public class SnpEffCmdAcat extends SnpEff {
 					if (ncelement.length() > 0) ncelement.append(",");
 					ncelement.append("CHROM");
 
+					key = "REGULATION:" + veff.getBioType() + ":" + veff.getEffectDetails();
 					hasReg = true;
 					break;
 
@@ -109,17 +117,23 @@ public class SnpEffCmdAcat extends SnpEff {
 					if (ncelement.length() > 0) ncelement.append(",");
 					ncelement.append("TFBS");
 
+					key = "MOTIF:" + veff.getEffectDetails();
 					hasMotif = true;
 					break;
 
 				default:
 				}
+
+				// Count non-coding annotations
+				if (key != null) countByType.inc(key);
 			}
+
 		}
 
 		// Annotate
 		if (minAcatScore < 4) {
 			// If we have a coding annotation, we don't need to add non-coding annotations
+			countByType.inc(acatKey);
 		} else if (hasMotif && hasReg) nccat = 1;
 		else if (hasMotif) nccat = 2;
 		else if (hasReg) nccat = 3;
@@ -134,6 +148,10 @@ public class SnpEffCmdAcat extends SnpEff {
 			if (nccat <= 4) ve.addInfo(NCCAT, nccat + "");
 			if (cons >= CONSERVATION_THRESHOLD) ve.addInfo(NCCONS, String.format("%.2f", cons));
 		}
+
+		// Count categories
+		if (minAcatScore <= 4) countByType.inc("CODING_CATEGORY:" + minAcatScore);
+		if (nccat <= 4) countByType.inc("NON_CODING_CATEGORY:" + nccat);
 	}
 
 	/**
@@ -168,6 +186,7 @@ public class SnpEffCmdAcat extends SnpEff {
 	@Override
 	public boolean run() {
 		Timer.showStdErr("Calculating ACAT score on input: " + vcfFile);
+		countByType = new CountByType();
 
 		VcfFileIterator vcf = new VcfFileIterator(vcfFile);
 		for (VcfEntry ve : vcf) {
@@ -183,6 +202,7 @@ public class SnpEffCmdAcat extends SnpEff {
 			if (!quiet) System.out.println(ve);
 		}
 
+		System.err.println(countByType);
 		Timer.showStdErr("Done.");
 		return true;
 	}
