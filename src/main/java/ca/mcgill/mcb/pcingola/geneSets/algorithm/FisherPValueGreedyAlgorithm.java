@@ -9,7 +9,7 @@ import ca.mcgill.mcb.pcingola.util.Gpr;
 
 public class FisherPValueGreedyAlgorithm extends EnrichmentAlgorithmGreedyVariableSize {
 
-	double threshold = 0.1;
+	// double threshold = 0.1;
 
 	public FisherPValueGreedyAlgorithm(GeneSets geneSets, int numberToSelect) {
 		super(geneSets, numberToSelect);
@@ -25,7 +25,8 @@ public class FisherPValueGreedyAlgorithm extends EnrichmentAlgorithmGreedyVariab
 		int D = geneSets.getInterestingGenesCount(); // White marbles
 		int n = geneSet.getGeneCount(); // marbles drawn
 
-		double pValue = FisherExactTest.get().fisherExactTestUpThreshold(k, N, D, n, threshold);
+		//double pValue = FisherExactTest.get().fisherExactTestUpThreshold(k, N, D, n, threshold);
+		double pValue = FisherExactTest.get().fisherExactTestUp(k, N, D, n);
 		if (debug) Gpr.debug("Fisher exact test\tk: " + k + "\tN: " + N + "\tD: " + D + "\tn: " + n + "\tpValue: " + pValue);
 		return new Apfloat(pValue);
 	}
