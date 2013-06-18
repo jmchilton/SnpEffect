@@ -23,11 +23,11 @@ public class SnpEffCmdTest extends SnpEff {
 
 	public static final String VARIANTS_IN_GENES = "_VARAINTS_IN_GENES";
 	public static final String VARIANTS = "_VARAINTS";
+	public static final int SHOW_EVERY = 10000;
 
 	String genesFile;
 	String vcfFile;
 	CountByType countByEff;
-
 	HashSet<String> genes = new HashSet<String>();
 
 	public SnpEffCmdTest() {
@@ -130,8 +130,12 @@ public class SnpEffCmdTest extends SnpEff {
 		//---
 		if (verbose) Timer.showStdErr("Counting effect on input: " + vcfFile);
 		VcfFileIterator vcf = new VcfFileIterator(vcfFile);
-		for (VcfEntry ve : vcf)
+		int i = 1;
+		for (VcfEntry ve : vcf) {
 			analyze(ve);
+
+			if (verbose) Gpr.showMark(i++, SHOW_EVERY);
+		}
 
 		System.out.println("GENES\t" + genes.size());
 		System.out.println(countByEff);
