@@ -13,7 +13,9 @@ import ca.mcgill.mcb.pcingola.interval.Chromosome;
 import ca.mcgill.mcb.pcingola.interval.Marker;
 import ca.mcgill.mcb.pcingola.interval.SeqChange;
 import ca.mcgill.mcb.pcingola.interval.SeqChange.ChangeType;
-import ca.mcgill.mcb.pcingola.outputFormatter.VcfOutputFormatter;
+import ca.mcgill.mcb.pcingola.snpEffect.LossOfFunction;
+import ca.mcgill.mcb.pcingola.snpEffect.LossOfFunctionEntry;
+import ca.mcgill.mcb.pcingola.snpEffect.NonsenseMediatedDecayEntry;
 import ca.mcgill.mcb.pcingola.util.Gpr;
 import ca.mcgill.mcb.pcingola.vcf.VcfEffect.FormatVersion;
 
@@ -772,7 +774,7 @@ public class VcfEntry extends Marker implements Iterable<VcfGenotype> {
 	 * @return
 	 */
 	public List<VcfEffect> parseEffects(FormatVersion formatVersion) {
-		String effStr = getInfo(VcfOutputFormatter.VCF_INFO_EFF_NAME); // Get effect string from INFO field
+		String effStr = getInfo(VcfEffect.VCF_INFO_EFF_NAME); // Get effect string from INFO field
 
 		// Create a list of effect
 		ArrayList<VcfEffect> effList = new ArrayList<VcfEffect>();
@@ -816,6 +818,42 @@ public class VcfEntry extends Marker implements Iterable<VcfGenotype> {
 			if (vp.length > 1) info.put(vp[0], vp[1]);
 			else info.put(vp[0], "true"); // A property that is present, but has no value (e.g. "INDEL")
 		}
+	}
+
+	/**
+	 * Parse LOF from VcfEntry
+	 * @param vcfEntry
+	 */
+	public List<LossOfFunctionEntry> parseLof() {
+		String lofStr = getInfo(LossOfFunction.VCF_INFO_LOF_NAME);
+
+		ArrayList<LossOfFunctionEntry> lofList = new ArrayList<LossOfFunctionEntry>();
+		if (lofStr == null || lofStr.isEmpty()) return lofList;
+
+		// Split comma separated list
+		String lofs[] = lofStr.split(",");
+		for (String lof : lofs)
+			lofList.add(new LossOfFunctionEntry(lof));
+
+		return lofList;
+	}
+
+	/**
+	 * Parse NMD from VcfEntry
+	 * @param vcfEntry
+	 */
+	public List<NonsenseMediatedDecayEntry> parseNmd() {
+		String lofStr = getInfo(LossOfFunction.VCF_INFO_LOF_NAME);
+
+		ArrayList<NonsenseMediatedDecayEntry> lofList = new ArrayList<NonsenseMediatedDecayEntry>();
+		if (lofStr == null || lofStr.isEmpty()) return lofList;
+
+		// Split comma separated list
+		String lofs[] = lofStr.split(",");
+		for (String lof : lofs)
+			lofList.add(new NonsenseMediatedDecayEntry(lof));
+
+		return lofList;
 	}
 
 	/**

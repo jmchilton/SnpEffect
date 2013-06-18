@@ -37,9 +37,10 @@ public class SnpEffCmdAcat extends SnpEff {
 
 	String vcfFile;
 	int testNum;
-	CountByType countByType;
+	CountByType countByAcat, countByEff;
 
 	public SnpEffCmdAcat() {
+		super();
 	}
 
 	/**
@@ -62,6 +63,12 @@ public class SnpEffCmdAcat extends SnpEff {
 
 		// Parse all effects
 		for (VcfEffect veff : ve.parseEffects()) {
+
+			if (verbose) {
+				// Count by effect
+				countByEff.inc(veff.getEffect().toString());
+				if (veff.getEffectDetails() != null && !veff.getEffectDetails().isEmpty()) countByEff.inc(veff.getEffect() + "[" + veff.getEffectDetails() + "]");
+			}
 
 			// Do not process is there are errors or warnings
 			if (veff.getErrorsOrWarning() != null) continue;
@@ -125,7 +132,7 @@ public class SnpEffCmdAcat extends SnpEff {
 				}
 
 				// Count non-coding annotations
-				if (key != null) countByType.inc(key);
+				if (verbose && key != null) countByAcat.inc(key);
 			}
 
 		}
@@ -133,7 +140,7 @@ public class SnpEffCmdAcat extends SnpEff {
 		// Annotate
 		if (minAcatScore < 4) {
 			// If we have a coding annotation, we don't need to add non-coding annotations
-			countByType.inc(acatKey);
+			countByAcat.inc(acatKey);
 		} else if (hasMotif && hasReg) nccat = 1;
 		else if (hasMotif) nccat = 2;
 		else if (hasReg) nccat = 3;
@@ -150,8 +157,8 @@ public class SnpEffCmdAcat extends SnpEff {
 		}
 
 		// Count categories
-		if (minAcatScore <= 4) countByType.inc("CODING_CATEGORY:" + minAcatScore);
-		if (nccat <= 4) countByType.inc("NON_CODING_CATEGORY:" + nccat);
+		if (minAcatScore <= 4) countByAcat.inc("CODING_CATEGORY:" + minAcatScore);
+		if (nccat <= 4) countByAcat.inc("NON_CODING_CATEGORY:" + nccat);
 	}
 
 	/**
@@ -185,8 +192,9 @@ public class SnpEffCmdAcat extends SnpEff {
 	 */
 	@Override
 	public boolean run() {
-		Timer.showStdErr("Calculating ACAT score on input: " + vcfFile);
-		countByType = new CountByType();
+		if (verbose) Timer.showStdErr("Calculating ACAT score on input: " + vcfFile);
+		countByAcat = new CountByType();
+		countByEff = new CountByType();
 
 		VcfFileIterator vcf = new VcfFileIterator(vcfFile);
 		for (VcfEntry ve : vcf) {
@@ -202,8 +210,12 @@ public class SnpEffCmdAcat extends SnpEff {
 			if (!quiet) System.out.println(ve);
 		}
 
-		System.err.println(countByType);
-		Timer.showStdErr("Done.");
+		if (verbose) {
+			System.err.println(countByAcat);
+			System.err.println(countByEff);
+			Timer.showStdErr("Done.");
+		}
+
 		return true;
 	}
 

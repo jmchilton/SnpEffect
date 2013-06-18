@@ -31,12 +31,7 @@ import ca.mcgill.mcb.pcingola.vcf.VcfEntry;
 public class VcfOutputFormatter extends OutputFormatter {
 
 	public static final boolean debug = false;
-	public static final String VCF_INFO_EFF_NAME = "EFF";
 	public static final String VCF_INFO_OICR_NAME = "OICR";
-	public static final String VCF_INFO_LOF_NAME = "LOF";
-	public static final String VCF_INFO_NMD_NAME = "NMD";
-
-	//	public static final String GATK_ACCEPTED_VERSION = "2.0.5"; // GATK refuses to run if we report another version, so we have to lie...
 
 	boolean needAddInfo = false;
 	boolean needAddHeader = true;
@@ -245,7 +240,7 @@ public class VcfOutputFormatter extends OutputFormatter {
 		//---
 
 		// Add 'EFF' info field
-		vcfEntry.addInfo(VCF_INFO_EFF_NAME, toStringVcfInfo(effs));
+		vcfEntry.addInfo(VcfEffect.VCF_INFO_EFF_NAME, toStringVcfInfo(effs));
 
 		// Add 'OICR' info field
 		if (useOicr && (oicr.size() > 0)) {
@@ -257,8 +252,8 @@ public class VcfOutputFormatter extends OutputFormatter {
 		if (lossOfFunction) {
 			// Perform LOF analysis and add annotations
 			LossOfFunction lof = new LossOfFunction(config, changeEffects);
-			if (lof.isLof()) vcfEntry.addInfo(VCF_INFO_LOF_NAME, lof.vcfLofValue());
-			if (lof.isNmd()) vcfEntry.addInfo(VCF_INFO_NMD_NAME, lof.vcfNmdValue());
+			if (lof.isLof()) vcfEntry.addInfo(LossOfFunction.VCF_INFO_LOF_NAME, lof.toStringVcfLof());
+			if (lof.isNmd()) vcfEntry.addInfo(LossOfFunction.VCF_INFO_NMD_NAME, lof.toStringVcfNmd());
 		}
 
 		needAddInfo = false; // Don't add info twice

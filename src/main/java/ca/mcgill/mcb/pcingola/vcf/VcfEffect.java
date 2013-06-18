@@ -17,6 +17,8 @@ public class VcfEffect {
 		FORMAT_SNPEFF_2, FORMAT_SNPEFF_3, FORMAT_SNPEFF_4
 	}
 
+	public static final String VCF_INFO_EFF_NAME = "EFF";
+
 	String effectString;
 	String effectStrings[];
 	FormatVersion formatVersion;

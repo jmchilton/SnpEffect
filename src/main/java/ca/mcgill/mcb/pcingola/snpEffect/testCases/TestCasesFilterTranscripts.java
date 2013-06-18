@@ -4,7 +4,6 @@ import java.util.List;
 
 import junit.framework.Assert;
 import junit.framework.TestCase;
-import ca.mcgill.mcb.pcingola.outputFormatter.VcfOutputFormatter;
 import ca.mcgill.mcb.pcingola.snpEffect.commandLine.SnpEffCmdEff;
 import ca.mcgill.mcb.pcingola.vcf.VcfEffect;
 import ca.mcgill.mcb.pcingola.vcf.VcfEntry;
@@ -43,7 +42,7 @@ public class TestCasesFilterTranscripts extends TestCase {
 			System.out.println(ve);
 
 			// Get effect string
-			String effs = ve.getInfo(VcfOutputFormatter.VCF_INFO_EFF_NAME);
+			String effs = ve.getInfo(VcfEffect.VCF_INFO_EFF_NAME);
 			for (String effStr : effs.split(",")) {
 				VcfEffect veff = new VcfEffect(effStr);
 				System.out.println("\ttrId:" + veff.getTranscriptId() + "\t" + veff);
@@ -73,7 +72,7 @@ public class TestCasesFilterTranscripts extends TestCase {
 			System.out.println(ve);
 
 			// Get effect string
-			String effs = ve.getInfo(VcfOutputFormatter.VCF_INFO_EFF_NAME);
+			String effs = ve.getInfo(VcfEffect.VCF_INFO_EFF_NAME);
 			for (String effStr : effs.split(",")) {
 				VcfEffect veff = new VcfEffect(effStr);
 				System.out.println("\ttrId:" + veff.getTranscriptId() + "\t" + veff);

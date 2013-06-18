@@ -10,6 +10,7 @@ import ca.mcgill.mcb.pcingola.interval.SeqChange;
 import ca.mcgill.mcb.pcingola.interval.SpliceSite;
 import ca.mcgill.mcb.pcingola.interval.Transcript;
 import ca.mcgill.mcb.pcingola.snpEffect.ChangeEffect.EffectType;
+import ca.mcgill.mcb.pcingola.vcf.VcfEntry;
 
 /**
  * Analyze if a set of effects are can create a "Loss Of Function" 
@@ -51,6 +52,9 @@ import ca.mcgill.mcb.pcingola.snpEffect.ChangeEffect.EffectType;
  * @author pcingola
  */
 public class LossOfFunction {
+
+	public static final String VCF_INFO_NMD_NAME = "NMD";
+	public static final String VCF_INFO_LOF_NAME = "LOF";
 
 	/**
 	 * Number of bases before last exon-exon junction that nonsense 
@@ -98,8 +102,6 @@ public class LossOfFunction {
 		transcriptsNmd = new HashSet<Transcript>();
 		genesNmd = new HashSet<Gene>();
 
-		// Config parameters
-		// config = Config.get();
 		this.config = config;
 		ignoreProteinCodingBefore = config.getLofIgnoreProteinCodingBefore();
 		ignoreProteinCodingAfter = config.getLofIgnoreProteinCodingAfter();
@@ -349,6 +351,13 @@ public class LossOfFunction {
 	}
 
 	/**
+	 * Parse NMD from VcfEntry
+	 * @param vcfEntry
+	 */
+	void parseNmd(VcfEntry vcfEntry) {
+	}
+
+	/**
 	 * Which percentile of the protein does this effect hit?
 	 * @param changeEffect
 	 * @return
@@ -378,8 +387,8 @@ public class LossOfFunction {
 
 	@Override
 	public String toString() {
-		return (isLof() ? "LOF=" + vcfLofValue() + " " : "") //
-				+ (isNmd() ? "NMD=" + vcfNmdValue() : "") //
+		return (isLof() ? "LOF=" + toStringVcfLof() + " " : "") //
+				+ (isNmd() ? "NMD=" + toStringVcfNmd() : "") //
 		;
 	}
 
@@ -387,12 +396,16 @@ public class LossOfFunction {
 	 * Get LOF value for VCF info field
 	 * @return
 	 */
-	public String vcfLofValue() {
+	public String toStringVcfLof() {
 		StringBuilder sb = new StringBuilder();
 
 		for (Gene gene : genesLof) {
 			if (sb.length() > 0) sb.append(','); // Separate by comma
-			sb.append(String.format("%s|%s|%d|%.2f", gene.getGeneName(), gene.getId(), gene.numChilds(), percentOfTranscriptsAffected(gene, transcriptsLof)));
+
+			double perc = percentOfTranscriptsAffected(gene, transcriptsLof);
+			LossOfFunctionEntry lofent = new LossOfFunctionEntry(gene, perc);
+
+			sb.append(lofent.toString());
 		}
 
 		return sb.toString();
@@ -402,12 +415,16 @@ public class LossOfFunction {
 	 * Get NMD value for VCF info field
 	 * @return
 	 */
-	public String vcfNmdValue() {
+	public String toStringVcfNmd() {
 		StringBuilder sb = new StringBuilder();
 
 		for (Gene gene : genesNmd) {
 			if (sb.length() > 0) sb.append(','); // Separate by comma
-			sb.append(String.format("%s|%s|%d|%.2f", gene.getGeneName(), gene.getId(), gene.numChilds(), percentOfTranscriptsAffected(gene, transcriptsNmd)));
+
+			double perc = percentOfTranscriptsAffected(gene, transcriptsNmd);
+			NonsenseMediatedDecayEntry nmdent = new NonsenseMediatedDecayEntry(gene, perc);
+
+			sb.append(nmdent.toString());
 		}
 
 		return sb.toString();
