@@ -23,6 +23,8 @@ public class SnpEffCmdTest extends SnpEff {
 
 	public static final String VARIANTS_IN_GENES = "_VARAINTS_IN_GENES";
 	public static final String VARIANTS = "_VARAINTS";
+	public static final double MIN_PERCENT_TRANSCRIPTS_AFFECTED = 0.5;
+
 	public static final int SHOW_EVERY = 10000;
 
 	String genesFile;
@@ -85,10 +87,12 @@ public class SnpEffCmdTest extends SnpEff {
 			if (!genes.contains(gene)) continue;
 
 			inGenes = true;
-			countByGene.inc(gene + "\t" + LossOfFunction.VCF_INFO_LOF_NAME);
-			effectsByVariant.add(LossOfFunction.VCF_INFO_LOF_NAME);
+			if (lof.getPercentOfTranscriptsAffected() >= MIN_PERCENT_TRANSCRIPTS_AFFECTED) {
+				Gpr.debug("LOF: " + lof);
+				countByGene.inc(gene + "\t" + LossOfFunction.VCF_INFO_LOF_NAME);
+				effectsByVariant.add(LossOfFunction.VCF_INFO_LOF_NAME);
+			}
 		}
-
 		//---
 		// Parse NMD 
 		//---
@@ -101,8 +105,11 @@ public class SnpEffCmdTest extends SnpEff {
 			if (!genes.contains(gene)) continue;
 
 			inGenes = true;
-			countByGene.inc(gene + "\t" + LossOfFunction.VCF_INFO_NMD_NAME);
-			effectsByVariant.add(LossOfFunction.VCF_INFO_NMD_NAME);
+			if (nmd.getPercentOfTranscriptsAffected() >= MIN_PERCENT_TRANSCRIPTS_AFFECTED) {
+				Gpr.debug("NMD: " + nmd);
+				countByGene.inc(gene + "\t" + LossOfFunction.VCF_INFO_NMD_NAME);
+				effectsByVariant.add(LossOfFunction.VCF_INFO_NMD_NAME);
+			}
 		}
 
 		// Count once per variant
