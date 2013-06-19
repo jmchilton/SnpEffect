@@ -219,9 +219,8 @@ public class CountByType implements Serializable {
 
 	public String toString(boolean showScores) {
 		StringBuffer out = new StringBuffer();
-		for (String type : keysSorted()) {
+		for (String type : keysSorted())
 			out.append(type + "\t" + get(type) + (showScores ? "\t" + getScore(type) : "") + "\n");
-		}
 
 		return out.toString();
 	}

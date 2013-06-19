@@ -27,13 +27,15 @@ public class SnpEffCmdTest extends SnpEff {
 
 	String genesFile;
 	String vcfFile;
-	CountByType countByEff;
+	CountByType countByGene;
+	CountByType countByVariant;
 	HashSet<String> genes = new HashSet<String>();
 
 	public SnpEffCmdTest() {
 		super();
 		genes = new HashSet<String>();
-		countByEff = new CountByType();
+		countByGene = new CountByType();
+		countByVariant = new CountByType();
 	}
 
 	/**
@@ -42,6 +44,7 @@ public class SnpEffCmdTest extends SnpEff {
 	 */
 	void analyze(VcfEntry ve) {
 		boolean inGenes = false;
+		HashSet<String> effectsByVariant = new HashSet<String>();
 
 		//---
 		// Parse Effect
@@ -61,8 +64,13 @@ public class SnpEffCmdTest extends SnpEff {
 			inGenes = true;
 
 			// Count by effect
-			countByEff.inc(veff.getEffect().toString());
-			if (veff.getEffectDetails() != null && !veff.getEffectDetails().isEmpty()) countByEff.inc(veff.getEffect() + "[" + veff.getEffectDetails() + "]");
+			if (veff.getEffectDetails() != null && !veff.getEffectDetails().isEmpty()) {
+				countByGene.inc(gene + "\t" + veff.getEffect() + "[" + veff.getEffectDetails() + "]");
+				effectsByVariant.add(veff.getEffect() + "[" + veff.getEffectDetails() + "]");
+			} else {
+				countByGene.inc(gene + "\t" + veff.getEffect().toString());
+				effectsByVariant.add(veff.getEffect().toString());
+			}
 		}
 
 		//---
@@ -77,7 +85,8 @@ public class SnpEffCmdTest extends SnpEff {
 			if (!genes.contains(gene)) continue;
 
 			inGenes = true;
-			countByEff.inc(LossOfFunction.VCF_INFO_LOF_NAME);
+			countByGene.inc(gene + "\t" + LossOfFunction.VCF_INFO_LOF_NAME);
+			effectsByVariant.add(LossOfFunction.VCF_INFO_LOF_NAME);
 		}
 
 		//---
@@ -92,14 +101,19 @@ public class SnpEffCmdTest extends SnpEff {
 			if (!genes.contains(gene)) continue;
 
 			inGenes = true;
-			countByEff.inc(LossOfFunction.VCF_INFO_NMD_NAME);
+			countByGene.inc(gene + "\t" + LossOfFunction.VCF_INFO_NMD_NAME);
+			effectsByVariant.add(LossOfFunction.VCF_INFO_NMD_NAME);
 		}
 
+		// Count once per variant
+		for (String eff : effectsByVariant)
+			countByVariant.inc(eff);
+
 		// Count if it is in genes
-		if (inGenes) countByEff.inc(VARIANTS_IN_GENES);
+		if (inGenes) countByGene.inc(VARIANTS_IN_GENES);
 
 		// Count total number of variants
-		countByEff.inc(VARIANTS);
+		countByGene.inc(VARIANTS);
 	}
 
 	/**
@@ -137,8 +151,35 @@ public class SnpEffCmdTest extends SnpEff {
 			if (verbose) Gpr.showMark(i++, SHOW_EVERY);
 		}
 
+		//---
+		// Increment all counters. Only once per gene
+		//---
+		CountByType countByEff = new CountByType(); // Count each effect only once per gene
+		for (String key : countByGene.keySet()) {
+			if (countByGene.get(key) > 0) { // This should always be true
+				String keySplit[] = key.split("\t");
+
+				if (keySplit.length > 1) {
+					String eff = keySplit[1];
+					countByEff.inc(eff);
+				}
+			} else throw new RuntimeException("This should never happen!");
+		}
+
+		System.out.println("# Number of genes");
 		System.out.println("GENES\t" + genes.size());
-		System.out.println(countByEff);
+		System.out.println("#");
+		System.out.println("# Number of effects per gene (number of effects for each gene)");
+		System.out.println("eff\tcount");
+		System.out.print(countByGene);
+		System.out.println("#");
+		System.out.println("# Number of effects per variant (i.e. each effect is counted only once per variant)");
+		System.out.println("eff\tcount");
+		System.out.print(countByVariant);
+		System.out.println("#");
+		System.out.println("# Number of genes for each effect (i.e. each effect is counted only once per gene)");
+		System.out.println("eff\tcount");
+		System.out.print(countByEff);
 		return true;
 	}
 
