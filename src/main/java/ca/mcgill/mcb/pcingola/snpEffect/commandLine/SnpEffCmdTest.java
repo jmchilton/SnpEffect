@@ -23,7 +23,7 @@ public class SnpEffCmdTest extends SnpEff {
 
 	public static final String VARIANTS_IN_GENES = "_VARAINTS_IN_GENES";
 	public static final String VARIANTS = "_VARAINTS";
-	public static final double MIN_PERCENT_TRANSCRIPTS_AFFECTED = 0.5;
+	public static final double MIN_PERCENT_TRANSCRIPTS_AFFECTED = 0.9;
 
 	public static final int SHOW_EVERY = 10000;
 
@@ -47,6 +47,12 @@ public class SnpEffCmdTest extends SnpEff {
 	void analyze(VcfEntry ve) {
 		boolean inGenes = false;
 		HashSet<String> effectsByVariant = new HashSet<String>();
+
+		// We ignore AF > 0.5 because 
+		// Most eQtl algorithms are based on minor allele frequencies. So when 
+		// eQtl is calculated, REF and ALT are swapped.
+		// This means that the EFF field is actually not describing the effect of the eQTL and we should filter it out
+		if (ve.getInfoFloat("AF") > 0.5) return;
 
 		//---
 		// Parse Effect
@@ -88,7 +94,6 @@ public class SnpEffCmdTest extends SnpEff {
 
 			inGenes = true;
 			if (lof.getPercentOfTranscriptsAffected() >= MIN_PERCENT_TRANSCRIPTS_AFFECTED) {
-				Gpr.debug("LOF: " + lof);
 				countByGene.inc(gene + "\t" + LossOfFunction.VCF_INFO_LOF_NAME);
 				effectsByVariant.add(LossOfFunction.VCF_INFO_LOF_NAME);
 			}
@@ -106,7 +111,6 @@ public class SnpEffCmdTest extends SnpEff {
 
 			inGenes = true;
 			if (nmd.getPercentOfTranscriptsAffected() >= MIN_PERCENT_TRANSCRIPTS_AFFECTED) {
-				Gpr.debug("NMD: " + nmd);
 				countByGene.inc(gene + "\t" + LossOfFunction.VCF_INFO_NMD_NAME);
 				effectsByVariant.add(LossOfFunction.VCF_INFO_NMD_NAME);
 			}
@@ -131,6 +135,13 @@ public class SnpEffCmdTest extends SnpEff {
 		if (args.length != 2) usage("Missing arguments");
 		vcfFile = args[0];
 		genesFile = args[1];
+	}
+
+	void print(String label, CountByType countByType) {
+		System.out.println(label + "\teff\tcount");
+		for (String type : countByType.keysSorted())
+			System.out.println(label + "\t" + type + "\t" + countByType.get(type));
+
 	}
 
 	/**
@@ -177,16 +188,13 @@ public class SnpEffCmdTest extends SnpEff {
 		System.out.println("GENES\t" + genes.size());
 		System.out.println("#");
 		System.out.println("# Number of effects per gene (number of effects for each gene)");
-		System.out.println("eff\tcount");
-		System.out.print(countByGene);
+		print("count_effect_by_gene", countByGene);
 		System.out.println("#");
 		System.out.println("# Number of effects per variant (i.e. each effect is counted only once per variant)");
-		System.out.println("eff\tcount");
-		System.out.print(countByVariant);
+		print("count_by_variant", countByVariant);
 		System.out.println("#");
 		System.out.println("# Number of genes for each effect (i.e. each effect is counted only once per gene)");
-		System.out.println("eff\tcount");
-		System.out.print(countByEff);
+		print("count_by_gene", countByEff);
 		return true;
 	}
 
