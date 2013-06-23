@@ -23,7 +23,8 @@ public class SnpEffCmdTest extends SnpEff {
 
 	public static final String VARIANTS_IN_GENES = "_VARAINTS_IN_GENES";
 	public static final String VARIANTS = "_VARAINTS";
-	public static final double MIN_PERCENT_TRANSCRIPTS_AFFECTED = 0.9;
+	public static final String BIOTYPE_SKIPPED = "_BIOTYPE_SKIPPED";
+	public static final double MIN_PERCENT_TRANSCRIPTS_AFFECTED = 0.5;
 
 	public static final int SHOW_EVERY = 10000;
 
@@ -68,6 +69,12 @@ public class SnpEffCmdTest extends SnpEff {
 
 			// Gene Info does not match? Nothing to do
 			if (!genes.contains(gene)) continue;
+
+			// Not a protrein coding transcript? Skip
+			if ((veff.getBioType() == null) || !veff.getBioType().equals("protein_coding")) {
+				countByGene.inc(BIOTYPE_SKIPPED + "_" + veff.getBioType());
+				continue;
+			}
 
 			inGenes = true;
 
@@ -184,8 +191,10 @@ public class SnpEffCmdTest extends SnpEff {
 			} else throw new RuntimeException("This should never happen!");
 		}
 
-		System.out.println("# Number of genes");
+		System.out.println("# General Numbers");
 		System.out.println("GENES\t" + genes.size());
+		System.out.println("VARIANTS\t" + countByGene.get(VARIANTS));
+		System.out.println("VARIANTS_IN_GENES\t" + countByGene.get(VARIANTS_IN_GENES));
 		System.out.println("#");
 		System.out.println("# Number of effects per gene (number of effects for each gene)");
 		print("count_effect_by_gene", countByGene);
