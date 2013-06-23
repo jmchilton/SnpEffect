@@ -36,7 +36,8 @@ public class SnpEffCmdTest extends SnpEff {
 	boolean useClosestGene = true; // Use closest gene (if gene is not found in EFF entry)
 	boolean doNotUseAF50 = false; // FIlter out VCF entries if AF > 50%
 	boolean keyMafCategory = true; // Add MAF category to key { COMMON, LOW< RARE }
-	boolean keyPrivate = true; // Add "PRIVATE" falg to info
+	boolean keyPrivate = true; // Add "PRIVATE" flag to info
+	boolean keyId = true; // Add "ID" flag to info
 
 	SnpEffectPredictor snpEffectPredictor;
 	String genesFile;
@@ -75,8 +76,9 @@ public class SnpEffCmdTest extends SnpEff {
 
 		// Add this info after all keys
 		String keyPost = "";
-		if (keyMafCategory) keyPost = "\t" + ve.variantByFrequency().toString();
-		if (keyPrivate) keyPost = "\t" + (ve.getInfoFlag(VcfEntry.VCF_INFO_PRIVATE) ? VcfEntry.VCF_INFO_PRIVATE : "");
+		if (keyMafCategory) keyPost += "\t" + ve.variantByFrequency().toString();
+		if (keyPrivate) keyPost += "\t" + (ve.getInfoFlag(VcfEntry.VCF_INFO_PRIVATE) ? VcfEntry.VCF_INFO_PRIVATE : "");
+		if (keyId) keyPost += "\t" + ((ve.getId() == null) || ve.getId().isEmpty() ? "" : "ID");
 
 		//---
 		// Parse Effect
