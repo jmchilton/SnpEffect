@@ -3,9 +3,13 @@ package ca.mcgill.mcb.pcingola.snpEffect.commandLine;
 import java.util.HashSet;
 
 import ca.mcgill.mcb.pcingola.fileIterator.VcfFileIterator;
+import ca.mcgill.mcb.pcingola.interval.Gene;
+import ca.mcgill.mcb.pcingola.interval.Marker;
+import ca.mcgill.mcb.pcingola.snpEffect.Config;
 import ca.mcgill.mcb.pcingola.snpEffect.LossOfFunction;
 import ca.mcgill.mcb.pcingola.snpEffect.LossOfFunctionEntry;
 import ca.mcgill.mcb.pcingola.snpEffect.NonsenseMediatedDecayEntry;
+import ca.mcgill.mcb.pcingola.snpEffect.SnpEffectPredictor;
 import ca.mcgill.mcb.pcingola.stats.CountByType;
 import ca.mcgill.mcb.pcingola.util.Gpr;
 import ca.mcgill.mcb.pcingola.util.Timer;
@@ -28,17 +32,22 @@ public class SnpEffCmdTest extends SnpEff {
 
 	public static final int SHOW_EVERY = 10000;
 
+	boolean onlyProteinCodingTranscripts = false;
+	boolean useClosestGene = true;
+	SnpEffectPredictor snpEffectPredictor;
 	String genesFile;
 	String vcfFile;
-	CountByType countByGene;
-	CountByType countByVariant;
-	HashSet<String> genes = new HashSet<String>();
+	CountByType countByEffect; // Count raw number of effects
+	CountByType countByVariant; // Count each effect once per variant
+	CountByType countByEffByGene; // Count number of effects for each gene
+	CountByType countByGene;// Count each effect once per gene
+	HashSet<String> genes; // Only select effect in these genes
 
 	public SnpEffCmdTest() {
 		super();
-		genes = new HashSet<String>();
-		countByGene = new CountByType();
+		countByEffByGene = new CountByType();
 		countByVariant = new CountByType();
+		countByGene = new CountByType();
 	}
 
 	/**
@@ -55,6 +64,8 @@ public class SnpEffCmdTest extends SnpEff {
 		// This means that the EFF field is actually not describing the effect of the eQTL and we should filter it out
 		if (ve.getInfoFloat("AF") > 0.5) return;
 
+		String geneClosest = useClosestGene ? findClosestGene(ve) : "";
+
 		//---
 		// Parse Effect
 		//---
@@ -63,27 +74,26 @@ public class SnpEffCmdTest extends SnpEff {
 			// Do not process is there are errors or warnings
 			if (veff.getErrorsOrWarning() != null) continue;
 
-			// No gene info? Nothing to do
 			String gene = veff.getGene();
-			if (gene == null || gene.isEmpty()) continue;
+			if (genes != null) {
+				if (gene == null || gene.isEmpty()) continue; // No gene info? Nothing to do
+				if (!genes.contains(gene)) continue; // Gene Info does not match? Nothing to do
 
-			// Gene Info does not match? Nothing to do
-			if (!genes.contains(gene)) continue;
+				// Not a protein coding transcript? Skip
+				if (onlyProteinCodingTranscripts && ((veff.getBioType() == null) || !veff.getBioType().equals("protein_coding"))) {
+					countByEffByGene.inc(BIOTYPE_SKIPPED + "_" + veff.getBioType());
+					continue;
+				}
 
-			// Not a protrein coding transcript? Skip
-			if ((veff.getBioType() == null) || !veff.getBioType().equals("protein_coding")) {
-				countByGene.inc(BIOTYPE_SKIPPED + "_" + veff.getBioType());
-				continue;
-			}
-
-			inGenes = true;
+				inGenes = true;
+			} else if (gene == null || gene.isEmpty()) gene = geneClosest; // Use closest gene 
 
 			// Count by effect
 			if (veff.getEffectDetails() != null && !veff.getEffectDetails().isEmpty()) {
-				countByGene.inc(gene + "\t" + veff.getEffect() + "[" + veff.getEffectDetails() + "]");
+				countByEffByGene.inc(gene + "\t" + veff.getEffect() + "[" + veff.getEffectDetails() + "]");
 				effectsByVariant.add(veff.getEffect() + "[" + veff.getEffectDetails() + "]");
 			} else {
-				countByGene.inc(gene + "\t" + veff.getEffect().toString());
+				countByEffByGene.inc(gene + "\t" + veff.getEffect().toString());
 				effectsByVariant.add(veff.getEffect().toString());
 			}
 		}
@@ -97,11 +107,11 @@ public class SnpEffCmdTest extends SnpEff {
 			if (gene == null || gene.isEmpty()) continue;
 
 			// Gene Info does not match? Nothing to do
-			if (!genes.contains(gene)) continue;
+			if ((genes != null) && !genes.contains(gene)) continue;
 
 			inGenes = true;
 			if (lof.getPercentOfTranscriptsAffected() >= MIN_PERCENT_TRANSCRIPTS_AFFECTED) {
-				countByGene.inc(gene + "\t" + LossOfFunction.VCF_INFO_LOF_NAME);
+				countByEffByGene.inc(gene + "\t" + LossOfFunction.VCF_INFO_LOF_NAME);
 				effectsByVariant.add(LossOfFunction.VCF_INFO_LOF_NAME);
 			}
 		}
@@ -114,11 +124,11 @@ public class SnpEffCmdTest extends SnpEff {
 			if (gene == null || gene.isEmpty()) continue;
 
 			// Gene Info does not match? Nothing to do
-			if (!genes.contains(gene)) continue;
+			if ((genes != null) && !genes.contains(gene)) continue;
 
 			inGenes = true;
 			if (nmd.getPercentOfTranscriptsAffected() >= MIN_PERCENT_TRANSCRIPTS_AFFECTED) {
-				countByGene.inc(gene + "\t" + LossOfFunction.VCF_INFO_NMD_NAME);
+				countByEffByGene.inc(gene + "\t" + LossOfFunction.VCF_INFO_NMD_NAME);
 				effectsByVariant.add(LossOfFunction.VCF_INFO_NMD_NAME);
 			}
 		}
@@ -128,10 +138,20 @@ public class SnpEffCmdTest extends SnpEff {
 			countByVariant.inc(eff);
 
 		// Count if it is in genes
-		if (inGenes) countByGene.inc(VARIANTS_IN_GENES);
+		if (inGenes) countByEffByGene.inc(VARIANTS_IN_GENES);
 
 		// Count total number of variants
-		countByGene.inc(VARIANTS);
+		countByEffByGene.inc(VARIANTS);
+	}
+
+	/**
+	 * Find closes gene name
+	 * @param queryMarker
+	 * @return
+	 */
+	String findClosestGene(Marker queryMarker) {
+		Gene gene = snpEffectPredictor.queryClosestGene(queryMarker);
+		return gene != null ? gene.getId() : "";
 	}
 
 	/**
@@ -139,9 +159,12 @@ public class SnpEffCmdTest extends SnpEff {
 	 */
 	@Override
 	public void parseArgs(String[] args) {
-		if (args.length != 2) usage("Missing arguments");
-		vcfFile = args[0];
-		genesFile = args[1];
+		if (args.length < 2) usage(null);
+
+		int idx = 0;
+		genomeVer = args[idx++];
+		vcfFile = args[idx++];
+		if (args.length > idx) genesFile = args[idx];
 	}
 
 	void print(String label, CountByType countByType) {
@@ -157,15 +180,34 @@ public class SnpEffCmdTest extends SnpEff {
 	@Override
 	public boolean run() {
 		//---
-		// Load genes
+		// Load database, build tree
 		//---
-		if (verbose) Timer.showStdErr("Loading genes from '" + genesFile + "'");
-		for (String gene : Gpr.readFile(genesFile).split("\n"))
-			genes.add(gene.trim());
-		if (verbose) Timer.showStdErr("Done. Genes added : " + genes.size());
+		if (verbose) Timer.showStdErr("Reading configuration...");
+		config = new Config(genomeVer, configFile); // Read configuration
+		if (verbose) Timer.showStdErr("done");
+
+		if (verbose) Timer.showStdErr("Loading predictor...");
+		config.loadSnpEffectPredictor();
+		if (verbose) Timer.showStdErr("done");
+
+		if (verbose) Timer.showStdErr("Building interval forest...");
+		snpEffectPredictor = config.getSnpEffectPredictor();
+		snpEffectPredictor.buildForest();
+		if (verbose) Timer.showStdErr("done");
 
 		//---
-		// Count effect in VCF
+		// Load genes
+		//---
+		if (genesFile != null) {
+			genes = new HashSet<String>();
+			if (verbose) Timer.showStdErr("Loading genes from '" + genesFile + "'");
+			for (String gene : Gpr.readFile(genesFile).split("\n"))
+				genes.add(gene.trim());
+			if (verbose) Timer.showStdErr("Done. Genes added : " + genes.size());
+		}
+
+		//---
+		// Process input file
 		//---
 		if (verbose) Timer.showStdErr("Counting effect on input: " + vcfFile);
 		VcfFileIterator vcf = new VcfFileIterator(vcfFile);
@@ -177,33 +219,35 @@ public class SnpEffCmdTest extends SnpEff {
 		}
 
 		//---
-		// Increment all counters. Only once per gene
+		// Calculate 'once per gene' counters
 		//---
-		CountByType countByEff = new CountByType(); // Count each effect only once per gene
-		for (String key : countByGene.keySet()) {
-			if (countByGene.get(key) > 0) { // This should always be true
+		for (String key : countByEffByGene.keySet()) {
+			if (countByEffByGene.get(key) > 0) { // This should always be true
 				String keySplit[] = key.split("\t");
 
 				if (keySplit.length > 1) {
 					String eff = keySplit[1];
-					countByEff.inc(eff);
+					countByGene.inc(eff);
 				}
 			} else throw new RuntimeException("This should never happen!");
 		}
 
+		//---
+		// Show output
+		//---
 		System.out.println("# General Numbers");
-		System.out.println("GENES\t" + genes.size());
-		System.out.println("VARIANTS\t" + countByGene.get(VARIANTS));
-		System.out.println("VARIANTS_IN_GENES\t" + countByGene.get(VARIANTS_IN_GENES));
+		if (genes != null) System.out.println("GENES\t" + genes.size());
+		System.out.println("VARIANTS\t" + countByEffByGene.get(VARIANTS));
+		System.out.println("VARIANTS_IN_GENES\t" + countByEffByGene.get(VARIANTS_IN_GENES));
 		System.out.println("#");
 		System.out.println("# Number of effects per gene (number of effects for each gene)");
-		print("count_effect_by_gene", countByGene);
+		print("count_effect_by_gene", countByEffByGene);
 		System.out.println("#");
 		System.out.println("# Number of effects per variant (i.e. each effect is counted only once per variant)");
 		print("count_by_variant", countByVariant);
 		System.out.println("#");
 		System.out.println("# Number of genes for each effect (i.e. each effect is counted only once per gene)");
-		print("count_by_gene", countByEff);
+		print("count_by_gene", countByGene);
 		return true;
 	}
 
@@ -214,7 +258,7 @@ public class SnpEffCmdTest extends SnpEff {
 	public void usage(String message) {
 		if (message != null) System.err.println("Error: " + message + "\n");
 		System.err.println("snpEff version " + SnpEff.VERSION);
-		System.err.println("Usage: snpEff test file.vcf genes.txt");
+		System.err.println("Usage: snpEff test genomeVer file.vcf [genes.txt]");
 		System.exit(-1);
 	}
 

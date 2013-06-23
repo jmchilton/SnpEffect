@@ -246,7 +246,20 @@ public class SnpEffectPredictor implements Serializable {
 	}
 
 	/**
-	 * Find closest gene to this interval
+	 * Find closest gene to this marker
+	 * 
+	 * In case more than one 'closest' gene is 
+	 * found (e.g. two or more genes at the 
+	 * same distance). The following rules 
+	 * apply:
+	 * 
+	 * 		i) If many genes have the same 'closest 
+	 * 		   distance', coding genes are preferred.
+	 * 
+	 * 		ii) If more than one coding gene has the 
+	 * 		    same 'closet distance', a random gene 
+	 *			is returned.
+	 * 
 	 * @param inputInterval
 	 */
 	public Gene queryClosestGene(Marker inputInterval) {
@@ -257,31 +270,43 @@ public class SnpEffectPredictor implements Serializable {
 		if (chr == null) return null;
 
 		if (chr.size() > 0) {
-			// Extend interval to capture 'close' exons
+			// Extend interval to capture 'close' genes
 			for (int extend = initialExtension; extend < chr.size(); extend *= 2) {
 				int start = Math.max(inputInterval.getStart() - extend, 0);
 				int end = inputInterval.getEnd() + extend;
 				Marker extended = new Marker(chr, start, end, 1, "");
 
-				// Find all exons that intersect with the interval
+				// Find all genes that intersect with the interval
 				Markers markers = query(extended);
+				Markers genes = new Markers();
 				int minDist = Integer.MAX_VALUE;
-				Gene minDistMarker = null;
 				for (Marker m : markers) {
 					if (m instanceof Gene) {
 						int dist = m.distance(inputInterval);
 						if (dist < minDist) {
-							minDistMarker = (Gene) m;
+							genes.add(m);
 							minDist = dist;
 						}
-
-						// Zero distance? Cannot be lower than this => return
-						if (minDist <= 0) return minDistMarker;
 					}
 				}
 
-				// Found something?
-				if (minDistMarker != null) return minDistMarker;
+				// Found something?				
+				if (genes.size() > 0) {
+					// Find a gene having distance 'minDist'. Prefer coding genes
+					Gene minDistGene = null;
+
+					for (Marker m : genes) {
+						int dist = m.distance(inputInterval);
+						if (dist == minDist) {
+							Gene gene = (Gene) m;
+							if (minDistGene == null) minDistGene = gene;
+							else if (!minDistGene.isProteinCoding() && gene.isProteinCoding()) minDistGene = gene;
+						}
+					}
+
+					return minDistGene;
+				}
+
 			}
 		}
 
