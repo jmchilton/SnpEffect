@@ -5,6 +5,7 @@ import java.util.HashSet;
 import ca.mcgill.mcb.pcingola.fileIterator.VcfFileIterator;
 import ca.mcgill.mcb.pcingola.interval.Gene;
 import ca.mcgill.mcb.pcingola.interval.Marker;
+import ca.mcgill.mcb.pcingola.snpEffect.ChangeEffect.EffectType;
 import ca.mcgill.mcb.pcingola.snpEffect.Config;
 import ca.mcgill.mcb.pcingola.snpEffect.LossOfFunction;
 import ca.mcgill.mcb.pcingola.snpEffect.LossOfFunctionEntry;
@@ -32,12 +33,12 @@ public class SnpEffCmdTest extends SnpEff {
 
 	public static final int SHOW_EVERY = 10000;
 
-	boolean onlyProteinCodingTranscripts = false; // Use only protein coding transcripts
-	boolean useClosestGene = true; // Use closest gene (if gene is not found in EFF entry)
-	boolean doNotUseAF50 = false; // FIlter out VCF entries if AF > 50%
-	boolean keyMafCategory = true; // Add MAF category to key { COMMON, LOW< RARE }
-	boolean keyPrivate = true; // Add "PRIVATE" flag to info
-	boolean keyId = true; // Add "ID" flag to info
+	boolean onlyProteinCodingTranscripts; // Use only protein coding transcripts
+	boolean useClosestGene; // Use closest gene (if gene is not found in EFF entry)
+	boolean doNotUseAF50; // Filter out VCF entries if AF > 50%
+	boolean keyMafCategory; // Add MAF category to key { COMMON, LOW< RARE }
+	boolean keyPrivate; // Add "PRIVATE" flag to info
+	boolean keyId; // Add "ID" flag to info
 
 	SnpEffectPredictor snpEffectPredictor;
 	String genesFile;
@@ -120,7 +121,8 @@ public class SnpEffCmdTest extends SnpEff {
 
 			// Count by effect
 			String key = veff.getEffect().toString();
-			if (veff.getEffectDetails() != null && !veff.getEffectDetails().isEmpty()) key += "[" + veff.getEffectDetails() + "]";
+			if (veff.getEffect() == EffectType.REGULATION) key += "[" + veff.getBioType() + ":" + veff.getEffectDetails() + "]";
+			else if (veff.getEffectDetails() != null && !veff.getEffectDetails().isEmpty()) key += "[" + veff.getEffectDetails() + "]";
 			effectsByVariant.add(key + keyPost);
 			effectsByGene.add(gene + "\t" + key + keyPost);
 			countByEffect.inc(key + keyPost);
@@ -207,12 +209,31 @@ public class SnpEffCmdTest extends SnpEff {
 	public void parseArgs(String[] args) {
 		if (args.length < 2) usage(null);
 
-		int idx = 0;
-		genomeVer = args[idx++];
-		vcfFile = args[idx++];
-		if (args.length > idx) genesFile = args[idx];
+		for (int idx = 0; idx < args.length; idx++) {
+			String arg = args[idx];
+
+			if (isOpt(arg)) {
+				if (arg.equals("-id")) keyId = true;
+				else if (arg.equals("-maf")) keyMafCategory = true;
+				else if (arg.equals("-private")) keyPrivate = true;
+				else if (arg.equals("-closest")) useClosestGene = true;
+				else if (arg.equals("-noAf50")) doNotUseAF50 = true;
+				else if (arg.equals("-prot")) onlyProteinCodingTranscripts = true;
+				else usage("Unknown opton '" + arg + "'");
+			} else if ((genomeVer == null) || genomeVer.isEmpty()) genomeVer = args[idx];
+			else if (vcfFile == null) vcfFile = args[idx];
+			else if (genesFile == null) genesFile = args[idx];
+		}
+
+		if (genomeVer == null) usage("Missing genome version");
+		if (vcfFile == null) usage("Missing VCF file");
 	}
 
+	/**
+	 * Print a counter using a label on each line
+	 * @param label
+	 * @param countByType
+	 */
 	void print(String label, CountByType countByType) {
 		System.out.println(label + "\teff\tcount");
 		for (String type : countByType.keysSorted())
@@ -269,7 +290,7 @@ public class SnpEffCmdTest extends SnpEff {
 		//---
 		for (String key : countByEffByGene.keySet()) {
 			if (countByEffByGene.get(key) > 0) { // This should always be true
-				String keySplit[] = key.split("\t");
+				String keySplit[] = key.split("\t", 2);
 
 				if (keySplit.length > 1) {
 					String eff = keySplit[1];
@@ -306,7 +327,14 @@ public class SnpEffCmdTest extends SnpEff {
 	public void usage(String message) {
 		if (message != null) System.err.println("Error: " + message + "\n");
 		System.err.println("snpEff version " + SnpEff.VERSION);
-		System.err.println("Usage: snpEff test genomeVer file.vcf [genes.txt]");
+		System.err.println("Usage: snpEff test [options] genomeVer file.vcf [genes.txt]");
+		System.err.println("Options:");
+		System.err.println("\t-closest		: Use closest gene (if gene is not found in EFF entry)");
+		System.err.println("\t-id			: Add ID flag to info");
+		System.err.println("\t-maf			: Add MAF category to info { COMMON, LOW< RARE }");
+		System.err.println("\t-noAf50		: Filter out VCF entries if AF > 50%");
+		System.err.println("\t-private		: Add PRIVATE flag to info");
+		System.err.println("\t-prot		: Use only protein coding transcripts");
 		System.exit(-1);
 	}
 
