@@ -28,15 +28,18 @@ public class SnpEffCmdTest extends SnpEff {
 	public static final String VARIANTS_IN_GENES = "_VARAINTS_IN_GENES";
 	public static final String VARIANTS = "_VARAINTS";
 	public static final String BIOTYPE_SKIPPED = "_BIOTYPE_SKIPPED";
-	public static final double MIN_PERCENT_TRANSCRIPTS_AFFECTED = 0.5;
+	public static final double MIN_PERCENT_TRANSCRIPTS_AFFECTED = 0.0;
 
 	public static final int SHOW_EVERY = 10000;
 
-	boolean onlyProteinCodingTranscripts = false;
+	boolean onlyProteinCodingTranscripts = false; // Use only protein coding transcripts
 	boolean useClosestGene = true;
+	boolean doNotUseAF50 = false;
+
 	SnpEffectPredictor snpEffectPredictor;
 	String genesFile;
 	String vcfFile;
+	CountByType count; // Counter
 	CountByType countByEffect; // Count raw number of effects
 	CountByType countByVariant; // Count each effect once per variant
 	CountByType countByEffByGene; // Count number of effects for each gene
@@ -48,6 +51,8 @@ public class SnpEffCmdTest extends SnpEff {
 		countByEffByGene = new CountByType();
 		countByVariant = new CountByType();
 		countByGene = new CountByType();
+		countByEffect = new CountByType();
+		count = new CountByType();
 	}
 
 	/**
@@ -57,12 +62,13 @@ public class SnpEffCmdTest extends SnpEff {
 	void analyze(VcfEntry ve) {
 		boolean inGenes = false;
 		HashSet<String> effectsByVariant = new HashSet<String>();
+		HashSet<String> effectsByGene = new HashSet<String>();
 
-		// We ignore AF > 0.5 because 
-		// Most eQtl algorithms are based on minor allele frequencies. So when 
-		// eQtl is calculated, REF and ALT are swapped.
-		// This means that the EFF field is actually not describing the effect of the eQTL and we should filter it out
-		if (ve.getInfoFloat("AF") > 0.5) return;
+		//		// We ignore AF > 0.5 because 
+		//		// Most eQtl algorithms are based on minor allele frequencies. So when 
+		//		// eQtl is calculated, REF and ALT are swapped.
+		//		// This means that the EFF field is actually not describing the effect of the eQTL and we should filter it out
+		//		if (ve.getInfoFloat("AF") > 0.5) return;
 
 		String geneClosest = useClosestGene ? findClosestGene(ve) : "";
 
@@ -72,30 +78,43 @@ public class SnpEffCmdTest extends SnpEff {
 		for (VcfEffect veff : ve.parseEffects()) {
 
 			// Do not process is there are errors or warnings
-			if (veff.getErrorsOrWarning() != null) continue;
+			if (veff.getErrorsOrWarning() != null) {
+				count.inc("ERRORS_OR_WARNINGS");
+				continue;
+			}
 
 			String gene = veff.getGene();
 			if (genes != null) {
-				if (gene == null || gene.isEmpty()) continue; // No gene info? Nothing to do
-				if (!genes.contains(gene)) continue; // Gene Info does not match? Nothing to do
+				// No gene info? Nothing to do
+				if (gene == null || gene.isEmpty()) {
+					count.inc("NO_GENE");
+					continue;
+				}
+
+				// Gene Info does not match? Nothing to do
+				if (!genes.contains(gene)) {
+					count.inc("NO_GENE_SET");
+					continue;
+				}
 
 				// Not a protein coding transcript? Skip
 				if (onlyProteinCodingTranscripts && ((veff.getBioType() == null) || !veff.getBioType().equals("protein_coding"))) {
-					countByEffByGene.inc(BIOTYPE_SKIPPED + "_" + veff.getBioType());
+					count.inc(BIOTYPE_SKIPPED + "_" + veff.getBioType());
 					continue;
 				}
 
 				inGenes = true;
-			} else if (gene == null || gene.isEmpty()) gene = geneClosest; // Use closest gene 
+			} else if (gene == null || gene.isEmpty()) {
+				if (!geneClosest.isEmpty()) count.inc("GENE_CLOSEST");
+				gene = geneClosest; // Use closest gene 
+			}
 
 			// Count by effect
-			if (veff.getEffectDetails() != null && !veff.getEffectDetails().isEmpty()) {
-				countByEffByGene.inc(gene + "\t" + veff.getEffect() + "[" + veff.getEffectDetails() + "]");
-				effectsByVariant.add(veff.getEffect() + "[" + veff.getEffectDetails() + "]");
-			} else {
-				countByEffByGene.inc(gene + "\t" + veff.getEffect().toString());
-				effectsByVariant.add(veff.getEffect().toString());
-			}
+			String key = veff.getEffect().toString();
+			if (veff.getEffectDetails() != null && !veff.getEffectDetails().isEmpty()) key += "[" + veff.getEffectDetails() + "]";
+			effectsByVariant.add(key);
+			effectsByGene.add(gene + "\t" + key);
+			countByEffect.inc(key);
 		}
 
 		//---
@@ -111,8 +130,9 @@ public class SnpEffCmdTest extends SnpEff {
 
 			inGenes = true;
 			if (lof.getPercentOfTranscriptsAffected() >= MIN_PERCENT_TRANSCRIPTS_AFFECTED) {
-				countByEffByGene.inc(gene + "\t" + LossOfFunction.VCF_INFO_LOF_NAME);
+				effectsByGene.add(gene + "\t" + LossOfFunction.VCF_INFO_LOF_NAME);
 				effectsByVariant.add(LossOfFunction.VCF_INFO_LOF_NAME);
+				countByEffect.inc(LossOfFunction.VCF_INFO_LOF_NAME);
 			}
 		}
 		//---
@@ -128,8 +148,9 @@ public class SnpEffCmdTest extends SnpEff {
 
 			inGenes = true;
 			if (nmd.getPercentOfTranscriptsAffected() >= MIN_PERCENT_TRANSCRIPTS_AFFECTED) {
-				countByEffByGene.inc(gene + "\t" + LossOfFunction.VCF_INFO_NMD_NAME);
+				effectsByGene.add(gene + "\t" + LossOfFunction.VCF_INFO_NMD_NAME);
 				effectsByVariant.add(LossOfFunction.VCF_INFO_NMD_NAME);
+				countByEffect.inc(LossOfFunction.VCF_INFO_NMD_NAME);
 			}
 		}
 
@@ -137,11 +158,13 @@ public class SnpEffCmdTest extends SnpEff {
 		for (String eff : effectsByVariant)
 			countByVariant.inc(eff);
 
-		// Count if it is in genes
-		if (inGenes) countByEffByGene.inc(VARIANTS_IN_GENES);
+		// Count effects by gene
+		for (String eff : effectsByGene)
+			countByEffByGene.inc(eff);
 
 		// Count total number of variants
-		countByEffByGene.inc(VARIANTS);
+		count.inc(VARIANTS);
+		if (inGenes) count.inc(VARIANTS_IN_GENES); // Count if it is in genes
 	}
 
 	/**
@@ -237,8 +260,10 @@ public class SnpEffCmdTest extends SnpEff {
 		//---
 		System.out.println("# General Numbers");
 		if (genes != null) System.out.println("GENES\t" + genes.size());
-		System.out.println("VARIANTS\t" + countByEffByGene.get(VARIANTS));
-		System.out.println("VARIANTS_IN_GENES\t" + countByEffByGene.get(VARIANTS_IN_GENES));
+		print("", count);
+		System.out.println("#");
+		System.out.println("# Number of effects (raw counts)");
+		print("count_effect", countByEffect);
 		System.out.println("#");
 		System.out.println("# Number of effects per gene (number of effects for each gene)");
 		print("count_effect_by_gene", countByEffByGene);
