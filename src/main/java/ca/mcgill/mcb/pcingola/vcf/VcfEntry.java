@@ -32,8 +32,9 @@ public class VcfEntry extends Marker implements Iterable<VcfGenotype> {
 
 	public static final String VCF_INFO_HOMS = "HO";
 	public static final String VCF_INFO_HETS = "HE";
-
 	public static final String VCF_INFO_NAS = "NA";
+
+	public static final String VCF_INFO_PRIVATE = "Private";
 
 	private static final long serialVersionUID = 4226374412681243433L;
 

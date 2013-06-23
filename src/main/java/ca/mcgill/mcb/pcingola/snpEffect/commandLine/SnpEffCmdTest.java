@@ -33,8 +33,10 @@ public class SnpEffCmdTest extends SnpEff {
 	public static final int SHOW_EVERY = 10000;
 
 	boolean onlyProteinCodingTranscripts = false; // Use only protein coding transcripts
-	boolean useClosestGene = true;
-	boolean doNotUseAF50 = false;
+	boolean useClosestGene = true; // Use closest gene (if gene is not found in EFF entry)
+	boolean doNotUseAF50 = false; // FIlter out VCF entries if AF > 50%
+	boolean keyMafCategory = true; // Add MAF category to key { COMMON, LOW< RARE }
+	boolean keyPrivate = true; // Add "PRIVATE" falg to info
 
 	SnpEffectPredictor snpEffectPredictor;
 	String genesFile;
@@ -64,13 +66,17 @@ public class SnpEffCmdTest extends SnpEff {
 		HashSet<String> effectsByVariant = new HashSet<String>();
 		HashSet<String> effectsByGene = new HashSet<String>();
 
-		//		// We ignore AF > 0.5 because 
-		//		// Most eQtl algorithms are based on minor allele frequencies. So when 
-		//		// eQtl is calculated, REF and ALT are swapped.
-		//		// This means that the EFF field is actually not describing the effect of the eQTL and we should filter it out
-		//		if (ve.getInfoFloat("AF") > 0.5) return;
+		// We might ignore AF > 0.5 because 
+		// Some algorithms are based on minor allele frequencies. So when 
+		// calculated, REF and ALT are swapped. This means that the EFF field 
+		// which describes REF->ALT change is not describing the change 
+		// used by the algorithm (ALT->REF)
+		if (doNotUseAF50 && (ve.getInfoFloat("AF") > 0.5)) return;
 
-		String geneClosest = useClosestGene ? findClosestGene(ve) : "";
+		// Add this info after all keys
+		String keyPost = "";
+		if (keyMafCategory) keyPost = "\t" + ve.variantByFrequency().toString();
+		if (keyPrivate) keyPost = "\t" + (ve.getInfoFlag(VcfEntry.VCF_INFO_PRIVATE) ? VcfEntry.VCF_INFO_PRIVATE : "");
 
 		//---
 		// Parse Effect
@@ -79,7 +85,7 @@ public class SnpEffCmdTest extends SnpEff {
 
 			// Do not process is there are errors or warnings
 			if (veff.getErrorsOrWarning() != null) {
-				count.inc("ERRORS_OR_WARNINGS");
+				count.inc("ERRORS_OR_WARNINGS" + keyPost);
 				continue;
 			}
 
@@ -87,34 +93,35 @@ public class SnpEffCmdTest extends SnpEff {
 			if (genes != null) {
 				// No gene info? Nothing to do
 				if (gene == null || gene.isEmpty()) {
-					count.inc("NO_GENE");
+					count.inc("NO_GENE" + keyPost);
 					continue;
 				}
 
 				// Gene Info does not match? Nothing to do
 				if (!genes.contains(gene)) {
-					count.inc("NO_GENE_SET");
+					count.inc("NO_GENE_SET" + keyPost);
 					continue;
 				}
 
 				// Not a protein coding transcript? Skip
 				if (onlyProteinCodingTranscripts && ((veff.getBioType() == null) || !veff.getBioType().equals("protein_coding"))) {
-					count.inc(BIOTYPE_SKIPPED + "_" + veff.getBioType());
+					count.inc(BIOTYPE_SKIPPED + "_" + veff.getBioType() + keyPost);
 					continue;
 				}
 
 				inGenes = true;
 			} else if (gene == null || gene.isEmpty()) {
-				if (!geneClosest.isEmpty()) count.inc("GENE_CLOSEST");
+				String geneClosest = useClosestGene ? findClosestGene(ve) : "";
+				if (!geneClosest.isEmpty()) count.inc("GENE_CLOSEST" + keyPost);
 				gene = geneClosest; // Use closest gene 
 			}
 
 			// Count by effect
 			String key = veff.getEffect().toString();
 			if (veff.getEffectDetails() != null && !veff.getEffectDetails().isEmpty()) key += "[" + veff.getEffectDetails() + "]";
-			effectsByVariant.add(key);
-			effectsByGene.add(gene + "\t" + key);
-			countByEffect.inc(key);
+			effectsByVariant.add(key + keyPost);
+			effectsByGene.add(gene + "\t" + key + keyPost);
+			countByEffect.inc(key + keyPost);
 		}
 
 		//---
@@ -130,9 +137,9 @@ public class SnpEffCmdTest extends SnpEff {
 
 			inGenes = true;
 			if (lof.getPercentOfTranscriptsAffected() >= MIN_PERCENT_TRANSCRIPTS_AFFECTED) {
-				effectsByGene.add(gene + "\t" + LossOfFunction.VCF_INFO_LOF_NAME);
-				effectsByVariant.add(LossOfFunction.VCF_INFO_LOF_NAME);
-				countByEffect.inc(LossOfFunction.VCF_INFO_LOF_NAME);
+				effectsByGene.add(gene + "\t" + LossOfFunction.VCF_INFO_LOF_NAME + keyPost);
+				effectsByVariant.add(LossOfFunction.VCF_INFO_LOF_NAME + keyPost);
+				countByEffect.inc(LossOfFunction.VCF_INFO_LOF_NAME + keyPost);
 			}
 		}
 		//---
@@ -148,9 +155,9 @@ public class SnpEffCmdTest extends SnpEff {
 
 			inGenes = true;
 			if (nmd.getPercentOfTranscriptsAffected() >= MIN_PERCENT_TRANSCRIPTS_AFFECTED) {
-				effectsByGene.add(gene + "\t" + LossOfFunction.VCF_INFO_NMD_NAME);
-				effectsByVariant.add(LossOfFunction.VCF_INFO_NMD_NAME);
-				countByEffect.inc(LossOfFunction.VCF_INFO_NMD_NAME);
+				effectsByGene.add(gene + "\t" + LossOfFunction.VCF_INFO_NMD_NAME + keyPost);
+				effectsByVariant.add(LossOfFunction.VCF_INFO_NMD_NAME + keyPost);
+				countByEffect.inc(LossOfFunction.VCF_INFO_NMD_NAME + keyPost);
 			}
 		}
 
@@ -160,13 +167,13 @@ public class SnpEffCmdTest extends SnpEff {
 			String acatFields[] = acat.split(",");
 			for (String af : acatFields) {
 				String afs[] = af.split(":");
-				effectsByVariant.add("_" + SnpEffCmdAcat.ACAT + "_" + afs[2]);
+				effectsByVariant.add("_" + SnpEffCmdAcat.ACAT + "_" + afs[2] + keyPost);
 			}
 		}
 
 		// NCCAT is just once per variant
 		String nccat = ve.getInfo(SnpEffCmdAcat.NCCAT);
-		if (nccat != null) countByVariant.inc("_" + SnpEffCmdAcat.NCCAT + "_" + nccat);
+		if (nccat != null) countByVariant.inc("_" + SnpEffCmdAcat.NCCAT + "_" + nccat + keyPost);
 
 		// Count once per variant
 		for (String eff : effectsByVariant)
@@ -177,8 +184,8 @@ public class SnpEffCmdTest extends SnpEff {
 			countByEffByGene.inc(eff);
 
 		// Count total number of variants
-		count.inc(VARIANTS);
-		if (inGenes) count.inc(VARIANTS_IN_GENES); // Count if it is in genes
+		count.inc(VARIANTS + keyPost);
+		if (inGenes) count.inc(VARIANTS_IN_GENES + keyPost); // Count if it is in genes
 	}
 
 	/**
