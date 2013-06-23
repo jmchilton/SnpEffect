@@ -154,6 +154,20 @@ public class SnpEffCmdTest extends SnpEff {
 			}
 		}
 
+		// ACAT & NCCAT Scores (they appear once per variant)
+		String acat = ve.getInfo(SnpEffCmdAcat.ACAT);
+		if (acat != null) {
+			String acatFields[] = acat.split(",");
+			for (String af : acatFields) {
+				String afs[] = af.split(":");
+				effectsByVariant.add("_" + SnpEffCmdAcat.ACAT + "_" + afs[2]);
+			}
+		}
+
+		// NCCAT is just once per variant
+		String nccat = ve.getInfo(SnpEffCmdAcat.NCCAT);
+		if (nccat != null) countByVariant.inc("_" + SnpEffCmdAcat.NCCAT + "_" + nccat);
+
 		// Count once per variant
 		for (String eff : effectsByVariant)
 			countByVariant.inc(eff);
