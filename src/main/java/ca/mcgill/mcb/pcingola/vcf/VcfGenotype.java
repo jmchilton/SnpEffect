@@ -150,17 +150,19 @@ public class VcfGenotype {
 
 		StringBuilder sb = new StringBuilder();
 
-		for (int i = 0; i < genotype.length; i++) {
-			int num = genotype[i];
+		if (genotype != null) {
+			for (int i = 0; i < genotype.length; i++) {
+				int num = genotype[i];
 
-			String gen = ".";
-			if (num == 0) gen = vcfEntry.getRef();
-			else if (num > 0) gen = vcfEntry.getAlts()[num - 1];
+				String gen = ".";
+				if (num == 0) gen = vcfEntry.getRef();
+				else if (num > 0) gen = vcfEntry.getAlts()[num - 1];
 
-			sb.append(gen);
-			if (i < (genotype.length - 1)) {
-				if (isPhased()) sb.append("|");
-				else sb.append("/");
+				sb.append(gen);
+				if (i < (genotype.length - 1)) {
+					if (isPhased()) sb.append("|");
+					else sb.append("/");
+				}
 			}
 		}
 
