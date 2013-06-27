@@ -33,7 +33,7 @@ public class SnpEffCmdLen extends SnpEff {
 	void effectiveCodingLength() {
 		if (verbose) Timer.showStdErr("Calclating gene effective coding lengths");
 
-		System.out.println("gene\teffective.length\tmax.cds.length");
+		System.out.println("gene.name\tgene.id\tchr\tstart\tend\teffective.length\tmax.cds.length");
 		for (Chromosome chr : snpEffectPredictor.getGenome()) {
 			if (verbose) Timer.showStdErr("Effective coding lengths for chromosome " + chr.getId());
 
@@ -41,7 +41,15 @@ public class SnpEffCmdLen extends SnpEff {
 				if (gene.getChromosomeName().equals(chr.getId()) && gene.isProteinCoding()) {
 					int efflen = effectiveCodingLength(gene);
 					int maxcds = maxcds(gene);
-					System.out.println(gene.getGeneName() + "\t" + efflen + "\t" + maxcds);
+
+					System.out.println(gene.getGeneName() //
+							+ "\t" + gene.getId() //
+							+ "\t" + gene.getChromosomeName() //
+							+ "\t" + (gene.getStart() + 1) //
+							+ "\t" + (gene.getEnd() + 1) //
+							+ "\t" + efflen //
+							+ "\t" + maxcds //
+					);
 
 					// Sanity check
 					if (maxcds > efflen) throw new RuntimeException("CDS length is greter then effective length. This should never happen!");
