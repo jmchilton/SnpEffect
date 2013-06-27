@@ -37,6 +37,7 @@ public class ReadsOnMarkersModel {
 		rawCountMarkers = new CountByType();
 		rawCountBases = new CountByType();
 		prob = null;
+		markerTypes = new MarkerTypes();
 	}
 
 	/**
@@ -52,6 +53,7 @@ public class ReadsOnMarkersModel {
 			markers.add(gene);
 			markers.add(gene.markers());
 		}
+
 		for (Chromosome chr : snpEffectPredictor.getGenome())
 			markers.add(chr);
 

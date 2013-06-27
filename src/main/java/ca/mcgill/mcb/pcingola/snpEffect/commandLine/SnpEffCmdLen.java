@@ -1,5 +1,10 @@
 package ca.mcgill.mcb.pcingola.snpEffect.commandLine;
 
+import ca.mcgill.mcb.pcingola.interval.Chromosome;
+import ca.mcgill.mcb.pcingola.interval.Exon;
+import ca.mcgill.mcb.pcingola.interval.Gene;
+import ca.mcgill.mcb.pcingola.interval.SpliceSite;
+import ca.mcgill.mcb.pcingola.interval.Transcript;
 import ca.mcgill.mcb.pcingola.snpEffect.Config;
 import ca.mcgill.mcb.pcingola.snpEffect.SnpEffectPredictor;
 import ca.mcgill.mcb.pcingola.stats.ReadsOnMarkersModel;
@@ -15,10 +20,83 @@ import ca.mcgill.mcb.pcingola.util.Timer;
 public class SnpEffCmdLen extends SnpEff {
 
 	int readLength, numIterations, numReads;
+	SnpEffectPredictor snpEffectPredictor;
 	ReadsOnMarkersModel readsOnMarkersModel;
 
 	public SnpEffCmdLen() {
 		super();
+	}
+
+	/**
+	 * Calculate effective length for all genes
+	 */
+	void effectiveCodingLength() {
+		if (verbose) Timer.showStdErr("Calclating gene effective coding lengths");
+
+		System.out.println("gene\teffective.length\tmax.cds.length");
+		for (Chromosome chr : snpEffectPredictor.getGenome()) {
+			if (verbose) Timer.showStdErr("Effective coding lengths for chromosome " + chr.getId());
+
+			for (Gene gene : snpEffectPredictor.getGenome().getGenes()) {
+				if (gene.getChromosomeName().equals(chr.getId()) && gene.isProteinCoding()) {
+					int efflen = effectiveCodingLength(gene);
+					int maxcds = maxcds(gene);
+					System.out.println(gene.getGeneName() + "\t" + efflen + "\t" + maxcds);
+
+					// Sanity check
+					if (maxcds > efflen) throw new RuntimeException("CDS length is greter then effective length. This should never happen!");
+				}
+			}
+		}
+	}
+
+	/**
+	 * Calculate effective length for a gene
+	 * @param gene
+	 */
+	int effectiveCodingLength(Gene gene) {
+		// Initialize
+		byte coding[] = new byte[gene.size()];
+		for (int i = 0; i < coding.length; i++)
+			coding[i] = 0;
+
+		// Mark all 'used' bases
+		for (Transcript tr : gene) {
+			// Ignore non-protein coding
+			if (tr.isProteinCoding()) {
+				for (Exon ex : tr) {
+					// Mark all bases in exon as 'used'
+					for (int i = ex.getStart(); i <= ex.getEnd(); i++)
+						coding[i - gene.getStart()] = 1;
+
+					// Mark all bases in SpliceSiteAcceptor as 'used'
+					SpliceSite ss = ex.getSpliceSiteAcceptor();
+					if (ss != null) for (int i = ss.getStart(); i <= ss.getEnd(); i++)
+						coding[i - gene.getStart()] = 1;
+
+					// Mark all bases in SpliceSiteDonor as 'used'
+					ss = ex.getSpliceSiteDonor();
+					if (ss != null) for (int i = ss.getStart(); i <= ss.getEnd(); i++)
+						coding[i - gene.getStart()] = 1;
+				}
+			}
+		}
+
+		// Count all used bases
+		int efflen = 0;
+		for (int i = 0; i < coding.length; i++)
+			if (coding[i] > 0) efflen++;
+
+		return efflen;
+	}
+
+	int maxcds(Gene gene) {
+		int max = 0;
+		for (Transcript tr : gene)
+			if (tr.isProteinCoding()) max = Math.max(max, tr.cds().length());
+
+		return max;
+
 	}
 
 	@Override
@@ -55,14 +133,22 @@ public class SnpEffCmdLen extends SnpEff {
 	 */
 	@Override
 	public boolean run() {
+		//---
+		// Initialize 
+		//---
 		if (verbose) Timer.showStdErr("Loading config");
-		Config config = new Config(genomeVer);
+		config = new Config(genomeVer);
 
 		if (verbose) Timer.showStdErr("Loading predictor");
-		SnpEffectPredictor snpEffectPredictor = config.loadSnpEffectPredictor();
+		snpEffectPredictor = config.loadSnpEffectPredictor();
 
 		if (verbose) Timer.showStdErr("Building interval forest");
 		snpEffectPredictor.buildForest();
+
+		//---
+		// Count lengths
+		//---
+		effectiveCodingLength();
 
 		readsOnMarkersModel = new ReadsOnMarkersModel(snpEffectPredictor);
 		readsOnMarkersModel.setVerbose(verbose);
