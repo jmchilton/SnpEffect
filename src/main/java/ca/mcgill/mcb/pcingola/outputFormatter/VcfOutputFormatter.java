@@ -31,6 +31,8 @@ import ca.mcgill.mcb.pcingola.vcf.VcfEntry;
 public class VcfOutputFormatter extends OutputFormatter {
 
 	public static final boolean debug = false;
+
+	//	public static final String GATK_ACCEPTED_VERSION = "2.0.5"; // GATK refuses to run if we report another version, so we have to lie...
 	public static final String VCF_INFO_OICR_NAME = "OICR";
 
 	boolean needAddInfo = false;
