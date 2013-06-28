@@ -992,9 +992,10 @@ public class VcfEntry extends Marker implements Iterable<VcfGenotype> {
 	 */
 	public String toStringNoGt() {
 		// Use original chromosome name or named from chromosome object
-		String chr = chromosomeName != null ? chromosomeName : null;
+		String chr = null;
 		if (chromosomeName != null) chr = chromosomeName;
-		else if (parent != null) chr = parent.getId();
+		else if ((parent != null) && (parent instanceof Chromosome)) chr = parent.getId();
+		else if (parent != null) chr = getChromosomeName();
 		else chr = ".";
 
 		StringBuilder sb = new StringBuilder(chr //
