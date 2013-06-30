@@ -1,5 +1,6 @@
 package ca.mcgill.mcb.pcingola.vcf;
 
+import ca.mcgill.mcb.pcingola.interval.Gene;
 
 /**
  * An 'NMD' entry in a vcf line
@@ -32,8 +33,16 @@ public class VcfNmd extends VcfLof {
 		return -1;
 	}
 
+	public VcfNmd(Gene gene, double percentAffected) {
+		super(gene, percentAffected);
+	}
+
 	public VcfNmd(String nmdStr) {
 		super(nmdStr);
+	}
+
+	public VcfNmd(String geneName, String geneId, int numTranscripts, double percentAffected) {
+		super(geneName, geneId, numTranscripts, percentAffected);
 	}
 
 }

@@ -25,8 +25,13 @@ public class Zzz {
 	String outFile = Gpr.HOME + "/fly_pvuseq/rand_up.bed";
 
 	public static void main(String[] args) {
-		Zzz zzz = new Zzz();
-		zzz.run();
+
+		String fileName = "adsf/adsfadf*\' 4576467  > 0";
+		System.out.println(fileName);
+		System.out.println(Gpr.sanityzeFileName(fileName));
+
+		//		Zzz zzz = new Zzz();
+		//		zzz.run();
 	}
 
 	public Zzz() {

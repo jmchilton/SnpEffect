@@ -14,8 +14,6 @@ import ca.mcgill.mcb.pcingola.interval.Marker;
 import ca.mcgill.mcb.pcingola.interval.SeqChange;
 import ca.mcgill.mcb.pcingola.interval.SeqChange.ChangeType;
 import ca.mcgill.mcb.pcingola.snpEffect.LossOfFunction;
-import ca.mcgill.mcb.pcingola.snpEffect.LossOfFunctionEntry;
-import ca.mcgill.mcb.pcingola.snpEffect.NonsenseMediatedDecayEntry;
 import ca.mcgill.mcb.pcingola.util.Gpr;
 import ca.mcgill.mcb.pcingola.vcf.VcfEffect.FormatVersion;
 
@@ -825,16 +823,16 @@ public class VcfEntry extends Marker implements Iterable<VcfGenotype> {
 	 * Parse LOF from VcfEntry
 	 * @param vcfEntry
 	 */
-	public List<LossOfFunctionEntry> parseLof() {
+	public List<VcfLof> parseLof() {
 		String lofStr = getInfo(LossOfFunction.VCF_INFO_LOF_NAME);
 
-		ArrayList<LossOfFunctionEntry> lofList = new ArrayList<LossOfFunctionEntry>();
+		ArrayList<VcfLof> lofList = new ArrayList<VcfLof>();
 		if (lofStr == null || lofStr.isEmpty()) return lofList;
 
 		// Split comma separated list
 		String lofs[] = lofStr.split(",");
 		for (String lof : lofs)
-			lofList.add(new LossOfFunctionEntry(lof));
+			lofList.add(new VcfLof(lof));
 
 		return lofList;
 	}
@@ -843,18 +841,18 @@ public class VcfEntry extends Marker implements Iterable<VcfGenotype> {
 	 * Parse NMD from VcfEntry
 	 * @param vcfEntry
 	 */
-	public List<NonsenseMediatedDecayEntry> parseNmd() {
-		String lofStr = getInfo(LossOfFunction.VCF_INFO_LOF_NAME);
+	public List<VcfNmd> parseNmd() {
+		String nmdStr = getInfo(LossOfFunction.VCF_INFO_LOF_NAME);
 
-		ArrayList<NonsenseMediatedDecayEntry> lofList = new ArrayList<NonsenseMediatedDecayEntry>();
-		if (lofStr == null || lofStr.isEmpty()) return lofList;
+		ArrayList<VcfNmd> nmdList = new ArrayList<VcfNmd>();
+		if (nmdStr == null || nmdStr.isEmpty()) return nmdList;
 
 		// Split comma separated list
-		String lofs[] = lofStr.split(",");
+		String lofs[] = nmdStr.split(",");
 		for (String lof : lofs)
-			lofList.add(new NonsenseMediatedDecayEntry(lof));
+			nmdList.add(new VcfNmd(lof));
 
-		return lofList;
+		return nmdList;
 	}
 
 	/**

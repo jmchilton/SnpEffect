@@ -11,6 +11,8 @@ import ca.mcgill.mcb.pcingola.interval.SpliceSite;
 import ca.mcgill.mcb.pcingola.interval.Transcript;
 import ca.mcgill.mcb.pcingola.snpEffect.ChangeEffect.EffectType;
 import ca.mcgill.mcb.pcingola.vcf.VcfEntry;
+import ca.mcgill.mcb.pcingola.vcf.VcfLof;
+import ca.mcgill.mcb.pcingola.vcf.VcfNmd;
 
 /**
  * Analyze if a set of effects are can create a "Loss Of Function" 
@@ -403,7 +405,7 @@ public class LossOfFunction {
 			if (sb.length() > 0) sb.append(','); // Separate by comma
 
 			double perc = percentOfTranscriptsAffected(gene, transcriptsLof);
-			LossOfFunctionEntry lofent = new LossOfFunctionEntry(gene, perc);
+			VcfLof lofent = new VcfLof(gene, perc);
 
 			sb.append(lofent.toString());
 		}
@@ -422,7 +424,7 @@ public class LossOfFunction {
 			if (sb.length() > 0) sb.append(','); // Separate by comma
 
 			double perc = percentOfTranscriptsAffected(gene, transcriptsNmd);
-			NonsenseMediatedDecayEntry nmdent = new NonsenseMediatedDecayEntry(gene, perc);
+			VcfNmd nmdent = new VcfNmd(gene, perc);
 
 			sb.append(nmdent.toString());
 		}

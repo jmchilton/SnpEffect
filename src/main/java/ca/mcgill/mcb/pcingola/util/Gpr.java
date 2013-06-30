@@ -126,7 +126,11 @@ public class Gpr {
 		return base;
 	}
 
-	// Show a long as a 64 bit binary number 
+	/**
+	 *  Show a long as a 64 bit binary number 
+	 * @param l
+	 * @return
+	 */
 	public static String bin64(long l) {
 		String bl = Long.toBinaryString(l);
 		String out = "";
@@ -569,7 +573,7 @@ public class Gpr {
 	}
 
 	/**
-	 * Remove extension from a file (if matche one of 'fileExtensions[]')
+	 * Remove extension from a file (if matches one of 'fileExtensions[]')
 	 * @param file
 	 * @return
 	 */
@@ -578,6 +582,10 @@ public class Gpr {
 			if (file.toLowerCase().endsWith(ext)) return file.substring(0, file.length() - ext.length());
 
 		return file;
+	}
+
+	public static String sanityzeFileName(String fileName) {
+		return fileName.replaceAll("[^0-9_a-zA-Z\\(\\)\\%\\-\\.\\[\\]\\:\\,]", "_");
 	}
 
 	/**
@@ -751,4 +759,5 @@ public class Gpr {
 			throw new RuntimeException(e);
 		}
 	}
+
 }

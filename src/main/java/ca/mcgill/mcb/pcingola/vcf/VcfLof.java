@@ -1,5 +1,6 @@
 package ca.mcgill.mcb.pcingola.vcf;
 
+import ca.mcgill.mcb.pcingola.interval.Gene;
 import ca.mcgill.mcb.pcingola.util.Gpr;
 
 /**
@@ -38,16 +39,44 @@ public class VcfLof {
 		return -1;
 	}
 
+	public VcfLof(Gene gene, double percentAffected) {
+		geneName = gene.getGeneName();
+		geneId = gene.getId();
+		numTranscripts = gene.numChilds();
+		this.percentAffected = percentAffected;
+	}
+
 	public VcfLof(String lofStr) {
 		parse(lofStr);
+	}
+
+	public VcfLof(String geneName, String geneId, int numTranscripts, double percentAffected) {
+		this.geneName = geneName;
+		this.geneId = geneId;
+		this.numTranscripts = numTranscripts;
+		this.percentAffected = percentAffected;
+	}
+
+	public String getGeneId() {
+		return geneId;
+	}
+
+	public String getGeneName() {
+		return geneName;
+	}
+
+	public int getNumTranscripts() {
+		return numTranscripts;
+	}
+
+	public double getPercentAffected() {
+		return percentAffected;
 	}
 
 	void parse(String lof) {
 		String lofFields[] = lof.split("|");
 
 		try {
-			Gpr.debug("PARSE: '" + lof + "'");
-
 			// Parse each sub field
 			int index = 0;
 

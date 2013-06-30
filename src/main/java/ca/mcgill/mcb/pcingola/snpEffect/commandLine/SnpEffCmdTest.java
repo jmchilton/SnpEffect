@@ -8,14 +8,14 @@ import ca.mcgill.mcb.pcingola.interval.Marker;
 import ca.mcgill.mcb.pcingola.snpEffect.ChangeEffect.EffectType;
 import ca.mcgill.mcb.pcingola.snpEffect.Config;
 import ca.mcgill.mcb.pcingola.snpEffect.LossOfFunction;
-import ca.mcgill.mcb.pcingola.snpEffect.LossOfFunctionEntry;
-import ca.mcgill.mcb.pcingola.snpEffect.NonsenseMediatedDecayEntry;
 import ca.mcgill.mcb.pcingola.snpEffect.SnpEffectPredictor;
 import ca.mcgill.mcb.pcingola.stats.CountByType;
 import ca.mcgill.mcb.pcingola.util.Gpr;
 import ca.mcgill.mcb.pcingola.util.Timer;
 import ca.mcgill.mcb.pcingola.vcf.VcfEffect;
 import ca.mcgill.mcb.pcingola.vcf.VcfEntry;
+import ca.mcgill.mcb.pcingola.vcf.VcfLof;
+import ca.mcgill.mcb.pcingola.vcf.VcfNmd;
 
 /**
  * Command line: Test
@@ -131,7 +131,7 @@ public class SnpEffCmdTest extends SnpEff {
 		//---
 		// Parse LOF 
 		//---
-		for (LossOfFunctionEntry lof : ve.parseLof()) {
+		for (VcfLof lof : ve.parseLof()) {
 			// No gene info? Nothing to do
 			String gene = lof.getGeneName();
 			if (gene == null || gene.isEmpty()) continue;
@@ -140,7 +140,7 @@ public class SnpEffCmdTest extends SnpEff {
 			if ((genes != null) && !genes.contains(gene)) continue;
 
 			inGenes = true;
-			if (lof.getPercentOfTranscriptsAffected() >= MIN_PERCENT_TRANSCRIPTS_AFFECTED) {
+			if (lof.getPercentAffected() >= MIN_PERCENT_TRANSCRIPTS_AFFECTED) {
 				effectsByGene.add(gene + "\t" + LossOfFunction.VCF_INFO_LOF_NAME + keyPost);
 				effectsByVariant.add(LossOfFunction.VCF_INFO_LOF_NAME + keyPost);
 				countByEffect.inc(LossOfFunction.VCF_INFO_LOF_NAME + keyPost);
@@ -149,7 +149,7 @@ public class SnpEffCmdTest extends SnpEff {
 		//---
 		// Parse NMD 
 		//---
-		for (NonsenseMediatedDecayEntry nmd : ve.parseNmd()) {
+		for (VcfNmd nmd : ve.parseNmd()) {
 			// No gene info? Nothing to do
 			String gene = nmd.getGeneName();
 			if (gene == null || gene.isEmpty()) continue;
@@ -158,7 +158,7 @@ public class SnpEffCmdTest extends SnpEff {
 			if ((genes != null) && !genes.contains(gene)) continue;
 
 			inGenes = true;
-			if (nmd.getPercentOfTranscriptsAffected() >= MIN_PERCENT_TRANSCRIPTS_AFFECTED) {
+			if (nmd.getPercentAffected() >= MIN_PERCENT_TRANSCRIPTS_AFFECTED) {
 				effectsByGene.add(gene + "\t" + LossOfFunction.VCF_INFO_NMD_NAME + keyPost);
 				effectsByVariant.add(LossOfFunction.VCF_INFO_NMD_NAME + keyPost);
 				countByEffect.inc(LossOfFunction.VCF_INFO_NMD_NAME + keyPost);
