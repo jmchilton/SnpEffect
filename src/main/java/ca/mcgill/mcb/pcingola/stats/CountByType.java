@@ -250,4 +250,27 @@ public class CountByType implements Serializable {
 
 		return out.toString();
 	}
+
+	public String toStringTop(int n) {
+		ArrayList<String> keys = new ArrayList<String>();
+		keys.addAll(countByType.keySet());
+		Collections.sort(keys, new Comparator<String>() {
+
+			@Override
+			public int compare(String arg0, String arg1) {
+				return (int) (get(arg1) - get(arg0));
+			}
+		});
+
+		StringBuffer out = new StringBuffer();
+		int i = 0;
+		for (String type : keys) {
+			out.append(type + "\t" + get(type) + "\n");
+			i++;
+			if (i++ >= n) break;
+		}
+
+		return out.toString();
+	}
+
 }
