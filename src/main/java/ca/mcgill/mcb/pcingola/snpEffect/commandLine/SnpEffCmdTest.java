@@ -81,6 +81,8 @@ public class SnpEffCmdTest extends SnpEff {
 		if (keyPrivate) keyPost += "\t" + (ve.getInfoFlag(VcfEntry.VCF_INFO_PRIVATE) ? VcfEntry.VCF_INFO_PRIVATE : "");
 		if (keyId) keyPost += "\t" + ((ve.getId() == null) || ve.getId().isEmpty() ? "" : "ID");
 
+		String geneClosest = null;
+
 		//---
 		// Parse Effect
 		//---
@@ -114,7 +116,7 @@ public class SnpEffCmdTest extends SnpEff {
 
 				inGenes = true;
 			} else if (gene == null || gene.isEmpty()) {
-				String geneClosest = useClosestGene ? findClosestGene(ve) : "";
+				geneClosest = useClosestGene ? findClosestGene(ve) : "";
 				if (!geneClosest.isEmpty()) count.inc("GENE_CLOSEST" + keyPost);
 				gene = geneClosest; // Use closest gene 
 			}
@@ -171,13 +173,25 @@ public class SnpEffCmdTest extends SnpEff {
 			String acatFields[] = acat.split(",");
 			for (String af : acatFields) {
 				String afs[] = af.split(":");
-				effectsByVariant.add("_" + SnpEffCmdAcat.ACAT + "_" + afs[2] + keyPost);
+				String gene = afs[0];
+				String acatScore = afs[2];
+
+				effectsByGene.add(gene + "\t_" + SnpEffCmdAcat.ACAT + "_" + acatScore + keyPost);
+				effectsByVariant.add("_" + SnpEffCmdAcat.ACAT + "_" + acatScore + keyPost);
 			}
 		}
 
 		// NCCAT is just once per variant
 		String nccat = ve.getInfo(SnpEffCmdAcat.NCCAT);
-		if (nccat != null) countByVariant.inc("_" + SnpEffCmdAcat.NCCAT + "_" + nccat + keyPost);
+		if (nccat != null) {
+			countByVariant.inc("_" + SnpEffCmdAcat.NCCAT + "_" + nccat + keyPost);
+
+			// These variants don't have gene information
+			if (useClosestGene) {
+				if (geneClosest == null) geneClosest = findClosestGene(ve);
+				effectsByGene.add(geneClosest + "\t_" + SnpEffCmdAcat.NCCAT + "_" + nccat + keyPost);
+			}
+		}
 
 		// Count once per variant
 		for (String eff : effectsByVariant)
@@ -199,7 +213,7 @@ public class SnpEffCmdTest extends SnpEff {
 	 */
 	String findClosestGene(Marker queryMarker) {
 		Gene gene = snpEffectPredictor.queryClosestGene(queryMarker);
-		return gene != null ? gene.getId() : "";
+		return gene != null ? gene.getGeneName() : "";
 	}
 
 	/**
@@ -329,12 +343,12 @@ public class SnpEffCmdTest extends SnpEff {
 		System.err.println("snpEff version " + SnpEff.VERSION);
 		System.err.println("Usage: snpEff test [options] genomeVer file.vcf [genes.txt]");
 		System.err.println("Options:");
-		System.err.println("\t-closest		: Use closest gene (if gene is not found in EFF entry)");
-		System.err.println("\t-id			: Add ID flag to info");
-		System.err.println("\t-maf			: Add MAF category to info { COMMON, LOW< RARE }");
-		System.err.println("\t-noAf50		: Filter out VCF entries if AF > 50%");
-		System.err.println("\t-private		: Add PRIVATE flag to info");
-		System.err.println("\t-prot		: Use only protein coding transcripts");
+		System.err.println("\t-closest  : Use closest gene (if gene is not found in EFF entry)");
+		System.err.println("\t-id       : Add ID flag to info");
+		System.err.println("\t-maf      : Add MAF category to info { COMMON, LOW, RARE }");
+		System.err.println("\t-noAf50   : Filter out VCF entries if AF > 50%");
+		System.err.println("\t-private  : Add PRIVATE flag to info");
+		System.err.println("\t-prot     : Use only protein coding transcripts");
 		System.exit(-1);
 	}
 

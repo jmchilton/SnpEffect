@@ -74,7 +74,7 @@ public class VcfLof {
 	}
 
 	void parse(String lof) {
-		String lofFields[] = lof.split("|");
+		String lofFields[] = lof.split("\\|");
 
 		try {
 			// Parse each sub field

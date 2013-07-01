@@ -269,6 +269,7 @@ public class CountByType implements Serializable {
 			i++;
 			if (i++ >= n) break;
 		}
+		out.append(TOTAL_TYPE + "\t" + get(TOTAL_TYPE) + "\n");
 
 		return out.toString();
 	}
