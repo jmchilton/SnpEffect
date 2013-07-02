@@ -777,7 +777,7 @@ public class VcfEntry extends Marker implements Iterable<VcfGenotype> {
 
 		// Create a list of effect
 		ArrayList<VcfEffect> effList = new ArrayList<VcfEffect>();
-		if ((effStr == null) || effStr.isEmpty()) return effList;
+		if ((effStr == null) || effStr.isEmpty() || effStr.equals("true")) return effList; // Note: An empty "EFF" string can be viewed as a FLAG type and transformed to a "true" value
 
 		// Add each effect
 		String effs[] = effStr.split(",");
