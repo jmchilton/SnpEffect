@@ -89,14 +89,22 @@ public class VcfOutputFormatter extends OutputFormatter {
 		// No effects to show?
 		if (changeEffects.isEmpty()) return;
 
+		// Do all effects have warnings or errors (this could produce an empty 'EFF' field in GATK mode?
+		boolean allWarnings = false;
+		if (gatk) {
+			allWarnings = changeEffects.size() > 0;
+			for (ChangeEffect changeEffect : changeEffects)
+				allWarnings &= (changeEffect.hasError() || changeEffect.hasWarning());
+		}
+
 		//---
 		// Calculate all effects and genes
 		//---
 		HashSet<String> effs = new HashSet<String>();
 		HashSet<String> oicr = (useOicr ? new HashSet<String>() : null);
 		for (ChangeEffect changeEffect : changeEffects) {
-			// In GATK mode, skip changeEffects having errors or warnings
-			if (gatk && (changeEffect.hasError() || changeEffect.hasWarning())) continue;
+			// In GATK mode, skip changeEffects having errors or warnings (unless ALL effects have warnings)
+			if (gatk && !allWarnings && (changeEffect.hasError() || changeEffect.hasWarning())) continue;
 
 			// If it is not filtered out by changeEffectResutFilter  => Show it
 			if ((changeEffectResutFilter == null) || (!changeEffectResutFilter.filter(changeEffect))) {
@@ -242,7 +250,8 @@ public class VcfOutputFormatter extends OutputFormatter {
 		//---
 
 		// Add 'EFF' info field
-		vcfEntry.addInfo(VcfEffect.VCF_INFO_EFF_NAME, toStringVcfInfo(effs));
+		String effStr = toStringVcfInfo(effs);
+		if (!effStr.isEmpty()) vcfEntry.addInfo(VcfEffect.VCF_INFO_EFF_NAME, effStr);
 
 		// Add 'OICR' info field
 		if (useOicr && (oicr.size() > 0)) {
