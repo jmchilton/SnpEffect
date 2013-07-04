@@ -56,5 +56,5 @@
 
 Maven: Manually install JAR files
 
-    mvn install:install-file -Dfile=sam-1.77.jar -DgroupId=net.sf.samtools -DartifactId=Sam -Dversion=1.77 -Dpackaging=jar
+    mvn install:install-file -Dfile=sam-1.94.jar -DgroupId=net.sf.samtools -DartifactId=Sam -Dversion=1.94 -Dpackaging=jar
    
