@@ -588,7 +588,10 @@ public class SpliceTypes {
 				for (Transcript tr : gene) {
 
 					// Skip problematic transcripts
-					if (tr.hasErrorOrWarning()) continue;
+					if (tr.hasErrorOrWarning()) {
+						if (verbose) System.err.println("Skipping transcript " + tr.getId() + "\tGene: " + gene.getGeneName());
+						continue;
+					}
 
 					Exon exPrev = null;
 					for (Exon ex : tr.sortedStrand()) {

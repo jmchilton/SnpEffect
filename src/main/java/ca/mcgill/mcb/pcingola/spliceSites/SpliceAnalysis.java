@@ -391,7 +391,7 @@ public class SpliceAnalysis extends SnpEff {
 			if (verbose) Timer.showStdErr("Saving database to file: " + config.getFileSnpEffectPredictor());
 			config.getSnpEffectPredictor().save(config);
 			if (verbose) Timer.showStdErr("Done.");
-		}
+		} else if (verbose) Timer.showStdErr("Not saving database.");
 
 		if (verbose) Timer.showStdErr("Finished!");
 		return true;
