@@ -1,15 +1,15 @@
 package ca.mcgill.mcb.pcingola;
 
-import java.util.Random;
+import java.util.HashSet;
+import java.util.List;
 
-import ca.mcgill.mcb.pcingola.interval.Exon;
 import ca.mcgill.mcb.pcingola.interval.Gene;
-import ca.mcgill.mcb.pcingola.interval.Marker;
 import ca.mcgill.mcb.pcingola.interval.Transcript;
-import ca.mcgill.mcb.pcingola.interval.Upstream;
+import ca.mcgill.mcb.pcingola.interval.Utr;
+import ca.mcgill.mcb.pcingola.interval.Utr5prime;
 import ca.mcgill.mcb.pcingola.snpEffect.Config;
 import ca.mcgill.mcb.pcingola.snpEffect.SnpEffectPredictor;
-import ca.mcgill.mcb.pcingola.util.Gpr;
+import ca.mcgill.mcb.pcingola.stats.CountByType;
 import ca.mcgill.mcb.pcingola.util.Timer;
 
 public class Zzz {
@@ -19,131 +19,60 @@ public class Zzz {
 
 	Config config;
 	SnpEffectPredictor sep;
-	Random random;
-	StringBuilder out;
-
-	String outFile = Gpr.HOME + "/fly_pvuseq/rand_up.bed";
 
 	public static void main(String[] args) {
-
-		String fileName = "adsf/adsfadf*\' 4576467  > 0";
-		System.out.println(fileName);
-		System.out.println(Gpr.sanityzeFileName(fileName));
-
-		//		Zzz zzz = new Zzz();
-		//		zzz.run();
+		String genome = "testHg3766Chr1";
+		genome = "GRCh37.71";
+		Zzz zzz = new Zzz(genome);
+		zzz.run();
 	}
 
-	public Zzz() {
+	public Zzz(String genome) {
+		config = new Config(genome);
+	}
+
+	public void run() {
 		Timer.showStdErr("Loading");
-		config = new Config("BDGP5.69");
 		sep = config.loadSnpEffectPredictor();
 		Timer.showStdErr("Building");
 		sep.buildForest();
 		Timer.showStdErr("Done");
-	}
 
-	/**
-	 * Random read on this marker
-	 * @param m
-	 */
-	void randReads(Marker m) {
-		randReads(m.getChromosomeName(), m.getStart(), m.getEnd(), m.getStrand(), m.idChain());
-	}
+		CountByType countByKozak = new CountByType();
 
-	void randReads(String chrName, int mstart, int mend, int strand, String id) {
-		int size = mend - mstart;
-		if (size <= 0) return;
+		HashSet<String> done = new HashSet<String>();
+		for (Gene gene : sep.getGenome().getGenes()) {
 
-		for (int i = 0; i < NUM_READS_MARKER; i++) {
-			// Up
-			int r1 = random.nextInt(size);
-			int r2 = random.nextInt(size);
+			for (Transcript tr : gene) {
+				if (!tr.isProteinCoding()) continue;
+				if (tr.hasErrorOrWarning()) continue;
 
-			int rand;
-			if (strand >= 0) rand = Math.max(r1, r2);
-			else rand = Math.min(r1, r2);
+				// Get UTR 'key' and check we haven't used this position before
+				List<Utr5prime> utrs5 = tr.get5primeUtrs();
+				int pos = tr.isStrandPlus() ? 0 : Integer.MAX_VALUE;
+				for (Utr utr : utrs5) {
+					if (tr.isStrandPlus()) pos = Math.max(pos, utr.getEnd());
+					else pos = Math.min(pos, utr.getStart());
+				}
+				String key = tr.getChromosomeName() + ":" + pos;
+				if (done.contains(key)) continue;
+				done.add(key);
 
-			int start = mstart + rand;
-			int end = start + READ_LENGTH;
+				// Get UTR sequence
+				if (utrs5.size() <= 0) continue;
+				Utr5prime utr5 = utrs5.get(0);
+				String utr5Str = utr5.getSequence().toLowerCase();
+				String cds = tr.cds();
 
-			out.append(chrName + "\t" + start + "\t" + end + "\t" + id + "\n");
-		}
-	}
-
-	/**
-	 * Random read on every exon
-	 * @param tr
-	 */
-	void randReadsExons(Transcript tr) {
-		tr.rankExons();
-
-		for (Exon e : tr.sortedStrand()) {
-			if (tr.getStrand() != e.getStrand()) {
-				System.err.println("WTF!?!?\n\t" + tr.getId() + "\t" + tr.getStrand() + "\n\t" + e.getId() + "\t" + e.getStrand());
-				continue;
-			}
-
-			for (int i = 0; i < NUM_READS_MARKER; i++)
-				randReads(e);
-		}
-	}
-
-	/**
-	 * Read upstream & downstream
-	 * @param tr
-	 */
-	void randReadsUpDownStream(Gene g) {
-		// Pick ppstream region that is upstream of every transcript
-		int start = Integer.MAX_VALUE, end = Integer.MAX_VALUE;
-		Transcript t = null;
-		for (Transcript tr : g) {
-			Upstream up = tr.getUpstream();
-			if (up != null) {
-				start = Math.min(start, up.getStart());
-				end = Math.min(end, up.getEnd());
-				t = tr;
+				if ((utr5Str.length() >= 10) && (cds.length() >= 5)) {
+					String kozak = utr5Str.substring(utr5Str.length() - 6) + cds.substring(0, 4).toUpperCase();
+					System.out.println(kozak + "\t\t\t" + gene.getGeneName() + "\t" + tr.getId() + "\t" + key);
+					countByKozak.inc(kozak);
+				}
 			}
 		}
 
-		// if (start < end) randReads(g.getChromosomeName(), start, end, g.getStrand(), t.getUpstream().idChain());
-		if (start < end) unifReads(g.getChromosomeName(), start, end, g.getStrand(), t.getUpstream().idChain());
-		if (start == end) Gpr.debug(start + "\t" + end);
-	}
+		System.out.println("\t\t\tTop: \n" + countByKozak.toStringTop(100));
 
-	// Save
-	void run() {
-		random = new Random(20130601);
-		out = new StringBuilder();
-
-		for (Gene g : sep.getGenome().getGenes()) {
-			//if (g.isStrandPlus()) randReadsUpDownStream(g);
-			for (Transcript tr : g)
-				randReadsExons(tr);
-		}
-
-		Timer.showStdErr("Saving to " + outFile);
-		Gpr.toFile(outFile, out);
-	}
-
-	/**
-	 * Uniform 'read' covering the region
-	 * @param chrName
-	 * @param mstart
-	 * @param mend
-	 * @param strand
-	 * @param id
-	 */
-	void unifReads(String chrName, int mstart, int mend, int strand, String id) {
-		int size = mend - mstart;
-
-		int step = size / NUM_READS_MARKER;
-		if (step <= 0) step = 1;
-
-		for (int pos = mstart; pos <= mend; pos += step) {
-			int start = pos;
-			int end = start + READ_LENGTH;
-			out.append(chrName + "\t" + start + "\t" + end + "\t" + id + "\n");
-		}
 	}
 }

@@ -1,5 +1,6 @@
 package ca.mcgill.mcb.pcingola.snpEffect.testCases;
 
+import java.util.List;
 import java.util.Random;
 
 import junit.framework.Assert;
@@ -13,6 +14,7 @@ import ca.mcgill.mcb.pcingola.interval.Utr5prime;
 import ca.mcgill.mcb.pcingola.snpEffect.Config;
 import ca.mcgill.mcb.pcingola.snpEffect.SnpEffectPredictor;
 import ca.mcgill.mcb.pcingola.snpEffect.factory.SnpEffPredictorFactoryRand;
+import ca.mcgill.mcb.pcingola.util.Timer;
 
 /**
  * Test random SNP changes 
@@ -155,4 +157,37 @@ public class TestCasesTranscript extends TestCase {
 		System.out.println("Transcript : " + tr);
 		System.out.println("CDS.start: " + tr.getCdsStart() + "\tCDS.end: " + tr.getCdsEnd());
 	}
+
+	public void test_mRnaSequence() {
+		String genome = "testHg3766Chr1";
+		Config config = new Config(genome);
+
+		Timer.showStdErr("Loading genome");
+		SnpEffectPredictor sep = config.loadSnpEffectPredictor();
+		Timer.showStdErr("Building interval forest");
+		sep.buildForest();
+		Timer.showStdErr("Done");
+
+		for (Gene gene : sep.getGenome().getGenes()) {
+			for (Transcript tr : gene) {
+				if (!tr.isProteinCoding()) continue;
+				if (!tr.hasErrorOrWarning()) continue;
+
+				String mRna = tr.mRna().toLowerCase();
+				String cds = tr.cds().toLowerCase();
+
+				// Get UTR sequence
+				List<Utr5prime> utrs5 = tr.get5primeUtrs();
+				if (utrs5.size() <= 0) continue;
+
+				Utr5prime utr5 = utrs5.get(0);
+				String utr5Str = utr5.getSequence().toLowerCase();
+
+				// Sanity check
+				if (!mRna.startsWith(utr5Str)) throw new RuntimeException("ERROR mRna does not start with UTR5");
+				if (!mRna.startsWith(utr5Str + cds)) throw new RuntimeException("ERROR mRna does not start with  UTR+CDS");
+			}
+		}
+	}
+
 }
