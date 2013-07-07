@@ -1,53 +1,67 @@
 #!/bin/sh
 
+#-------------------------------------------------------------------------------
+#
+# Create databases
+#
+#-------------------------------------------------------------------------------
+
 #---
-# Create build queue entries
+# Create build queue 
 #---
+snpeff="java -Xmx10G -jar snpEff.jar "
+snpeffBuild="$snpeff build -v"
+
 echo Creating build queue 'queue_build.txt' file
 rm -vf queue_build.txt
 
-# Build from refseq files
-echo "java -Xmx10G -jar snpEff.jar build -v -refseq hg19" >> queue_build.txt
+# RefSeq files
+echo "$snpeffBuild -refseq hg19" >> queue_build.txt
 
-# Build from TXT files
+# TXT files
 for genes in `ls data/*/genes.txt* | grep -v hg19`
 do
 	dir=`dirname $genes`
 	genomeName=`basename $dir`
-	echo "java -Xmx10G -jar snpEff.jar build -v -txt $genomeName"
+	echo "$snpeffBuild -txt $genomeName"
 done | sort >> queue_build.txt
 
-# Build from GFF2 files
-echo "java -Xmx10G -jar snpEff.jar build -v -gff2 amel2" >> queue_build.txt
+# GFF2 files
+echo "$snpeffBuild -gff2 amel2" >> queue_build.txt
 
-# Build from GFF3 files
+# GFF3 files
 for genes in `ls data/*/genes.gff* | grep -v amel2`
 do
 	dir=`dirname $genes`
 	genomeName=`basename $dir`
-	echo "java -Xmx10G -jar snpEff.jar build -v -gff3 $genomeName"
+	echo "$snpeffBuild -gff3 $genomeName"
 done | sort >> queue_build.txt
 
-# Build from GTF22 files
+# GTF22 files
 for genes in data/*/genes.gtf*
 do
 	dir=`dirname $genes`
 	genomeName=`basename $dir`
-	echo "java -Xmx10G -jar snpEff.jar build -v -gtf22 $genomeName"
+	echo "$snpeffBuild -gtf22 $genomeName"
 done | sort >> queue_build.txt
 
-# Build from GenBank files
+# GenBank files
 for genes in data/*/genes.gb*
 do
 	dir=`dirname $genes`
 	genomeName=`basename $dir`
-	echo "java -Xmx10G -jar snpEff.jar build -v -genbank $genomeName"
+	echo "$snpeffBuild -genbank $genomeName"
 done | sort >> queue_build.txt
 
 #---
-# Build ALL genomes
+# Build genomes
 #---
 ./scripts/queue.pl 24 24 1 queue_build.txt
+
+#---
+# Special builds: Human
+#---
+$snpeff buildNextProt -v GRCh37.$ENSEMBL_RELEASE db/nextProt/
 
 #---
 # Create build reports
