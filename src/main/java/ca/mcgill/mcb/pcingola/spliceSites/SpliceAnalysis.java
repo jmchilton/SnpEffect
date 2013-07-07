@@ -371,6 +371,7 @@ public class SpliceAnalysis extends SnpEff {
 
 		spliceTypes = new SpliceTypes(config);
 		spliceTypes.setVerbose(verbose);
+		spliceTypes.setDebug(debug);
 
 		// Splice site conservation
 		spliceTypes.analyzeAndCreate();
@@ -434,7 +435,7 @@ public class SpliceAnalysis extends SnpEff {
 					Transcript tr = (Transcript) bu12.getParent();
 					tr.add(bu12); // Add branch site to transcript
 					markersBed.add(bu12); // Add to bed file
-					Gpr.debug("Adding BranchU12 '" + bu12 + "' to transcript " + tr.getId() + "\tDonor-acceptor pair: " + donorAcc + "\tObs/Expected: " + getPwmSet(donorAcc).countU12ObsExp());
+					if (verbose) System.out.println("Adding BranchU12 '" + bu12 + "' to transcript " + tr.getId() + "\tDonor-acceptor pair: " + donorAcc + "\tObs/Expected: " + getPwmSet(donorAcc).countU12ObsExp());
 				}
 			}
 		}

@@ -36,6 +36,7 @@ public class SpliceTypes {
 	public static final double THRESHOLD_P = 0.95;
 
 	boolean verbose = false;
+	boolean debug = false;
 	Config config;
 	HashMap<String, String> donorsByIntron = new HashMap<String, String>();
 	HashMap<String, String> acceptorsByIntron = new HashMap<String, String>();
@@ -313,21 +314,20 @@ public class SpliceTypes {
 		String key = ex.getChromosomeName() + ":" + start + "-" + end;
 		String donor = donorsByIntron.get(key);
 		String acc = acceptorsByIntron.get(key);
-		if (donor == null) Gpr.debug("Cannot find donor for key:" + key);
-		if (acc == null) Gpr.debug("Cannot find acceptor for key:" + key);
+
+		if ((donor == null) || (acc == null)) return; // May be we skipped this transcript
+
 		int idx = bestMatchIndex(donor, acc);
 		int dist = end - start - 1;
 
-		if (idx < 0) {
-			// Create standard donor-acceptor pairs
-			exPrev.createSpliceSiteDonor(Math.min(SpliceSite.CORE_SPLICE_SITE_SIZE, dist));
-			ex.createSpliceSiteAcceptor(Math.min(SpliceSite.CORE_SPLICE_SITE_SIZE, dist));
-		} else {
+		if (idx > 0) {
 			// Create donor and acceptor
 			String donorConserved = donorAccPairDonor.get(idx);
 			String accConserved = donorAccPairAcc.get(idx);
-			exPrev.createSpliceSiteDonor(Math.min(donorConserved.length() - 1, dist));
-			ex.createSpliceSiteAcceptor(Math.min(accConserved.length() - 1, dist));
+			if (debug) System.err.println("\tCreating splice sites:\t" + donor + "-" + acc + "\tConserved:\t" + donorConserved + "-" + accConserved);
+
+			if (donorConserved.length() > SpliceSite.CORE_SPLICE_SITE_SIZE) exPrev.createSpliceSiteDonor(Math.min(donorConserved.length(), dist));
+			if (accConserved.length() > SpliceSite.CORE_SPLICE_SITE_SIZE) ex.createSpliceSiteAcceptor(Math.min(accConserved.length(), dist));
 		}
 	}
 
@@ -493,7 +493,12 @@ public class SpliceTypes {
 		// Negative strand
 		int splDonorStart = intronEnd - MAX_SPLICE_SIZE;
 		int splDonorEnd = intronEnd + MAX_SPLICE_SIZE;
+
 		return GprSeq.reverseWc(chrSeq.substring(splDonorStart, splDonorEnd + 1).toUpperCase());
+	}
+
+	public void setDebug(boolean debug) {
+		this.debug = debug;
 	}
 
 	public void setVerbose(boolean verbose) {
@@ -575,7 +580,7 @@ public class SpliceTypes {
 	}
 
 	/**
-	 * Find splice sequences for this cromosome
+	 * Find splice sequences for this chromosome
 	 * @param chrName
 	 * @param chrSeq
 	 */
@@ -589,7 +594,7 @@ public class SpliceTypes {
 
 					// Skip problematic transcripts
 					if (tr.hasErrorOrWarning()) {
-						if (verbose) System.err.println("Skipping transcript " + tr.getId() + "\tGene: " + gene.getGeneName());
+						if (debug) System.err.println("Skipping transcript " + tr.getId() + "\tGene: " + gene.getGeneName());
 						continue;
 					}
 
