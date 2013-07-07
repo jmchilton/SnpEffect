@@ -463,7 +463,7 @@ public class Genome extends Marker implements Serializable, Iterable<Chromosome>
 						errorProteinStopCodons++; // Protein has STOP codons in CDS
 					}
 
-					if (tr.isErrorStopCodon()) {
+					if (tr.isWarningStopCodon()) {
 						// Note: This is considered a warning, not an error (sometimes the annotations exclude STOP codon on pourpose, although GTF say they should not)
 						warningStopCodon++; // Protein does not end with STOP codon
 					}

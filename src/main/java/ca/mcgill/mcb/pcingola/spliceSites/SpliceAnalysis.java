@@ -247,6 +247,8 @@ public class SpliceAnalysis extends SnpEff {
 	int countIntrons = 0;
 	Random random = new Random();
 
+	boolean saveDb;
+
 	public SpliceAnalysis() {
 		super();
 	}
@@ -347,15 +349,20 @@ public class SpliceAnalysis extends SnpEff {
 	@Override
 	public void parseArgs(String[] args) {
 		if (args.length == 0) usage(null);
-		int idx = 0;
 
-		if (args[idx].equals("-v")) {
-			verbose = true;
-			idx++;
+		for (int idx = 0; idx < args.length; idx++) {
+			String arg = args[idx];
+
+			if (isOpt(arg)) {
+				// Options
+				if (arg.equals("-s")) saveDb = true;
+				else usage("Unknown option '" + arg + "'");
+			} else if (genomeVer == null) genomeVer = arg;
+
 		}
 
-		if ((args.length - idx) != 1) usage("Missing genome");
-		genomeVer = args[idx];
+		// Sanity check
+		if (genomeVer == null) usage("Missing argument: Genome version");
 	}
 
 	@Override
@@ -380,9 +387,11 @@ public class SpliceAnalysis extends SnpEff {
 		if (verbose) Timer.showStdErr("Saving output to: " + outputFile);
 		Gpr.toFile(outputFile, out);
 
-		if (verbose) Timer.showStdErr("Saving database to file: " + config.getFileSnpEffectPredictor());
-		config.getSnpEffectPredictor().save(config);
-		if (verbose) Timer.showStdErr("Done.");
+		if (saveDb) {
+			if (verbose) Timer.showStdErr("Saving database to file: " + config.getFileSnpEffectPredictor());
+			config.getSnpEffectPredictor().save(config);
+			if (verbose) Timer.showStdErr("Done.");
+		}
 
 		if (verbose) Timer.showStdErr("Finished!");
 		return true;

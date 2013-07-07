@@ -586,6 +586,10 @@ public class SpliceTypes {
 			if (gene.getChromosomeName().equals(chrName)) { // Same chromosome
 				countGenes++;
 				for (Transcript tr : gene) {
+
+					// Skip problematic transcripts
+					if (tr.hasErrorOrWarning()) continue;
+
 					Exon exPrev = null;
 					for (Exon ex : tr.sortedStrand()) {
 						countEx++;

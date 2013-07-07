@@ -747,6 +747,24 @@ public class Transcript extends IntervalAndSubIntervals<Exon> {
 	}
 
 	/**
+	 * Does this transcript have any errors?
+	 * @return
+	 */
+	public boolean hasError() {
+		return isErrorProteinLength() || isErrorStartCodon() || isErrorStopCodonsInCds();
+	}
+
+	/**
+	 * Does this transcript have any errors?
+	 * @return
+	 */
+	public boolean hasErrorOrWarning() {
+		return isErrorProteinLength() || isErrorStartCodon() || isErrorStopCodonsInCds() // Errors
+				|| isWarningStopCodon() // Warnings
+		;
+	}
+
+	/**
 	 * Get all introns (lazy init)
 	 * @return
 	 */
@@ -854,21 +872,6 @@ public class Transcript extends IntervalAndSubIntervals<Exon> {
 	}
 
 	/**
-	 * Is the last codon a STOP codon?
-	 * @return
-	 */
-	public boolean isErrorStopCodon() {
-		if (!Config.get().isTreatAllAsProteinCoding() && !isProteinCoding()) return false;
-
-		// Not even one codon in this protein? Error
-		String cds = cds();
-		if (cds.length() < 3) return true;
-
-		String codon = cds.substring(cds.length() - 3);
-		return !codonTable().isStop(codon);
-	}
-
-	/**
 	 * Check if protein sequence has STOP codons in the middle of the coding sequence
 	 * @return true on Error
 	 */
@@ -906,6 +909,21 @@ public class Transcript extends IntervalAndSubIntervals<Exon> {
 	 */
 	public boolean isUtr(int pos) {
 		return findUtr(pos) != null;
+	}
+
+	/**
+	 * Is the last codon a STOP codon?
+	 * @return
+	 */
+	public boolean isWarningStopCodon() {
+		if (!Config.get().isTreatAllAsProteinCoding() && !isProteinCoding()) return false;
+
+		// Not even one codon in this protein? Error
+		String cds = cds();
+		if (cds.length() < 3) return true;
+
+		String codon = cds.substring(cds.length() - 3);
+		return !codonTable().isStop(codon);
 	}
 
 	/**
