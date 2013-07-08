@@ -435,6 +435,7 @@ public class SpliceAnalysis extends SnpEff {
 
 		// ArrayList<Marker> markers = new ArrayList<Marker>();
 		Markers markersBed = new Markers();
+		int countBranch = 0;
 		for (String donorAcc : pwmSetsByName.keySet()) {
 			PwmSet pwmSet = getPwmSet(donorAcc);
 
@@ -447,7 +448,8 @@ public class SpliceAnalysis extends SnpEff {
 					Transcript tr = (Transcript) bu12.getParent();
 					tr.add(bu12); // Add branch site to transcript
 					markersBed.add(bu12); // Add to bed file
-					if (verbose) System.out.println("Adding BranchU12 '" + bu12 + "' to transcript " + tr.getId() + "\tDonor-acceptor pair: " + donorAcc + "\tObs/Expected: " + getPwmSet(donorAcc).countU12ObsExp());
+					countBranch++;
+					if (verbose) System.out.println("\tAdding BranchU12 '" + bu12 + "' to transcript " + tr.getId() + "\tDonor-acceptor pair: " + donorAcc + "\tObs/Expected: " + getPwmSet(donorAcc).countU12ObsExp());
 				}
 			}
 		}
@@ -462,6 +464,8 @@ public class SpliceAnalysis extends SnpEff {
 			sb.append(i.getChromosomeName() + "\t" + (i.getStart() + 1) + "\t" + (i.getEnd() + 1) + "\t" + (i instanceof SpliceSiteBranch ? i.getType().toString() : i.getId()) + "\n");
 		}
 		Gpr.toFile(bedFile, sb);
+
+		if (verbose) Timer.showStdErr("Added " + countBranch + " branch U12 to genome.");
 
 		//---
 		// Show results

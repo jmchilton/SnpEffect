@@ -283,6 +283,7 @@ public class SpliceTypes {
 	void createSpliceSites() {
 		if (verbose) Timer.showStdErr("\tCreating splice sites.");
 
+		int count = 0;
 		for (Transcript tr : transcripts) {
 			Exon exPrev = null;
 			for (Exon ex : tr.sortedStrand()) {
@@ -296,12 +297,13 @@ public class SpliceTypes {
 						end = exPrev.getStart();
 					}
 
-					createSpliceSites(ex, exPrev, start, end);
+					count += createSpliceSites(ex, exPrev, start, end);
 				}
 
 				exPrev = ex;
 			}
 		}
+		if (verbose) Timer.showStdErr("\tCreated : " + count + " splice sites.");
 	}
 
 	/**
@@ -311,25 +313,35 @@ public class SpliceTypes {
 	 * @param start
 	 * @param end
 	 */
-	void createSpliceSites(Exon ex, Exon exPrev, int start, int end) {
+	int createSpliceSites(Exon ex, Exon exPrev, int start, int end) {
 		String key = ex.getChromosomeName() + ":" + start + "-" + end;
 		String donor = donorsByIntron.get(key);
 		String acc = acceptorsByIntron.get(key);
 
-		if ((donor == null) || (acc == null)) return; // May be we skipped this transcript
+		if ((donor == null) || (acc == null)) return 0; // May be we skipped this transcript
 
 		int idx = bestMatchIndex(donor, acc);
 		int dist = end - start - 1;
 
+		int count = 0;
 		if (idx > 0) {
 			// Create donor and acceptor
 			String donorConserved = donorAccPairDonor.get(idx);
 			String accConserved = donorAccPairAcc.get(idx);
 			if (debug) System.err.println("\tCreating splice sites:\t" + donor + "-" + acc + "\tConserved:\t" + donorConserved + "-" + accConserved);
 
-			if (donorConserved.length() > SpliceSite.CORE_SPLICE_SITE_SIZE) exPrev.createSpliceSiteDonor(Math.min(donorConserved.length(), dist));
-			if (accConserved.length() > SpliceSite.CORE_SPLICE_SITE_SIZE) ex.createSpliceSiteAcceptor(Math.min(accConserved.length(), dist));
+			if (donorConserved.length() > SpliceSite.CORE_SPLICE_SITE_SIZE) {
+				exPrev.createSpliceSiteDonor(Math.min(donorConserved.length(), dist));
+				count++;
+			}
+
+			if (accConserved.length() > SpliceSite.CORE_SPLICE_SITE_SIZE) {
+				ex.createSpliceSiteAcceptor(Math.min(accConserved.length(), dist));
+				count++;
+			}
 		}
+
+		return count;
 	}
 
 	/**
