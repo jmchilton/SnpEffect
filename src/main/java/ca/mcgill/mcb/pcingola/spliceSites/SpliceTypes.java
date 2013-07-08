@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -12,7 +11,6 @@ import ca.mcgill.mcb.pcingola.collections.AutoHashMap;
 import ca.mcgill.mcb.pcingola.fileIterator.FastaFileIterator;
 import ca.mcgill.mcb.pcingola.interval.Chromosome;
 import ca.mcgill.mcb.pcingola.interval.Exon;
-import ca.mcgill.mcb.pcingola.interval.Gene;
 import ca.mcgill.mcb.pcingola.interval.SpliceSite;
 import ca.mcgill.mcb.pcingola.interval.SpliceSiteBranchU12;
 import ca.mcgill.mcb.pcingola.interval.Transcript;
@@ -46,11 +44,10 @@ public class SpliceTypes {
 	ArrayList<String> donorAccPairAcc = new ArrayList<String>();
 	AutoHashMap<String, List<SpliceSiteBranchU12>> branchU12ByDonorAcc = new AutoHashMap<String, List<SpliceSiteBranchU12>>(new ArrayList<SpliceSiteBranchU12>());
 	HashMap<String, Integer> donorAcc = new HashMap<String, Integer>();
-	HashSet<Transcript> transcripts = new HashSet<Transcript>();
-	AutoHashMap<String, ArrayList<Transcript>> transcriptsByChromo = new AutoHashMap<String, ArrayList<Transcript>>(new ArrayList<Transcript>());
 	AcgtTree acgtTreeDonors = new AcgtTree();
 	AcgtTree acgtTreeAcc = new AcgtTree();
 	Pwm pwmU12;
+	TranscriptSet transcriptSet;
 
 	double thresholdPDonor;
 	double thresholdEntropyDonor;
@@ -284,7 +281,7 @@ public class SpliceTypes {
 		if (verbose) Timer.showStdErr("\tCreating splice sites.");
 
 		int count = 0;
-		for (Transcript tr : transcripts) {
+		for (Transcript tr : transcriptSet) {
 			Exon exPrev = null;
 			for (Exon ex : tr.sortedStrand()) {
 				if (exPrev != null) { // Not for first exon (it has no 'previous' intron)
@@ -440,15 +437,7 @@ public class SpliceTypes {
 		}
 
 		if (verbose) Timer.showStdErr("Filtering transcripts");
-		for (Gene gene : config.getGenome().getGenes()) {
-			for (Transcript tr : gene) {
-				if (!tr.isProteinCoding()) continue;
-				if (tr.hasError()) continue;
-
-				transcripts.add(tr);
-				transcriptsByChromo.getOrCreate(tr.getChromosomeName()).add(tr);
-			}
-		}
+		transcriptSet = new TranscriptSet(config.getGenome());
 		if (verbose) Timer.showStdErr("done");
 	}
 
@@ -611,9 +600,8 @@ public class SpliceTypes {
 	 */
 	void spliceSequences(String chrName, String chrSeq) {
 		int countEx = 0, countTr = 0;
-		chrName = Chromosome.simpleName(chrName);
 
-		for (Transcript tr : transcriptsByChromo.getOrCreate(chrName)) {
+		for (Transcript tr : transcriptSet.getByChromo(chrName)) {
 			Exon exPrev = null;
 			for (Exon ex : tr.sortedStrand()) {
 				countEx++;

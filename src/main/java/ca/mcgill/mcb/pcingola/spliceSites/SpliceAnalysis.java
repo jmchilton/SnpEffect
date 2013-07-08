@@ -7,9 +7,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
 
-import ca.mcgill.mcb.pcingola.collections.AutoHashMap;
 import ca.mcgill.mcb.pcingola.fileIterator.FastaFileIterator;
-import ca.mcgill.mcb.pcingola.interval.Chromosome;
 import ca.mcgill.mcb.pcingola.interval.Exon;
 import ca.mcgill.mcb.pcingola.interval.Gene;
 import ca.mcgill.mcb.pcingola.interval.Intron;
@@ -240,8 +238,7 @@ public class SpliceAnalysis extends SnpEff {
 	HashMap<String, PwmSet> pwmSetsByName = new HashMap<String, PwmSet>();
 	HashMap<String, PwmSet> pwmSetsExonTypeByName = new HashMap<String, PwmSet>();
 	HashMap<String, Intron> intronsByStr = new HashMap<String, Intron>();
-	HashSet<Transcript> transcripts = new HashSet<Transcript>();
-	AutoHashMap<String, ArrayList<Transcript>> transcriptsByChromo = new AutoHashMap<String, ArrayList<Transcript>>(new ArrayList<Transcript>());
+	TranscriptSet transcriptSet;
 	double thresholdPDonor;
 	double thresholdEntropyDonor;
 	double thresholdPAcc;
@@ -328,6 +325,10 @@ public class SpliceAnalysis extends SnpEff {
 
 		// Load data
 		load();
+
+		if (verbose) Timer.showStdErr("Filtering transcripts");
+		transcriptSet = new TranscriptSet(config.getGenome());
+		if (verbose) Timer.showStdErr("done");
 	}
 
 	/**
@@ -336,18 +337,6 @@ public class SpliceAnalysis extends SnpEff {
 	void load() {
 		if (verbose) Timer.showStdErr("Loading: " + genomeVer);
 		config.loadSnpEffectPredictor();
-		if (verbose) Timer.showStdErr("done");
-
-		if (verbose) Timer.showStdErr("Filtering transcripts");
-		for (Gene gene : config.getGenome().getGenes()) {
-			for (Transcript tr : gene) {
-				if (!tr.isProteinCoding()) continue;
-				if (tr.hasError()) continue;
-
-				transcripts.add(tr);
-				transcriptsByChromo.getOrCreate(tr.getChromosomeName()).add(tr);
-			}
-		}
 		if (verbose) Timer.showStdErr("done");
 	}
 
@@ -502,12 +491,11 @@ public class SpliceAnalysis extends SnpEff {
 	void splicePwmAnalysis(String chrName, String chrSeq) {
 		int countEx = 0, countTr = 0;
 		HashSet<String> done = new HashSet<String>();
-		chrName = Chromosome.simpleName(chrName);
 
 		//---
 		// Find all exons in this chromosome
 		//---
-		for (Transcript tr : transcriptsByChromo.getOrCreate(chrName)) {
+		for (Transcript tr : transcriptSet.getByChromo(chrName)) {
 			Exon exPrev = null;
 			for (Exon ex : tr.sortedStrand()) {
 				countEx++;
@@ -525,16 +513,16 @@ public class SpliceAnalysis extends SnpEff {
 					// Get exon splice type
 					String exPrevType = exPrev != null ? exPrev.getSpliceType().toString() : "";
 					String exType = ex != null ? ex.getSpliceType().toString() : "";
-					String exonTypes = exPrevType + "-" + exType;
+					String intronTypes = exPrevType + "-" + exType;
 
 					// Do not analyze this Intron if it was already analyzed
 					String key = chrName + ":" + start + "-" + end;
 					if (!done.contains(key)) {
-						updatePwm(tr, chrSeq, start, end, exonTypes);
+						updatePwm(tr, chrSeq, start, end, intronTypes);
 						done.add(key);
 
 						// Create BED file
-						Intron intron = new Intron(tr, start, end, 1, exonTypes, exPrev, ex);
+						Intron intron = new Intron(tr, start, end, 1, intronTypes, exPrev, ex);
 						intronsByStr.put(intron.toString(), intron); // We use a hash to avoid adding the same intron multiple times
 					}
 				}
@@ -553,7 +541,7 @@ public class SpliceAnalysis extends SnpEff {
 	 * @param intronStart
 	 * @param intronEnd
 	 */
-	void updatePwm(Transcript tr, String chrSeq, int intronStart, int intronEnd, String exonTypes) {
+	void updatePwm(Transcript tr, String chrSeq, int intronStart, int intronEnd, String intronTypes) {
 		// We don't update if the intron is too short
 		int len = intronEnd - intronStart;
 		if (len < (2 * SpliceTypes.MAX_SPLICE_SIZE)) return;
@@ -604,20 +592,20 @@ public class SpliceAnalysis extends SnpEff {
 		PwmSet pwmSet = getPwmSet(consensus);
 		pwmSet.update(accStr, donorStr);
 		pwmSet.len(len);
-		pwmSet.incExonTypes(exonTypes);
+		pwmSet.incExonTypes(intronTypes);
 		pwmSet.addGene((Gene) tr.getParent());
 		if (bestU12score >= thresholdU12Score) pwmSet.incU12();
 
 		// Update total counts
 		pwmSet = getPwmSet(" ALL");
 		pwmSet.update(accStr, donorStr);
-		pwmSet.incExonTypes(exonTypes);
+		pwmSet.incExonTypes(intronTypes);
 		pwmSet.len(len);
 
 		//---
 		// Update PWM for exon type
 		//---
-		pwmSet = getPwmSetExonType(exonTypes);
+		pwmSet = getPwmSetExonType(intronTypes);
 		pwmSet.update(accStr, donorStr);
 		pwmSet.len(len);
 		pwmSet.addGene((Gene) tr.getParent());
