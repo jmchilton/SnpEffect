@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -45,6 +46,8 @@ public class SpliceTypes {
 	ArrayList<String> donorAccPairAcc = new ArrayList<String>();
 	AutoHashMap<String, List<SpliceSiteBranchU12>> branchU12ByDonorAcc = new AutoHashMap<String, List<SpliceSiteBranchU12>>(new ArrayList<SpliceSiteBranchU12>());
 	HashMap<String, Integer> donorAcc = new HashMap<String, Integer>();
+	HashSet<Transcript> transcripts = new HashSet<Transcript>();
+	AutoHashMap<String, ArrayList<Transcript>> transcriptsByChromo = new AutoHashMap<String, ArrayList<Transcript>>(new ArrayList<Transcript>());
 	AcgtTree acgtTreeDonors = new AcgtTree();
 	AcgtTree acgtTreeAcc = new AcgtTree();
 	Pwm pwmU12;
@@ -280,25 +283,23 @@ public class SpliceTypes {
 	void createSpliceSites() {
 		if (verbose) Timer.showStdErr("\tCreating splice sites.");
 
-		for (Gene gene : config.getGenome().getGenes()) {
-			for (Transcript tr : gene) {
-				Exon exPrev = null;
-				for (Exon ex : tr.sortedStrand()) {
-					if (exPrev != null) { // Not for first exon (it has no 'previous' intron)
-						int start, end;
-						if (tr.isStrandPlus()) {
-							start = exPrev.getEnd();
-							end = ex.getStart();
-						} else {
-							start = ex.getEnd();
-							end = exPrev.getStart();
-						}
-
-						createSpliceSites(ex, exPrev, start, end);
+		for (Transcript tr : transcripts) {
+			Exon exPrev = null;
+			for (Exon ex : tr.sortedStrand()) {
+				if (exPrev != null) { // Not for first exon (it has no 'previous' intron)
+					int start, end;
+					if (tr.isStrandPlus()) {
+						start = exPrev.getEnd();
+						end = ex.getStart();
+					} else {
+						start = ex.getEnd();
+						end = exPrev.getStart();
 					}
 
-					exPrev = ex;
+					createSpliceSites(ex, exPrev, start, end);
 				}
+
+				exPrev = ex;
 			}
 		}
 	}
@@ -425,6 +426,18 @@ public class SpliceTypes {
 			config.loadSnpEffectPredictor();
 			if (verbose) Timer.showStdErr("\tdone.");
 		}
+
+		if (verbose) Timer.showStdErr("Filtering transcripts");
+		for (Gene gene : config.getGenome().getGenes()) {
+			for (Transcript tr : gene) {
+				if (!tr.isProteinCoding()) continue;
+				if (tr.hasError()) continue;
+
+				transcripts.add(tr);
+				transcriptsByChromo.getOrCreate(tr.getChromosomeName()).add(tr);
+			}
+		}
+		if (verbose) Timer.showStdErr("done");
 	}
 
 	/**
@@ -585,50 +598,42 @@ public class SpliceTypes {
 	 * @param chrSeq
 	 */
 	void spliceSequences(String chrName, String chrSeq) {
-		int countEx = 0, countGenes = 0;
+		int countEx = 0, countTr = 0;
+		chrName = Chromosome.simpleName(chrName);
 
-		for (Gene gene : config.getGenome().getGenes()) {
-			if (gene.getChromosomeName().equals(chrName)) { // Same chromosome
-				countGenes++;
-				for (Transcript tr : gene) {
+		for (Transcript tr : transcriptsByChromo.getOrCreate(chrName)) {
+			Exon exPrev = null;
+			for (Exon ex : tr.sortedStrand()) {
+				countEx++;
 
-					// Skip problematic transcripts
-					if (tr.hasErrorOrWarning()) {
-						if (debug) System.err.println("Skipping transcript " + tr.getId() + "\tGene: " + gene.getGeneName());
-						continue;
+				if (exPrev != null) { // Not for first exon (it has no 'previous' intron)
+					int start, end;
+					if (tr.isStrandPlus()) {
+						start = exPrev.getEnd();
+						end = ex.getStart();
+					} else {
+						start = ex.getEnd();
+						end = exPrev.getStart();
 					}
 
-					Exon exPrev = null;
-					for (Exon ex : tr.sortedStrand()) {
-						countEx++;
-
-						if (exPrev != null) { // Not for first exon (it has no 'previous' intron)
-							int start, end;
-							if (tr.isStrandPlus()) {
-								start = exPrev.getEnd();
-								end = ex.getStart();
-							} else {
-								start = ex.getEnd();
-								end = exPrev.getStart();
-							}
-
-							// Already added? (do not add twice)
-							spliceSequences(tr, chrName, chrSeq, start, end);
-						}
-
-						exPrev = ex;
-					}
+					// Already added? (do not add twice)
+					spliceSequences(tr, chrName, chrSeq, start, end);
 				}
+
+				exPrev = ex;
 			}
+
+			countTr++;
 		}
 
-		if (verbose) Timer.showStdErr("\t\tChromosome: " + chrName + "\tGenes: " + countGenes + "\tExons: " + countEx + "\t" + donorsByIntron.size());
+		if (verbose) Timer.showStdErr("\t\tChromosome: " + chrName + "\tTranscripts: " + countTr + "\tExons: " + countEx + "\tSplice sites: " + donorsByIntron.size());
 	}
 
 	/**
 	 * Find splice sequences for this intron
 	 */
 	void spliceSequences(Transcript tr, String chrName, String chrSeq, int intronStart, int intronEnd) {
+		// Do not repeat
 		String key = chrName + ":" + intronStart + "-" + intronEnd;
 		if (donorsByIntron.containsKey(key)) return;
 

@@ -7,6 +7,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
 
+import ca.mcgill.mcb.pcingola.collections.AutoHashMap;
 import ca.mcgill.mcb.pcingola.fileIterator.FastaFileIterator;
 import ca.mcgill.mcb.pcingola.interval.Chromosome;
 import ca.mcgill.mcb.pcingola.interval.Exon;
@@ -239,6 +240,8 @@ public class SpliceAnalysis extends SnpEff {
 	HashMap<String, PwmSet> pwmSetsByName = new HashMap<String, PwmSet>();
 	HashMap<String, PwmSet> pwmSetsExonTypeByName = new HashMap<String, PwmSet>();
 	HashMap<String, Intron> intronsByStr = new HashMap<String, Intron>();
+	HashSet<Transcript> transcripts = new HashSet<Transcript>();
+	AutoHashMap<String, ArrayList<Transcript>> transcriptsByChromo = new AutoHashMap<String, ArrayList<Transcript>>(new ArrayList<Transcript>());
 	double thresholdPDonor;
 	double thresholdEntropyDonor;
 	double thresholdPAcc;
@@ -334,6 +337,18 @@ public class SpliceAnalysis extends SnpEff {
 		if (verbose) Timer.showStdErr("Loading: " + genomeVer);
 		config.loadSnpEffectPredictor();
 		if (verbose) Timer.showStdErr("done");
+
+		if (verbose) Timer.showStdErr("Filtering transcripts");
+		for (Gene gene : config.getGenome().getGenes()) {
+			for (Transcript tr : gene) {
+				if (!tr.isProteinCoding()) continue;
+				if (tr.hasError()) continue;
+
+				transcripts.add(tr);
+				transcriptsByChromo.getOrCreate(tr.getChromosomeName()).add(tr);
+			}
+		}
+		if (verbose) Timer.showStdErr("done");
 	}
 
 	/**
@@ -343,7 +358,6 @@ public class SpliceAnalysis extends SnpEff {
 	void out(Object o) {
 		String s = o.toString();
 		out.append(s + "\n");
-		//System.out.println(s);
 	}
 
 	@Override
@@ -409,10 +423,8 @@ public class SpliceAnalysis extends SnpEff {
 		//---
 		FastaFileIterator ffi = new FastaFileIterator(genomeFasta);
 		out("<pre>\n");
-		for (String chrSeq : ffi) {
-			String chrName = Chromosome.simpleName(ffi.getName());
-			splicePwmAnalysis(chrName, chrSeq);
-		}
+		for (String chrSeq : ffi)
+			splicePwmAnalysis(ffi.getName(), chrSeq);
 		out("</pre>\n");
 
 		//---
@@ -486,47 +498,44 @@ public class SpliceAnalysis extends SnpEff {
 	void splicePwmAnalysis(String chrName, String chrSeq) {
 		int countEx = 0;
 		HashSet<String> done = new HashSet<String>();
+		chrName = Chromosome.simpleName(chrName);
 
 		//---
 		// Find all exons in this chromosome
 		//---
-		for (Gene gene : config.getGenome().getGenes()) {
-			if (gene.getChromosomeName().equals(chrName)) { // Same chromosome
-				for (Transcript tr : gene) {
-					Exon exPrev = null;
-					for (Exon ex : tr.sortedStrand()) {
-						countEx++;
+		for (Transcript tr : transcriptsByChromo.getOrCreate(chrName)) {
+			Exon exPrev = null;
+			for (Exon ex : tr.sortedStrand()) {
+				countEx++;
 
-						if (exPrev != null) { // Not for first exon (it has no 'previous' intron)
-							int start, end;
-							if (tr.isStrandPlus()) {
-								start = exPrev.getEnd();
-								end = ex.getStart();
-							} else {
-								start = ex.getEnd();
-								end = exPrev.getStart();
-							}
+				if (exPrev != null) { // Not for first exon (it has no 'previous' intron)
+					int start, end;
+					if (tr.isStrandPlus()) {
+						start = exPrev.getEnd();
+						end = ex.getStart();
+					} else {
+						start = ex.getEnd();
+						end = exPrev.getStart();
+					}
 
-							// Get exon splice type
-							String exPrevType = exPrev != null ? exPrev.getSpliceType().toString() : "";
-							String exType = ex != null ? ex.getSpliceType().toString() : "";
-							String exonTypes = exPrevType + "-" + exType;
+					// Get exon splice type
+					String exPrevType = exPrev != null ? exPrev.getSpliceType().toString() : "";
+					String exType = ex != null ? ex.getSpliceType().toString() : "";
+					String exonTypes = exPrevType + "-" + exType;
 
-							// Do not analyze this Intron if it was already analyzed
-							String key = chrName + ":" + start + "-" + end;
-							if (!done.contains(key)) {
-								updatePwm(tr, chrSeq, start, end, exonTypes);
-								done.add(key);
+					// Do not analyze this Intron if it was already analyzed
+					String key = chrName + ":" + start + "-" + end;
+					if (!done.contains(key)) {
+						updatePwm(tr, chrSeq, start, end, exonTypes);
+						done.add(key);
 
-								// Create BED file
-								Intron intron = new Intron(tr, start, end, 1, exonTypes, exPrev, ex);
-								intronsByStr.put(intron.toString(), intron); // We use a hash to avoid adding the same intron multiple times
-							}
-						}
-
-						exPrev = ex;
+						// Create BED file
+						Intron intron = new Intron(tr, start, end, 1, exonTypes, exPrev, ex);
+						intronsByStr.put(intron.toString(), intron); // We use a hash to avoid adding the same intron multiple times
 					}
 				}
+
+				exPrev = ex;
 			}
 		}
 
