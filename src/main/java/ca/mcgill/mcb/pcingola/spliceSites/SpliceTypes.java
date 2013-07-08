@@ -626,7 +626,7 @@ public class SpliceTypes {
 			countTr++;
 		}
 
-		if (verbose) Timer.showStdErr("\t\tChromosome: " + chrName + "\tTranscripts: " + countTr + "\tExons: " + countEx + "\tSplice sites: " + donorsByIntron.size());
+		if (verbose) Timer.showStdErr("\t\tChromosome: " + chrName + "\tTranscripts: " + countTr + "\tExons: " + countEx + "\tTotal Splice sites: " + donorsByIntron.size());
 	}
 
 	/**

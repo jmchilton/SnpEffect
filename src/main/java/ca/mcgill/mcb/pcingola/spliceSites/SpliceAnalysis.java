@@ -204,9 +204,9 @@ public class SpliceAnalysis extends SnpEff {
 			out.append("\t</pre></td>\n");
 
 			// Genes
-			out.append("\t<td> <pre> \n");
+			out.append("\t<td> <textarea rows=10 cols=120 readonly> \n");
 			out.append(geneNames());
-			out.append("\t</pre> </td>\n");
+			out.append("\t</textarea> </td>\n");
 
 			return out.toString();
 		}
@@ -472,7 +472,7 @@ public class SpliceAnalysis extends SnpEff {
 		Collections.sort(pwmsets);
 		out("<p><center><h3>Analysis by Donnor-Acceptor type</h3></center><p><table border=1>\n");
 		out("<p><b>U12 PWM score threshold:</b> " + thresholdU12Score + "<p>\n");
-		out("<tr> <th> Rank </th> <th> Donor-Acceptor </th>  <th> Count </th>  <th> Donor Motif </th> <th> U12 matches (Observed / Expected) </th> <th> Acceptor Motif </th> <th> Intron length </th> <th> Intron Type Count </th> <th> Intron Type p-values </th> </tr>\n");
+		out("<tr> <th> Rank </th> <th> Donor-Acceptor </th>  <th> Count </th>  <th> Donor Motif </th> <th> U12 matches (Observed / Expected) </th> <th> Acceptor Motif </th> <th> Intron length </th> <th> Intron Type Count </th> <th> Intron Type p-values </th><th> Genes </th> </tr>\n");
 		int count = 0;
 		for (PwmSet pwmset : pwmsets)
 			if (pwmset.updates >= THRESHOLD_COUNT) out("<tr> <td> " + (count++) + " </td> " + pwmset + "</tr>\n");
@@ -483,7 +483,7 @@ public class SpliceAnalysis extends SnpEff {
 		pwmsets.addAll(pwmSetsExonTypeByName.values());
 		Collections.sort(pwmsets);
 		out("<p><hr><p><center><h3>Analysis by Exon-Exon types</h3></center><p><table border=1>\n");
-		out("<tr> <th> Rank </th> <th> Exon_Type --- Exon_Type</th>  <th> Count </th>  <th> Donor Motif </th> <th> U12 matches (Observed / Expected) </th> <th> Acceptor Motif </th> <th> Intron length </th> <th> Intron Type Count </th> <th> Intron Type p-values </th> </tr>\n");
+		out("<tr> <th> Rank </th> <th> Exon_Type --- Exon_Type</th>  <th> Count </th>  <th> Donor Motif </th> <th> U12 matches (Observed / Expected) </th> <th> Acceptor Motif </th> <th> Intron length </th> <th> Intron Type Count </th> <th> Intron Type p-values </th><th> Genes </th> </tr>\n");
 		count = 0;
 		for (PwmSet pwmset : pwmsets)
 			if (pwmset.updates >= THRESHOLD_COUNT) out("<tr> <td> " + (count++) + " </td> " + pwmset + "</tr>\n");
@@ -496,7 +496,7 @@ public class SpliceAnalysis extends SnpEff {
 	 * @param chrSeq
 	 */
 	void splicePwmAnalysis(String chrName, String chrSeq) {
-		int countEx = 0;
+		int countEx = 0, countTr = 0;
 		HashSet<String> done = new HashSet<String>();
 		chrName = Chromosome.simpleName(chrName);
 
@@ -537,9 +537,10 @@ public class SpliceAnalysis extends SnpEff {
 
 				exPrev = ex;
 			}
+			countTr++;
 		}
 
-		if (verbose) Timer.showStdErr("\tChromosome: " + chrName + "\tGenes: " + config.getGenome().getGenes().size() + "\tExons: " + countEx);
+		if (verbose) Timer.showStdErr("\tChromosome: " + chrName + "\tTranscripts: " + countTr + "\tExons: " + countEx);
 	}
 
 	/**
