@@ -629,6 +629,13 @@ public class ChangeEffect implements Cloneable, Comparable<ChangeEffect> {
 	 * @return
 	 */
 	public String getHgvs() {
+		/**
+		 * Coordinates:
+		 * 		i) there is no nucleotide 0
+		 * 		ii) nucleotide 1 is the A of the ATG-translation initiation codon
+		 * 		iii) the nucleotide 5' of the ATG-translation initiation codon is -1, the previous -2, etc.
+		 * 		iv) the nucleotide 3' of the translation stop codon is *1, the next *2, etc.
+		 */
 		if (aaOld.isEmpty() && aaNew.isEmpty()) {
 			if (codonNum >= 0) return "" + (codonNum + 1);
 			return getHgvsNonCoding();
@@ -646,15 +653,15 @@ public class ChangeEffect implements Cloneable, Comparable<ChangeEffect> {
 	protected String getHgvsCoding() {
 		// Codon numbering
 		// HGVS: the translation initiator Methionine is numbered as +1
-		int pos = codonNum + 1;
+		int aaPos = codonNum + 1;
 
 		// Synonymous changes
 		if (aaOld.equals(aaNew)) {
 			// HGVS: Description of so called "silent" changes in the format p.Leu54Leu (or p.L54L) is not allowed; descriptions 
 			// 		 should be given at DNA level, it is non-informative and not unequivocal (there are five possibilities 
 			// 		 at DNA level which may underlie p.Leu54Leu);  correct description has the format c.162C>G.
-			pos = codonNum * 3 + codonIndex;
-			return "c." + pos + seqChange.getReference() + ">" + seqChange.getChange();
+			int seqPos = codonNum * 3 + codonIndex + 1;
+			return "c." + seqPos + seqChange.getReference() + ">" + seqChange.getChange();
 		}
 
 		// Convert to 3 letter code
@@ -668,7 +675,7 @@ public class ChangeEffect implements Cloneable, Comparable<ChangeEffect> {
 			aaOld3 = codonTable.aaThreeLetterCode(aaOld);
 
 			// Start codon?
-			if ((pos == 1) && codonTable.isStartFirst(aaOld)) {
+			if ((aaPos == 1) && codonTable.isStartFirst(aaOld)) {
 				// HGVS: Currently, variants in the translation initiating Methionine (M1) are usually described as a substitution, 
 				// 		 e.g. p.Met1Val. 
 				//		 This is not correct. Either no protein is produced (p.0) or a new translation initiation site up- or downstream 
@@ -678,7 +685,7 @@ public class ChangeEffect implements Cloneable, Comparable<ChangeEffect> {
 			}
 		}
 
-		return "p." + aaOld3 + pos + aaNew3;
+		return "p." + aaOld3 + aaPos + aaNew3;
 	}
 
 	/**
