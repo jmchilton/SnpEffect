@@ -92,7 +92,7 @@ public class CodonTable {
 	 * @param aa in three letter code
 	 */
 	public String aaThreeLetterCode(String aa) {
-		if (isStop(aa)) return "*";
+		if (isStop(aa)) return "Ter"; // Used to be "*"
 		String aa3 = aa3letter.get(aa.toUpperCase());
 		if (aa3 == null) return "X";
 		return aa3;

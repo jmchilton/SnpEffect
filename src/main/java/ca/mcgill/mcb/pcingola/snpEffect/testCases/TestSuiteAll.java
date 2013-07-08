@@ -87,6 +87,9 @@ public class TestSuiteAll {
 		// Cancer effects (Somatic vs Germline)
 		suite.addTestSuite(TestCasesCancer.class);
 
+		// HGSV notation
+		suite.addTestSuite(TestCasesHgsv.class);
+
 		// Nextprot
 		suite.addTestSuite(TestCasesNextProt.class);
 

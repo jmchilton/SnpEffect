@@ -661,7 +661,7 @@ public class ChangeEffect implements Cloneable, Comparable<ChangeEffect> {
 			// 		 should be given at DNA level, it is non-informative and not unequivocal (there are five possibilities 
 			// 		 at DNA level which may underlie p.Leu54Leu);  correct description has the format c.162C>G.
 			int seqPos = codonNum * 3 + codonIndex + 1;
-			return "c." + seqPos + seqChange.getReference() + ">" + seqChange.getChange();
+			return "p.(=)/c." + seqPos + seqChange.getReference() + ">" + seqChange.getChange();
 		}
 
 		// Convert to 3 letter code
@@ -683,6 +683,14 @@ public class ChangeEffect implements Cloneable, Comparable<ChangeEffect> {
 				//		 best to report the effect on protein level as "p.Met1?" (unknown).
 				return "p.Met1?";
 			}
+		}
+
+		CodonTable codonTable = marker.codonTable();
+
+		// Stop codon mutations are different
+		if (codonTable.isStop(aaOld) && !codonTable.isStop(aaNew)) {
+			// Stop lost
+			return "p." + aaOld3 + aaPos + aaNew3 + "ext*?";
 		}
 
 		return "p." + aaOld3 + aaPos + aaNew3;
