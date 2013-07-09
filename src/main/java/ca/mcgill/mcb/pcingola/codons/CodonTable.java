@@ -56,6 +56,7 @@ public class CodonTable {
 		aa2codon = new HashMap<String, String>();
 		startCodons = new HashSet<String>();
 		stopCodons = new HashSet<String>();
+		//		startAas = new HashSet<String>();
 		parse(table);
 		calcDegeneracy();
 	}
@@ -212,6 +213,15 @@ public class CodonTable {
 		}
 
 		return false;
+	}
+
+	/**
+	 * Is there a stop codon in this amino acid sequence 
+	 * @param aas
+	 * @return
+	 */
+	public boolean isStopAa(String aas) {
+		return aas.indexOf('*') >= 0;
 	}
 
 	/**

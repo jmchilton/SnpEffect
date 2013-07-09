@@ -25,7 +25,7 @@ import ca.mcgill.mcb.pcingola.util.GprSeq;
  */
 public class TestCasesHgsv extends TestCase {
 
-	boolean debug = true;
+	boolean debug = false;
 	Random rand;
 	Config config;
 	Genome genome;
@@ -82,7 +82,7 @@ public class TestCasesHgsv extends TestCase {
 	}
 
 	public void test_01() {
-		int N = 100;
+		int N = 250;
 		CodonTable codonTable = genome.codonTable();
 
 		// Test N times
@@ -128,14 +128,13 @@ public class TestCasesHgsv extends TestCase {
 						// Effect
 						if (newAa.equals(aa)) {
 							if ((cdsCodonNum == 0) && (codonTable.isStart(codon))) {
-								if (codonTable.isStart(newCodon)) effectExpected = "SYNONYMOUS_START(" + aa + ")";
-								else effectExpected = "START_LOST(" + aa + ")";
-							} else if (aa.equals("*")) effectExpected = "SYNONYMOUS_STOP(" + aa + ")";
-							else effectExpected = "p.(=)/c." + (cdsBaseNum + 1) + refBase + ">" + snp;
+								if (codonTable.isStart(newCodon)) effectExpected = "p." + aa + "1?";
+								else effectExpected = "p." + aa + "1?";
+							} else effectExpected = "p.(=)/c." + (cdsBaseNum + 1) + refBase + ">" + snp;
 						} else {
 							if ((cdsCodonNum == 0) && (codonTable.isStart(codon))) {
-								if (codonTable.isStart(newCodon)) effectExpected = "NON_SYNONYMOUS_START(" + aa + "/" + newAa + ")";
-								else effectExpected = "START_LOST(" + aa + "/" + newAa + ")";
+								if (codonTable.isStart(newCodon)) effectExpected = "p." + aa + "1?";
+								else effectExpected = "p." + aa + "1?";
 							} else if (codonTable.isStop(codon)) effectExpected = "p." + aa + (cdsCodonNum + 1) + newAa + "ext*?";
 							else if (codonTable.isStop(newCodon)) effectExpected = "p." + aa + (cdsCodonNum + 1) + "*";
 							else effectExpected = "p." + aa + (cdsCodonNum + 1) + newAa;
