@@ -8,7 +8,7 @@ import ca.mcgill.mcb.pcingola.util.Gpr;
  * 
  * @author pcingola
  */
-public class TfamEntry {
+public class TfamEntry implements Comparable<TfamEntry> {
 
 	/**
 	 *  From PLINK's manual: Affection status, by default, should be coded:
@@ -36,6 +36,11 @@ public class TfamEntry {
 		this.motherId = motherId;
 		this.sex = sex;
 		this.phenotype = phenotype;
+	}
+
+	@Override
+	public int compareTo(TfamEntry ind) {
+		return id.compareTo(ind.getId());
 	}
 
 	public String getFamilyId() {
@@ -105,6 +110,9 @@ public class TfamEntry {
 		id = fields[fieldNum++];
 		fatherId = fields[fieldNum++];
 		motherId = fields[fieldNum++];
+
+		if (fatherId.equals("0") || fatherId.equals("NA")) fatherId = null;
+		if (motherId.equals("0") || motherId.equals("NA")) motherId = null;
 
 		// Parse sex field
 		int sexnum = Gpr.parseIntSafe(fields[fieldNum++]);

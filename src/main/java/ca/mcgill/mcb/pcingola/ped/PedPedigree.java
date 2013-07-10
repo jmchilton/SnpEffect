@@ -7,6 +7,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import ca.mcgill.mcb.pcingola.collections.AutoHashMap;
 import ca.mcgill.mcb.pcingola.util.Gpr;
 
 /**
@@ -14,7 +15,7 @@ import ca.mcgill.mcb.pcingola.util.Gpr;
  * 
  * @author pcingola
  */
-public class PedPedigree implements Iterable<TfamEntry> {
+public class PedPedigree implements Iterable<TfamEntry>, Comparable<PedPedigree> {
 
 	boolean verbose = false;
 	HashMap<String, TfamEntry> tfamEntryById = new HashMap<String, TfamEntry>();
@@ -41,8 +42,35 @@ public class PedPedigree implements Iterable<TfamEntry> {
 		tfamEntries.add(tfamEntry);
 	}
 
+	@Override
+	public int compareTo(PedPedigree ped) {
+		return getFamilyId().compareTo(ped.getFamilyId());
+	}
+
+	/**
+	 * Split data into families
+	 * @return
+	 */
+	public Collection<PedPedigree> families() {
+		AutoHashMap<String, PedPedigree> families = new AutoHashMap<String, PedPedigree>(new PedPedigree());
+
+		// Add each individual to its corresponding family
+		for (TfamEntry ind : this) {
+			String fid = ind.getFamilyId();
+			PedPedigree ped = families.getOrCreate(fid);
+			ped.add(ind);
+		}
+
+		return families.values();
+	}
+
 	public TfamEntry get(String id) {
 		return tfamEntryById.get(id);
+	}
+
+	public String getFamilyId() {
+		if (tfamEntries.isEmpty()) return "";
+		return tfamEntries.get(0).getFamilyId();
 	}
 
 	public PlinkMap getPlinkMap() {
@@ -99,6 +127,8 @@ public class PedPedigree implements Iterable<TfamEntry> {
 		if (tfamStr.isEmpty()) throw new RuntimeException("Cannot read file '" + tfamFileName + "'");
 
 		for (String line : tfamStr.split("\n")) {
+			if (line.startsWith("#")) continue; // Skip comments
+
 			TfamEntry te = new TfamEntry(line);
 			add(te);
 		}
