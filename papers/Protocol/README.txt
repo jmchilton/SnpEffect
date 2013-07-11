@@ -70,4 +70,9 @@ Step 4: Annotate
 
 Step 5: Filter homozygous on cases
 
+		snpsift caseControl -v -tfam Utah-Pedigree-1463.tfam by_chromo_CEPH/eff/cg_panel.vcf > cg_panel.cc.eff.vcf
+
+Step 6: Filter high impact coding variants
+
+
 
