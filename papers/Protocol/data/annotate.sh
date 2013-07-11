@@ -59,7 +59,7 @@ unzip protocols_sample.zip
 # Annotate using human genome
 # Notice that we use the '-lof' command line option to add loss of function and nonsense mediated decay tags
 
-java -Xmx4g -jar snpEff.jar -v -noStats -lof GRCh37.71 protocols_sample/chr7.vcf > chr7.eff.vcf
+java -Xmx4g -jar snpEff.jar -v -lof GRCh37.71 protocols_sample/chr7.vcf > chr7.eff.vcf
 
 # Open HTML summary in browser
 
