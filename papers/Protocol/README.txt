@@ -46,3 +46,28 @@ Added in samples:
 		$ grep -v "^#" mutation.vcf | cut -f 10-
 		1/0	1/0	1/1	.	.	1/0	1/0	1/0	1/1	1/1	.	1/0	1/0	.	.	1/0	.
 
+----------------------------------------------------------------------------------------------------
+
+
+
+----------------------------------------------------------------------------------------------------
+
+Protocol
+--------
+
+Step 1: Download SnpEff , Unzip
+
+Step 2: Download GRCh37.71
+
+Step 3: Download dataset
+
+Step 4: Annotate 
+
+		snpeff -v -noStats -lof -motif -nextProt $genome $vcf > $vcfout
+
+		Notice '-lof' command line option, 
+		- We could ommit -nextProt
+
+Step 5: Filter homozygous on cases
+
+
