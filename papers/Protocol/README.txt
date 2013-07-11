@@ -74,5 +74,36 @@ Step 5: Filter homozygous on cases
 
 Step 6: Filter high impact coding variants
 
+		cat cg_panel.cc.eff.vcf | snpsift filter "(Cases[0] = 3) & (Controls[0] = 0) & (EFF[*].IMPACT = 'HIGH')" > filtered.vcf
 
+Step 7: Show effects
+
+		$ grep -v "^#" filtered.vcf | cut -f 8 | tr ";" "\n" | grep "^EFF=" | tr "," "\n"
+		EFF=DOWNSTREAM(MODIFIER|||||CFTR|processed_transcript|CODING|ENST00000472848||1)
+		NEXT_PROT[beta_strand](LOW||||1419|CFTR|protein_coding|CODING|ENST00000454343|11|1)
+		NEXT_PROT[beta_strand](LOW||||1480|CFTR|protein_coding|CODING|ENST00000003084|12|1)
+		NEXT_PROT[domain:ABC_transporter_1](LOW||||1480|CFTR|protein_coding|CODING|ENST00000003084|10|1)
+		NEXT_PROT[domain:ABC_transporter_1](LOW||||1480|CFTR|protein_coding|CODING|ENST00000003084|11|1)
+		NEXT_PROT[domain:ABC_transporter_1](LOW||||1480|CFTR|protein_coding|CODING|ENST00000003084|12|1)
+		NEXT_PROT[domain:ABC_transporter_1](LOW||||1480|CFTR|protein_coding|CODING|ENST00000003084|13|1)
+		NEXT_PROT[domain:ABC_transporter_1](LOW||||1480|CFTR|protein_coding|CODING|ENST00000003084|14|1)
+		NEXT_PROT[topological_domain:Cytoplasmic](LOW||||1480|CFTR|protein_coding|CODING|ENST00000003084|10|1)
+		NEXT_PROT[topological_domain:Cytoplasmic](LOW||||1480|CFTR|protein_coding|CODING|ENST00000003084|11|1)
+		NEXT_PROT[topological_domain:Cytoplasmic](LOW||||1480|CFTR|protein_coding|CODING|ENST00000003084|12|1)
+		NEXT_PROT[topological_domain:Cytoplasmic](LOW||||1480|CFTR|protein_coding|CODING|ENST00000003084|13|1)
+		NEXT_PROT[topological_domain:Cytoplasmic](LOW||||1480|CFTR|protein_coding|CODING|ENST00000003084|14|1)
+		NEXT_PROT[topological_domain:Cytoplasmic](LOW||||1480|CFTR|protein_coding|CODING|ENST00000003084|15|1)
+		NEXT_PROT[topological_domain:Cytoplasmic](LOW||||1480|CFTR|protein_coding|CODING|ENST00000003084|8|1)
+		NEXT_PROT[topological_domain:Cytoplasmic](LOW||||1480|CFTR|protein_coding|CODING|ENST00000003084|9|1)
+		STOP_GAINED(HIGH|NONSENSE|Gga/Tga|G481*|1419|CFTR|protein_coding|CODING|ENST00000454343|11|1)
+		STOP_GAINED(HIGH|NONSENSE|Gga/Tga|G512*|1437|CFTR|protein_coding|CODING|ENST00000426809|11|1|WARNING_TRANSCRIPT_INCOMPLETE)
+		STOP_GAINED(HIGH|NONSENSE|Gga/Tga|G542*|1480|CFTR|protein_coding|CODING|ENST00000003084|12|1)
+		UPSTREAM(MODIFIER|||||AC000111.5|processed_pseudogene|NON_CODING|ENST00000448200||1)
+
+Step 8 : Show pedigree		
+		$ mkdir pedShow
+		[eq8302@ehs cg_panel]$ snpsift pedShow Utah-Pedigree-1463.tfam filtered.vcf pedShow/
+		00:00:00.000	Reading vcf file 'filtered.vcf'
+		00:00:00.049	Drawing pedigree for '7:117227832', output dir: pedShow//7_117227832
+		00:00:00.058	Done
 
