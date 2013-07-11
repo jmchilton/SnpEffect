@@ -37,19 +37,19 @@
 # Approximate time: 5 minutes
 #---
 
-# # Move to home directory
-# cd
+# Move to home directory
+cd
 
-# # Download and install SnpEff
-# curl -v -L http://sourceforge.net/projects/snpeff/files/snpEff_latest_core.zip > snpEff_latest_core.zip
-# unzip snpEff_latest_core.zip
+# Download and install SnpEff
+curl -v -L http://sourceforge.net/projects/snpeff/files/snpEff_latest_core.zip > snpEff_latest_core.zip
+unzip snpEff_latest_core.zip
 
-# # Download and install SnpEff's Human Genome database
-# java -jar snpEff.jar download -v GRCh37.71
+# Download and install SnpEff's Human Genome database
+java -jar snpEff.jar download -v GRCh37.71
 
-# # Download sample data
-# curl -v -L http://sourceforge.net/projects/snpeff/files/protocols_sample.zip > protocols_sample.zip
-# unzip protocols_sample.zip
+# Download sample data
+curl -v -L http://sourceforge.net/projects/snpeff/files/protocols_sample.zip > protocols_sample.zip
+unzip protocols_sample.zip
 
 #---
 # Step 2 : Annotate sample data
@@ -65,7 +65,7 @@ java -Xmx4g -jar snpEff.jar -v -noStats -lof GRCh37.71 protocols_sample/chr7.vcf
 
 #---
 # Step 3 : Filter candidate data
-# Approximate time: 15 minutes
+# Approximate time: 30 minutes
 #---
 
 # We know that there are three cases (NA12879, NA12885, NA12886). We created 
@@ -114,6 +114,13 @@ grep -v "^#" filtered.vcf | less
 
 # Only one result, show effects
 grep -v "^#" filtered.vcf | cut -f 8 | tr ";" "\n" | grep "^EFF=" | tr "," "\n"
+
+# Results:
+#	EFF=DOWNSTREAM(MODIFIER|||||CFTR|processed_transcript|CODING|ENST00000472848||1)
+#	STOP_GAINED(HIGH|NONSENSE|Gga/Tga|G481*|1419|CFTR|protein_coding|CODING|ENST00000454343|11|1)
+#	STOP_GAINED(HIGH|NONSENSE|Gga/Tga|G512*|1437|CFTR|protein_coding|CODING|ENST00000426809|11|1|WARNING_TRANSCRIPT_INCOMPLETE)
+#	STOP_GAINED(HIGH|NONSENSE|Gga/Tga|G542*|1480|CFTR|protein_coding|CODING|ENST00000003084|12|1)	<---
+#	UPSTREAM(MODIFIER|||||AC000111.5|processed_pseudogene|NON_CODING|ENST00000448200||1)
 
 # Plot pedigree
 mkdir chart
