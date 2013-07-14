@@ -30,6 +30,14 @@ public abstract class EnrichmentAlgorithm {
 		}
 
 		/**
+		 * Is this a greedy algorithm?
+		 * @return
+		 */
+		public boolean isGreedy() {
+			return (this == FISHER_GREEDY) || (this == RANKSUM_GREEDY);
+		}
+
+		/**
 		 * Does the algorithm need a rank statistic?
 		 * @return
 		 */

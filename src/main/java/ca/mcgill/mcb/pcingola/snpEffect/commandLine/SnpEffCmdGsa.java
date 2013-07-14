@@ -64,6 +64,7 @@ public class SnpEffCmdGsa extends SnpEff {
 	String inputFile = "";
 	String infoName = "";
 	String msigdb = "";
+	String genePvalueFile = "";
 	PvalueSummary pvalueSummary = PvalueSummary.MIN;
 	CorrectionMethod correctionMethod = CorrectionMethod.NONE;
 	SnpEffectPredictor snpEffectPredictor;
@@ -181,7 +182,7 @@ public class SnpEffCmdGsa extends SnpEff {
 		algorithm.setMaxPValue(maxPvalue);
 		algorithm.setVerbose(verbose);
 		algorithm.setDebug(debug);
-		if (enrichmentAlgorithmType.isRank()) ((EnrichmentAlgorithmGreedyVariableSize) algorithm).setInitialSize(initGeneSetSize);
+		if (enrichmentAlgorithmType.isRank() && enrichmentAlgorithmType.isGreedy()) ((EnrichmentAlgorithmGreedyVariableSize) algorithm).setInitialSize(initGeneSetSize);
 
 		// Run algorithm
 		algorithm.select();
@@ -196,23 +197,25 @@ public class SnpEffCmdGsa extends SnpEff {
 		config = new Config(genomeVer, configFile); // Read configuration
 		if (verbose) Timer.showStdErr("done");
 
-		// Read database
-		if (verbose) Timer.showStdErr("Reading database for genome version '" + genomeVer + "' from file '" + config.getFileSnpEffectPredictor() + "' (this might take a while)");
-		config.loadSnpEffectPredictor();
-		snpEffectPredictor = config.getSnpEffectPredictor();
-		genome = config.getGenome();
-		if (verbose) Timer.showStdErr("done");
+		// Read database (if gene level p-values are provided, we don't neet to map p_values to genes (we can skip this step)
+		if (genePvalueFile.isEmpty()) {
+			if (verbose) Timer.showStdErr("Reading database for genome version '" + genomeVer + "' from file '" + config.getFileSnpEffectPredictor() + "' (this might take a while)");
+			config.loadSnpEffectPredictor();
+			snpEffectPredictor = config.getSnpEffectPredictor();
+			genome = config.getGenome();
+			if (verbose) Timer.showStdErr("done");
 
-		// Set upstream-downstream interval length
-		snpEffectPredictor.setUpDownStreamLength(upDownStreamLength);
+			// Set upstream-downstream interval length
+			snpEffectPredictor.setUpDownStreamLength(upDownStreamLength);
 
-		// Build tree
-		if (verbose) Timer.showStdErr("Building interval forest");
-		snpEffectPredictor.buildForest();
-		if (verbose) Timer.showStdErr("done.");
+			// Build tree
+			if (verbose) Timer.showStdErr("Building interval forest");
+			snpEffectPredictor.buildForest();
+			if (verbose) Timer.showStdErr("done.");
 
-		// Show some genome stats. Chromosome names are shown, a lot of people has problems with the correct chromosome names.
-		if (verbose) Timer.showStdErr("Genome stats :\n" + config.getGenome());
+			// Show some genome stats. Chromosome names are shown, a lot of people has problems with the correct chromosome names.
+			if (verbose) Timer.showStdErr("Genome stats :\n" + config.getGenome());
+		}
 
 		// Read gene set database
 		if (verbose) Timer.showStdErr("Reading MSigDb from file: '" + msigdb + "'");
@@ -338,6 +341,10 @@ public class SnpEffCmdGsa extends SnpEff {
 						String algo = args[++i].toUpperCase();
 						enrichmentAlgorithmType = EnrichmentAlgorithmType.valueOf(algo);
 					} else usage("Missing value in command line option '-algo'");
+				} else if (arg.equals("-genePvalueFile")) {
+					// Algorithm to use
+					if ((i + 1) < args.length) genePvalueFile = args[++i];
+					else usage("Missing value in command line option '-genePvalueFile'");
 				} else if (arg.equals("-minSetSize")) minGeneSetSize = Gpr.parseIntSafe(args[++i]);
 				else if (arg.equals("-maxSetSize")) maxGeneSetSize = Gpr.parseIntSafe(args[++i]);
 				else if (arg.equals("-initSetSize")) initGeneSetSize = Gpr.parseIntSafe(args[++i]);
@@ -354,7 +361,7 @@ public class SnpEffCmdGsa extends SnpEff {
 		//---
 		// Sanity checks
 		//---
-		if ((inputFormat == InputFormat.VCF) && infoName.isEmpty()) usage("Missing '-info' comamnd line option.");
+		if ((inputFormat == InputFormat.VCF) && infoName.isEmpty() && genePvalueFile.isEmpty()) usage("Missing '-info' comamnd line option.");
 
 		// Check input file
 		if (inputFile.isEmpty()) inputFile = "-"; // Default is STDIN
@@ -363,12 +370,45 @@ public class SnpEffCmdGsa extends SnpEff {
 		if (msigdb.isEmpty()) fatalError("Missing Gene-Sets file");
 		if (!Gpr.canRead(msigdb)) fatalError("Cannot read Gene-Sets file '" + msigdb + "'");
 
-		if (genomeVer.isEmpty()) usage("Missing genome version.");
+		if (genomeVer.isEmpty() && genePvalueFile.isEmpty()) usage("Missing genome version.");
 
 		if (maxGeneSetSize <= 0) usage("MaxSetSize must be a positive number.");
 		if (minGeneSetSize >= maxGeneSetSize) usage("MaxSetSize (" + maxGeneSetSize + ") must larger than MinSetSize (" + minGeneSetSize + ").");
 
 		if ((interestingPerc < 0) || (interestingPerc > 1)) usage("Interesting percentile must be in the [0 , 1.0] range.");
+	}
+
+	/**
+	 * Read gene-pValue file
+	 * Format: "geneId \t p_value \n"
+	 * 
+	 * @param genePvalueFile
+	 */
+	void readGenePvalues(String genePvalueFile) {
+		if (verbose) Timer.showStdErr("Reading gene p-values file '" + genePvalueFile + "'");
+
+		genePvalue = new HashMap<String, Double>();
+
+		// Read the whole file
+		String lines[] = Gpr.readFile(genePvalueFile).split("\n");
+
+		// Parse each line
+		double minp = 1.0;
+		for (String line : lines) {
+			String rec[] = line.split("\\s");
+			String geneId = rec[0].trim();
+			double pValue = Gpr.parseDoubleSafe(rec[1]);
+
+			if ((pValue > 0) && (pValue <= 1.0)) { // Assume that a p-value of zero is a parsing error
+				genePvalue.put(geneId, pValue);
+				minp = Math.min(minp, pValue);
+			} else if (verbose) System.err.println("\tWarning: Ignoring entry (zero p-value):\t'" + line + "'\n");
+		}
+
+		if (verbose) Timer.showStdErr("Done."//
+				+ "\n\tAdded       : " + genePvalue.size() //
+				+ "\n\tMin p-value : " + minp //
+		);
 	}
 
 	/**
@@ -502,10 +542,18 @@ public class SnpEffCmdGsa extends SnpEff {
 	@Override
 	public boolean run() {
 		initialize();
-		readInput(); // Read input files (p-values)
-		mapToGenes(); // Map <chr,pos,pValue> to gene
-		scoreGenes(); // Get one score (pValue) per gene
-		correctPvalues(); // Correct gene scores
+
+		if (genePvalueFile.isEmpty()) {
+			// Perform 'normal' procedure
+			readInput(); // Read input files (p-values)
+			mapToGenes(); // Map <chr,pos,pValue> to gene
+			scoreGenes(); // Get one score (pValue) per gene
+			correctPvalues(); // Correct gene scores
+		} else {
+			// P-values already mapped to genes, provided in a file
+			readGenePvalues(genePvalueFile);
+		}
+
 		enrichmentAnalysis(); // Perform enrichment analysis
 		if (randIterations > 0) runRand(); // Perform random iterations
 
