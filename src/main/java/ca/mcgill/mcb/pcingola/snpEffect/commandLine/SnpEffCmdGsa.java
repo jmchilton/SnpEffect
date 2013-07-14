@@ -402,7 +402,7 @@ public class SnpEffCmdGsa extends SnpEff {
 			if ((pValue > 0) && (pValue <= 1.0)) { // Assume that a p-value of zero is a parsing error
 				genePvalue.put(geneId, pValue);
 				minp = Math.min(minp, pValue);
-			} else if (verbose) System.err.println("\tWarning: Ignoring entry (zero p-value):\t'" + line + "'\n");
+			} else if (verbose) System.err.println("\tWarning: Ignoring entry (zero p-value):\t'" + line + "'");
 		}
 
 		if (verbose) Timer.showStdErr("Done."//
