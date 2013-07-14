@@ -75,6 +75,7 @@ public class SnpEffCmdGsa extends SnpEff {
 	EnrichmentAlgorithmType enrichmentAlgorithmType = EnrichmentAlgorithmType.RANKSUM_GREEDY;
 
 	public SnpEffCmdGsa() {
+		super();
 	}
 
 	/**
@@ -304,6 +305,8 @@ public class SnpEffCmdGsa extends SnpEff {
 	 */
 	@Override
 	public void parseArgs(String[] args) {
+		if (args.length == 0) usage(null);
+
 		// Parse comamnd line 
 		for (int i = 0; i < args.length; i++) {
 			String arg = args[i];
