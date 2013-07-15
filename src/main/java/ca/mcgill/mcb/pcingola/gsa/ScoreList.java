@@ -11,7 +11,7 @@ import gnu.trove.list.array.TDoubleArrayList;
 public class ScoreList {
 
 	public enum ScoreSummary {
-		MIN, AVG, AVG_MIN_10, FISHER_CHI_SQUARE, Z_SCORES, SIMES, BONFERRONI, FDR, MAX, AVG_MAX_10
+		MIN, AVG, AVG_MIN_10, FISHER_CHI_SQUARE, Z_SCORES, SIMES, BONFERRONI, FDR, MAX, AVG_MAX_10, SUM
 	}
 
 	public static final double SIGNIFICANCE_LEVEL_95 = 0.05;
@@ -77,6 +77,10 @@ public class ScoreList {
 		if (idx < 0) idx = -(idx + 1); // If 'p' is not found, idx is (-insertion_point - 1);
 
 		return ((double) (size() - idx)) / size();
+	}
+
+	protected double getDefaultValue() {
+		return 0.0;
 	}
 
 	public String getGeneId() {
@@ -288,6 +292,9 @@ public class ScoreList {
 		case FDR:
 			return pValueFdr(SIGNIFICANCE_LEVEL_95);
 
+		case SUM:
+			return scoreSum();
+
 		default:
 			throw new RuntimeException("Unimplemented method for summary '" + pvalueSummary + "'");
 		}
@@ -298,7 +305,7 @@ public class ScoreList {
 	 * @return
 	 */
 	public double scoreAvg() {
-		if (size() <= 0) return 1.0;
+		if (size() <= 0) return getDefaultValue();
 
 		double sum = 0.0;
 		for (int i = 0; i < size(); i++)
@@ -312,7 +319,7 @@ public class ScoreList {
 	 * @return
 	 */
 	public double scoreAvgLargestTop(int topN) {
-		if (size() <= 0) return 1.0;
+		if (size() <= 0) return getDefaultValue();
 
 		sort(); // Sort collection
 
@@ -320,7 +327,7 @@ public class ScoreList {
 		double sum = 0.0;
 		int min = Math.max(0, size() - topN);
 		int count = 0;
-		for (int i = size() - 1; min <= i; i++, count++)
+		for (int i = min; i < size(); i++, count++)
 			sum += getPvalue(i);
 
 		return sum / count;
@@ -331,7 +338,7 @@ public class ScoreList {
 	 * @return
 	 */
 	public double scoreAvgSmallestTop(int topN) {
-		if (size() <= 0) return 1.0;
+		if (size() <= 0) return getDefaultValue();
 
 		sort(); // Sort collection
 
@@ -364,6 +371,18 @@ public class ScoreList {
 		for (int i = 0; i < size(); i++)
 			min = Math.min(min, getPvalue(i));
 		return min;
+	}
+
+	/**
+	 * Get sum of scores
+	 * @return
+	 */
+	public double scoreSum() {
+		double sum = 0.0;
+		for (int i = 0; i < size(); i++)
+			sum += getPvalue(i);
+
+		return sum;
 	}
 
 	public void setGeneId(String geneId) {
