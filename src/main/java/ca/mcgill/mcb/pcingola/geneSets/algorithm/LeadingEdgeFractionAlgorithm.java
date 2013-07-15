@@ -4,7 +4,7 @@ import org.apfloat.Apfloat;
 
 import ca.mcgill.mcb.pcingola.geneSets.GeneSet;
 import ca.mcgill.mcb.pcingola.geneSets.GeneSets;
-import ca.mcgill.mcb.pcingola.gsa.PvalueList;
+import ca.mcgill.mcb.pcingola.gsa.ScoreList;
 import ca.mcgill.mcb.pcingola.probablility.FisherExactTest;
 import ca.mcgill.mcb.pcingola.util.Timer;
 
@@ -88,7 +88,7 @@ public class LeadingEdgeFractionAlgorithm extends FisherPValueGreedyAlgorithm {
 	 */
 	double pValueCutOff() {
 		// Create a list of p-values
-		PvalueList pvlist = new PvalueList();
+		ScoreList pvlist = new ScoreList();
 		for (String geneId : geneSets.getGenes())
 			if (geneSets.hasValue(geneId)) pvlist.add(geneSets.getValue(geneId));
 

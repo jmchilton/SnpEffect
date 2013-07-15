@@ -20,9 +20,10 @@ import ca.mcgill.mcb.pcingola.geneSets.algorithm.FisherPValueGreedyAlgorithm;
 import ca.mcgill.mcb.pcingola.geneSets.algorithm.LeadingEdgeFractionAlgorithm;
 import ca.mcgill.mcb.pcingola.geneSets.algorithm.RankSumPValueAlgorithm;
 import ca.mcgill.mcb.pcingola.geneSets.algorithm.RankSumPValueGreedyAlgorithm;
-import ca.mcgill.mcb.pcingola.gsa.ChrPosPvalueList;
-import ca.mcgill.mcb.pcingola.gsa.PvalueList;
-import ca.mcgill.mcb.pcingola.gsa.PvalueList.PvalueSummary;
+import ca.mcgill.mcb.pcingola.gsa.ChrPosScoreList;
+import ca.mcgill.mcb.pcingola.gsa.PvaluesList;
+import ca.mcgill.mcb.pcingola.gsa.ScoreList;
+import ca.mcgill.mcb.pcingola.gsa.ScoreList.ScoreSummary;
 import ca.mcgill.mcb.pcingola.interval.Chromosome;
 import ca.mcgill.mcb.pcingola.interval.Gene;
 import ca.mcgill.mcb.pcingola.interval.Genome;
@@ -53,26 +54,27 @@ public class SnpEffCmdGsa extends SnpEff {
 	InputFormat inputFormat = InputFormat.VCF;
 	boolean useClosestGene = false; // Map to 'any' closest gene?
 	boolean useGeneId = false; // Use geneId instead of geneName
+	boolean usePvalues = true;
 	int upDownStreamLength = SnpEffectPredictor.DEFAULT_UP_DOWN_LENGTH;
 	int minGeneSetSize = 0;
 	int maxGeneSetSize = Integer.MAX_VALUE;
 	int numberofGeneSetsToSelect = Integer.MAX_VALUE; // TODO : Add a command line option to limit this
 	int initGeneSetSize = 100;
 	int randIterations = 0;
-	double maxPvalue = 1.0;
+	double maxScore = 1.0;
 	double interestingPerc = 0.95;
 	String inputFile = "";
 	String infoName = "";
 	String msigdb = "";
-	String genePvalueFile = "";
-	PvalueSummary pvalueSummary = PvalueSummary.MIN;
+	String geneScoreFile = "";
+	ScoreSummary scoreSummary = ScoreSummary.MIN;
 	CorrectionMethod correctionMethod = CorrectionMethod.NONE;
 	SnpEffectPredictor snpEffectPredictor;
 	Genome genome;
 	GeneSets geneSets;
-	ChrPosPvalueList chrPosPvalueList; // List of <chr,pos,pvalue>
-	AutoHashMap<String, PvalueList> genePvalues; // A map of geneId -> List[pValues]
-	HashMap<String, Double> genePvalue; // A <gene, pValue> map
+	ChrPosScoreList chrPosScoreList; // List of <chr, pos, score>
+	AutoHashMap<String, ScoreList> geneScores; // A map of geneId -> List[scores]
+	HashMap<String, Double> geneScore; // A <gene, score> map
 	EnrichmentAlgorithmType enrichmentAlgorithmType = EnrichmentAlgorithmType.RANKSUM_GREEDY;
 
 	public SnpEffCmdGsa() {
@@ -80,9 +82,9 @@ public class SnpEffCmdGsa extends SnpEff {
 	}
 
 	/**
-	 * Correct p-values (e.g. using covariates)
+	 * Correct scores (e.g. using covariates)
 	 */
-	void correctPvalues() {
+	void correctScores() {
 		switch (correctionMethod) {
 		case NONE:
 			// Nothing to do
@@ -98,26 +100,26 @@ public class SnpEffCmdGsa extends SnpEff {
 	 */
 	void createInterestingGenes() {
 		// Get 
-		PvalueList pvalues = new PvalueList();
-		for (double pval : genePvalue.values())
-			pvalues.add(pval);
+		ScoreList scores = new ScoreList();
+		for (double pval : geneScore.values())
+			scores.add(pval);
 
 		// Get p-value threshold
-		double pThreshold = pvalues.quantile(1.0 - interestingPerc);
+		double pThreshold = scores.quantile(1.0 - interestingPerc);
 
-		// Mark all p-values lower than that as 'interesting'
+		// Mark all scores lower than that as 'interesting'
 		int count = 0, countAdded = 0;
 		geneSets.setDoNotAddIfNotInGeneSet(true);
-		for (String geneId : genePvalue.keySet())
-			if (genePvalue.get(geneId) <= pThreshold) {
+		for (String geneId : geneScore.keySet())
+			if (geneScore.get(geneId) <= pThreshold) {
 				if (geneSets.addInteresting(geneId)) countAdded++; // Count added genes
 				count++;
 			}
 
 		// Show info
 		if (verbose) {
-			double realPerc = (100.0 * count) / genePvalue.size();
-			double realPercAdded = (100.0 * countAdded) / genePvalue.size();
+			double realPerc = (100.0 * count) / geneScore.size();
+			double realPercAdded = (100.0 * countAdded) / geneScore.size();
 			Timer.showStdErr(String.format("P-value threshold:"//
 					+ "\n\tQuantile                 : %.2f%%"//
 					+ "\n\tThreshold                : %f"//
@@ -132,8 +134,8 @@ public class SnpEffCmdGsa extends SnpEff {
 	 */
 	void enrichmentAnalysis() {
 		// Initialize gene set values
-		for (String geneId : genePvalue.keySet())
-			geneSets.setValue(geneId, genePvalue.get(geneId));
+		for (String geneId : geneScore.keySet())
+			geneSets.setValue(geneId, geneScore.get(geneId));
 
 		// Do we need to rank? Rank them by ascending p-value
 		GeneSetsRanked geneSetsRanked = null;
@@ -179,7 +181,7 @@ public class SnpEffCmdGsa extends SnpEff {
 		// Initialize algorithm parameters
 		algorithm.setMaxGeneSetSize(maxGeneSetSize);
 		algorithm.setMinGeneSetSize(minGeneSetSize);
-		algorithm.setMaxPValue(maxPvalue);
+		algorithm.setMaxPValue(maxScore);
 		algorithm.setVerbose(verbose);
 		algorithm.setDebug(debug);
 		if (enrichmentAlgorithmType.isRank() && enrichmentAlgorithmType.isGreedy()) ((EnrichmentAlgorithmGreedyVariableSize) algorithm).setInitialSize(initGeneSetSize);
@@ -197,8 +199,8 @@ public class SnpEffCmdGsa extends SnpEff {
 		config = new Config(genomeVer, configFile); // Read configuration
 		if (verbose) Timer.showStdErr("done");
 
-		// Read database (if gene level p-values are provided, we don't neet to map p_values to genes (we can skip this step)
-		if (genePvalueFile.isEmpty()) {
+		// Read database (if gene level scores are provided, we don't neet to map p_values to genes (we can skip this step)
+		if (geneScoreFile.isEmpty()) {
 			if (verbose) Timer.showStdErr("Reading database for genome version '" + genomeVer + "' from file '" + config.getFileSnpEffectPredictor() + "' (this might take a while)");
 			config.loadSnpEffectPredictor();
 			snpEffectPredictor = config.getSnpEffectPredictor();
@@ -224,20 +226,21 @@ public class SnpEffCmdGsa extends SnpEff {
 	}
 
 	/**
-	 * Map <chr,pos,pValue> to gene
+	 * Map <chr,pos, score> to gene
 	 */
 	void mapToGenes() {
-		if (verbose) Timer.showStdErr("Mapping p-values to genes.");
+		if (verbose) Timer.showStdErr("Mapping scores to genes.");
 
 		// Create an auto-hash
-		genePvalues = new AutoHashMap<String, PvalueList>(new PvalueList());
+		if (usePvalues) geneScores = new AutoHashMap<String, ScoreList>(new PvaluesList());
+		else geneScores = new AutoHashMap<String, ScoreList>(new ScoreList());
 
 		//---
 		// Map every chr:pos
 		//---
 		int unmapped = 0, mappedMultiple = 0;
-		for (int i = 0; i < chrPosPvalueList.size(); i++) {
-			List<String> geneIds = mapToGenes(chrPosPvalueList.getChromosomeName(i), chrPosPvalueList.getStart(i), chrPosPvalueList.getEnd(i));
+		for (int i = 0; i < chrPosScoreList.size(); i++) {
+			List<String> geneIds = mapToGenes(chrPosScoreList.getChromosomeName(i), chrPosScoreList.getStart(i), chrPosScoreList.getEnd(i));
 
 			// Update counters
 			if (geneIds == null || geneIds.isEmpty()) {
@@ -245,12 +248,12 @@ public class SnpEffCmdGsa extends SnpEff {
 				continue; // Nothing to do...
 			} else if (geneIds.size() > 1) mappedMultiple++;
 
-			// Add pValue to every geneId
-			double pvalue = chrPosPvalueList.getPvalue(i);
+			// Add score to every geneId
+			double score = chrPosScoreList.getScore(i);
 			for (String geneId : geneIds) {
-				PvalueList gpl = genePvalues.getOrCreate(geneId);
+				ScoreList gpl = geneScores.getOrCreate(geneId);
 				gpl.setGeneId(geneId);
-				gpl.add(pvalue);
+				gpl.add(score);
 			}
 		}
 
@@ -258,17 +261,17 @@ public class SnpEffCmdGsa extends SnpEff {
 		// Show a summary
 		//---
 		if (verbose) Timer.showStdErr("Done:" //
-				+ "\n\tNumber of p-values       : " + chrPosPvalueList.size() //
+				+ "\n\tNumber of scores       : " + chrPosScoreList.size() //
 				+ "\n\tUnmapped                 : " + unmapped //
 				+ "\n\tMapped to multiple genes : " + mappedMultiple //
 		);
 
 		if (debug) {
-			System.err.println("Mapping Gene to pValue:");
-			ArrayList<String> geneIds = new ArrayList<String>(genePvalues.keySet());
+			System.err.println("Mapping Gene to Score:");
+			ArrayList<String> geneIds = new ArrayList<String>(geneScores.keySet());
 			Collections.sort(geneIds);
 			for (String geneId : geneIds)
-				System.err.println("\t" + genePvalues.get(geneId));
+				System.err.println("\t" + geneScores.get(geneId));
 		}
 	}
 
@@ -329,22 +332,22 @@ public class SnpEffCmdGsa extends SnpEff {
 					// Up-downstream length
 					if ((i + 1) < args.length) upDownStreamLength = Gpr.parseIntSafe(args[++i]);
 					else usage("Missing value in command line option '-ud'");
-				} else if (arg.equals("-genePvalue")) {
+				} else if (arg.equals("-geneScore")) {
 					// Method for p-value scoring (gene level)
 					if ((i + 1) < args.length) {
 						String method = args[++i].toUpperCase();
-						pvalueSummary = PvalueSummary.valueOf(method);
-					} else usage("Missing value in command line option '-genePvalue'");
+						scoreSummary = ScoreSummary.valueOf(method);
+					} else usage("Missing value in command line option '-geneScore'");
 				} else if (arg.equals("-algo")) {
 					// Algorithm to use
 					if ((i + 1) < args.length) {
 						String algo = args[++i].toUpperCase();
 						enrichmentAlgorithmType = EnrichmentAlgorithmType.valueOf(algo);
 					} else usage("Missing value in command line option '-algo'");
-				} else if (arg.equals("-genePvalueFile")) {
+				} else if (arg.equals("-geneScoreFile")) {
 					// Algorithm to use
-					if ((i + 1) < args.length) genePvalueFile = args[++i];
-					else usage("Missing value in command line option '-genePvalueFile'");
+					if ((i + 1) < args.length) geneScoreFile = args[++i];
+					else usage("Missing value in command line option '-geneScoreFile'");
 				} else if (arg.equals("-minSetSize")) minGeneSetSize = Gpr.parseIntSafe(args[++i]);
 				else if (arg.equals("-maxSetSize")) maxGeneSetSize = Gpr.parseIntSafe(args[++i]);
 				else if (arg.equals("-initSetSize")) initGeneSetSize = Gpr.parseIntSafe(args[++i]);
@@ -352,6 +355,8 @@ public class SnpEffCmdGsa extends SnpEff {
 				else if (arg.equals("-interesting")) interestingPerc = Gpr.parseDoubleSafe(args[++i]);
 				else if (arg.equals("-mapClosestGene")) useClosestGene = true;
 				else if (arg.equals("-geneId")) useGeneId = true;
+				else if (arg.equals("-score")) usePvalues = false;
+				else usage("Unknown option '" + arg + "'");
 
 			} else if (genomeVer.isEmpty()) genomeVer = arg;
 			else if (msigdb.isEmpty()) msigdb = arg;
@@ -361,7 +366,7 @@ public class SnpEffCmdGsa extends SnpEff {
 		//---
 		// Sanity checks
 		//---
-		if ((inputFormat == InputFormat.VCF) && infoName.isEmpty() && genePvalueFile.isEmpty()) usage("Missing '-info' comamnd line option.");
+		if ((inputFormat == InputFormat.VCF) && infoName.isEmpty() && geneScoreFile.isEmpty()) usage("Missing '-info' comamnd line option.");
 
 		// Check input file
 		if (inputFile.isEmpty()) inputFile = "-"; // Default is STDIN
@@ -370,7 +375,7 @@ public class SnpEffCmdGsa extends SnpEff {
 		if (msigdb.isEmpty()) fatalError("Missing Gene-Sets file");
 		if (!Gpr.canRead(msigdb)) fatalError("Cannot read Gene-Sets file '" + msigdb + "'");
 
-		if (genomeVer.isEmpty() && genePvalueFile.isEmpty()) usage("Missing genome version.");
+		if (genomeVer.isEmpty() && geneScoreFile.isEmpty()) usage("Missing genome version.");
 
 		if (maxGeneSetSize <= 0) usage("MaxSetSize must be a positive number.");
 		if (minGeneSetSize >= maxGeneSetSize) usage("MaxSetSize (" + maxGeneSetSize + ") must larger than MinSetSize (" + minGeneSetSize + ").");
@@ -379,55 +384,55 @@ public class SnpEffCmdGsa extends SnpEff {
 	}
 
 	/**
-	 * Read gene-pValue file
+	 * Read gene-Score file
 	 * Format: "geneId \t p_value \n"
 	 * 
-	 * @param genePvalueFile
+	 * @param geneScoreFile
 	 */
-	void readGenePvalues(String genePvalueFile) {
-		if (verbose) Timer.showStdErr("Reading gene p-values file '" + genePvalueFile + "'");
+	void readGeneScores(String geneScoreFile) {
+		if (verbose) Timer.showStdErr("Reading gene scores file '" + geneScoreFile + "'");
 
-		genePvalue = new HashMap<String, Double>();
+		geneScore = new HashMap<String, Double>();
 
 		// Read the whole file
-		String lines[] = Gpr.readFile(genePvalueFile).split("\n");
+		String lines[] = Gpr.readFile(geneScoreFile).split("\n");
 
 		// Parse each line
 		double minp = 1.0;
 		for (String line : lines) {
 			String rec[] = line.split("\\s");
 			String geneId = rec[0].trim();
-			double pValue = Gpr.parseDoubleSafe(rec[1]);
+			double score = Gpr.parseDoubleSafe(rec[1]);
 
-			if ((pValue > 0) && (pValue <= 1.0)) { // Assume that a p-value of zero is a parsing error
-				genePvalue.put(geneId, pValue);
-				minp = Math.min(minp, pValue);
+			if ((score > 0) && (score <= 1.0)) { // Assume that a p-value of zero is a parsing error
+				geneScore.put(geneId, score);
+				minp = Math.min(minp, score);
 			} else if (verbose) System.err.println("\tWarning: Ignoring entry (zero p-value):\t'" + line + "'");
 		}
 
 		if (verbose) Timer.showStdErr("Done."//
-				+ "\n\tAdded       : " + genePvalue.size() //
+				+ "\n\tAdded       : " + geneScore.size() //
 				+ "\n\tMin p-value : " + minp //
 		);
 	}
 
 	/**
-	 * Read input file and populate 'chrPosPvalueList'
+	 * Read input file and populate 'chrPosScoreList'
 	 */
 	void readInput() {
 		if (verbose) Timer.showStdErr("Reading input file '" + inputFile + "' (format '" + inputFormat + "')");
 
 		switch (inputFormat) {
 		case VCF:
-			chrPosPvalueList = readInputVcf();
+			chrPosScoreList = readInputVcf();
 			break;
 
 		case TXT:
-			chrPosPvalueList = readInputTxt();
+			chrPosScoreList = readInputTxt();
 			break;
 
 		case BED:
-			chrPosPvalueList = readInputBed();
+			chrPosScoreList = readInputBed();
 			break;
 
 		default:
@@ -441,22 +446,22 @@ public class SnpEffCmdGsa extends SnpEff {
 
 		if (debug) {
 			// Show data
-			System.err.println("P-values:\n\tchr\tstart\tend\tp_value");
-			for (int i = 0; i < chrPosPvalueList.size(); i++)
-				System.err.println("\t" + chrPosPvalueList.getChromosomeName(i) + "\t" + chrPosPvalueList.getStart(i) + "\t" + chrPosPvalueList.getEnd(i) + "\t" + chrPosPvalueList.getPvalue(i));
+			System.err.println("scores:\n\tchr\tstart\tend\tp_value");
+			for (int i = 0; i < chrPosScoreList.size(); i++)
+				System.err.println("\t" + chrPosScoreList.getChromosomeName(i) + "\t" + chrPosScoreList.getStart(i) + "\t" + chrPosScoreList.getEnd(i) + "\t" + chrPosScoreList.getScore(i));
 		}
 	}
 
 	/**
 	 * Read input in BED format
 	 * 
-	 * Format: "chr \t start \t end \t id \t pValue \n"
+	 * Format: "chr \t start \t end \t id \t Score \n"
 	 *         start : zero-based
 	 *         end   : zero-based open
 	 *
 	 */
-	ChrPosPvalueList readInputBed() {
-		ChrPosPvalueList cppList = new ChrPosPvalueList();
+	ChrPosScoreList readInputBed() {
+		ChrPosScoreList cppList = new ChrPosScoreList();
 
 		int num = 1;
 		BedFileIterator bfi = new BedFileIterator(inputFile);
@@ -471,12 +476,12 @@ public class SnpEffCmdGsa extends SnpEff {
 	/**
 	 * Read input in TXT format
 	 * 
-	 * Format: "chr \t pos \t p-value \n"
+	 * Format: "chr \t pos \t score \n"
 	 * 
-	 * Note: Position is 1-based coordinate
+	 * Note: BED format  + score (0-based open close interval)
 	 */
-	ChrPosPvalueList readInputTxt() {
-		ChrPosPvalueList cppList = new ChrPosPvalueList();
+	ChrPosScoreList readInputTxt() {
+		ChrPosScoreList cppList = new ChrPosScoreList();
 		Genome genome = config.getGenome();
 
 		int num = 1;
@@ -486,9 +491,9 @@ public class SnpEffCmdGsa extends SnpEff {
 			String fields[] = line.split("\t");
 
 			// Sanity check
-			if (fields.length < 4) {
+			if (fields.length < 3) {
 				System.err.println("Warning: Ignoring line number " + lfi.getLineNum() + "." //
-						+ " Exepcting format 'chr\tpos\tp_value\n'.\n" //
+						+ " Exepcting format 'chr \t pos \t score \n'.\n" //
 						+ "\tLine:\t'" + line + "'" //
 				);
 				continue;
@@ -496,13 +501,12 @@ public class SnpEffCmdGsa extends SnpEff {
 
 			// Parse fields
 			String chr = fields[0];
-			int start = Gpr.parseIntSafe(fields[1]) - 1; // Input format is 1-based
-			int end = Gpr.parseIntSafe(fields[2]) - 1; // Input format is 1-based
-			double pvalue = Gpr.parseDoubleSafe(fields[3]);
+			int start = Gpr.parseIntSafe(fields[1]); // Input format is 0-based
+			double score = Gpr.parseDoubleSafe(fields[2]);
 
 			// Add data to list
 			Chromosome chromo = genome.getOrCreateChromosome(chr);
-			cppList.add(chromo, start, end, pvalue);
+			cppList.add(chromo, start, start, score);
 
 			if (verbose) Gpr.showMark(num++, READ_INPUT_SHOW_EVERY);
 		}
@@ -514,20 +518,20 @@ public class SnpEffCmdGsa extends SnpEff {
 	/**
 	 * Read input in VCF format
 	 */
-	ChrPosPvalueList readInputVcf() {
-		ChrPosPvalueList cppList = new ChrPosPvalueList();
+	ChrPosScoreList readInputVcf() {
+		ChrPosScoreList cppList = new ChrPosScoreList();
 
 		int num = 1;
 		VcfFileIterator vcf = new VcfFileIterator(inputFile);
 		for (VcfEntry ve : vcf) {
-			double pvalue = ve.getInfoFloat(infoName);
+			double score = ve.getInfoFloat(infoName);
 
-			if (Double.isNaN(pvalue)) {
+			if (Double.isNaN(score)) {
 				// Error
 				System.err.println("Warning: Cannot find INFO field '" + infoName + "'.\n\tIgnoring VCF entry." + vcf.getLineNum() + "\n\t" + ve);
 			} else {
 				// Add to list
-				cppList.add(ve.getChromosome(), ve.getStart(), ve.getEnd(), pvalue);
+				cppList.add(ve.getChromosome(), ve.getStart(), ve.getEnd(), score);
 			}
 
 			if (verbose) Gpr.showMark(num++, READ_INPUT_SHOW_EVERY);
@@ -543,15 +547,15 @@ public class SnpEffCmdGsa extends SnpEff {
 	public boolean run() {
 		initialize();
 
-		if (genePvalueFile.isEmpty()) {
+		if (geneScoreFile.isEmpty()) {
 			// Perform 'normal' procedure
-			readInput(); // Read input files (p-values)
-			mapToGenes(); // Map <chr,pos,pValue> to gene
-			scoreGenes(); // Get one score (pValue) per gene
-			correctPvalues(); // Correct gene scores
+			readInput(); // Read input files (scores)
+			mapToGenes(); // Map <chr,pos,Score> to gene
+			scoreGenes(); // Get one score (Score) per gene
+			correctScores(); // Correct gene scores
 		} else {
-			// P-values already mapped to genes, provided in a file
-			readGenePvalues(genePvalueFile);
+			// scores already mapped to genes, provided in a file
+			readGeneScores(geneScoreFile);
 		}
 
 		enrichmentAnalysis(); // Perform enrichment analysis
@@ -562,45 +566,45 @@ public class SnpEffCmdGsa extends SnpEff {
 	}
 
 	/**
-	* Run enrichment analysis using random p-values
+	* Run enrichment analysis using random scores
 	*/
 	public boolean runRand() {
-		HashMap<String, Double> genePvalueOri = genePvalue; // Save original p-values
+		HashMap<String, Double> geneScoreOri = geneScore; // Save original scores
 
 		for (int iter = 1; iter <= randIterations; iter++) {
-			Timer.showStdErr("Random p-values. Iteration " + iter);
+			Timer.showStdErr("Random scores. Iteration " + iter);
 
-			// Create random pvalues based on input 
-			genePvalue = new HashMap<String, Double>();
-			for (String gene : genePvalueOri.keySet())
-				genePvalue.put(gene, Math.random());
+			// Create random Scores based on input 
+			geneScore = new HashMap<String, Double>();
+			for (String gene : geneScoreOri.keySet())
+				geneScore.put(gene, Math.random());
 
 			// Perform enrichment analysis
 			enrichmentAnalysis();
 		}
 
-		genePvalue = genePvalueOri; // Restore original values
+		geneScore = geneScoreOri; // Restore original values
 		if (verbose) Timer.showStdErr("Done.");
 		return true;
 	}
 
 	/**
-	 * Get one score (pValue) per gene
+	 * Get one score (Score) per gene
 	 */
 	void scoreGenes() {
-		if (verbose) Timer.showStdErr("Aggregating p-values by gene (scoring genes)");
+		if (verbose) Timer.showStdErr("Aggregating scores by gene (scoring genes)");
 
-		// Create one pValue per gene
-		genePvalue = new HashMap<String, Double>();
+		// Create one Score per gene
+		geneScore = new HashMap<String, Double>();
 		if (debug) System.err.println("\tp-value\tgeneId");
-		for (String geneId : genePvalues.keySet()) {
+		for (String geneId : geneScores.keySet()) {
 			// Calculate aggregated score
-			PvalueList gpl = genePvalues.get(geneId);
-			double pValue = gpl.pValue(pvalueSummary);
+			ScoreList gpl = geneScores.get(geneId);
+			double score = gpl.score(scoreSummary);
 
 			// Add to map
-			genePvalue.put(geneId, pValue);
-			if (debug) System.err.println(String.format("\t%.2e\t%s", pValue, geneId));
+			geneScore.put(geneId, score);
+			if (debug) System.err.println(String.format("\t%.2e\t%s", score, geneId));
 		}
 
 		if (verbose) Timer.showStdErr("Done.");
@@ -617,13 +621,14 @@ public class SnpEffCmdGsa extends SnpEff {
 		System.err.println("\n\tInput data options:");
 		System.err.println("\t-geneId            : Use geneID instead of gene names. Default: " + useGeneId);
 		System.err.println("\t-i <format>        : Input format {vcf, bed, txt}. Default: " + inputFormat);
-		System.err.println("\t-info <name>       : INFO tag used for p-values (in VCF input format).");
+		System.err.println("\t-info <name>       : INFO tag used for scores (in VCF input format).");
+		System.err.println("\t-score             : Treat input data as scores instead of p-values.");
 		System.err.println("\n\tAlgorithm options:");
 		System.err.println("\t-algo <name>       : Gene set enrichment algorithm {FISHER_GREEDY, RANKSUM_GREEDY, FISHER, RANKSUM}. Default: " + enrichmentAlgorithmType);
-		System.err.println("\t-genePvalue        : Method to summarize gene p-values {MIN, AVG, AVG10, FISHER_CHI_SQUARE, Z_SCORES, SIMES}. Default: " + pvalueSummary);
-		System.err.println("\t-genePvalueCorr    : Correction method for gene-summarized p-values {NONE}. Default: " + correctionMethod);
+		System.err.println("\t-geneScore        : Method to summarize gene scores {MIN, MAX, AVG, AVG_MIN_10, AVG_MAX_10, FISHER_CHI_SQUARE, Z_SCORES, SIMES}. Default: " + scoreSummary);
+		// System.err.println("\t-geneScoreCorr    : Correction method for gene-summarized scores {NONE}. Default: " + correctionMethod);
 		System.err.println("\t-mapClosestGene    : Map to closest gene. Default: " + useClosestGene);
-		System.err.println("\t-rand <num>        : Perform 'num' iterations using random p-values. Default: " + randIterations);
+		System.err.println("\t-rand <num>        : Perform 'num' iterations using random scores. Default: " + randIterations);
 		System.err.println("\n\tAlgorithm specific options: FISHER and FISHER_GREEDY");
 		System.err.println("\t-interesting <num> : Consider a gene 'interesting' if the p-value is in the 'num' percentile. Default: " + interestingPerc);
 		System.err.println("\n\tGene Set options:");

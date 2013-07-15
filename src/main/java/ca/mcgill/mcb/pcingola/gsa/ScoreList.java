@@ -4,20 +4,20 @@ import flanagan.analysis.Stat;
 import gnu.trove.list.array.TDoubleArrayList;
 
 /**
- * A list of pvalues (i.e. values in the arnge [0, 1])
+ * A list of scores 
  * 
  * @author pcingola
  */
-public class PvalueList {
+public class ScoreList {
 
-	public enum PvalueSummary {
-		MIN, AVG, AVG10, FISHER_CHI_SQUARE, Z_SCORES, SIMES, BONFERRONI, FDR
+	public enum ScoreSummary {
+		MIN, AVG, AVG_MIN_10, FISHER_CHI_SQUARE, Z_SCORES, SIMES, BONFERRONI, FDR, MAX, AVG_MAX_10
 	}
 
 	public static final double SIGNIFICANCE_LEVEL_95 = 0.05;
 
 	String geneId;
-	TDoubleArrayList pValues;
+	TDoubleArrayList scores;
 	boolean sorted = false;
 
 	/**
@@ -31,17 +31,16 @@ public class PvalueList {
 		return Stat.incompleteGammaComplementary(nu / 2.0D, chiSquare / 2.0D);
 	}
 
-	public PvalueList() {
-		pValues = new TDoubleArrayList();
+	public ScoreList() {
+		scores = new TDoubleArrayList();
 	}
 
 	/**
 	 * Add a p-value to the list
-	 * @param pvalue
+	 * @param score
 	 */
-	public void add(double pvalue) {
-		if ((pvalue < 0) || (pvalue > 1)) throw new RuntimeException("p-value out of range: " + pvalue);
-		pValues.add(pvalue);
+	public void add(double score) {
+		scores.add(score);
 	}
 
 	/**
@@ -56,7 +55,7 @@ public class PvalueList {
 		if (size() <= 0) return 1;
 
 		sort();
-		int idx = pValues.binarySearch(p);
+		int idx = scores.binarySearch(p);
 		if (idx < 0) idx = -(idx + 1); // If 'p' is not found, idx is (-insertion_point - 1);
 
 		return ((double) idx) / size();
@@ -74,7 +73,7 @@ public class PvalueList {
 		if (size() <= 0) return 1;
 
 		sort();
-		int idx = pValues.binarySearch(p);
+		int idx = scores.binarySearch(p);
 		if (idx < 0) idx = -(idx + 1); // If 'p' is not found, idx is (-insertion_point - 1);
 
 		return ((double) (size() - idx)) / size();
@@ -85,74 +84,7 @@ public class PvalueList {
 	}
 
 	public double getPvalue(int index) {
-		return pValues.get(index);
-	}
-
-	/**
-	 * Create a single pValue representing the gene
-	 * @return
-	 */
-	public double pValue(PvalueSummary pvalueSummary) {
-		switch (pvalueSummary) {
-		case MIN:
-			return pValueMin();
-
-		case AVG:
-			return pValueAvg();
-
-		case AVG10:
-			return pValueAvgTop(10);
-
-		case FISHER_CHI_SQUARE:
-			return pValueFisherChi2();
-
-		case Z_SCORES:
-			return pValueZScore();
-
-		case SIMES:
-			return pValueSimes();
-
-		case BONFERRONI:
-			return pValueBonferroni();
-
-		case FDR:
-			return pValueFdr(SIGNIFICANCE_LEVEL_95);
-
-		default:
-			throw new RuntimeException("Unimplemented method for summary '" + pvalueSummary + "'");
-		}
-	}
-
-	/**
-	 * Get average pvalue
-	 * @return
-	 */
-	public double pValueAvg() {
-		if (size() <= 0) return 1.0;
-
-		double sum = 0.0;
-		for (int i = 0; i < size(); i++)
-			sum += getPvalue(i);
-
-		return sum / size();
-	}
-
-	/**
-	 * Get average pvalue
-	 * @return
-	 */
-	public double pValueAvgTop(int topN) {
-		if (size() <= 0) return 1.0;
-
-		sort(); // Sort collection
-
-		// Sum smallest values
-		double sum = 0.0;
-		int max = Math.min(size(), topN);
-		for (int i = 0; i < max; i++)
-			sum += getPvalue(i);
-
-		return sum / max;
+		return scores.get(index);
 	}
 
 	/**
@@ -160,8 +92,8 @@ public class PvalueList {
 	 * @return
 	 */
 	public double pValueBonferroni() {
-		if (pValues.size() <= 0) return 1.0;
-		return Math.min(1.0, pValueMin() * pValues.size());
+		if (scores.size() <= 0) return 1.0;
+		return Math.min(1.0, scoreMin() * scores.size());
 	}
 
 	/**
@@ -233,17 +165,6 @@ public class PvalueList {
 		double pValue = chiSquareCDFComplementary(chi2, k); // 1 - ChiSquareCDF_{k}( chi2 )
 
 		return pValue;
-	}
-
-	/**
-	 * Get minimum pvalue
-	 * @return
-	 */
-	public double pValueMin() {
-		double min = 1.0;
-		for (int i = 0; i < size(); i++)
-			min = Math.min(min, getPvalue(i));
-		return min;
 	}
 
 	/**
@@ -328,7 +249,121 @@ public class PvalueList {
 
 		sort(); // Sort collection
 		int num = (int) (quantile * size());
-		return pValues.get(num);
+		return scores.get(num);
+	}
+
+	/**
+	 * Create a single pValue representing the gene
+	 * @return
+	 */
+	public double score(ScoreSummary pvalueSummary) {
+		switch (pvalueSummary) {
+		case MIN:
+			return scoreMin();
+
+		case MAX:
+			return scoreMax();
+
+		case AVG:
+			return scoreAvg();
+
+		case AVG_MIN_10:
+			return scoreAvgSmallestTop(10);
+
+		case AVG_MAX_10:
+			return scoreAvgLargestTop(10);
+
+		case FISHER_CHI_SQUARE:
+			return pValueFisherChi2();
+
+		case Z_SCORES:
+			return pValueZScore();
+
+		case SIMES:
+			return pValueSimes();
+
+		case BONFERRONI:
+			return pValueBonferroni();
+
+		case FDR:
+			return pValueFdr(SIGNIFICANCE_LEVEL_95);
+
+		default:
+			throw new RuntimeException("Unimplemented method for summary '" + pvalueSummary + "'");
+		}
+	}
+
+	/**
+	 * Get average pvalue
+	 * @return
+	 */
+	public double scoreAvg() {
+		if (size() <= 0) return 1.0;
+
+		double sum = 0.0;
+		for (int i = 0; i < size(); i++)
+			sum += getPvalue(i);
+
+		return sum / size();
+	}
+
+	/**
+	 * Get average pvalue (largest N)
+	 * @return
+	 */
+	public double scoreAvgLargestTop(int topN) {
+		if (size() <= 0) return 1.0;
+
+		sort(); // Sort collection
+
+		// Sum smallest values
+		double sum = 0.0;
+		int min = Math.max(0, size() - topN);
+		int count = 0;
+		for (int i = size() - 1; min <= i; i++, count++)
+			sum += getPvalue(i);
+
+		return sum / count;
+	}
+
+	/**
+	 * Get average score (smallest N)
+	 * @return
+	 */
+	public double scoreAvgSmallestTop(int topN) {
+		if (size() <= 0) return 1.0;
+
+		sort(); // Sort collection
+
+		// Sum smallest values
+		double sum = 0.0;
+		int max = Math.min(size(), topN);
+		for (int i = 0; i < max; i++)
+			sum += getPvalue(i);
+
+		return sum / max;
+	}
+
+	/**
+	 * Get minimum pvalue
+	 * @return
+	 */
+	public double scoreMax() {
+		double max = Double.NEGATIVE_INFINITY;
+		for (int i = 0; i < size(); i++)
+			max = Math.max(max, getPvalue(i));
+		return max;
+	}
+
+	/**
+	 * Get minimum pvalue
+	 * @return
+	 */
+	public double scoreMin() {
+		double min = Double.POSITIVE_INFINITY;
+		for (int i = 0; i < size(); i++)
+			min = Math.min(min, getPvalue(i));
+		return min;
 	}
 
 	public void setGeneId(String geneId) {
@@ -336,12 +371,12 @@ public class PvalueList {
 	}
 
 	public int size() {
-		return pValues.size();
+		return scores.size();
 	}
 
 	void sort() {
 		if (!sorted) {
-			pValues.sort();
+			scores.sort();
 			sorted = true;
 		}
 	}

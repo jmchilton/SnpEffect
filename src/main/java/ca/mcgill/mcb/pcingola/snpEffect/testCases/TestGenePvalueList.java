@@ -4,8 +4,8 @@ import java.util.Random;
 
 import junit.framework.Assert;
 import junit.framework.TestCase;
-import ca.mcgill.mcb.pcingola.gsa.PvalueList;
-import ca.mcgill.mcb.pcingola.gsa.PvalueList.PvalueSummary;
+import ca.mcgill.mcb.pcingola.gsa.ScoreList;
+import ca.mcgill.mcb.pcingola.gsa.ScoreList.ScoreSummary;
 import flanagan.analysis.Stat;
 
 /**
@@ -22,12 +22,12 @@ public class TestGenePvalueList extends TestCase {
 		double pvals[] = { 0.01, 0.2, 0.3 };
 
 		// Create p values
-		PvalueList gpl = new PvalueList();
+		ScoreList gpl = new ScoreList();
 		for (double pval : pvals)
 			gpl.add(pval);
 
 		// Check pvalues
-		double pvalue = gpl.pValue(PvalueSummary.MIN);
+		double pvalue = gpl.score(ScoreSummary.MIN);
 		Assert.assertEquals(0.01, pvalue);
 	}
 
@@ -38,12 +38,12 @@ public class TestGenePvalueList extends TestCase {
 		double pvals[] = { 0.01, 0.2, 0.3 };
 
 		// Create p values
-		PvalueList gpl = new PvalueList();
+		ScoreList gpl = new ScoreList();
 		for (double pval : pvals)
 			gpl.add(pval);
 
 		// Check pvalues
-		double pvalue = gpl.pValue(PvalueSummary.AVG);
+		double pvalue = gpl.score(ScoreSummary.AVG);
 		Assert.assertEquals(0.17, pvalue);
 	}
 
@@ -54,12 +54,12 @@ public class TestGenePvalueList extends TestCase {
 		double pvals[] = { 0.01, 0.9, 0.2, 0.9, 0.3, 0.9, 0.01, 0.9, 0.2, 0.9, 0.3, 0.9, 0.01, 0.9, 0.2, 0.9, 0.3, 0.9, 0.17, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9 };
 
 		// Create p values
-		PvalueList gpl = new PvalueList();
+		ScoreList gpl = new ScoreList();
 		for (double pval : pvals)
 			gpl.add(pval);
 
 		// Check pvalues
-		double pvalue = gpl.pValue(PvalueSummary.AVG10);
+		double pvalue = gpl.score(ScoreSummary.AVG_MIN_10);
 		Assert.assertEquals(0.17, pvalue);
 	}
 
@@ -83,7 +83,7 @@ public class TestGenePvalueList extends TestCase {
 			}
 
 			// Calculate complementary probabilities
-			double pval = PvalueList.chiSquareCDFComplementary(chi2, degOfFreedom);
+			double pval = ScoreList.chiSquareCDFComplementary(chi2, degOfFreedom);
 			double prob = Stat.chiSquareCDF(chi2, degOfFreedom);
 
 			// Assert that statistics add to 1.0
@@ -98,12 +98,12 @@ public class TestGenePvalueList extends TestCase {
 		double pvals[] = { 0.01, 0.2, 0.3 };
 
 		// Create p values
-		PvalueList gpl = new PvalueList();
+		ScoreList gpl = new ScoreList();
 		for (double pval : pvals)
 			gpl.add(pval);
 
 		// Check pvalues
-		double pvalue = gpl.pValue(PvalueSummary.FISHER_CHI_SQUARE);
+		double pvalue = gpl.score(ScoreSummary.FISHER_CHI_SQUARE);
 		Assert.assertEquals(0.02156175132483462, pvalue);
 	}
 
@@ -114,12 +114,12 @@ public class TestGenePvalueList extends TestCase {
 		double pvals[] = { 0.01, 0.2, 0.3 };
 
 		// Create p values
-		PvalueList gpl = new PvalueList();
+		ScoreList gpl = new ScoreList();
 		for (double pval : pvals)
 			gpl.add(pval);
 
 		// Check pvalues
-		double pvalue = gpl.pValue(PvalueSummary.Z_SCORES);
+		double pvalue = gpl.score(ScoreSummary.Z_SCORES);
 		Assert.assertEquals(0.01651203252368999, pvalue);
 	}
 
@@ -139,12 +139,12 @@ public class TestGenePvalueList extends TestCase {
 		double pvals[] = { 2.354054e-07, 2.101590e-05, 2.576842e-05, 9.814783e-05, 1.052610e-04, 1.241481e-04, 1.325988e-04, 1.568503e-04, 2.254557e-04, 3.795380e-04, 6.114943e-04, 1.613954e-03, 3.302430e-03, 3.538342e-03, 5.236997e-03, 6.831909e-03, 7.059226e-03, 8.805129e-03, 9.401040e-03, 1.129798e-02, 2.115017e-02, 4.922736e-02, 6.053298e-02, 6.262239e-02, 7.395153e-02, 8.281103e-02, 8.633331e-02, 1.190654e-01, 1.890796e-01, 2.058494e-01, 2.209214e-01, 2.856000e-01, 3.048895e-01, 4.660682e-01, 4.830809e-01, 4.921755e-01, 5.319453e-01, 5.751550e-01, 5.783195e-01, 6.185894e-01, 6.363620e-01, 6.448587e-01, 6.558414e-01, 6.885884e-01, 7.189864e-01, 8.179539e-01, 8.274487e-01, 8.971300e-01, 9.118680e-01, 9.437890e-01 };
 
 		// Create p values
-		PvalueList gpl = new PvalueList();
+		ScoreList gpl = new ScoreList();
 		for (double pval : pvals)
 			gpl.add(pval);
 
 		// Check pvalues
-		double pvalue = gpl.pValue(PvalueSummary.FDR);
+		double pvalue = gpl.score(ScoreSummary.FDR);
 		Assert.assertEquals(0.028244949999999998, pvalue);
 
 		// Check p-value for the second and third entries in the array
@@ -166,7 +166,7 @@ public class TestGenePvalueList extends TestCase {
 	 */
 	public void test_08() {
 		// Create pvalues
-		PvalueList pvlist = new PvalueList();
+		ScoreList pvlist = new ScoreList();
 		int max = 1000;
 		for (int i = 0; i < max; i++) {
 			double quantile = ((double) i) / max;
@@ -186,7 +186,7 @@ public class TestGenePvalueList extends TestCase {
 	 */
 	public void test_09() {
 		// Create pvalues
-		PvalueList pvlist = new PvalueList();
+		ScoreList pvlist = new ScoreList();
 		int max = 1000;
 		for (int i = 0; i < max; i++) {
 			double quantile = ((double) i) / max;
