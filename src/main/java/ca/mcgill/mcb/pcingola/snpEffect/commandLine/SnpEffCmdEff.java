@@ -108,7 +108,7 @@ public class SnpEffCmdEff extends SnpEff {
 	ChangeEffectFilter changeEffectResutFilter; // Filter prediction results
 	ArrayList<String> filterIntervalFiles;// Files used for filter intervals
 	IntervalForest filterIntervals; // Filter only seqChanges that match these intervals
-	ArrayList<String> customIntervalBedFiles; // Custom interval files (bed)
+	ArrayList<String> customIntervalFiles; // Custom interval files (bed)
 	SeqChangeStats seqChangeStats;
 	ChangeEffectResutStats changeEffectResutStats;
 	VcfStats vcfStats;
@@ -124,7 +124,7 @@ public class SnpEffCmdEff extends SnpEff {
 		changeEffectResutFilter = new ChangeEffectFilter(); // Filter prediction results
 		filterIntervalFiles = new ArrayList<String>(); // Files used for filter intervals
 		filterIntervals = new IntervalForest(); // Filter only seqChanges that match these intervals
-		customIntervalBedFiles = new ArrayList<String>(); // Custom interval files
+		customIntervalFiles = new ArrayList<String>(); // Custom interval files
 		summaryFile = DEFAULT_SUMMARY_FILE;
 		summaryGenesFile = DEFAULT_SUMMARY_GENES_FILE;
 	}
@@ -531,8 +531,8 @@ public class SnpEffCmdEff extends SnpEff {
 				// Input options
 				//---
 				else if (arg.equalsIgnoreCase("-interval")) {
-					if ((i + 1) < args.length) customIntervalBedFiles.add(args[++i]);
-					else usage("Option '-i' without config interval_file argument");
+					if ((i + 1) < args.length) customIntervalFiles.add(args[++i]);
+					else usage("Option '-interval' without config interval_file argument");
 				} else if ((arg.equals("-fi") || arg.equalsIgnoreCase("-filterInterval"))) {
 					if ((i + 1) < args.length) filterIntervalFiles.add(args[++i]);
 					else usage("Option '-fi' without config filter_interval_file argument");
@@ -901,7 +901,7 @@ public class SnpEffCmdEff extends SnpEff {
 		}
 
 		// Read custom interval files
-		for (String intFile : customIntervalBedFiles) {
+		for (String intFile : customIntervalFiles) {
 			if (verbose) Timer.showStdErr("Reading interval file '" + intFile + "'");
 			int count = readCustomIntFile(intFile);
 			if (verbose) Timer.showStdErr("done (" + count + " intervals loaded). ");

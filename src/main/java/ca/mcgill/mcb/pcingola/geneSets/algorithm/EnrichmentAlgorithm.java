@@ -9,6 +9,7 @@ import org.apfloat.Apfloat;
 
 import ca.mcgill.mcb.pcingola.geneSets.GeneSet;
 import ca.mcgill.mcb.pcingola.geneSets.GeneSets;
+import ca.mcgill.mcb.pcingola.geneSets.GeneSetsRanked;
 import ca.mcgill.mcb.pcingola.geneSets.Result;
 
 /**
@@ -106,14 +107,40 @@ public abstract class EnrichmentAlgorithm {
 			if (isShow(result)) {
 				GeneSet geneSet = result.getLatestGeneSet();
 
+				//---
+				// Get genes information
+				//---
 				StringBuffer interestingGenes = new StringBuffer();
 				ArrayList<String> genesList = new ArrayList<String>();
 				genesList.addAll(geneSet.getInterestingGenes());
 				Collections.sort(genesList);
-				for (String gene : genesList)
-					interestingGenes.append(gene + " ");
+				for (String gene : genesList) {
+					interestingGenes.append(gene);
 
+					// Show score (value) and rank information?
+					if (geneSets.hasValue(gene) || geneSets.isRanked()) {
+						interestingGenes.append("[");
+
+						// Append value
+						if (geneSets.hasValue(gene)) interestingGenes.append(geneSets.getValue(gene));
+
+						// Append rank
+						if (geneSets.isRanked()) {
+							GeneSetsRanked geneSetsRanked = ((GeneSetsRanked) geneSets);
+							interestingGenes.append("/" + geneSetsRanked.getRank(gene));
+						}
+
+						interestingGenes.append("]");
+					}
+
+					interestingGenes.append(" ");
+				}
+
+				//---
+				// Print output
+				//---
 				if (htmlTable) {
+					// Show as HTML table
 					String descr = geneSet.getDescription();
 					String name = geneSet.getName();
 
@@ -136,16 +163,21 @@ public abstract class EnrichmentAlgorithm {
 							+ "</td>\t<td nowrap>" + intGenes //
 							+ "</td>\t<td nowrap>" + (geneSets.isRanked() ? geneSet.rankSum() : 0) //
 							+ "</td>\t</tr>");
-				} else System.out.println("\t" + it //
-						+ "\t" + result.getPvalue() //
-						+ "\t" + result.getPvalueAdjusted() //
-						+ "\t" + geneSet.getName() //
-						+ "\t" + geneSet.size() //
-						+ "\t" + geneSet.getDescription() //
-						+ "\t" + result.getGeneSets() //
-						+ "\t" + interestingGenes //
-						+ "\t" + (geneSets.isRanked() ? geneSet.rankSum() : 0) //
-				);
+				} else {
+					// Show as "normal" TXT 
+					System.out.println("\t" + it //
+
+							+ "\t" + result.getPvalue() //
+							+ "\t" + result.getPvalueAdjusted() //
+							+ "\t" + geneSet.getName() //
+							+ "\t" + geneSet.size() //
+							+ "\t" + geneSet.getDescription() //
+							+ "\t" + result.getGeneSets() //
+							+ "\t" + interestingGenes //
+							+ "\t" + (geneSets.isRanked() ? geneSet.rankSum() : 0) //
+					);
+				}
+
 			}
 		} else System.out.println("\t" + it + "\tNULL");
 	}
