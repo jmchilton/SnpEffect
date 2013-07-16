@@ -59,7 +59,7 @@ public class SnpEffCmdGsa extends SnpEff {
 	int upDownStreamLength = SnpEffectPredictor.DEFAULT_UP_DOWN_LENGTH;
 	int minGeneSetSize = 0;
 	int maxGeneSetSize = Integer.MAX_VALUE;
-	int numberofGeneSetsToSelect = Integer.MAX_VALUE; // TODO : Add a command line option to limit this
+	int numberofGeneSetsToSelect = 20;
 	int initGeneSetSize = 100;
 	int randIterations = 0;
 	double maxScore = 1.0;
@@ -106,7 +106,10 @@ public class SnpEffCmdGsa extends SnpEff {
 			scores.add(pval);
 
 		// Get p-value threshold
-		double scoreThreshold = scores.quantile(interestingPerc);
+		double quantile = interestingPerc;
+		if (orderDescending) quantile = 1 - interestingPerc;
+
+		double scoreThreshold = scores.quantile(quantile);
 
 		// Mark all scores lower than that as 'interesting'
 		int count = 0, countAdded = 0;
@@ -124,12 +127,13 @@ public class SnpEffCmdGsa extends SnpEff {
 		if (verbose) {
 			double realPerc = (100.0 * count) / geneScore.size();
 			double realPercAdded = (100.0 * countAdded) / geneScore.size();
-			Timer.showStdErr(String.format("P-value threshold:"//
+			Timer.showStdErr(String.format("Score threshold:"//
+					+ "\n\tRange                    : [ %f , %f ]"//
 					+ "\n\tQuantile                 : %.2f%%"//
 					+ "\n\tThreshold                : %f"//
 					+ "\n\tInteresting genes        : %d  (%.2f%%)" //
 					+ "\n\tInteresting genes  added : %d  (%.2f%%)" //
-			, 100.0 * interestingPerc, scoreThreshold, count, realPerc, countAdded, realPercAdded));
+			, scores.min(), scores.max(), 100.0 * interestingPerc, scoreThreshold, count, realPerc, countAdded, realPercAdded));
 		}
 	}
 
@@ -265,7 +269,7 @@ public class SnpEffCmdGsa extends SnpEff {
 		// Show a summary
 		//---
 		if (verbose) Timer.showStdErr("Done:" //
-				+ "\n\tNumber of scores       : " + chrPosScoreList.size() //
+				+ "\n\tNumber of scores         : " + chrPosScoreList.size() //
 				+ "\n\tUnmapped                 : " + unmapped //
 				+ "\n\tMapped to multiple genes : " + mappedMultiple //
 		);
@@ -601,7 +605,7 @@ public class SnpEffCmdGsa extends SnpEff {
 
 		// Create one Score per gene
 		geneScore = new HashMap<String, Double>();
-		if (debug) System.err.println("\tp-value\tgeneId");
+		if (debug) System.err.println("\tscore\tgeneId");
 		for (String geneId : geneScores.keySet()) {
 			// Calculate aggregated score
 			ScoreList gpl = geneScores.get(geneId);

@@ -44,6 +44,57 @@ public class ScoreList {
 	}
 
 	/**
+	 * Get average 
+	 * @return
+	 */
+	public double avg() {
+		if (size() <= 0) return getDefaultValue();
+
+		double sum = 0.0;
+		for (int i = 0; i < size(); i++)
+			sum += getScore(i);
+
+		return sum / size();
+	}
+
+	/**
+	 * Get average pvalue (largest N)
+	 * @return
+	 */
+	public double avgLargestTop(int topN) {
+		if (size() <= 0) return getDefaultValue();
+
+		sort(); // Sort collection
+
+		// Sum smallest values
+		double sum = 0.0;
+		int min = Math.max(0, size() - topN);
+		int count = 0;
+		for (int i = min; i < size(); i++, count++)
+			sum += getScore(i);
+
+		return sum / count;
+	}
+
+	/**
+	 * Get average score (smallest N)
+	 * @return
+	 */
+	public double avgSmallestTop(int topN) {
+		if (size() <= 0) return getDefaultValue();
+
+		sort(); // Sort collection
+
+		// Sum smallest values
+		double sum = 0.0;
+		int max = Math.min(size(), topN);
+		for (int i = 0; i < max; i++)
+			sum += getScore(i);
+
+		return sum / max;
+	}
+
+	/**
 	 * Cumulative distribution function of p-values: 
 	 * 
 	 * 			P[ pValues <= p ]		(i.e. lower tail).
@@ -87,8 +138,30 @@ public class ScoreList {
 		return geneId;
 	}
 
-	public double getPvalue(int index) {
+	public double getScore(int index) {
 		return scores.get(index);
+	}
+
+	/**
+	 * Get minimum pvalue
+	 * @return
+	 */
+	public double max() {
+		double max = Double.NEGATIVE_INFINITY;
+		for (int i = 0; i < size(); i++)
+			max = Math.max(max, getScore(i));
+		return max;
+	}
+
+	/**
+	 * Get minimum pvalue
+	 * @return
+	 */
+	public double min() {
+		double min = Double.POSITIVE_INFINITY;
+		for (int i = 0; i < size(); i++)
+			min = Math.min(min, getScore(i));
+		return min;
 	}
 
 	/**
@@ -97,7 +170,7 @@ public class ScoreList {
 	 */
 	public double pValueBonferroni() {
 		if (scores.size() <= 0) return 1.0;
-		return Math.min(1.0, scoreMin() * scores.size());
+		return Math.min(1.0, min() * scores.size());
 	}
 
 	/**
@@ -113,7 +186,7 @@ public class ScoreList {
 		// Count non-zero p-values (we treat zero p-values as errors, so we skip them) 
 		int total = 0;
 		for (int i = 0; i < size(); i++)
-			if (getPvalue(i) > 0) total++;
+			if (getScore(i) > 0) total++;
 		double tot = total;
 
 		// No p-value? => We are done
@@ -125,7 +198,7 @@ public class ScoreList {
 		int count = 0;
 		double pFdrMax = 0.0;
 		for (int i = 0; i < size(); i++) {
-			double pvalue = getPvalue(i);
+			double pvalue = getScore(i);
 
 			// We treat zero p-values as errors, so we skip them 
 			if (pvalue > 0) {
@@ -151,7 +224,7 @@ public class ScoreList {
 		double sum = 0.0;
 		int count = 0;
 		for (int i = 0; i < size(); i++) {
-			double pvalue = getPvalue(i);
+			double pvalue = getScore(i);
 
 			// If pvalue == 0, it produces an error (log will be -Inf)
 			if (pvalue > 0) {
@@ -184,7 +257,7 @@ public class ScoreList {
 		// Count non-zero p-values (we treat zero p-values as errors, so we skip them) 
 		int total = 0;
 		for (int i = 0; i < size(); i++)
-			if (getPvalue(i) > 0) total++;
+			if (getScore(i) > 0) total++;
 		double tot = total;
 
 		// No p-value? => We are done
@@ -196,7 +269,7 @@ public class ScoreList {
 		int count = 0;
 		double pSimesMin = 1.0;
 		for (int i = 0; i < size(); i++) {
-			double pvalue = getPvalue(i);
+			double pvalue = getScore(i);
 
 			// We treat zero p-values as errors, so we skip them 
 			if (pvalue > 0) {
@@ -222,7 +295,7 @@ public class ScoreList {
 		double sum = 0.0;
 		int count = 0;
 		for (int i = 0; i < size(); i++) {
-			double pvalue = getPvalue(i);
+			double pvalue = getScore(i);
 
 			// If pvalue == 0, it produces an error (normal inverse is -Inf)
 			if (pvalue > 0) {
@@ -263,19 +336,19 @@ public class ScoreList {
 	public double score(ScoreSummary pvalueSummary) {
 		switch (pvalueSummary) {
 		case MIN:
-			return scoreMin();
+			return min();
 
 		case MAX:
-			return scoreMax();
+			return max();
 
 		case AVG:
-			return scoreAvg();
+			return avg();
 
 		case AVG_MIN_10:
-			return scoreAvgSmallestTop(10);
+			return avgSmallestTop(10);
 
 		case AVG_MAX_10:
-			return scoreAvgLargestTop(10);
+			return avgLargestTop(10);
 
 		case FISHER_CHI_SQUARE:
 			return pValueFisherChi2();
@@ -293,96 +366,11 @@ public class ScoreList {
 			return pValueFdr(SIGNIFICANCE_LEVEL_95);
 
 		case SUM:
-			return scoreSum();
+			return sum();
 
 		default:
 			throw new RuntimeException("Unimplemented method for summary '" + pvalueSummary + "'");
 		}
-	}
-
-	/**
-	 * Get average pvalue
-	 * @return
-	 */
-	public double scoreAvg() {
-		if (size() <= 0) return getDefaultValue();
-
-		double sum = 0.0;
-		for (int i = 0; i < size(); i++)
-			sum += getPvalue(i);
-
-		return sum / size();
-	}
-
-	/**
-	 * Get average pvalue (largest N)
-	 * @return
-	 */
-	public double scoreAvgLargestTop(int topN) {
-		if (size() <= 0) return getDefaultValue();
-
-		sort(); // Sort collection
-
-		// Sum smallest values
-		double sum = 0.0;
-		int min = Math.max(0, size() - topN);
-		int count = 0;
-		for (int i = min; i < size(); i++, count++)
-			sum += getPvalue(i);
-
-		return sum / count;
-	}
-
-	/**
-	 * Get average score (smallest N)
-	 * @return
-	 */
-	public double scoreAvgSmallestTop(int topN) {
-		if (size() <= 0) return getDefaultValue();
-
-		sort(); // Sort collection
-
-		// Sum smallest values
-		double sum = 0.0;
-		int max = Math.min(size(), topN);
-		for (int i = 0; i < max; i++)
-			sum += getPvalue(i);
-
-		return sum / max;
-	}
-
-	/**
-	 * Get minimum pvalue
-	 * @return
-	 */
-	public double scoreMax() {
-		double max = Double.NEGATIVE_INFINITY;
-		for (int i = 0; i < size(); i++)
-			max = Math.max(max, getPvalue(i));
-		return max;
-	}
-
-	/**
-	 * Get minimum pvalue
-	 * @return
-	 */
-	public double scoreMin() {
-		double min = Double.POSITIVE_INFINITY;
-		for (int i = 0; i < size(); i++)
-			min = Math.min(min, getPvalue(i));
-		return min;
-	}
-
-	/**
-	 * Get sum of scores
-	 * @return
-	 */
-	public double scoreSum() {
-		double sum = 0.0;
-		for (int i = 0; i < size(); i++)
-			sum += getPvalue(i);
-
-		return sum;
 	}
 
 	public void setGeneId(String geneId) {
@@ -400,13 +388,25 @@ public class ScoreList {
 		}
 	}
 
+	/**
+	 * Get sum of scores
+	 * @return
+	 */
+	public double sum() {
+		double sum = 0.0;
+		for (int i = 0; i < size(); i++)
+			sum += getScore(i);
+
+		return sum;
+	}
+
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 
 		sb.append(geneId + ":\t");
 		for (int i = 0; i < size(); i++)
-			sb.append(String.format(" %.2e", getPvalue(i)));
+			sb.append(String.format(" %.2e", getScore(i)));
 
 		return sb.toString();
 	}
