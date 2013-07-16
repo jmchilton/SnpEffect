@@ -55,6 +55,7 @@ public class SnpEffCmdGsa extends SnpEff {
 	boolean useClosestGene = false; // Map to 'any' closest gene?
 	boolean useGeneId = false; // Use geneId instead of geneName
 	boolean usePvalues = true;
+	boolean orderDescending = false; // If 'true', high scores are better (sort descending and get the first values) 
 	int upDownStreamLength = SnpEffectPredictor.DEFAULT_UP_DOWN_LENGTH;
 	int minGeneSetSize = 0;
 	int maxGeneSetSize = Integer.MAX_VALUE;
@@ -62,7 +63,7 @@ public class SnpEffCmdGsa extends SnpEff {
 	int initGeneSetSize = 100;
 	int randIterations = 0;
 	double maxScore = 1.0;
-	double interestingPerc = 0.95;
+	double interestingPerc = 0.05;
 	String inputFile = "";
 	String infoName = "";
 	String msigdb = "";
@@ -105,17 +106,20 @@ public class SnpEffCmdGsa extends SnpEff {
 			scores.add(pval);
 
 		// Get p-value threshold
-		double pThreshold = scores.quantile(1.0 - interestingPerc);
+		double scoreThreshold = scores.quantile(interestingPerc);
 
 		// Mark all scores lower than that as 'interesting'
 		int count = 0, countAdded = 0;
 		geneSets.setDoNotAddIfNotInGeneSet(true);
-		for (String geneId : geneScore.keySet())
-			if (geneScore.get(geneId) <= pThreshold) {
+		for (String geneId : geneScore.keySet()) {
+
+			if ((orderDescending && (geneScore.get(geneId) >= scoreThreshold)) // 
+					|| (!orderDescending && (geneScore.get(geneId) <= scoreThreshold)) // 
+			) {
 				if (geneSets.addInteresting(geneId)) countAdded++; // Count added genes
 				count++;
 			}
-
+		}
 		// Show info
 		if (verbose) {
 			double realPerc = (100.0 * count) / geneScore.size();
@@ -125,7 +129,7 @@ public class SnpEffCmdGsa extends SnpEff {
 					+ "\n\tThreshold                : %f"//
 					+ "\n\tInteresting genes        : %d  (%.2f%%)" //
 					+ "\n\tInteresting genes  added : %d  (%.2f%%)" //
-			, 100.0 * interestingPerc, pThreshold, count, realPerc, countAdded, realPercAdded));
+			, 100.0 * interestingPerc, scoreThreshold, count, realPerc, countAdded, realPercAdded));
 		}
 	}
 
@@ -142,7 +146,7 @@ public class SnpEffCmdGsa extends SnpEff {
 		geneSets.setVerbose(verbose);
 		if (enrichmentAlgorithmType.isRank()) {
 			geneSetsRanked = new GeneSetsRanked(geneSets);
-			geneSetsRanked.rankByValue(true);
+			geneSetsRanked.rankByValue(!orderDescending);
 		}
 
 		//---
@@ -168,7 +172,7 @@ public class SnpEffCmdGsa extends SnpEff {
 			break;
 
 		case LEADING_EDGE_FRACTION:
-			algorithm = new LeadingEdgeFractionAlgorithm(geneSets, numberofGeneSetsToSelect);
+			algorithm = new LeadingEdgeFractionAlgorithm(geneSets, numberofGeneSetsToSelect, orderDescending);
 			break;
 
 		default:
@@ -356,6 +360,7 @@ public class SnpEffCmdGsa extends SnpEff {
 				else if (arg.equals("-mapClosestGene")) useClosestGene = true;
 				else if (arg.equals("-geneId")) useGeneId = true;
 				else if (arg.equals("-score")) usePvalues = false;
+				else if (arg.equals("-desc")) orderDescending = true; // Sort descending: High scores are better
 				else usage("Unknown option '" + arg + "'");
 
 			} else if (genomeVer.isEmpty()) genomeVer = arg;
@@ -622,15 +627,16 @@ public class SnpEffCmdGsa extends SnpEff {
 		System.err.println("\t-geneId            : Use geneID instead of gene names. Default: " + useGeneId);
 		System.err.println("\t-i <format>        : Input format {vcf, bed, txt}. Default: " + inputFormat);
 		System.err.println("\t-info <name>       : INFO tag used for scores (in VCF input format).");
+		System.err.println("\t-desc              : Sort scores in descending order (high score are better then low scores. Default " + orderDescending);
 		System.err.println("\t-score             : Treat input data as scores instead of p-values.");
 		System.err.println("\n\tAlgorithm options:");
-		System.err.println("\t-algo <name>       : Gene set enrichment algorithm {FISHER_GREEDY, RANKSUM_GREEDY, FISHER, RANKSUM}. Default: " + enrichmentAlgorithmType);
-		System.err.println("\t-geneScore        : Method to summarize gene scores {MIN, MAX, AVG, AVG_MIN_10, AVG_MAX_10, FISHER_CHI_SQUARE, Z_SCORES, SIMES}. Default: " + scoreSummary);
+		System.err.println("\t-algo <name>       : Gene set enrichment algorithm {FISHER_GREEDY, RANKSUM_GREEDY, FISHER, RANKSUM, LEADING_EDGE_FRACTION}. Default: " + enrichmentAlgorithmType);
+		System.err.println("\t-geneScore         : Method to summarize gene scores {MIN, MAX, AVG, AVG_MIN_10, AVG_MAX_10, FISHER_CHI_SQUARE, Z_SCORES, SIMES}. Default: " + scoreSummary);
 		// System.err.println("\t-geneScoreCorr    : Correction method for gene-summarized scores {NONE}. Default: " + correctionMethod);
 		System.err.println("\t-mapClosestGene    : Map to closest gene. Default: " + useClosestGene);
 		System.err.println("\t-rand <num>        : Perform 'num' iterations using random scores. Default: " + randIterations);
 		System.err.println("\n\tAlgorithm specific options: FISHER and FISHER_GREEDY");
-		System.err.println("\t-interesting <num> : Consider a gene 'interesting' if the p-value is in the 'num' percentile. Default: " + interestingPerc);
+		System.err.println("\t-interesting <num> : Consider a gene 'interesting' if the score is in the 'num' percentile. Default: " + interestingPerc);
 		System.err.println("\n\tGene Set options:");
 		System.err.println("\t-minSetSize <num>  : Minimum number of genes in a gene set. Default: " + minGeneSetSize);
 		System.err.println("\t-maxSetSize <num>  : Maximum number of genes in a gene set. Default: " + maxGeneSetSize);

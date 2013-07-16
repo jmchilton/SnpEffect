@@ -19,16 +19,17 @@ import ca.mcgill.mcb.pcingola.util.Timer;
  */
 public class LeadingEdgeFractionAlgorithm extends FisherPValueGreedyAlgorithm {
 
-	public static final double P_VALUE_CUTOFF_QUANTILE_DEFAULT = 0.95; // This it the value used in the paper
-
+	public static final double SCORE_CUTOFF_QUANTILE_DEFAULT = 0.05; // This it the value used in the paper (top 95%)
 	public static final Apfloat ONE = new Apfloat(1.0);
 
-	double pValueCutOff;
-	double pValueCutOffQuantile = P_VALUE_CUTOFF_QUANTILE_DEFAULT;
+	boolean orderDescending = false; // If 'true', high scores are better (sort descending and get the first values) 
+	double scoreCutOff;
+	double scoreCutOffQuantile = SCORE_CUTOFF_QUANTILE_DEFAULT;
 	int N, D;
 
-	public LeadingEdgeFractionAlgorithm(GeneSets geneSets, int numberToSelect) {
+	public LeadingEdgeFractionAlgorithm(GeneSets geneSets, int numberToSelect, boolean orderDescending) {
 		super(geneSets, numberToSelect);
+		this.orderDescending = orderDescending;
 		init();
 	}
 
@@ -37,7 +38,7 @@ public class LeadingEdgeFractionAlgorithm extends FisherPValueGreedyAlgorithm {
 	 */
 	void init() {
 		// Calculate pvalue cutoff
-		pValueCutOff = pValueCutOff();
+		scoreCutOff = scoreCutOff();
 
 		//---
 		// Calculate Fisher parameters
@@ -46,10 +47,22 @@ public class LeadingEdgeFractionAlgorithm extends FisherPValueGreedyAlgorithm {
 		for (String geneId : geneSets.getGenes())
 			if (geneSets.hasValue(geneId)) {
 				N++;
-				if (geneSets.getValue(geneId) <= pValueCutOff) D++;
+				if (isTopScore(geneId)) D++;
 			}
 
 		if (verbose) Timer.showStdErr("Fisher Exact test parameters:\n\tN : " + N + "\n\tD : " + D);
+	}
+
+	/**
+	 * Is this a 'top' score (better than cutoff)
+	 * @param geneId
+	 * @return
+	 */
+	boolean isTopScore(String geneId) {
+		double val = geneSets.getValue(geneId);
+		return (!orderDescending && (val <= scoreCutOff)) //
+				|| (orderDescending && (scoreCutOff <= val));
+
 	}
 
 	/**
@@ -63,7 +76,7 @@ public class LeadingEdgeFractionAlgorithm extends FisherPValueGreedyAlgorithm {
 		int count = 0, tot = 0;
 		for (String geneId : geneSet) {
 			if (geneSets.hasValue(geneId)) {
-				if (geneSets.getValue(geneId) <= pValueCutOff) count++;
+				if (isTopScore(geneId)) count++;
 				tot++;
 			}
 		}
@@ -83,30 +96,37 @@ public class LeadingEdgeFractionAlgorithm extends FisherPValueGreedyAlgorithm {
 	}
 
 	/**
-	 * Calculate 'pValueCutOff' (see paper methods)
+	 * Calculate 'scoreCutOff' (see paper methods)
 	 * @return
 	 */
-	double pValueCutOff() {
+	double scoreCutOff() {
 		// Create a list of p-values
-		ScoreList pvlist = new ScoreList();
+		ScoreList scoreList = new ScoreList();
 		for (String geneId : geneSets.getGenes())
-			if (geneSets.hasValue(geneId)) pvlist.add(geneSets.getValue(geneId));
+			if (geneSets.hasValue(geneId)) scoreList.add(geneSets.getValue(geneId));
 
-		double pco = pvlist.quantile(1 - pValueCutOffQuantile);
+		double quantile = scoreCutOffQuantile;
+		if (orderDescending) quantile = 1 - scoreCutOffQuantile;
+
+		double pco = scoreList.quantile(quantile);
 
 		// Show
 		if (verbose) Timer.showStdErr("Calculate pValue_CutOff: " //
-				+ "\n\tSize (effective) : " + pvlist.size() //
-				+ "\n\tQuantile         : " + pValueCutOffQuantile //
-				+ "\n\tp-value CutOff   : " + pco //
+				+ "\n\tSize (effective) : " + scoreList.size() //
+				+ "\n\tQuantile         : " + scoreCutOffQuantile //
+				+ "\n\tScore CutOff     : " + pco //
 		);
-		if (debug) Timer.showStdErr("\tp-values: " + pvlist);
+		if (debug) Timer.showStdErr("\tp-values: " + scoreList);
 
 		return pco;
 	}
 
+	public void setOrderDescending(boolean orderDescending) {
+		this.orderDescending = orderDescending;
+	}
+
 	public void setpValueCutOffQuantile(double pValueCutOffQuantile) {
-		this.pValueCutOffQuantile = pValueCutOffQuantile;
-		pValueCutOff = pValueCutOff();
+		scoreCutOffQuantile = pValueCutOffQuantile;
+		scoreCutOff = scoreCutOff();
 	}
 }

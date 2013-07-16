@@ -74,7 +74,7 @@ public abstract class EnrichmentAlgorithm {
 	 */
 	protected boolean isShow(Result result) {
 		// Filter by pValue
-		if (result.getPvalueAdjusted() > maxPValue) return false;
+		if (result.getPvalueAdjusted() >= maxPValue) return false;
 
 		// Filter by Gene set name (show only if it is in this list)
 		if (filterOutputGeneSets != null) {
