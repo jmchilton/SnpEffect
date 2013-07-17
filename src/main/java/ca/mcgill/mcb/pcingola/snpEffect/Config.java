@@ -360,9 +360,17 @@ public class Config implements Serializable, Iterable<String> {
 		//---
 		// Read properties file
 		//---
+
 		properties = new Properties();
 		try {
-			properties.load(new FileReader(new File(configFileName)));
+			File confFile = new File(configFileName);
+			if (!Gpr.canRead(configFileName)) throw new RuntimeException("Cannot read config file!"//
+					+ "\n\tConfig file name : '" + configFileName + "'" //
+					+ "\n\tFull path        : '" + confFile.getCanonicalPath() + "'" //
+					+ "\n" //
+			);
+
+			properties.load(new FileReader(confFile));
 		} catch (FileNotFoundException e) {
 			throw new RuntimeException("Cannot find config file '" + configFileName + "'");
 		} catch (IOException e) {
