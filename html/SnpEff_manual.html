@@ -271,8 +271,8 @@ unzip snpEff_latest_core.zip
 </pre>
 
 				<p>
-				<i class="icon-hand-right"></i> By default SnpEff stores all the databases in $HOME/snpeff/data (where $HOME is your home directory).
-				If you want to change this, you can edit the config file and change the "data_dir" entry:
+				<i class="icon-hand-right"></i> By default SnpEff stores all the databases in <code>$HOME/snpeff/data</code> (where <code>$HOME</code> is your home directory).
+				If you want to change this, you can edit the config file and change the <code>data_dir</code> entry:
 				<p>
 <pre>
 #---
@@ -404,6 +404,13 @@ java -jar SnpSift.jar filter -f file.eff.vcf "! exists ID" > file.eff.not_in_dbS
 				<p> <h3>Downloading and Installing</h3>
 				In order to download and install the program, you can follow the directions <a href="download.html">here</a>.
 
+				<p> <h3>Configuration</h3>
+				The only configuration file is <code>snpEff.config</code>.
+				Most configuration parameters, are explained in the comments in the same config file, so I won't repeat the explanation here :-)
+				<br>
+				Usually you will only need to change the <code>data_dir</code> parameter.
+				This parameter points to the <code>data</code> directory where you installed the tool (i.e. in unix systems, this is <code>$HOME/snpEff/data</code>).<p>
+
 				<p> <h3> How is it licensed? </h3>
 				SnpEff is open source. It is released mainly as "LGPLv3". If you prefer another open source license, just contact me and I'll try to add your preferred license as well. <br>
 
@@ -421,12 +428,6 @@ svn co http://svn.code.sf.net/p/snpeff/code/SnpEffect/trunk/
 mvn install:install-file -Dfile=sam-1.94.jar -DgroupId=net.sf.samtools -DartifactId=Sam -Dversion=1.94 -Dpackaging=jar
 </pre>
 
-				<p> <h3>Configuration</h3>
-				The only configuration file is "snpEff.config".
-				Most configuration parameters, are explained in the comments in the same config file, so I won't repeat the explanation here :-)
-				<br>
-				Usually you will only need to change the "data_dir" parameter.
-				This parameter points to the "data" directory where you installed the tool (i.e. in unix systems, this is $HOME/snpEff/data).<p>
         </section>
 
         <!-- Running SnpEff
