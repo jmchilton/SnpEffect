@@ -18,7 +18,7 @@ import ca.mcgill.mcb.pcingola.util.Timer;
  */
 public class SnpEffCmdTest extends SnpEff {
 
-	public static final double P_VALUE_LIMIT = 0.05;
+	public static final double P_VALUE_LIMIT = 0.5;
 
 	SnpEffectPredictorLoader sepLoader;
 	SnpEffectPredictor snpEffectPredictor;
@@ -108,13 +108,13 @@ public class SnpEffCmdTest extends SnpEff {
 		CountByType countByMotif = new CountByType();
 
 		for (Marker m : intervals) {
-			System.out.println(m);
+			if (debug) System.out.println(m);
 
 			Markers results = sep.query(m);
 			for (Marker r : results) {
 				if (r instanceof Motif) {
 					Motif motif = (Motif) r;
-					System.out.println("\t" + motif.toString() + "\t" + motif.getPwmId() + "\t" + motif.getPwmName());
+					if (debug) System.out.println("\t" + motif.toString() + "\t" + motif.getPwmId() + "\t" + motif.getPwmName());
 					countByMotif.inc(motif.getPwmId());
 				}
 			}
@@ -135,10 +135,13 @@ public class SnpEffCmdTest extends SnpEff {
 		// Count motifs in intervals
 		long totalHits = countByMotif.sum();
 		long total = totalByMotif.sum();
-		System.out.println("Total hits        : " + totalHits);
+		System.out.println("Number of motifs  : " + totalByMotif.keySet().size());
 		System.out.println("Total motif sites : " + total);
+		System.out.println("Total intervals   : " + intervals.size());
+		System.out.println("Total hits        : " + totalHits);
 
 		// Calculate p-values and show each motif
+		System.out.println("\nmotif.id\tcount.hits\tcount.motif.sites\tpvalue");
 		for (String id : countByMotif.keysSorted()) {
 			long count = countByMotif.get(id);
 
