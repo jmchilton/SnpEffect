@@ -47,7 +47,6 @@ import ca.mcgill.mcb.pcingola.outputFormatter.VcfOutputFormatter;
 import ca.mcgill.mcb.pcingola.serializer.MarkerSerializer;
 import ca.mcgill.mcb.pcingola.snpEffect.ChangeEffect;
 import ca.mcgill.mcb.pcingola.snpEffect.ChangeEffect.EffectImpact;
-import ca.mcgill.mcb.pcingola.snpEffect.Config;
 import ca.mcgill.mcb.pcingola.snpEffect.SnpEffectPredictor;
 import ca.mcgill.mcb.pcingola.snpEffect.commandLine.eff.MasterEff;
 import ca.mcgill.mcb.pcingola.stats.ChangeEffectResutStats;
@@ -868,10 +867,7 @@ public class SnpEffCmdEff extends SnpEff {
 
 		filterIntervals = null;
 
-		// Read config file
-		if (verbose) Timer.showStdErr("Reading configuration file '" + configFile + "'");
-		config = new Config(genomeVer, configFile); // Read configuration
-		if (verbose) Timer.showStdErr("done");
+		readConfig(); // Read config file
 
 		// Read database (or create a new one)
 		if (onlyRegulation) {

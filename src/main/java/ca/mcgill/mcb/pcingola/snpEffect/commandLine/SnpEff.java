@@ -14,6 +14,7 @@ import ca.mcgill.mcb.pcingola.nextProt.SnpEffCmdBuildNextProt;
 import ca.mcgill.mcb.pcingola.snpEffect.Config;
 import ca.mcgill.mcb.pcingola.spliceSites.SpliceAnalysis;
 import ca.mcgill.mcb.pcingola.util.Gpr;
+import ca.mcgill.mcb.pcingola.util.Timer;
 
 /**
  * Command line program
@@ -227,6 +228,16 @@ public class SnpEff implements CommandLine {
 		}
 
 		shiftArgs = argsList.toArray(new String[0]);
+	}
+
+	/**
+	 * Read config file
+	 */
+	protected void readConfig() {
+		// Read config file
+		if (verbose) Timer.showStdErr("Reading configuration file '" + configFile + "'");
+		config = new Config(genomeVer, configFile); // Read configuration
+		if (verbose) Timer.showStdErr("done");
 	}
 
 	/**

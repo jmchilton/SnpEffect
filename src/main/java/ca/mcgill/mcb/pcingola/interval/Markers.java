@@ -10,6 +10,7 @@ import java.util.List;
 
 import ca.mcgill.mcb.pcingola.fileIterator.BedFileIterator;
 import ca.mcgill.mcb.pcingola.fileIterator.BigBedFileIterator;
+import ca.mcgill.mcb.pcingola.fileIterator.VcfFileIterator;
 import ca.mcgill.mcb.pcingola.interval.tree.IntervalForest;
 import ca.mcgill.mcb.pcingola.serializer.MarkerSerializer;
 
@@ -26,7 +27,7 @@ public class Markers implements Serializable, Collection<Marker> {
 
 	/**
 	 * Read markers from a file
-	 * Supported formats: BED, TXT, BigBed
+	 * Supported formats: BED, BigBed, VCF, TXT
 	 */
 	public static Markers readMarkers(String fileName) {
 		String flLower = fileName.toLowerCase();
@@ -35,6 +36,7 @@ public class Markers implements Serializable, Collection<Marker> {
 		if (flLower.endsWith(".txt") || flLower.endsWith(".txt.gz")) return new BedFileIterator(fileName, null, 1).loadMarkers(); // TXT is assumed to be "chr \t start \t end"
 		else if (flLower.endsWith(".bed") || flLower.endsWith(".bed.gz")) return new BedFileIterator(fileName).loadMarkers();
 		else if (flLower.endsWith(".bb")) return new BigBedFileIterator(fileName).loadMarkers();
+		else if (flLower.endsWith(".vcf") || flLower.endsWith(".vcf.gz")) return new VcfFileIterator(fileName).loadMarkers();
 		else throw new RuntimeException("Unrecognized genomig interval file type '" + fileName + "'");
 	}
 
