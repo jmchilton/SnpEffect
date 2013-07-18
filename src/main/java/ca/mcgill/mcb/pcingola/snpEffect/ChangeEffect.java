@@ -641,7 +641,22 @@ public class ChangeEffect implements Cloneable, Comparable<ChangeEffect> {
 			return getHgvsNonCoding();
 		}
 
-		return getHgvsCoding();
+		String hgvsProt = getHgvsProtein();
+		String hgvsDna = getHgvsDna();
+		return hgvsProt + "/" + hgvsDna;
+	}
+
+	/**
+	 * Coding change in HGVS notation (DNA changes)
+	 * References: http://www.hgvs.org/mutnomen/recs-DNA.html 
+	 * 
+	 * @return
+	 */
+	protected String getHgvsDna() {
+		if (codonNum < 0) return "";
+
+		int seqPos = codonNum * 3 + codonIndex + 1;
+		return "c." + seqPos + seqChange.getReference() + ">" + seqChange.getChange();
 	}
 
 	/**
@@ -650,10 +665,17 @@ public class ChangeEffect implements Cloneable, Comparable<ChangeEffect> {
 	 * 
 	 * @return
 	 */
-	protected String getHgvsCoding() {
+	protected String getHgvsProtein() {
 		// Codon numbering
 		// HGVS: the translation initiator Methionine is numbered as +1
 		int aaPos = codonNum + 1;
+
+		// Convert to 3 letter code
+		// HGVS: the three-letter amino acid code is prefered (see Discussion), with "*" designating a translation 
+		// 		 termination codon; for clarity we this page describes changes using the three-letter amino acid
+		CodonTable codonTable = marker.codonTable();
+		String aaNew3 = codonTable.aaThreeLetterCode(aaNew);;
+		String aaOld3 = codonTable.aaThreeLetterCode(aaOld);;
 
 		// Synonymous changes
 		if ((effectType == EffectType.SYNONYMOUS_CODING) //
@@ -662,16 +684,8 @@ public class ChangeEffect implements Cloneable, Comparable<ChangeEffect> {
 			// HGVS: Description of so called "silent" changes in the format p.Leu54Leu (or p.L54L) is not allowed; descriptions 
 			// 		 should be given at DNA level, it is non-informative and not unequivocal (there are five possibilities 
 			// 		 at DNA level which may underlie p.Leu54Leu);  correct description has the format c.162C>G.
-			int seqPos = codonNum * 3 + codonIndex + 1;
-			return "p.(=)/c." + seqPos + seqChange.getReference() + ">" + seqChange.getChange();
+			return "p." + aaOld3 + aaPos + aaNew3;
 		}
-
-		// Convert to 3 letter code
-		// HGVS: the three-letter amino acid code is prefered (see Discussion), with "*" designating a translation 
-		// 		 termination codon; for clarity we this page describes changes using the three-letter amino acid
-		CodonTable codonTable = marker.codonTable();
-		String aaNew3 = codonTable.aaThreeLetterCode(aaNew);;
-		String aaOld3 = codonTable.aaThreeLetterCode(aaOld);;
 
 		// Start codon lost
 		if ((effectType == EffectType.START_LOST) //

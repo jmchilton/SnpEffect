@@ -17,6 +17,7 @@ import ca.mcgill.mcb.pcingola.snpEffect.Config;
 import ca.mcgill.mcb.pcingola.snpEffect.SnpEffectPredictor;
 import ca.mcgill.mcb.pcingola.snpEffect.factory.SnpEffPredictorFactoryRand;
 import ca.mcgill.mcb.pcingola.util.GprSeq;
+import ca.mcgill.mcb.pcingola.vcf.VcfEntry;
 
 /**
  * Test random SNP changes 
@@ -123,27 +124,30 @@ public class TestCasesHgsv extends TestCase {
 						// Codon change
 						String newCodon = codon.substring(0, cdsCodonPos) + snp + codon.substring(cdsCodonPos + 1);
 						String newAa = codonTable.aaThreeLetterCode(codonTable.aa(newCodon));
-						String effectExpected = "";
+						String protHgvs = "";
+						String dnaHgvs = "c." + (cdsBaseNum + 1) + refBase + ">" + snp;
 
 						// Effect
 						if (newAa.equals(aa)) {
 							if ((cdsCodonNum == 0) && (codonTable.isStart(codon))) {
-								if (codonTable.isStart(newCodon)) effectExpected = "p." + aa + "1?";
-								else effectExpected = "p." + aa + "1?";
-							} else effectExpected = "p.(=)/c." + (cdsBaseNum + 1) + refBase + ">" + snp;
+								if (codonTable.isStart(newCodon)) protHgvs = "p." + aa + "1?";
+								else protHgvs = "p." + aa + "1?";
+							} else protHgvs = "p." + aa + (cdsCodonNum + 1) + newAa;
 						} else {
 							if ((cdsCodonNum == 0) && (codonTable.isStart(codon))) {
-								if (codonTable.isStart(newCodon)) effectExpected = "p." + aa + "1?";
-								else effectExpected = "p." + aa + "1?";
-							} else if (codonTable.isStop(codon)) effectExpected = "p." + aa + (cdsCodonNum + 1) + newAa + "ext*?";
-							else if (codonTable.isStop(newCodon)) effectExpected = "p." + aa + (cdsCodonNum + 1) + "*";
-							else effectExpected = "p." + aa + (cdsCodonNum + 1) + newAa;
+								if (codonTable.isStart(newCodon)) protHgvs = "p." + aa + "1?";
+								else protHgvs = "p." + aa + "1?";
+							} else if (codonTable.isStop(codon)) protHgvs = "p." + aa + (cdsCodonNum + 1) + newAa + "ext*?";
+							else if (codonTable.isStop(newCodon)) protHgvs = "p." + aa + (cdsCodonNum + 1) + "*";
+							else protHgvs = "p." + aa + (cdsCodonNum + 1) + newAa;
 						}
+
+						String effectExpected = protHgvs + "/" + dnaHgvs;
 
 						// Create a SeqChange
 						SeqChange seqChange = new SeqChange(chromosome, pos, refBase + "", snp + "", 1, "", 1.0, 1);
 
-						if (!seqChange.isChange()) effectExpected = "EXON";
+						if (!seqChange.isChange()) protHgvs = "EXON";
 
 						// Calculate effects
 						List<ChangeEffect> effects = snpEffectPredictor.seqChangeEffect(seqChange);
@@ -155,6 +159,7 @@ public class TestCasesHgsv extends TestCase {
 						if (effects.size() == 1) {
 							ChangeEffect effect = effects.get(0);
 							String effStr = effect.getHgvs();
+
 							if (debug) System.out.println("\tPos: " + pos //
 									+ "\tCDS base num: " + cdsBaseNum + " [" + cdsCodonNum + ":" + cdsCodonPos + "]" //
 									+ "\t" + seqChange + (seqChange.getStrand() >= 0 ? "+" : "-") //
@@ -165,6 +170,14 @@ public class TestCasesHgsv extends TestCase {
 
 							// Check effect
 							Assert.assertEquals(effectExpected, effStr);
+
+							// Check that effect can be inserted into a VCF field
+							if (!VcfEntry.isValidInfoValue(effStr)) {
+								String err = "No white-space, semi-colons, or equals-signs are permitted in INFO field. Value:\"" + effStr + "\"";
+								System.err.println(err);
+								throw new RuntimeException(err);
+							}
+
 						}
 					}
 				}

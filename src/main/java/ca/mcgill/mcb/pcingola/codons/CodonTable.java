@@ -35,6 +35,7 @@ public class CodonTable {
 		aa3letter.put("R", "Arg");
 		aa3letter.put("S", "Ser");
 		aa3letter.put("T", "Thr");
+		aa3letter.put("U", "Sec"); // Selenocysteine (Rare amino acid)
 		aa3letter.put("V", "Val");
 		aa3letter.put("W", "Trp");
 		aa3letter.put("X", "X");
@@ -93,7 +94,7 @@ public class CodonTable {
 	 * @param aa in three letter code
 	 */
 	public String aaThreeLetterCode(String aa) {
-		if (isStop(aa)) return "Ter"; // Used to be "*"
+		if (isStop(aa)) return "Ter"; // Used to be "*" (see reference http://www.hgvs.org/mutnomen/standards.html#aalist)
 		String aa3 = aa3letter.get(aa.toUpperCase());
 		if (aa3 == null) return "X";
 		return aa3;

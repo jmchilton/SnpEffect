@@ -53,6 +53,16 @@ public class VcfEntry extends Marker implements Iterable<VcfGenotype> {
 	protected String genotypeFieldsStr; // Raw fields from VCF file (one string, tab separated)
 
 	/**
+	 * Check that this value can be added to an INFO field
+	 * @param value
+	 * @return true if OK, false if invalid value
+	 */
+	public static boolean isValidInfoValue(String value) {
+		boolean invalid = ((value != null) && ((value.indexOf(' ') >= 0) || (value.indexOf(';') >= 0) || (value.indexOf('=') >= 0) || (value.indexOf('\t') >= 0) || (value.indexOf('\n') >= 0)));
+		return !invalid;
+	}
+
+	/**
 	 * Return a string safe to be used in an 'INFO' field (VCF file)
 	 * @param str
 	 * @return
@@ -145,7 +155,7 @@ public class VcfEntry extends Marker implements Iterable<VcfGenotype> {
 	 * @param value : Can be null if it is a boolean field.
 	 */
 	public void addInfo(String name, String value) {
-		if ((value != null) && ((value.indexOf(' ') >= 0) || (value.indexOf(';') >= 0) || (value.indexOf('=') >= 0) || (value.indexOf('\t') >= 0) || (value.indexOf('\n') >= 0))) throw new RuntimeException("No white-space, semi-colons, or equals-signs are permitted in INFO field. Name:\"" + name + "\" Value:\"" + value + "\"");
+		if (!isValidInfoValue(value)) throw new RuntimeException("No white-space, semi-colons, or equals-signs are permitted in INFO field. Name:\"" + name + "\" Value:\"" + value + "\"");
 
 		String addInfoStr = name + (value != null ? "=" + value : "");
 		if (info != null) info.put(name, value); // Add to info hash (if available)

@@ -59,7 +59,7 @@ public class TestCasesCancer extends TestCase {
 	 */
 	public void test_01() {
 		String file = "tests/test.cancer.snp.01.vcf";
-		snpEffect(file, "p.Leu1?", "2-1");
+		snpEffect(file, "p.Leu1?/c.1A>G", "2-1");
 	}
 
 }

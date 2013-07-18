@@ -1,2 +1,2 @@
-SNPEFF	3.3E	2013-07-16	http://sourceforge.net/projects/snpeff/files/snpEff_latest_core.zip
-SNPSIFT	3.3E	2013-07-16	http://sourceforge.net/projects/snpeff/files/snpEff_latest_core.zip
+SNPEFF	3.3F	2013-07-16	http://sourceforge.net/projects/snpeff/files/snpEff_latest_core.zip
+SNPSIFT	3.3F	2013-07-16	http://sourceforge.net/projects/snpeff/files/snpEff_latest_core.zip
