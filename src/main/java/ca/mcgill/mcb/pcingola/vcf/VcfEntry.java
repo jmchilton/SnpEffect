@@ -72,7 +72,7 @@ public class VcfEntry extends Marker implements Iterable<VcfGenotype> {
 	}
 
 	public VcfEntry(VcfFileIterator vcfFileIterator, Marker parent, String chromosomeName, int start, String id, String ref, String altsStr, double quality, String filterPass, String infoStr, String format) {
-		super(parent, start, start + ref.length(), 1, id);
+		super(parent, start, start + ref.length() - 1, 1, id);
 		this.chromosomeName = chromosomeName;
 		this.ref = ref;
 		parseAlts(altsStr);
