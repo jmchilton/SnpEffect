@@ -58,6 +58,9 @@ public class IntervalTree implements Serializable, Iterable<Marker> {
 	/**
 	 * Build the interval tree to reflect the list of intervals,
 	 * Will not run if this is currently in sync
+	 * 
+	 * WARNING: This method is not thread safe 
+	 * 
 	 */
 	public void build() {
 		if (!inSync) {
@@ -102,6 +105,9 @@ public class IntervalTree implements Serializable, Iterable<Marker> {
 	/**
 	 * Perform an interval query, returning the intervals that intersect with 'interval'
 	 * Will rebuild the tree if out of sync
+	 * 
+	 * WARNING: This method is not thread safe if the interval tree is not fully built
+	 * 
 	 * @return All intervals that intersect 'interval'
 	 */
 	public Markers query(Interval interval) {
@@ -119,6 +125,9 @@ public class IntervalTree implements Serializable, Iterable<Marker> {
 	/**
 	 * Perform a stabbing query, returning the interval objects
 	 * Will rebuild the tree if out of sync
+	 * 
+	 * WARNING: This method is not thread safe if the interval tree is not fully built
+	 * 
 	 * @param point the time to stab
 	 * @return	   all intervals that contain time
 	 */
