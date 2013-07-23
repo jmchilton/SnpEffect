@@ -35,6 +35,7 @@ public class Upstream extends Marker {
 		// Note: We need to use the transcripts's strand
 		int distance = (parent.isStrandPlus() ? end - seqChange.getStart() : seqChange.getStart() - start) + 1;
 		changeEffect.set(this, EffectType.UPSTREAM, distance + " bases");
+		changeEffect.setDistance(distance);
 
 		return changeEffect.newList();
 	}

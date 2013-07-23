@@ -210,6 +210,7 @@ public class ChangeEffect implements Cloneable, Comparable<ChangeEffect> {
 	String error = "", warning = "", message = ""; // Any message, warning or error?
 	String codonsOld = "", codonsNew = ""; // Codon change information
 	String codonsAroundOld = "", codonsAroundNew = ""; // Codons around
+	int distance = -1; // Distance metric
 	int codonNum = -1; // Codon number (negative number mens 'information not available')
 	int codonIndex = -1; // Index within a codon (negative number mens 'information not available')
 	int codonDegeneracy = -1; // Codon degeneracy (negative number mens 'information not available')
@@ -403,6 +404,10 @@ public class ChangeEffect implements Cloneable, Comparable<ChangeEffect> {
 
 	public String getCodonsOld() {
 		return codonsOld;
+	}
+
+	public int getDistance() {
+		return distance;
 	}
 
 	/**
@@ -660,6 +665,16 @@ public class ChangeEffect implements Cloneable, Comparable<ChangeEffect> {
 	}
 
 	/**
+	 * Coding change in HGVS notation (DNA changes)
+	 * References: http://www.hgvs.org/mutnomen/recs.html
+	 * 
+	 * @return
+	 */
+	protected String getHgvsNonCoding() {
+		return "";
+	}
+
+	/**
 	 * Coding change in HGVS notation (amino acid changes)
 	 * References: http://www.hgvs.org/mutnomen/recs.html
 	 * 
@@ -721,16 +736,6 @@ public class ChangeEffect implements Cloneable, Comparable<ChangeEffect> {
 		if (effectType == EffectType.STOP_GAINED) return "p." + aaOld3 + aaPos + "*";
 
 		return "p." + aaOld3 + aaPos + aaNew3;
-	}
-
-	/**
-	 * Coding change in HGVS notation (DNA changes)
-	 * References: http://www.hgvs.org/mutnomen/recs.html
-	 * 
-	 * @return
-	 */
-	protected String getHgvsNonCoding() {
-		return "";
 	}
 
 	/**
@@ -961,6 +966,10 @@ public class ChangeEffect implements Cloneable, Comparable<ChangeEffect> {
 		String aasRigt = codonTable.aa(codonsRight);
 		aasAroundOld = aasLeft.toLowerCase() + aaOld.toUpperCase() + aasRigt.toLowerCase();
 		aasAroundNew = aasLeft.toLowerCase() + aaNew.toUpperCase() + aasRigt.toLowerCase();
+	}
+
+	public void setDistance(int distance) {
+		this.distance = distance;
 	}
 
 	public void setEffectImpact(EffectImpact effectImpact) {

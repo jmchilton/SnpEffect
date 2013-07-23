@@ -29,10 +29,11 @@ public class Downstream extends Marker {
 	}
 
 	@Override
-	public List<ChangeEffect> seqChangeEffect(SeqChange snp, ChangeEffect changeEffect) {
-		if (!intersects(snp)) return ChangeEffect.emptyResults(); // Sanity check
-		int distance = (parent.isStrandPlus() ? snp.getStart() - start : end - snp.getStart()) + 1;
+	public List<ChangeEffect> seqChangeEffect(SeqChange seqChange, ChangeEffect changeEffect) {
+		if (!intersects(seqChange)) return ChangeEffect.emptyResults(); // Sanity check
+		int distance = (parent.isStrandPlus() ? seqChange.getStart() - start : end - seqChange.getStart()) + 1;
 		changeEffect.set(this, EffectType.DOWNSTREAM, distance + " bases");
+		changeEffect.setDistance(distance);
 		return changeEffect.newList();
 	}
 

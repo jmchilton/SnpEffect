@@ -124,7 +124,9 @@ public class VcfOutputFormatter extends OutputFormatter {
 				effBuff.append("|");
 
 				// Codon change
-				effBuff.append(changeEffect.getCodonChange());
+				String codonChange = changeEffect.getCodonChange();
+				if (!codonChange.isEmpty()) effBuff.append(codonChange);
+				else if (changeEffect.getDistance() >= 0) effBuff.append(changeEffect.getDistance());
 				effBuff.append("|");
 
 				// Add HGVS (amino acid change) 
