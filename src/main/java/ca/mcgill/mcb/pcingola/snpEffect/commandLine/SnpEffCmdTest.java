@@ -1,5 +1,7 @@
 package ca.mcgill.mcb.pcingola.snpEffect.commandLine;
 
+import ca.mcgill.mcb.pcingola.collections.AutoHashMap;
+import ca.mcgill.mcb.pcingola.interval.Custom;
 import ca.mcgill.mcb.pcingola.interval.Marker;
 import ca.mcgill.mcb.pcingola.interval.Markers;
 import ca.mcgill.mcb.pcingola.interval.Motif;
@@ -7,6 +9,7 @@ import ca.mcgill.mcb.pcingola.probablility.FisherExactTest;
 import ca.mcgill.mcb.pcingola.snpEffect.Config;
 import ca.mcgill.mcb.pcingola.snpEffect.SnpEffectPredictor;
 import ca.mcgill.mcb.pcingola.stats.CountByType;
+import ca.mcgill.mcb.pcingola.util.Gpr;
 import ca.mcgill.mcb.pcingola.util.Timer;
 
 /**
@@ -27,6 +30,27 @@ public class SnpEffCmdTest extends SnpEff {
 	public SnpEffCmdTest() {
 		super();
 		sepLoader = new SnpEffectPredictorLoader();
+	}
+
+	/**
+	 * Create a key for this marker
+	 * @param r
+	 * @return
+	 */
+	void inc(AutoHashMap<String, CountByType> coutnByType, Marker r) {
+		String id;
+
+		if (r instanceof Motif) {
+			Motif motif = (Motif) r;
+			if (debug) System.out.println("\t" + motif.toString() + "\t" + motif.getPwmId() + "\t" + motif.getPwmName());
+			id = motif.getPwmId();
+		} else if (r instanceof Custom) {
+			if (debug) Gpr.debug("Found custom interval: " + r.getId());
+			id = r.getId();
+		} else return;
+
+		String type = r.getClass().getSimpleName();
+		coutnByType.getOrCreate(type).inc(id);
 	}
 
 	/**
@@ -98,60 +122,61 @@ public class SnpEffCmdTest extends SnpEff {
 		return true;
 	}
 
+	/**
+	 * Intersect 'intervals'
+	 * @param intervals
+	 */
 	void run(Markers intervals) {
 		if (verbose) Timer.showStdErr("Runnig");
 		SnpEffectPredictor sep = config.getSnpEffectPredictor();
 
 		//---
-		// Count for each motif
+		// Count for each motif (or custom marker
 		//---
-		CountByType countByMotif = new CountByType();
-
+		AutoHashMap<String, CountByType> countByTypeId = new AutoHashMap<String, CountByType>(new CountByType());
 		for (Marker m : intervals) {
 			if (debug) System.out.println(m);
 
 			Markers results = sep.query(m);
-			for (Marker r : results) {
-				if (r instanceof Motif) {
-					Motif motif = (Motif) r;
-					if (debug) System.out.println("\t" + motif.toString() + "\t" + motif.getPwmId() + "\t" + motif.getPwmName());
-					countByMotif.inc(motif.getPwmId());
-				}
-			}
+			for (Marker r : results)
+				inc(countByTypeId, r);
 		}
 
 		//---
 		// Show results
 		//---
 
-		// Count totals by motif
-		CountByType totalByMotif = new CountByType();
+		// Count totals by marker
+		AutoHashMap<String, CountByType> totalByTypeId = new AutoHashMap<String, CountByType>(new CountByType());
 		for (Marker m : sep.getMarkers())
-			if (m instanceof Motif) {
-				Motif motif = (Motif) m;
-				totalByMotif.inc(motif.getPwmId());
-			}
+			inc(totalByTypeId, m);
 
 		// Count motifs in intervals
-		long totalHits = countByMotif.sum();
-		long total = totalByMotif.sum();
-		System.out.println("Number of motifs  : " + totalByMotif.keySet().size());
-		System.out.println("Total motif sites : " + total);
-		System.out.println("Total intervals   : " + intervals.size());
-		System.out.println("Total hits        : " + totalHits);
+		for (String type : totalByTypeId.keySet()) {
+			CountByType countById = countByTypeId.get(type);
+			CountByType totalById = totalByTypeId.get(type);
 
-		// Calculate p-values and show each motif
-		System.out.println("\nmotif.id\tcount.hits\tcount.motif.sites\tpvalue");
-		for (String id : countByMotif.keysSorted()) {
-			long count = countByMotif.get(id);
+			long totalHits = countById.sum();
+			long total = totalById.sum();
+			System.out.println("Type : " + type);
+			System.out.println("\tNumber of motifs  : " + totalById.keySet().size());
+			System.out.println("\tTotal motif sites : " + total);
+			System.out.println("\tTotal intervals   : " + intervals.size());
+			System.out.println("\tTotal hits        : " + totalHits);
 
-			int k = (int) count;
-			int N = (int) total;
-			int D = (int) totalByMotif.get(id);
-			int n = (int) totalHits;
-			double pvalue = FisherExactTest.get().pValueUp(k, N, D, n, P_VALUE_LIMIT);
+			// Calculate p-values and show each motif
+			System.out.println("\n\tid\tcount.hits\tcount.motif.sites\tpvalue");
+			for (String id : countById.keysSorted()) {
+				long count = countById.get(id);
 
-			System.out.println(id + "\t" + count + "\t" + totalByMotif.get(id) + "\t" + pvalue);
+				int k = (int) count;
+				int N = (int) total;
+				int D = (int) totalById.get(id);
+				int n = (int) totalHits;
+				double pvalue = FisherExactTest.get().pValueUp(k, N, D, n, P_VALUE_LIMIT);
+
+				System.out.println("\t" + id + "\t" + count + "\t" + totalById.get(id) + "\t" + pvalue);
+			}
 		}
 	}
 
