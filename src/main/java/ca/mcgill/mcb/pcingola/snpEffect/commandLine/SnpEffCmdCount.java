@@ -8,6 +8,7 @@ import net.sf.samtools.AbstractBAMFileIndex;
 import net.sf.samtools.BAMIndexMetaData;
 import net.sf.samtools.SAMFileReader;
 import ca.mcgill.mcb.pcingola.coverage.CountReadsOnMarkers;
+import ca.mcgill.mcb.pcingola.interval.Genome;
 import ca.mcgill.mcb.pcingola.interval.Marker;
 import ca.mcgill.mcb.pcingola.interval.Markers;
 import ca.mcgill.mcb.pcingola.snpEffect.Config;
@@ -23,6 +24,7 @@ import ca.mcgill.mcb.pcingola.util.Timer;
  */
 public class SnpEffCmdCount extends SnpEff {
 
+	boolean noGenome;
 	boolean calcProbModel;
 	String outputBaseNames;
 	CountReadsOnMarkers countReadsOnMarkers;
@@ -73,6 +75,7 @@ public class SnpEffCmdCount extends SnpEff {
 			if (args[i].equals("-i")) customIntervals.add(args[++i]);
 			else if (args[i].equals("-p")) calcProbModel = true;
 			else if (args[i].equals("-n")) outputBaseNames = args[++i];
+			else if (args[i].equalsIgnoreCase("-nogenome")) noGenome = true;
 			else if ((genomeVer == null) || genomeVer.isEmpty()) genomeVer = args[i];
 			else fileNames.add(args[i]);
 		}
@@ -86,6 +89,8 @@ public class SnpEffCmdCount extends SnpEff {
 
 		for (String file : customIntervals)
 			if (!Gpr.canRead(file)) fatalError("Cannot read custom intervals file '" + file + "'");
+
+		if (noGenome && customIntervals.isEmpty()) usage("No user defined intervals were defined (mandatory if '-noGenome' option is enabled)");
 	}
 
 	/**
@@ -125,11 +130,18 @@ public class SnpEffCmdCount extends SnpEff {
 		if (verbose) Timer.showStdErr("done");
 
 		// Load database
-		if (verbose) Timer.showStdErr("Reading database for genome '" + genomeVer + "'");
-		config.loadSnpEffectPredictor(); // Read snpEffect predictor
-		snpEffectPredictor = config.getSnpEffectPredictor(); // Read snpEffect predictor
+		if (noGenome) {
+			if (verbose) Timer.showStdErr("Creating empty database (no genome).");
+			snpEffectPredictor = new SnpEffectPredictor(new Genome());
+			config.setSnpEffectPredictor(snpEffectPredictor);
+			config.setErrorChromoHit(false); // We don't have chromosomes, so we de-activate this error.
+		} else {
+			if (verbose) Timer.showStdErr("Reading database for genome '" + genomeVer + "'");
+			config.loadSnpEffectPredictor(); // Read snpEffect predictor
+			snpEffectPredictor = config.getSnpEffectPredictor(); // Read snpEffect predictor
+			if (verbose) Timer.showStdErr("done");
+		}
 		countReadsOnMarkers = new CountReadsOnMarkers(snpEffectPredictor);
-		if (verbose) Timer.showStdErr("done");
 
 		// Load custom interval files
 		for (String markersFile : customIntervals) {
@@ -200,6 +212,7 @@ public class SnpEffCmdCount extends SnpEff {
 		System.err.println("Usage: snpEff count [options] genome file_1 file_2 ...  file_N");
 		System.err.println("\t-i intervals.bed : User defined intervals. Mutiple '-i' commands are allowed.");
 		System.err.println("\t-n name          : Output file base name. ");
+		System.err.println("\t-noGenome        : Do not count genomic intervals, only user provided intervals are used.");
 		System.err.println("\t-p               : Calculate probability model (binomial). Default: " + calcProbModel);
 		System.err.println("\tfile             : A file contianing intervals or reads. Either BAM, SAM, VCF, BED or BigBed format.");
 		System.exit(-1);
