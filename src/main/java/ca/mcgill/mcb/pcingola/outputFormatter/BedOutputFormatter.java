@@ -54,7 +54,7 @@ public class BedOutputFormatter extends OutputFormatter {
 				sb.append(changeEffect.effect(true, false, false, useSequenceOntolgy));
 
 				Marker m = changeEffect.getMarker();
-				chEffs.add(m.idChain("|", useGeneId));
+				if (m != null) chEffs.add(m.idChain("|", useGeneId, changeEffect));
 			}
 
 		}

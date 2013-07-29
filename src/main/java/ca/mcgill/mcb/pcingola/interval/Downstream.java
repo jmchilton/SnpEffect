@@ -21,6 +21,16 @@ public class Downstream extends Marker {
 	}
 
 	/**
+	 * Distance to transcript
+	 * @param seqChange
+	 * @return
+	 */
+	public int distanceToTr(SeqChange seqChange) {
+		int dist = (parent.isStrandPlus() ? seqChange.getStart() - start : end - seqChange.getStart()) + 1;
+		return Math.max(0, dist);
+	}
+
+	/**
 	 * Upstream sites are no included in transcript (by definition).
 	 */
 	@Override
@@ -31,7 +41,7 @@ public class Downstream extends Marker {
 	@Override
 	public List<ChangeEffect> seqChangeEffect(SeqChange seqChange, ChangeEffect changeEffect) {
 		if (!intersects(seqChange)) return ChangeEffect.emptyResults(); // Sanity check
-		int distance = (parent.isStrandPlus() ? seqChange.getStart() - start : end - seqChange.getStart()) + 1;
+		int distance = distanceToTr(seqChange);
 		changeEffect.set(this, EffectType.DOWNSTREAM, distance + " bases");
 		changeEffect.setDistance(distance);
 		return changeEffect.newList();

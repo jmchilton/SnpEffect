@@ -21,6 +21,16 @@ public class Upstream extends Marker {
 	}
 
 	/**
+	 * Distance to transcript
+	 * @param seqChange
+	 * @return
+	 */
+	public int distanceToTr(SeqChange seqChange) {
+		int dist = (parent.isStrandPlus() ? end - seqChange.getStart() : seqChange.getStart() - start) + 1;
+		return Math.max(0, dist);
+	}
+
+	/**
 	 * Upstream sites are no included in transcript (by definition).
 	 */
 	@Override
@@ -33,7 +43,7 @@ public class Upstream extends Marker {
 		if (!intersects(seqChange)) return ChangeEffect.emptyResults(); // Sanity check
 
 		// Note: We need to use the transcripts's strand
-		int distance = (parent.isStrandPlus() ? end - seqChange.getStart() : seqChange.getStart() - start) + 1;
+		int distance = distanceToTr(seqChange);
 		changeEffect.set(this, EffectType.UPSTREAM, distance + " bases");
 		changeEffect.setDistance(distance);
 

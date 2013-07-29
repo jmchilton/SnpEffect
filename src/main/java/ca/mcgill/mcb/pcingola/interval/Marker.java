@@ -350,12 +350,16 @@ public class Marker extends Interval implements TxtSerializable {
 		return idChain(";", true);
 	}
 
+	public String idChain(String separator, boolean useGeneId) {
+		return idChain(separator, useGeneId, null);
+	}
+
 	/**
 	 * A list of all IDs and parent IDs until chromosome
 	 * @param m
 	 * @return
 	 */
-	public String idChain(String separator, boolean useGeneId) {
+	public String idChain(String separator, boolean useGeneId, ChangeEffect changeEffect) {
 		StringBuilder sb = new StringBuilder();
 
 		for (Marker m = this; (m != null) && !(m instanceof Chromosome) && !(m instanceof Genome); m = m.getParent()) {
@@ -382,6 +386,20 @@ public class Marker extends Interval implements TxtSerializable {
 			case TRANSCRIPT:
 				sb.append(m.getId());
 				sb.append(separator + ((Transcript) m).getBioType());
+				break;
+
+			case DOWNSTREAM:
+				if ((changeEffect != null) && (changeEffect.getSeqChange() != null)) {
+					Downstream downstream = (Downstream) m;
+					sb.append(downstream.distanceToTr(changeEffect.getSeqChange()));
+				}
+				break;
+
+			case UPSTREAM:
+				if ((changeEffect != null) && (changeEffect.getSeqChange() != null)) {
+					Upstream upstream = (Upstream) m;
+					sb.append(upstream.distanceToTr(changeEffect.getSeqChange()));
+				}
 				break;
 
 			case CHROMOSOME:
