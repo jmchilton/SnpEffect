@@ -3,6 +3,7 @@ package ca.mcgill.mcb.pcingola.snpEffect.commandLine;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -68,6 +69,7 @@ public class SnpEffCmdGsa extends SnpEff {
 	String infoName = "";
 	String msigdb = "";
 	String geneScoreFile = "";
+	String geneInterestingFile = "";
 	ScoreSummary scoreSummary = ScoreSummary.MIN;
 	CorrectionMethod correctionMethod = CorrectionMethod.NONE;
 	SnpEffectPredictor snpEffectPredictor;
@@ -76,6 +78,7 @@ public class SnpEffCmdGsa extends SnpEff {
 	ChrPosScoreList chrPosScoreList; // List of <chr, pos, score>
 	AutoHashMap<String, ScoreList> geneScores; // A map of geneId -> List[scores]
 	HashMap<String, Double> geneScore; // A <gene, score> map
+	HashSet<String> genesInteresting; // A set of interesting genes
 	EnrichmentAlgorithmType enrichmentAlgorithmType = EnrichmentAlgorithmType.RANKSUM_GREEDY;
 
 	public SnpEffCmdGsa() {
@@ -100,6 +103,34 @@ public class SnpEffCmdGsa extends SnpEff {
 	 * Create interesting genes
 	 */
 	void createInterestingGenes() {
+		if (!geneInterestingFile.isEmpty()) createInterestingGenesFile();
+		else createInterestingGenesScores();
+	}
+
+	/**
+	 * Create interesting genes
+	 */
+	void createInterestingGenesFile() {
+		int hasGene = 0;
+
+		// Interesting genes from file
+		for (String geneId : genesInteresting) {
+			if (geneSets.hasGene(geneId)) hasGene++;
+			geneSets.addInteresting(geneId);
+		}
+
+		if (verbose) {
+			Timer.showStdErr("Intereting genes from file" //
+					+ "\n\tIntereting genes in file  : " + genesInteresting.size() //
+					+ "\n\tFound genes               : " + hasGene //
+			);
+		}
+	}
+
+	/**
+	 * Create interesting genes
+	 */
+	void createInterestingGenesScores() {
 		// Get 
 		ScoreList scores = new ScoreList();
 		for (double pval : geneScore.values())
@@ -141,16 +172,19 @@ public class SnpEffCmdGsa extends SnpEff {
 	 * Perform enrichment analysis
 	 */
 	void enrichmentAnalysis() {
-		// Initialize gene set values
-		for (String geneId : geneScore.keySet())
-			geneSets.setValue(geneId, geneScore.get(geneId));
-
-		// Do we need to rank? Rank them by ascending p-value
 		GeneSetsRanked geneSetsRanked = null;
-		geneSets.setVerbose(verbose);
-		if (enrichmentAlgorithmType.isRank()) {
-			geneSetsRanked = new GeneSetsRanked(geneSets);
-			geneSetsRanked.rankByValue(!orderDescending);
+
+		// Initialize gene set values
+		if (geneScore != null) {
+			for (String geneId : geneScore.keySet())
+				geneSets.setValue(geneId, geneScore.get(geneId));
+
+			// Do we need to rank? Rank them by ascending p-value
+			geneSets.setVerbose(verbose);
+			if (enrichmentAlgorithmType.isRank()) {
+				geneSetsRanked = new GeneSetsRanked(geneSets);
+				geneSetsRanked.rankByValue(!orderDescending);
+			}
 		}
 
 		//---
@@ -208,7 +242,7 @@ public class SnpEffCmdGsa extends SnpEff {
 		if (verbose) Timer.showStdErr("done");
 
 		// Read database (if gene level scores are provided, we don't neet to map p_values to genes (we can skip this step)
-		if (geneScoreFile.isEmpty()) {
+		if (geneScoreFile.isEmpty() && geneInterestingFile.isEmpty()) {
 			if (verbose) Timer.showStdErr("Reading database for genome version '" + genomeVer + "' from file '" + config.getFileSnpEffectPredictor() + "' (this might take a while)");
 			config.loadSnpEffectPredictor();
 			snpEffectPredictor = config.getSnpEffectPredictor();
@@ -356,6 +390,10 @@ public class SnpEffCmdGsa extends SnpEff {
 					// Algorithm to use
 					if ((i + 1) < args.length) geneScoreFile = args[++i];
 					else usage("Missing value in command line option '-geneScoreFile'");
+				} else if (arg.equals("-geneInterestingFile")) {
+					// Algorithm to use
+					if ((i + 1) < args.length) geneInterestingFile = args[++i];
+					else usage("Missing value in command line option '-geneScoreFile'");
 				} else if (arg.equals("-minSetSize")) minGeneSetSize = Gpr.parseIntSafe(args[++i]);
 				else if (arg.equals("-maxSetSize")) maxGeneSetSize = Gpr.parseIntSafe(args[++i]);
 				else if (arg.equals("-initSetSize")) initGeneSetSize = Gpr.parseIntSafe(args[++i]);
@@ -375,7 +413,7 @@ public class SnpEffCmdGsa extends SnpEff {
 		//---
 		// Sanity checks
 		//---
-		if ((inputFormat == InputFormat.VCF) && infoName.isEmpty() && geneScoreFile.isEmpty()) usage("Missing '-info' comamnd line option.");
+		if ((inputFormat == InputFormat.VCF) && infoName.isEmpty() && geneScoreFile.isEmpty() && geneInterestingFile.isEmpty()) usage("Missing '-info' comamnd line option.");
 
 		// Check input file
 		if (inputFile.isEmpty()) inputFile = "-"; // Default is STDIN
@@ -384,12 +422,27 @@ public class SnpEffCmdGsa extends SnpEff {
 		if (msigdb.isEmpty()) fatalError("Missing Gene-Sets file");
 		if (!Gpr.canRead(msigdb)) fatalError("Cannot read Gene-Sets file '" + msigdb + "'");
 
-		if (genomeVer.isEmpty() && geneScoreFile.isEmpty()) usage("Missing genome version.");
+		if (genomeVer.isEmpty() && geneScoreFile.isEmpty() && geneInterestingFile.isEmpty()) usage("Missing genome version.");
 
 		if (maxGeneSetSize <= 0) usage("MaxSetSize must be a positive number.");
 		if (minGeneSetSize >= maxGeneSetSize) usage("MaxSetSize (" + maxGeneSetSize + ") must larger than MinSetSize (" + minGeneSetSize + ").");
 
 		if ((interestingPerc < 0) || (interestingPerc > 1)) usage("Interesting percentile must be in the [0 , 1.0] range.");
+
+		if (!geneInterestingFile.isEmpty() && !enrichmentAlgorithmType.isBinary()) usage("Cannot specify '-geneInterestingFile' using algorithm '" + enrichmentAlgorithmType + "'");
+	}
+
+	/**
+	 * Read interesting genes from file
+	 * @param geneScoreFile
+	 */
+	void readGeneInteresting(String geneScoreFile) {
+		if (verbose) Timer.showStdErr("Reading interesting genes file '" + geneInterestingFile + "'");
+		String lines[] = Gpr.readFile(geneScoreFile).split("\n");
+		genesInteresting = new HashSet<String>();
+		for (String g : lines)
+			genesInteresting.add(g.trim());
+		if (verbose) Timer.showStdErr("Done. Added: " + genesInteresting.size());
 	}
 
 	/**
@@ -556,15 +609,18 @@ public class SnpEffCmdGsa extends SnpEff {
 	public boolean run() {
 		initialize();
 
-		if (geneScoreFile.isEmpty()) {
+		if (geneScoreFile.isEmpty() && geneInterestingFile.isEmpty()) {
 			// Perform 'normal' procedure
 			readInput(); // Read input files (scores)
 			mapToGenes(); // Map <chr,pos,Score> to gene
 			scoreGenes(); // Get one score (Score) per gene
 			correctScores(); // Correct gene scores
-		} else {
-			// scores already mapped to genes, provided in a file
+		} else if (!geneScoreFile.isEmpty()) {
+			// Sscores already mapped to genes, provided in a file
 			readGeneScores(geneScoreFile);
+		} else if (!geneInterestingFile.isEmpty()) {
+			// Interesting genes from file (not calculated)
+			readGeneInteresting(geneInterestingFile);
 		}
 
 		enrichmentAnalysis(); // Perform enrichment analysis
@@ -628,23 +684,24 @@ public class SnpEffCmdGsa extends SnpEff {
 		System.err.println("snpEff version " + SnpEff.VERSION);
 		System.err.println("Usage: snpEff gsa [options] genome_version geneSets.gmt input_file");
 		System.err.println("\n\tInput data options:");
-		System.err.println("\t-geneId            : Use geneID instead of gene names. Default: " + useGeneId);
-		System.err.println("\t-i <format>        : Input format {vcf, bed, txt}. Default: " + inputFormat);
-		System.err.println("\t-info <name>       : INFO tag used for scores (in VCF input format).");
-		System.err.println("\t-desc              : Sort scores in descending order (high score are better then low scores. Default " + orderDescending);
-		System.err.println("\t-score             : Treat input data as scores instead of p-values.");
+		System.err.println("\t-geneId                       : Use geneID instead of gene names. Default: " + useGeneId);
+		System.err.println("\t-i <format>                   : Input format {vcf, bed, txt}. Default: " + inputFormat);
+		System.err.println("\t-info <name>                  : INFO tag used for scores (in VCF input format).");
+		System.err.println("\t-desc                         : Sort scores in descending order (high score are better then low scores. Default " + orderDescending);
+		System.err.println("\t-score                        : Treat input data as scores instead of p-values.");
 		System.err.println("\n\tAlgorithm options:");
-		System.err.println("\t-algo <name>       : Gene set enrichment algorithm {FISHER_GREEDY, RANKSUM_GREEDY, FISHER, RANKSUM, LEADING_EDGE_FRACTION}. Default: " + enrichmentAlgorithmType);
-		System.err.println("\t-geneScore         : Method to summarize gene scores {MIN, MAX, AVG, AVG_MIN_10, AVG_MAX_10, FISHER_CHI_SQUARE, Z_SCORES, SIMES}. Default: " + scoreSummary);
-		// System.err.println("\t-geneScoreCorr    : Correction method for gene-summarized scores {NONE}. Default: " + correctionMethod);
-		System.err.println("\t-mapClosestGene    : Map to closest gene. Default: " + useClosestGene);
-		System.err.println("\t-rand <num>        : Perform 'num' iterations using random scores. Default: " + randIterations);
+		System.err.println("\t-algo <name>                  : Gene set enrichment algorithm {FISHER_GREEDY, RANKSUM_GREEDY, FISHER, RANKSUM, LEADING_EDGE_FRACTION}. Default: " + enrichmentAlgorithmType);
+		System.err.println("\t-geneScore                    : Method to summarize gene scores {MIN, MAX, AVG, AVG_MIN_10, AVG_MAX_10, FISHER_CHI_SQUARE, Z_SCORES, SIMES}. Default: " + scoreSummary);
+		System.err.println("\t-geneScoreFile <file>         : Read gene score from file instead of calculating them.");
+		System.err.println("\t-mapClosestGene               : Map to closest gene. Default: " + useClosestGene);
+		System.err.println("\t-rand <num>                   : Perform 'num' iterations using random scores. Default: " + randIterations);
 		System.err.println("\n\tAlgorithm specific options: FISHER and FISHER_GREEDY");
-		System.err.println("\t-interesting <num> : Consider a gene 'interesting' if the score is in the 'num' percentile. Default: " + interestingPerc);
+		System.err.println("\t-interesting <num>            : Consider a gene 'interesting' if the score is in the 'num' percentile. Default: " + interestingPerc);
+		System.err.println("\t-geneInterestingFile <file>   : Use 'interesting' genes from file instead of calculating them.");
 		System.err.println("\n\tGene Set options:");
-		System.err.println("\t-minSetSize <num>  : Minimum number of genes in a gene set. Default: " + minGeneSetSize);
-		System.err.println("\t-maxSetSize <num>  : Maximum number of genes in a gene set. Default: " + maxGeneSetSize);
-		System.err.println("\t-initSetSize <num> : Initial number of genes in a gene set (size range algorithm). Default: " + initGeneSetSize);
+		System.err.println("\t-minSetSize <num>             : Minimum number of genes in a gene set. Default: " + minGeneSetSize);
+		System.err.println("\t-maxSetSize <num>             : Maximum number of genes in a gene set. Default: " + maxGeneSetSize);
+		System.err.println("\t-initSetSize <num>            : Initial number of genes in a gene set (size range algorithm). Default: " + initGeneSetSize);
 		System.exit(-1);
 	}
 }

@@ -326,6 +326,10 @@ public class GeneSets implements Iterable<GeneSet>, Serializable {
 		return valueByGene;
 	}
 
+	public boolean hasGene(String geneId) {
+		return genes.contains(geneId);
+	}
+
 	public boolean hasValue(String gene) {
 		return valueByGene.containsKey(gene);
 	}
