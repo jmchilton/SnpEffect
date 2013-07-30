@@ -160,12 +160,14 @@ public class SnpEffCmdTest extends SnpEff {
 
 		// Count motifs in intervals
 		for (String type : totalByTypeId.keySet()) {
+			System.out.println("Type : " + type);
 			CountByType countById = countByTypeId.get(type);
 			CountByType totalById = totalByTypeId.get(type);
 
+			if (countById == null || totalById == null) continue; // Information missing? (may be no motif was hit? or input file was empty?)
+
 			long totalHits = countById.sum();
 			long total = totalById.sum();
-			System.out.println("Type : " + type);
 			System.out.println("\tNumber of motifs  : " + totalById.keySet().size());
 			System.out.println("\tTotal motif sites : " + total);
 			System.out.println("\tTotal intervals   : " + intervals.size());
