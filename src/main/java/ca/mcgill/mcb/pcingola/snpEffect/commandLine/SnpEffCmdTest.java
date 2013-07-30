@@ -26,6 +26,7 @@ public class SnpEffCmdTest extends SnpEff {
 	SnpEffectPredictorLoader sepLoader;
 	SnpEffectPredictor snpEffectPredictor;
 	String inputFile;
+	double maxPvalue = 1.0;
 
 	public SnpEffCmdTest() {
 		super();
@@ -64,19 +65,25 @@ public class SnpEffCmdTest extends SnpEff {
 		sepLoader.setVerbose(verbose);
 		sepLoader.setDebug(debug);
 		sepLoader.setQuiet(quiet);
-		args = sepLoader.parseArgs(args);
 
 		// Parse all other command line options
 		for (int idx = 0; idx < args.length; idx++) {
 			String arg = args[idx];
 
 			if (isOpt(arg)) {
-				usage("Unknown opton '" + arg + "'");
-			} else if (inputFile == null) inputFile = args[idx];
+				int newIdx = sepLoader.parseArg(args, idx); // Try to parse it in SnpEffectPredictorLoader
+
+				if (newIdx >= 0) idx = newIdx; // Parse in SnpEffectPredictorLoader? 
+				else if (arg.equalsIgnoreCase("-maxP")) {
+					maxPvalue = Gpr.parseDoubleSafe(args[++idx]);
+				} else usage("Unknown opton '" + arg + "'");
+			} else if ((genomeVer == null) || genomeVer.isEmpty()) genomeVer = arg;
+			else if (inputFile == null) inputFile = arg;
 		}
 
 		// Sanity check
 		if (inputFile == null) usage("Missing input file");
+		sepLoader.setGenomeVer(genomeVer);
 	}
 
 	/**
@@ -175,7 +182,7 @@ public class SnpEffCmdTest extends SnpEff {
 				int n = (int) totalHits;
 				double pvalue = FisherExactTest.get().pValueUp(k, N, D, n, P_VALUE_LIMIT);
 
-				System.out.println("\t" + id + "\t" + count + "\t" + totalById.get(id) + "\t" + pvalue);
+				if (pvalue <= maxPvalue) System.out.println("\t" + id + "\t" + count + "\t" + totalById.get(id) + "\t" + pvalue);
 			}
 		}
 	}
@@ -191,6 +198,7 @@ public class SnpEffCmdTest extends SnpEff {
 		System.err.println("Where : ");
 		System.err.println("\tinputFile : Input intervals file. Can be BED, TXT, BigBed or VCF");
 		System.err.println("Options : ");
+		System.err.println("\t-maxP <num>  : Filter out results with p-valie over 'num'. Default : " + maxPvalue);
 		sepLoader.usage(null); // Show SnpEffect predictor loader options
 
 		System.exit(-1);

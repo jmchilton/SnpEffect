@@ -51,7 +51,8 @@ public class SnpEffectPredictorLoader {
 	ArrayList<String> customIntervalFiles; // Custom interval files (bed)
 	HashSet<String> regulationTracks = new HashSet<String>(); // Regulation tracks to load
 	Config config;
-	ArrayList<String> remainingArgs;
+
+	//	ArrayList<String> remainingArgs;
 
 	public SnpEffectPredictorLoader() {
 		customIntervalFiles = new ArrayList<String>();
@@ -106,10 +107,10 @@ public class SnpEffectPredictorLoader {
 		return regulationTracks;
 	}
 
-	public String[] getRemainingArgs() {
-		return remainingArgs.toArray(new String[0]);
-	}
-
+	//	public String[] getRemainingArgs() {
+	//		return remainingArgs.toArray(new String[0]);
+	//	}
+	//
 	public int getSpliceSiteSize() {
 		return spliceSiteSize;
 	}
@@ -254,57 +255,47 @@ public class SnpEffectPredictorLoader {
 	 * @param args
 	 * @returns All command line options that remain (i.e. the ones that were not related to loading or building the predictor)
 	 */
-	public String[] parseArgs(String[] args) {
-		remainingArgs = new ArrayList<String>();
+	public int parseArg(String[] args, int i) {
+		String arg = args[i];
 
-		for (int i = 0; i < args.length; i++) {
-
-			String arg = args[i];
-
-			// Is it a command line option?
-			if (isOpt(arg)) {
-
-				//---
-				// Annotation options
-				//---
-				if (arg.equalsIgnoreCase("-canon")) canonical = true; // Use canonical transcripts
-				else if (arg.equalsIgnoreCase("-onlyTr")) {
-					if ((i + 1) < args.length) onlyTranscriptsFile = args[++i]; // Only use the transcripts in this file
-				} else if (arg.equalsIgnoreCase("-treatAllAsProteinCoding")) {
-					if ((i + 1) < args.length) {
-						i++;
-						if (args[i].equalsIgnoreCase("auto")) treatAllAsProteinCoding = null;
-						else treatAllAsProteinCoding = Gpr.parseBoolSafe(args[i]);
-					}
+		// Is it a command line option?
+		if (isOpt(arg)) {
+			//---
+			// Annotation options
+			//---
+			if (arg.equalsIgnoreCase("-canon")) canonical = true; // Use canonical transcripts
+			else if (arg.equalsIgnoreCase("-onlyTr")) {
+				if ((i + 1) < args.length) onlyTranscriptsFile = args[++i]; // Only use the transcripts in this file
+			} else if (arg.equalsIgnoreCase("-treatAllAsProteinCoding")) {
+				if ((i + 1) < args.length) {
+					i++;
+					if (args[i].equalsIgnoreCase("auto")) treatAllAsProteinCoding = null;
+					else treatAllAsProteinCoding = Gpr.parseBoolSafe(args[i]);
 				}
-				//---
-				// Input options
-				//---
-				else if (arg.equalsIgnoreCase("-interval")) {
-					if ((i + 1) < args.length) customIntervalFiles.add(args[++i]);
-					else usage("Option '-interval' without config interval_file argument");
-				}
-				//---
-				// Regulation options
-				//---
-				else if (arg.equals("-onlyReg")) onlyRegulation = true;
-				else if (arg.equals("-reg")) {
-					if ((i + 1) < args.length) regulationTracks.add(args[++i]); // Add this track to the list
-				}
-				//---
-				// NextProt database
-				//---
-				else if (arg.equalsIgnoreCase("-nextProt")) nextProt = true; // Use NextProt database
-				else if (arg.equalsIgnoreCase("-motif")) motif = true; // Use motif database
-				//---
-				// Argument not used? Add to 'remainingArgs'
-				//---
-				else remainingArgs.add(arg);
-			} else if (genomeVer == null) genomeVer = arg;
-			else remainingArgs.add(arg); // Argument not used? Add to 'remainingArgs'
-		}
+			}
+			//---
+			// Input options
+			//---
+			else if (arg.equalsIgnoreCase("-interval")) {
+				if ((i + 1) < args.length) customIntervalFiles.add(args[++i]);
+				else usage("Option '-interval' without config interval_file argument");
+			}
+			//---
+			// Regulation options
+			//---
+			else if (arg.equals("-onlyReg")) onlyRegulation = true;
+			else if (arg.equals("-reg")) {
+				if ((i + 1) < args.length) regulationTracks.add(args[++i]); // Add this track to the list
+			}
+			//---
+			// NextProt database
+			//---
+			else if (arg.equalsIgnoreCase("-nextProt")) nextProt = true; // Use NextProt database
+			else if (arg.equalsIgnoreCase("-motif")) motif = true; // Use motif database
+			else return -1;
+		} else return -1;
 
-		return getRemainingArgs();
+		return i;
 	}
 
 	/**
@@ -321,6 +312,66 @@ public class SnpEffectPredictorLoader {
 		// Number added
 		return markers.size();
 	}
+
+	//	/**
+	//	 * Parse command line arguments relevant to SnpEffPredictor 
+	//	 * loading options
+	//	 * 
+	//	 * @param args
+	//	 * @returns All command line options that remain (i.e. the ones that were not related to loading or building the predictor)
+	//	 */
+	//	public String[] parseArgs(String[] args) {
+	//		remainingArgs = new ArrayList<String>();
+	//
+	//		for (int i = 0; i < args.length; i++) {
+	//
+	//			String arg = args[i];
+	//
+	//			// Is it a command line option?
+	//			if (isOpt(arg)) {
+	//
+	//				//---
+	//				// Annotation options
+	//				//---
+	//				if (arg.equalsIgnoreCase("-canon")) canonical = true; // Use canonical transcripts
+	//				else if (arg.equalsIgnoreCase("-onlyTr")) {
+	//					if ((i + 1) < args.length) onlyTranscriptsFile = args[++i]; // Only use the transcripts in this file
+	//				} else if (arg.equalsIgnoreCase("-treatAllAsProteinCoding")) {
+	//					if ((i + 1) < args.length) {
+	//						i++;
+	//						if (args[i].equalsIgnoreCase("auto")) treatAllAsProteinCoding = null;
+	//						else treatAllAsProteinCoding = Gpr.parseBoolSafe(args[i]);
+	//					}
+	//				}
+	//				//---
+	//				// Input options
+	//				//---
+	//				else if (arg.equalsIgnoreCase("-interval")) {
+	//					if ((i + 1) < args.length) customIntervalFiles.add(args[++i]);
+	//					else usage("Option '-interval' without config interval_file argument");
+	//				}
+	//				//---
+	//				// Regulation options
+	//				//---
+	//				else if (arg.equals("-onlyReg")) onlyRegulation = true;
+	//				else if (arg.equals("-reg")) {
+	//					if ((i + 1) < args.length) regulationTracks.add(args[++i]); // Add this track to the list
+	//				}
+	//				//---
+	//				// NextProt database
+	//				//---
+	//				else if (arg.equalsIgnoreCase("-nextProt")) nextProt = true; // Use NextProt database
+	//				else if (arg.equalsIgnoreCase("-motif")) motif = true; // Use motif database
+	//				//---
+	//				// Argument not used? Add to 'remainingArgs'
+	//				//---
+	//				else remainingArgs.add(arg);
+	//			} else if (genomeVer == null) genomeVer = arg;
+	//			else remainingArgs.add(arg); // Argument not used? Add to 'remainingArgs'
+	//		}
+	//
+	//		return getRemainingArgs();
+	//	}
 
 	/**
 	 * Read a file after checking for some common error conditions
@@ -518,6 +569,10 @@ public class SnpEffectPredictorLoader {
 
 	public void setDebug(boolean debug) {
 		this.debug = debug;
+	}
+
+	public void setGenomeVer(String genomeVer) {
+		this.genomeVer = genomeVer;
 	}
 
 	public void setQuiet(boolean quiet) {
