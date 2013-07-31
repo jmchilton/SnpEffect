@@ -8,6 +8,7 @@ while( $l = <STDIN> ) {
 	($gen, $chr, $pos, $strand) = split /:/, $genome_coordinates;
 	$strand =~ tr/\]//d;
 	($start, $end) = split /-/, $pos;
+	if( $end =~ /(.*?),.*/ )	{ $end = $1; }
 
 	print "$chr\t$start\t$end\t$mirna_name;$strand;$mirbase_acc;$strand;$align_score;$mirna_alignment;$gene_alignment\n";
 }

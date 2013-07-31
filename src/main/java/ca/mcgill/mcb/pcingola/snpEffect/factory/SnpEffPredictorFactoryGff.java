@@ -149,12 +149,23 @@ public abstract class SnpEffPredictorFactoryGff extends SnpEffPredictorFactory {
 
 	/**
 	 * Is this protein coding according to the source
+	 * 
+	 * References: http://vega.sanger.ac.uk/info/about/gene_and_transcript_types.html
+	 * 
 	 * @param source
 	 * @return
 	 */
 	protected boolean isProteingCoding(String source) {
-		return source.equals("protein_coding");
-
+		return source.equals("protein_coding") //
+				|| source.equals("IG_C_gene") //
+				|| source.equals("IG_D_gene") //
+				|| source.equals("IG_J_gene") //
+				|| source.equals("IG_V_gene") //
+				|| source.equals("TR_C_gene") //
+				|| source.equals("TR_D_gene") //
+				|| source.equals("TR_J_gene") //
+				|| source.equals("TR_V_gene") //
+		;
 	}
 
 	/**

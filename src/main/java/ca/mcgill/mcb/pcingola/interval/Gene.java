@@ -152,7 +152,7 @@ public class Gene extends IntervalAndSubIntervals<Transcript> implements Seriali
 	}
 
 	/**
-	 * Is any of the transcripts prtein coding?
+	 * Is any of the transcripts protein coding?
 	 * @return
 	 */
 	public boolean isProteinCoding() {
