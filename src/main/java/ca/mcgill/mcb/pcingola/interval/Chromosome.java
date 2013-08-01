@@ -66,6 +66,18 @@ public class Chromosome extends Marker {
 		return sequence.toString();
 	}
 
+	/**
+	 * Is this a mitochondrial chromosome?
+	 * Note: This is a wild guess just by looking at the name
+	 */
+	public boolean isMt() {
+		String iduc = id.toUpperCase();
+		return iduc.equals("M") //
+				|| iduc.startsWith("MT") //
+				|| (iduc.indexOf("MITO") >= 0) //
+		;
+	}
+
 	@Override
 	protected boolean isShowWarningIfParentDoesNotInclude() {
 		return false;

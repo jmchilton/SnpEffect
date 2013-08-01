@@ -416,6 +416,7 @@ public class Genome extends Marker implements Serializable, Iterable<Chromosome>
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 
+		// Initialize counters
 		int exonSeq = 0, exonNoSeq = 0;
 		int countGenes = 0, countGenesProteinCoding = 0;
 		int countTranscripts = 0, countTranscriptsProteinCoding = 0;
@@ -502,6 +503,23 @@ public class Genome extends Marker implements Serializable, Iterable<Chromosome>
 		sb.append("# Exons with sequence        : " + exonSeq + "\n");
 		sb.append("# Exons without sequence     : " + exonNoSeq + "\n");
 		sb.append(String.format("# Avg. exons per transcript  : %.2f", avgExonPerTr) + "\n");
+
+		// MT check: Only check if number of chromosomes in the genome is more than one
+		// Check that MT chromosome has a proper codon table
+		ArrayList<Chromosome> mtChrs = new ArrayList<Chromosome>();
+		for (Chromosome chr : this)
+			if (chr.isMt()) mtChrs.add(chr);
+
+		// It there a mi
+		if ((getChromosomes().size() > 1) && (mtChrs.size() <= 0)) {
+			sb.append("# WARNING                    : No mitochondrion chromosome found\n");
+		} else {
+			// Check if mitochondrion chromosome has a mitochondrion codon table
+			for (Chromosome chr : mtChrs) {
+				String mtCodonTable = chr.codonTable().getName();
+				if (mtCodonTable.toUpperCase().indexOf("MITO") < 0) sb.append("# WARNING!                   : Mitochondrion chromosome '" + chr.getId() + "' does not have a mitochondrion codon table (codon table = '" + mtCodonTable + "'). You should update the config file.\n");
+			}
+		}
 
 		// Show chromosomes info
 		sb.append("# Number of chromosomes      : " + getChromosomes().size() + "\n");
