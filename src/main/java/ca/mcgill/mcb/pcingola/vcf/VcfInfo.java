@@ -37,7 +37,7 @@ public class VcfInfo {
 	int number;
 	boolean onePerAllele;
 	boolean onePerGenotype;
-	boolean implicit; // Is this field implicit? (Added automatically by VcfHeade class)
+	boolean implicit; // Is this field implicit? (Added automatically by VcfHeader class)
 	String description;
 
 	/**
