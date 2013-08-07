@@ -12,7 +12,7 @@ import ca.mcgill.mcb.pcingola.logStatsServer.LogStats;
 import ca.mcgill.mcb.pcingola.logStatsServer.VersionCheck;
 import ca.mcgill.mcb.pcingola.nextProt.SnpEffCmdBuildNextProt;
 import ca.mcgill.mcb.pcingola.snpEffect.Config;
-import ca.mcgill.mcb.pcingola.spliceSites.SpliceAnalysis;
+import ca.mcgill.mcb.pcingola.spliceSites.SnpEffCmdSpliceAnalysis;
 import ca.mcgill.mcb.pcingola.util.Gpr;
 import ca.mcgill.mcb.pcingola.util.Timer;
 
@@ -293,7 +293,7 @@ public class SnpEff implements CommandLine {
 		else if (command.equalsIgnoreCase("closest")) snpEff = new SnpEffCmdClosest();
 		else if (command.equalsIgnoreCase("databases")) snpEff = new SnpEffCmdDatabases();
 		else if (command.equalsIgnoreCase("genes2bed")) snpEff = new SnpEffCmdGenes2Bed();
-		else if (command.equalsIgnoreCase("spliceanalysis")) snpEff = new SpliceAnalysis();
+		else if (command.equalsIgnoreCase("spliceanalysis")) snpEff = new SnpEffCmdSpliceAnalysis();
 		else if (command.equalsIgnoreCase("count")) snpEff = new SnpEffCmdCount();
 		else if (command.equalsIgnoreCase("len")) snpEff = new SnpEffCmdLen();
 		else if (command.equalsIgnoreCase("gsa")) snpEff = new SnpEffCmdGsa();

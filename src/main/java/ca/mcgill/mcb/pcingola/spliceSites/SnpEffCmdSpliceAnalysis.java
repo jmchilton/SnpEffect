@@ -32,7 +32,7 @@ import ca.mcgill.mcb.pcingola.util.Tuple;
  * 
  * @author pcingola
  */
-public class SpliceAnalysis extends SnpEff {
+public class SnpEffCmdSpliceAnalysis extends SnpEff {
 
 	/**
 	 * A set of PWMs
@@ -249,7 +249,7 @@ public class SpliceAnalysis extends SnpEff {
 
 	boolean saveDb;
 
-	public SpliceAnalysis() {
+	public SnpEffCmdSpliceAnalysis() {
 		super();
 	}
 
