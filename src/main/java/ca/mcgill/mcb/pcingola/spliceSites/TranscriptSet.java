@@ -11,6 +11,11 @@ import ca.mcgill.mcb.pcingola.interval.Gene;
 import ca.mcgill.mcb.pcingola.interval.Genome;
 import ca.mcgill.mcb.pcingola.interval.Transcript;
 
+/**
+ * A set of transcripts
+ * 
+ * @author pablocingolani
+ */
 public class TranscriptSet implements Iterable<Transcript> {
 
 	public static final int MAX_TRANSCRIPTS_PER_GENE = 1000;
