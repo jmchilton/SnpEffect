@@ -6,6 +6,6 @@ package ca.mcgill.mcb.pcingola;
  */
 public class Pcingola {
 
-	public static final String EMAIL = "pablo.e.cingolani@gmail.com";
+	public static final String EMAIL = "pcingola@users.sourceforge.net";
 	public static final String BY = "Pablo Cingolani";
 }
