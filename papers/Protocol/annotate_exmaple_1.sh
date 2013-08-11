@@ -33,7 +33,7 @@
 #-------------------------------------------------------------------------------
 
 #---
-# Step 1 :Download and install SnpEff and sample data
+# Download and install SnpEff and sample data
 # Approximate time: 5 minutes
 #---
 
@@ -52,27 +52,27 @@
 # unzip protocols_sample.zip
 
 #---
-# Step 2 : Annotate sample data
+# Step 1 : Annotate sample data
 # Approximate time: 3 minutes
 #---
 
 # Annotate using human genome
 # Notice that we use the '-lof' command line option to add loss of function and nonsense mediated decay tags
 
-# echo "Annotating VCF file"
-# java -Xmx4g -jar snpEff.jar \
-#   -v \
-#   -lof \
-#   -motif \
-#   -nextProt \
-#   GRCh37.71 \
-#   protocols_sample/chr7.vcf \
-#   > protocols_sample/chr7.eff.vcf
+echo "Annotating VCF file"
+java -Xmx4g -jar snpEff.jar \
+  -v \
+  -lof \
+  -motif \
+  -nextProt \
+  GRCh37.71 \
+  protocols_sample/chr7.vcf \
+  > protocols_sample/chr7.eff.vcf
 
 # Open HTML summary in browser, look for QC indicators
 
 #---
-# Step 3 : Count variants in case and control groups
+# Step 2 : Count variants in case and control groups
 # Approximate time: 1 hour
 #---
 
@@ -81,13 +81,13 @@
 # Using "SnpSift caseControl" we count the number homozygous, heterozygous 
 # and allele count for both cases and controls.
 
-# echo "Counting cases and controls"
-# java -Xmx1g -jar SnpSift.jar \
-#   caseControl \
-#   -v \
-#   -tfam protocols_sample/pedigree.tfam \
-#   protocols_sample/chr7.eff.vcf \
-#   > protocols_sample/chr7.eff.cc.vcf
+echo "Counting cases and controls"
+java -Xmx1g -jar SnpSift.jar \
+  caseControl \
+  -v \
+  -tfam protocols_sample/pedigree.tfam \
+  protocols_sample/chr7.eff.vcf \
+  > protocols_sample/chr7.eff.cc.vcf
 
 
 # Note:  The program also calculates 
@@ -96,7 +96,7 @@
 # not use those p-values in this excercise
 
 #---
-# Step 4 : Filter variants
+# Step 3 : Filter variants
 # Approximate time: 1 minute
 #---
 
@@ -124,25 +124,25 @@
 #
 # Putting all this toghether, we get:
 
-# echo "Filtering variants"
-# cat protocols_sample/chr7.eff.cc.vcf \
-#   | java -jar SnpSift.jar filter \
-#     "(Cases[0] = 3) & (Controls[0] = 0) & (EFF[*].IMPACT = 'HIGH')" \
-#   > protocols_sample/chr7.filtered.hom.high.vcf
-# 
-# echo "Show variants in a simple format"
-# cat protocols_sample/chr7.filtered.hom.high.vcf \
-# 	| ./scripts/vcfInfoOnePerLine.pl \
-# 	| less -S
+echo "Filtering variants"
+cat protocols_sample/chr7.eff.cc.vcf \
+  | java -jar SnpSift.jar filter \
+    "(Cases[0] = 3) & (Controls[0] = 0) & (EFF[*].IMPACT = 'HIGH')" \
+  > protocols_sample/chr7.filtered.hom.high.vcf
+
+echo "Show variants in a simple format"
+cat protocols_sample/chr7.filtered.hom.high.vcf \
+	| ./scripts/vcfInfoOnePerLine.pl \
+	| less -S
 
 # Only one result, show effects
 
 # Plot pedigree
-# echo "Plot variant in pedigree"
-# java -jar SnpSift.jar pedShow \
-# 	protocols_sample/pedigree.tfam \
-# 	protocols_sample/chr7.filtered.hom.high.vcf \
-# 	protocols_sample/chart
+echo "Plot variant in pedigree"
+java -jar SnpSift.jar pedShow \
+	protocols_sample/pedigree.tfam \
+	protocols_sample/chr7.filtered.hom.high.vcf \
+	protocols_sample/chart
 
 # Open protocols_sample/chart/7_117227832/index.html in your browser
 
@@ -166,57 +166,31 @@ dict=$HOME/snpEff/data/genomes/GRCh37.71.dict
 gatk=$HOME/tools/gatk/GenomeAnalysisTK.jar 
 picard=$HOME/tools/picard/
 
-# # Annotate using SnpEff for GATK
-# echo "Annotating VCF file for GATK"
-# java -Xmx4g -jar snpEff.jar \
-#   -v \
-#   -o gatk \
-#   GRCh37.71 \
-#   protocols_sample/chr7.vcf \
-#   > protocols_sample/chr7.eff.gatk.vcf
+# Annotate using SnpEff for GATK
+echo "Annotating VCF file for GATK"
+java -Xmx4g -jar snpEff.jar \
+  -v \
+  -o gatk \
+  GRCh37.71 \
+  protocols_sample/chr7.vcf \
+  > protocols_sample/chr7.eff.gatk.vcf
 
-# # Create genome index file
+# # Create genome index file (if needed)
 # echo "Indexing Genome reference FASTA file: $ref"
 # samtools faidx $ref
 # 
-# # Create dictionary
+# # Create dictionary file (if needed)
 # echo "Creating Genome reference dictionary file: $dict"
 # java -jar $picard/CreateSequenceDictionary.jar R= $ref O= $dict
-# 
+
 # # Use GATK's VariantAnnotator to add SnpEff's annotations
-# echo "Using GATK's VariantAnnotator. Path to GATK: $gatk"
-# java -Xmx4g -jar $gatk \
-#     -T VariantAnnotator \
-#     -R $ref \
-#     -A SnpEff \
-#     --variant protocols_sample/chr7.vcf \
-#     --snpEffFile protocols_sample/chr7.eff.gatk.vcf \
-#     -L protocols_sample/chr7.vcf \
-#     -o protocols_sample/chr7.gatk.vcf
+echo "Using GATK's VariantAnnotator. Path to GATK: $gatk"
+java -Xmx4g -jar $gatk \
+    -T VariantAnnotator \
+    -R $ref \
+    -A SnpEff \
+    --variant protocols_sample/chr7.vcf \
+    --snpEffFile protocols_sample/chr7.eff.gatk.vcf \
+    -L protocols_sample/chr7.vcf \
+    -o protocols_sample/chr7.gatk.vcf
 
-#---
-# Step 5: Non-coding analysis, conservation score
-#---
-
-# java -Xmx1g -jar SnpSift.jar \
-# 	phastCons \
-# 	-v \
-# 	protocols_sample/phastcons \
-# 	protocols_sample/chr7.eff.cc.vcf \
-# 	> protocols_sample/chr7.eff.cc.cons.vcf
-
-echo "Filtering variants"
-#cat protocols_sample/chr7.eff.cc.cons.vcf \
-#  | java -jar SnpSift.jar filter \
-#    "(Cases[0] > 1) & (Controls[0] = 0) & (exists PhastCons) & (PhastCons > 0.0)" \
-#  | tee protocols_sample/chr7.filtered.cons.vcf
-
-# NON_CODING
-# snpeff eff -v -motif GRCh37.71 protocols_sample/tbx5.vcf | tee protocols_sample/tbx5.eff.vcf
-# java -Xmx1g -jar SnpSift.jar phastCons -v protocols_sample/phastcons protocols_sample/tbx5.eff.vcf > protocols_sample/tbx5.eff.cons.vcf
-# snpeff closest -v GRCh37.71 protocols_sample/tbx5.eff.cons.vcf > protocols_sample/tbx5.eff.cons.closest.vcf
-
-cat protocols_sample/tbx5.eff.cons.closest.vcf \
-  | java -jar SnpSift.jar filter \
-    "(exists PhastCons) & (PhastCons > 0.9)" \
-  | tee protocols_sample/tbx5.filtered.vcf
