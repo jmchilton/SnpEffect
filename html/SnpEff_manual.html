@@ -2913,33 +2913,46 @@ INFO  11:23:49,953 GATKRunReport - Uploaded run statistics report to AWS S3
 				Installing SnpEff in a Galaxy server:
 				<p>
 <pre>
+# Set variable to snpEff install dir (we only use it for this install script)
+export snpEffDir="$HOME/snpEff"
+
 # Go to your galaxy 'tools' dir
 cd galaxy-dist/tools
 
 # Create a directory and copy the XML config files from SnpEff's distribution
 mkdir snpEff
 cd snpEff/
-cp path/to/snpEff/galaxy/* .
+cp $snpEffDir/galaxy/* .
+
+# Copy genomes information
+cp $snpEffDir/galaxy/tool-data/snpEff_genomes.loc tool-data/
+
+# Allow scripts execution
+chmod a+x *.{pl,sh}
 
 # Edit Galaxy's tool_conf.xml and add all the tools
 cd ../..
 vi tool_conf.xml
 
+-------------------- Begin: Edit tool_conf.xml --------------------
   &lt;!-- 
        Add this section to tool_conf.xml file in your galaxy distribution
 	
        Note: The following lines should be added at the end of the 
              file, right before "&lt;/toolbox&gt;" line
   --&gt;
-  &lt;section name="snpeff tools" id="snpeff_tools"&gt;
-    &lt;tool file="snpeff/snpeff.xml" /&gt;
-    &lt;tool file="snpeff/snpeff_download.xml" /&gt;
-    &lt;tool file="snpeff/snpsift_annotate.xml" /&gt;
-    &lt;tool file="snpeff/snpsift_casecontrol.xml" /&gt;
-    &lt;tool file="snpeff/snpsift_filter.xml" /&gt;
-    &lt;tool file="snpeff/snpsift_int.xml" /&gt;
+  &lt;section name="snpEff tools" id="snpEff_tools"&gt;
+    &lt;tool file="snpEff/snpEff.xml" /&gt;
+    &lt;tool file="snpEff/snpEff_download.xml" /&gt;
+    &lt;tool file="snpEff/snpSift_annotate.xml" /&gt;
+    &lt;tool file="snpEff/snpSift_caseControl.xml" /&gt;
+    &lt;tool file="snpEff/snpSift_filter.xml" /&gt;
+    &lt;tool file="snpEff/snpSift_int.xml" /&gt;
   &lt;/section&gt;
+-------------------- End: Edit tool_conf.xml --------------------
 
+# Run galaxy and check that the new menues appear
+./run.sh
 
 </pre>
 

@@ -31,7 +31,7 @@ $motif
 		</param>
 
 		<param name="genomeVersion" type="select" label="Genome">
-			<options from_file="snpeffect_genomedb.loc">
+			<options from_file="snpEff_genomes.loc">
 				<column name="name" index="1"/>
 				<column name="value" index="0"/>
 			</options>

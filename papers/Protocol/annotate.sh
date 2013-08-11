@@ -166,6 +166,7 @@ dict=$HOME/snpEff/data/genomes/GRCh37.71.dict
 gatk=$HOME/tools/gatk/GenomeAnalysisTK.jar 
 picard=$HOME/tools/picard/
 
+# # Annotate using SnpEff for GATK
 # echo "Annotating VCF file for GATK"
 # java -Xmx4g -jar snpEff.jar \
 #   -v \
@@ -182,6 +183,7 @@ picard=$HOME/tools/picard/
 # echo "Creating Genome reference dictionary file: $dict"
 # java -jar $picard/CreateSequenceDictionary.jar R= $ref O= $dict
 # 
+# # Use GATK's VariantAnnotator to add SnpEff's annotations
 # echo "Using GATK's VariantAnnotator. Path to GATK: $gatk"
 # java -Xmx4g -jar $gatk \
 #     -T VariantAnnotator \
