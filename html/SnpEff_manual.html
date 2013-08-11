@@ -2924,6 +2924,13 @@ mkdir snpEff
 cd snpEff/
 cp $snpEffDir/galaxy/* .
 
+# Create links to JAR files
+ln -s $snpEffDir/snpEff.jar
+ln -s $snpEffDir/SnpSift.jar
+
+# Link to config file
+ln -s $snpEffDir/snpEff.config
+
 # Copy genomes information
 cp $snpEffDir/galaxy/tool-data/snpEff_genomes.loc tool-data/
 

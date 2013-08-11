@@ -1,10 +1,6 @@
 #!/bin/sh
 
-# Create config file for Galaxy
-# Note: Replaces 'data_dir' to a relative path
-cat snpEff.config | sed "s/^data_dir.*/data_dir = data/" > galaxy/snpEff.config
-
-# Create genomes databases list
+# Create a file with genomes databases list
 # Remove the first two lines (titles)
 mkdir -p galaxy/tool-data
 (
