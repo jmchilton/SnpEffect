@@ -2931,14 +2931,14 @@ ln -s $snpEffDir/SnpSift.jar
 # Link to config file
 ln -s $snpEffDir/snpEff.config
 
-# Copy genomes information
-cp $snpEffDir/galaxy/tool-data/snpEff_genomes.loc tool-data/
-
 # Allow scripts execution
 chmod a+x *.{pl,sh}
 
-# Edit Galaxy's tool_conf.xml and add all the tools
+# Copy genomes information
 cd ../..
+cp $snpEffDir/galaxy/tool-data/snpEff_genomes.loc tool-data/
+
+# Edit Galaxy's tool_conf.xml and add all the tools
 vi tool_conf.xml
 
 -------------------- Begin: Edit tool_conf.xml --------------------
