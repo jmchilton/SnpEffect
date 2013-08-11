@@ -8,7 +8,7 @@
 #	- Java version 1.6 or higher (most modern computers have it)
 #	- Hard drive space: 1GB
 #
-#-------------------------------------------------------------------------------
+# Note:
 #
 # The sample dataaset consists of finding the generic cause of Cystic fibrosis.
 # Given that this is an excercise and due to restricions in using 
@@ -67,7 +67,7 @@
 #   -nextProt \
 #   GRCh37.71 \
 #   protocols_sample/chr7.vcf \
-#   > chr7.eff.vcf
+#   > protocols_sample/chr7.eff.vcf
 
 # Open HTML summary in browser, look for QC indicators
 
@@ -86,8 +86,8 @@
 #   caseControl \
 #   -v \
 #   -tfam protocols_sample/pedigree.tfam \
-#   chr7.eff.vcf \
-#   > chr7.eff.cc.vcf
+#   protocols_sample/chr7.eff.vcf \
+#   > protocols_sample/chr7.eff.cc.vcf
 
 
 # Note:  The program also calculates 
@@ -125,7 +125,7 @@
 # Putting all this toghether, we get:
 
 # echo "Filtering variants"
-# cat chr7.eff.cc.vcf \
+# cat protocols_sample/chr7.eff.cc.vcf \
 #   | java -jar SnpSift.jar filter \
 #     "(Cases[0] = 3) & (Controls[0] = 0) & (EFF[*].IMPACT = 'HIGH')" \
 #   > protocols_sample/chr7.filtered.hom.high.vcf
@@ -141,7 +141,7 @@
 # echo "Plot variant in pedigree"
 # java -jar SnpSift.jar pedShow \
 # 	protocols_sample/pedigree.tfam \
-# 	chr7.filtered.hom.highvcf \
+# 	protocols_sample/chr7.filtered.hom.high.vcf \
 # 	protocols_sample/chart
 
 # Open protocols_sample/chart/7_117227832/index.html in your browser
@@ -194,3 +194,29 @@ picard=$HOME/tools/picard/
 #     -L protocols_sample/chr7.vcf \
 #     -o protocols_sample/chr7.gatk.vcf
 
+#---
+# Step 5: Non-coding analysis, conservation score
+#---
+
+# java -Xmx1g -jar SnpSift.jar \
+# 	phastCons \
+# 	-v \
+# 	protocols_sample/phastcons \
+# 	protocols_sample/chr7.eff.cc.vcf \
+# 	> protocols_sample/chr7.eff.cc.cons.vcf
+
+echo "Filtering variants"
+#cat protocols_sample/chr7.eff.cc.cons.vcf \
+#  | java -jar SnpSift.jar filter \
+#    "(Cases[0] > 1) & (Controls[0] = 0) & (exists PhastCons) & (PhastCons > 0.0)" \
+#  | tee protocols_sample/chr7.filtered.cons.vcf
+
+# NON_CODING
+# snpeff eff -v -motif GRCh37.71 protocols_sample/tbx5.vcf | tee protocols_sample/tbx5.eff.vcf
+# java -Xmx1g -jar SnpSift.jar phastCons -v protocols_sample/phastcons protocols_sample/tbx5.eff.vcf > protocols_sample/tbx5.eff.cons.vcf
+# snpeff closest -v GRCh37.71 protocols_sample/tbx5.eff.cons.vcf > protocols_sample/tbx5.eff.cons.closest.vcf
+
+cat protocols_sample/tbx5.eff.cons.closest.vcf \
+  | java -jar SnpSift.jar filter \
+    "(exists PhastCons) & (PhastCons > 0.9)" \
+  | tee protocols_sample/tbx5.filtered.vcf

@@ -27,59 +27,6 @@
           <exit_code range=":-1"  level="fatal"   description="Error: Cannot open file" />
           <exit_code range="1:"  level="fatal"   description="Error" />
         </stdio>
-
-        <tests>
-
-            <test>
-                <param name="input" ftype="vcf" value="test01.vcf"/>
-                <param name="expr" value="QUAL >= 50"/>
-                <output name="output">
-                    <assert_contents>
-                        <not_has_text text="25967" />
-                        <not_has_text text="NT_166464" />
-                    </assert_contents>
-                </output>
-            </test>
-
-            <test>
-                <param name="input" ftype="vcf" value="test01.vcf"/>
-                <param name="expr" value="(CHROM = '19')"/>
-                <output name="output">
-                    <assert_contents>
-                        <has_text text="3205820" />
-                        <not_has_text text="NT_16" />
-                    </assert_contents>
-                </output>
-            </test>
-
-            <test>
-                <param name="input" ftype="vcf" value="test01.vcf"/>
-                <param name="expr" value="(POS >= 20175 & (POS <= 35549)"/>
-                <output name="output">
-                    <assert_contents>
-                        <has_text text="20175" />
-                        <has_text text="35549" />
-                        <has_text text="22256" />
-                        <not_has_text text="18933" />
-                        <not_has_text text="37567" />
-                    </assert_contents>
-                </output>
-            </test>
-
-            <test>
-                <param name="input" ftype="vcf" value="test01.vcf"/>
-                <param name="expr" value="( DP >= 5 )"/>
-                <output name="output">
-                    <assert_contents>
-                        <has_text text="DP=5;" />
-                        <has_text text="DP=6;" />
-                        <not_has_text text="DP=1;" />
-                    </assert_contents>
-                </output>
-            </test>
-
-        </tests>
-
 	<help>
 
 **SnpSift filter**
