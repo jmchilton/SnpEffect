@@ -18,7 +18,7 @@ $command = $ARGV[0];	# Which snpSift's command do we want to execute?
 @snpSiftCmd = ("java", "-Xmx4g", "-jar", "$dir/SnpSift.jar", "$command" );
 
 # Add all command line options
-for( $i=1 ; $i < $#ARGV ; $i++ ) {
+for( $i=1 ; $i <= $#ARGV ; $i++ ) {
 	$snpSiftCmd[$#snpSiftCmd + 1] = $ARGV[$i];
 }
 

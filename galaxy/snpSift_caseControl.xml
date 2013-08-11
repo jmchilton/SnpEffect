@@ -7,27 +7,10 @@
 	<requirements>
                 <requirement type="package" version="3.1">snpEff</requirement>
 	</requirements>
-	<command>
-		java -Xmx1G -jar \$JAVA_JAR_PATH/SnpSift.jar caseControl -q $hhCase $hhControl '$caseControStr' $input > $output
-	</command>
+	<command interpreter="perl">snpSiftWrapper.pl caseControl -q -tfam $tfam $input > $output </command>
 	<inputs>
 		<param format="vcf" name="input" type="data" label="VCF input"/>
-		<param name="hhCase" type="select" label="Hom/Het case">
-			<option value="any">Any</option>
-			<option value="hom">Homozygous</option>
-			<option value="het">Heterozygous</option>
-		</param>
-		<param name="hhControl" type="select" label="Hom/Het control">
-			<option value="any">Any</option>
-			<option value="hom">Homozygous</option>
-			<option value="het">Heterozygous</option>
-		</param>
-		<param name="caseControStr" type="text" label="Case / Control column designation" size="50">
-		<help>
-Case and control are defined by a string containing plus and minus symbols {'+', '-', '0'} where '+' is case, '-' is control and '0' is neutral
-		</help>
-		<validator type="regex" message="must be  only plus(+), minus(-), or zero(0) characters">[+-0]+</validator>
-                </param>
+		<param format="tfam" name="tfam" type="data" label="TFAM file"/>
 	</inputs>
 	<outputs>
 		<data format="vcf" name="output" />
@@ -36,74 +19,27 @@ Case and control are defined by a string containing plus and minus symbols {'+',
           <exit_code range=":-1"  level="fatal"   description="Error: Cannot open file" />
           <exit_code range="1:"  level="fatal"   description="Error" />
         </stdio>
-        <tests>
-
-            <test>
-                <param name="input" ftype="vcf" value="test.private.01.vcf"/>
-                <param name="hhCase" value="any"/>
-                <param name="hhControl" value="any"/>
-                <param name="caseControStr" value="--"/>
-                <output name="output">
-                    <assert_contents>
-                        <has_text text="CaseControl=0/0,0/2;" />
-                    </assert_contents>
-                </output>
-            </test>
-
-            <test>
-                <param name="input" ftype="vcf" value="test.private.02.vcf"/>
-                <param name="hhCase" value="any"/>
-                <param name="hhControl" value="any"/>
-                <param name="caseControStr" value="--"/>
-                <output name="output">
-                    <assert_contents>
-                        <has_text text="CaseControl=0/0,2/0;" />
-                    </assert_contents>
-                </output>
-            </test>
-
-            <test>
-                <param name="input" ftype="vcf" value="test.private.02.vcf"/>
-                <param name="hhCase" value="any"/>
-                <param name="hhControl" value="any"/>
-                <param name="caseControStr" value="-+"/>
-                <output name="output">
-                    <assert_contents>
-                        <has_text text="CaseControl=1/0,1/0;" />
-                    </assert_contents>
-                </output>
-            </test>
-
-        </tests>
-
 	<help>
 
 **SnpSift CaseControl**
 
 Allows you to count how many samples are in 'case' group and a 'control' group. You can count 'homozygous', 'heterozygous' or 'any' variants. 
 
-Case and control are defined by a string containing plus and minus symbols {'+', '-', '0'} where '+' is case, '-' is control and '0' is neutral. 
+Case and control are defined by a TFAM file (phenotype column)
 
 This command adds two annotations to the VCF file:
 
- - **CaseControl**: Two comma separated numbers numbers representing the number of samples that have the variant in the case and the control group. Example: 
+ - **Cases**: Three comma separated numbers numbers representing the number of homozygous (ALT), heterozygous (ALT) and allele count in Case group
 
-  "CaseControl=3,4" *the variant is present in 3 cases and 4 controls.*
+ - **Controls**: Three comma separated numbers numbers representing the number of homozygous (ALT), heterozygous (ALT) and allele count in Control group
 
+ - **CC_DOM**: p-value under Dominant model
 
- - **CaseControlP**: A p-value (Fisher exact test) that the number of cases is N or more. Example:
+ - **CC_REC**: p-value under Recesive model
 
-  "CaseControl=4,0;CaseControlP=3.030303e-02" *in this case the pValue of having 4 or more cases and zero controls is 0.03*
+ - **CC_ALL**: p-value using allele counts
 
-
-For example, if we have ten samples (which means ten genotype columns in the VCF file), the first four are 'case' and the last six are 'control', so the description string would be "++++------".  Let's say we want to distinguish genotypes that are homozygous in 'case' and either homozygous or heterozygous in 'control'.  We would set:
-
-  - Hom/Het case = "hom"
-
-  - Hom/Het control = "any"  
-
-  - Case / Control column designation = ""++++------"
-
+ - **CC_GEN**: p-value using Genotypic (co-dominant) model
 
 For details about this tool, please go to http://snpeff.sourceforge.net/SnpSift.html#casecontrol
 

@@ -9,9 +9,7 @@
 	<requirements>
                 <requirement type="package" version="3.1">snpEff</requirement>
 	</requirements>
-	<command>
-		java -Xmx6G -jar \$JAVA_JAR_PATH/SnpSift.jar filter -f $input -e $exprFile > $output
-	</command>
+	<command interpreter="perl">snpSiftWrapper.pl filter filter -f $input -e $exprFile > $output </command>
 	<inputs>
 		<param format="vcf" name="input" type="data" label="VCF input"/>
 		<param name="expr" type="text" label="Expression" size="50"/>
