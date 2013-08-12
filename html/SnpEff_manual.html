@@ -1400,6 +1400,60 @@ $ java -Xmx4g -jar snpEff.jar eff -i bed BDGP5.69 chipSeq_peaks.bed
 				</p>
 
 				<br>
+				<p> <h3> Sequence Ontology </h3>
+				Sequence ontology allows to stardadize terminology used for assesing sequence changes and impact. 
+				This allows for a common language across all varaint annotation programs and makes it easier to comunicate using a uniform terminology.
+				<br>
+				<br>
+				
+				<table class="table table-striped">
+						<tr> <th> Effects </th> <th> Sequence Ontology definition </th> </tr> 
+						<tr> <td> CDS </td> <td> cds </td> </tr>
+						<tr> <td> CHROMOSOME </td> <td> chromosome </td> </tr>
+						<tr> <td> CODON_CHANGE </td> <td> coding_sequence_variant </td> </tr>
+						<tr> <td> CODON_CHANGE_PLUS_CODON_DELETION </td> <td> inframe_deletion </td> </tr>
+						<tr> <td> CODON_CHANGE_PLUS_CODON_INSERTION </td> <td> inframe_insertion </td> </tr>
+						<tr> <td> CODON_DELETION </td> <td> inframe_deletion </td> </tr>
+						<tr> <td> CODON_INSERTION </td> <td> inframe_insertion </td> </tr>
+						<tr> <td> CUSTOM </td> <td> custom </td> </tr>
+						<tr> <td> DOWNSTREAM </td> <td> downstream_gene_variant </td> </tr>
+						<tr> <td> EXON </td> <td> non_coding_exon_variant </td> </tr>
+						<tr> <td> EXON_DELETED </td> <td> exon_lost </td> </tr>
+						<tr> <td> FRAME_SHIFT </td> <td> frameshift_variant </td> </tr>
+						<tr> <td> GENE </td> <td> gene </td> </tr>
+						<tr> <td> GENOME </td> <td> genome </td> </tr>
+						<tr> <td> INTERGENIC </td> <td> intergenic_region </td> </tr>
+						<tr> <td> INTERGENIC_CONSERVED </td> <td> intergenic_region </td> </tr>
+						<tr> <td> INTRAGENIC </td> <td> intragenic_variant </td> </tr>
+						<tr> <td> INTRON </td> <td> intron_variant </td> </tr>
+						<tr> <td> INTRON_CONSERVED </td> <td> intron_variant </td> </tr>
+						<tr> <td> MICRO_RNA </td> <td> micro_rna </td> </tr>
+						<tr> <td> NONE </td> <td> none </td> </tr>
+						<tr> <td> NON_SYNONYMOUS_CODING </td> <td> missense </td> </tr>
+						<tr> <td> NON_SYNONYMOUS_START </td> <td> initiator_codon_variant </td> </tr>
+						<tr> <td> NON_SYNONYMOUS_STOP </td> <td> stop_retained_variant </td> </tr>
+						<tr> <td> RARE_AMINO_ACID </td> <td> non_conservative_missense_variant </td> </tr>
+						<tr> <td> REGULATION </td> <td> regulatory_region_variant </td> </tr>
+						<tr> <td> SPLICE_SITE_ACCEPTOR </td> <td> splice_region_variant </td> </tr>
+						<tr> <td> SPLICE_SITE_BRANCH </td> <td> splice_region_variant </td> </tr>
+						<tr> <td> SPLICE_SITE_BRANCH_U12 </td> <td> splice_region_variant </td> </tr>
+						<tr> <td> SPLICE_SITE_DONOR </td> <td> splice_region_variant </td> </tr>
+						<tr> <td> START_GAINED </td> <td> start_gained </td> </tr>
+						<tr> <td> START_LOST </td> <td> initiator_codon_variant </td> </tr>
+						<tr> <td> STOP_GAINED </td> <td> stop_gained </td> </tr>
+						<tr> <td> STOP_LOST </td> <td> stop_lost </td> </tr>
+						<tr> <td> SYNONYMOUS_CODING </td> <td> synonymous_variant </td> </tr>
+						<tr> <td> SYNONYMOUS_START </td> <td> initiator_codon_variant </td> </tr>
+						<tr> <td> SYNONYMOUS_STOP </td> <td> stop_retained_variant </td> </tr>
+						<tr> <td> TRANSCRIPT </td> <td> nc_transcript_variant </td> </tr>
+						<tr> <td> UPSTREAM </td> <td> upstream_gene_variant </td> </tr>
+						<tr> <td> UTR_3_PRIME </td> <td> 3_prime_UTR_variant </td> </tr>
+						<tr> <td> UTR_5_DELETED </td> <td> five_prime_UTR </td> </tr>
+						<tr> <td> UTR_5_PRIME </td> <td> 5_prime_UTR_variant </td> </tr>
+				</table>
+				</p>
+
+				<br>
 				<p> <h3> Loss of function and nonsense-mediated decay predictions </h3>
 				Loss of function ('LOF') and nonsense-mediated decay ('NMD') predictions can be activated by using <code>-lof</code> command line opion.
 				Details on how these variants work, can be found in <a class="body" href="snpEff_lof_nmd.pdf">these slides </a>

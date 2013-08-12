@@ -143,10 +143,9 @@ public class ChangeEffect implements Cloneable, Comparable<ChangeEffect> {
 				return "stop_lost";
 			case INTRON:
 				return "intron_variant";
+			case UTR_3_DELETED:
 			case UTR_3_PRIME:
 				return "3_prime_UTR_variant";
-			case UTR_3_DELETED:
-				return "";
 			case DOWNSTREAM:
 				return "downstream_gene_variant";
 			case INTRON_CONSERVED:
