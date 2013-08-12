@@ -19,10 +19,10 @@
 
 java -Xmx4g -jar snpEff.jar \
 	-motif \
-	-interval protocols_sample/tbx5_regulatory.bed \
+	-interval protocols/ex2_regulatory.bed \
 	GRCh37.71 \
-	protocols_sample/tbx5.vcf \
-	> protocols_sample/tbx5.eff.vcf
+	protocols/ex2.vcf \
+	> protocols/ex2.eff.vcf
 
 #---
 # Step 2: Add conservation scores
@@ -31,16 +31,16 @@ java -Xmx4g -jar snpEff.jar \
 java -Xmx1g -jar SnpSift.jar \
 	phastCons \
 	-v \
-	protocols_sample/phastcons \
-	protocols_sample/tbx5.eff.vcf \
-	> protocols_sample/tbx5.eff.cons.vcf
+	protocols/phastcons \
+	protocols/ex2.eff.vcf \
+	> protocols/ex2.eff.cons.vcf
 
 #---
 # Step 3: Filter variants
 #---
 
-cat protocols_sample/tbx5.eff.cons.closest.vcf \
+cat protocols/ex2.eff.cons.closest.vcf \
   | java -jar SnpSift.jar filter \
-    "(EFF[*].EFFECT = 'CUSTOM[tbx5_regulatory]') & (exists PhastCons) & (PhastCons > 0.9)" \
-  > protocols_sample/tbx5.filtered.vcf
+    "(EFF[*].EFFECT = 'CUSTOM[ex2_regulatory]') & (exists PhastCons) & (PhastCons > 0.9)" \
+  > protocols/ex2.filtered.vcf
 

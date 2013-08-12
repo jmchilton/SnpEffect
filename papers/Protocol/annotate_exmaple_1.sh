@@ -48,8 +48,8 @@
 # java -jar snpEff.jar download -v GRCh37.71
 
 # # Download sample data
-# curl -v -L http://sourceforge.net/projects/snpeff/files/protocols_sample.zip > protocols_sample.zip
-# unzip protocols_sample.zip
+# curl -v -L http://sourceforge.net/projects/snpeff/files/protocols.zip > protocols.zip
+# unzip protocols.zip
 
 #---
 # Step 1 : Annotate sample data
@@ -66,8 +66,8 @@ java -Xmx4g -jar snpEff.jar \
   -motif \
   -nextProt \
   GRCh37.71 \
-  protocols_sample/chr7.vcf \
-  > protocols_sample/chr7.eff.vcf
+  protocols/ex1.vcf \
+  > protocols/ex1.eff.vcf
 
 # Open HTML summary in browser, look for QC indicators
 
@@ -85,9 +85,9 @@ echo "Counting cases and controls"
 java -Xmx1g -jar SnpSift.jar \
   caseControl \
   -v \
-  -tfam protocols_sample/pedigree.tfam \
-  protocols_sample/chr7.eff.vcf \
-  > protocols_sample/chr7.eff.cc.vcf
+  -tfam protocols/pedigree.tfam \
+  protocols/ex1.eff.vcf \
+  > protocols/ex1.eff.cc.vcf
 
 
 # Note:  The program also calculates 
@@ -125,13 +125,13 @@ java -Xmx1g -jar SnpSift.jar \
 # Putting all this toghether, we get:
 
 echo "Filtering variants"
-cat protocols_sample/chr7.eff.cc.vcf \
+cat protocols/ex1.eff.cc.vcf \
   | java -jar SnpSift.jar filter \
     "(Cases[0] = 3) & (Controls[0] = 0) & (EFF[*].IMPACT = 'HIGH')" \
-  > protocols_sample/chr7.filtered.hom.high.vcf
+  > protocols/ex1.filtered.hom.high.vcf
 
 echo "Show variants in a simple format"
-cat protocols_sample/chr7.filtered.hom.high.vcf \
+cat protocols/ex1.filtered.hom.high.vcf \
 	| ./scripts/vcfInfoOnePerLine.pl \
 	| less -S
 
@@ -140,11 +140,11 @@ cat protocols_sample/chr7.filtered.hom.high.vcf \
 # Plot pedigree
 echo "Plot variant in pedigree"
 java -jar SnpSift.jar pedShow \
-	protocols_sample/pedigree.tfam \
-	protocols_sample/chr7.filtered.hom.high.vcf \
-	protocols_sample/chart
+	protocols/pedigree.tfam \
+	protocols/ex1.filtered.hom.high.vcf \
+	protocols/chart
 
-# Open protocols_sample/chart/7_117227832/index.html in your browser
+# Open protocols/chart/7_117227832/index.html in your browser
 
 #---
 # Optional step: Annotating for GATK pipelines
@@ -172,8 +172,8 @@ java -Xmx4g -jar snpEff.jar \
   -v \
   -o gatk \
   GRCh37.71 \
-  protocols_sample/chr7.vcf \
-  > protocols_sample/chr7.eff.gatk.vcf
+  protocols/ex1.vcf \
+  > protocols/ex1.eff.gatk.vcf
 
 # # Create genome index file (if needed)
 # echo "Indexing Genome reference FASTA file: $ref"
@@ -189,8 +189,8 @@ java -Xmx4g -jar $gatk \
     -T VariantAnnotator \
     -R $ref \
     -A SnpEff \
-    --variant protocols_sample/chr7.vcf \
-    --snpEffFile protocols_sample/chr7.eff.gatk.vcf \
-    -L protocols_sample/chr7.vcf \
-    -o protocols_sample/chr7.gatk.vcf
+    --variant protocols/ex1.vcf \
+    --snpEffFile protocols/ex1.eff.gatk.vcf \
+    -L protocols/ex1.vcf \
+    -o protocols/ex1.gatk.vcf
 
