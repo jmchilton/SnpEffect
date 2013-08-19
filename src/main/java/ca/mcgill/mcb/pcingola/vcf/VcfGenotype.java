@@ -192,7 +192,7 @@ public class VcfGenotype {
 			return true; // Homozygous
 		}
 
-		return vcfEntry.isHomozygous();
+		return vcfEntry.isBiAllelic();
 	}
 
 	/**

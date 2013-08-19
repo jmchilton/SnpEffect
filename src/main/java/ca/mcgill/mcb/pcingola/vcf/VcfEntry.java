@@ -171,8 +171,8 @@ public class VcfEntry extends Marker implements Iterable<VcfGenotype> {
 	 * @return
 	 */
 	public Boolean calcHetero() {
-		// No genotyping information? => Use number of ALT fielsd
-		if (genotypeFieldsStr == null) return isHeterozygous();
+		// No genotyping information? => Use number of ALT field
+		if (genotypeFieldsStr == null) return isMultiallelic();
 
 		Boolean isHetero = null;
 
@@ -502,6 +502,17 @@ public class VcfEntry extends Marker implements Iterable<VcfGenotype> {
 	}
 
 	/**
+	 * Is this bi-allelic (based ONLY on the number of ALTs)
+	 * WARINIG: You should use 'calcHetero()' method for a more precise calculation.
+	 * 
+	 * @return
+	 */
+	public boolean isBiAllelic() {
+		if (alts == null) return false;
+		return alts.length == 1; // Only one ALT option? => homozygous
+	}
+
+	/**
 	 * Do we have compressed genotypes in "HO,HE,NA" INFO fields?
 	 * @return
 	 */
@@ -515,28 +526,6 @@ public class VcfEntry extends Marker implements Iterable<VcfGenotype> {
 
 	public boolean isFilterPass() {
 		return filterPass.equals("PASS");
-	}
-
-	/**
-	 * Is this heterozygous (based ONLY on the number of ALTs)
-	 * WARINIG: You should use 'calcHetero()' method for a more precise calculation.
-	 * 
-	 * @return
-	 */
-	public boolean isHeterozygous() {
-		if (alts == null) return false;
-		return alts.length > 1; // More than one ALT option? => not homozygous
-	}
-
-	/**
-	 * Is this homozygous (based ONLY on the number of ALTs)
-	 * WARINIG: You should use 'calcHetero()' method for a more precise calculation.
-	 * 
-	 * @return
-	 */
-	public boolean isHomozygous() {
-		if (alts == null) return false;
-		return alts.length == 1; // Only one ALT option? => homozygous
 	}
 
 	public boolean isInDel() {
@@ -557,6 +546,17 @@ public class VcfEntry extends Marker implements Iterable<VcfGenotype> {
 
 	public boolean isMnp() {
 		return changeType == ChangeType.MNP;
+	}
+
+	/**
+	 * Is this multi-allelic (based ONLY on the number of ALTs)
+	 * WARINIG: You should use 'calcHetero()' method for a more precise calculation.
+	 * 
+	 * @return
+	 */
+	public boolean isMultiallelic() {
+		if (alts == null) return false;
+		return alts.length > 1; // More than one ALT option? => not homozygous
 	}
 
 	/**
