@@ -90,7 +90,7 @@ public class SnpEffCmdAcat extends SnpEff {
 				}
 
 				// Append to ACAT score
-				if (acatScore >= minAcatScore) {
+				if (acatScore <= minAcatScore) {
 					minAcatScore = acatScore;
 
 					// Add as ACAT format
