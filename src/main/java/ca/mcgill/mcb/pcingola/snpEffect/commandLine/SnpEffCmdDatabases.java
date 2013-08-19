@@ -25,29 +25,11 @@ public class SnpEffCmdDatabases extends SnpEff {
 
 	boolean galaxy = false;
 	boolean html = false;
-	Config config;
 	HashMap<String, String> nameByGenomeVer;
 	ArrayList<String> namesSorted;
 	ArrayList<String> genVerSorted;
 
 	public SnpEffCmdDatabases() {
-		// Read config (it doesn't matter which genome)
-		config = new Config("hg19");
-
-		// Get all genome names and sort them
-		nameByGenomeVer = new HashMap<String, String>();
-		for (String genVer : config)
-			nameByGenomeVer.put(genVer, config.getName(genVer));
-
-		namesSorted = new ArrayList<String>();
-		namesSorted.addAll(nameByGenomeVer.values());
-		Collections.sort(namesSorted);
-
-		// Sort genome versions
-		genVerSorted = new ArrayList<String>();
-		for (String genVer : config)
-			genVerSorted.add(genVer);
-		Collections.sort(genVerSorted);
 	}
 
 	/**
@@ -131,14 +113,44 @@ public class SnpEffCmdDatabases extends SnpEff {
 	public void parseArgs(String[] args) {
 		if (args.length > 1) usage(null);
 
-		if (args.length == 1) {
-			galaxy = args[0].equals("galaxy");
-			html = args[0].equals("html");
+		for (int i = 0; i < args.length; i++) {
+			String arg = args[i];
+
+			if (isOpt(arg)) {
+				usage("Unknow option '" + arg + "'");
+			} else {
+				// Command line
+				if (arg.equals("galaxy")) {
+					galaxy = true;
+					html = false;
+				} else if (arg.equals("html")) {
+					html = true;
+					galaxy = false;
+				}
+			}
 		}
 	}
 
 	@Override
 	public boolean run() {
+		// Read config (it doesn't matter which genome)
+		config = new Config("hg19", configFile);
+
+		// Get all genome names and sort them
+		nameByGenomeVer = new HashMap<String, String>();
+		for (String genVer : config)
+			nameByGenomeVer.put(genVer, config.getName(genVer));
+
+		namesSorted = new ArrayList<String>();
+		namesSorted.addAll(nameByGenomeVer.values());
+		Collections.sort(namesSorted);
+
+		// Sort genome versions
+		genVerSorted = new ArrayList<String>();
+		for (String genVer : config)
+			genVerSorted.add(genVer);
+		Collections.sort(genVerSorted);
+
 		if (galaxy) galaxyConfig();
 		else if (html) htmlTable();
 		else txtTable();
@@ -171,9 +183,10 @@ public class SnpEffCmdDatabases extends SnpEff {
 	@Override
 	public void usage(String message) {
 		if (message != null) System.err.println("Error: " + message + "\n");
-		System.err.println("Usage: snpEff databases [galaxy]");
+		System.err.println("Usage: snpEff databases [galaxy|html]");
 		System.err.println("\nOptions");
-		System.err.println("\n\tgalaxy\t: Show databases in a galaxy menu format.");
+		System.err.println("\tgalaxy  : Show databases in a galaxy menu format.");
+		System.err.println("\thtml    : Show databases in a HTML format.");
 		System.exit(-1);
 	}
 }
