@@ -28,10 +28,7 @@ public class SnpEffCmdCds extends SnpEff {
 	int totalOk = 0;
 	int totalWarnings = 0;
 	int totalNotFound = 0;
-	String configFile = Config.DEFAULT_CONFIG_FILE;
-	String genomeVer = "";
 	String cdsFile = "";
-	Config config;
 	HashMap<String, String> cdsByTrId;
 
 	public SnpEffCmdCds() {

@@ -229,7 +229,6 @@ public class SnpEffCmdSpliceAnalysis extends SnpEff {
 	public static int HTML_HEIGHT = 100;
 
 	String outputDir = ".";
-	String genomeVer;
 	String genomeFasta;
 	StringBuilder out = new StringBuilder();
 	Config config;
