@@ -11,7 +11,6 @@ import ca.mcgill.mcb.pcingola.coverage.CountReadsOnMarkers;
 import ca.mcgill.mcb.pcingola.interval.Genome;
 import ca.mcgill.mcb.pcingola.interval.Marker;
 import ca.mcgill.mcb.pcingola.interval.Markers;
-import ca.mcgill.mcb.pcingola.snpEffect.Config;
 import ca.mcgill.mcb.pcingola.snpEffect.SnpEffectPredictor;
 import ca.mcgill.mcb.pcingola.stats.ReadsOnMarkersModel;
 import ca.mcgill.mcb.pcingola.util.Gpr;
@@ -125,9 +124,7 @@ public class SnpEffCmdCount extends SnpEff {
 		//---
 
 		// Load Config
-		if (verbose) Timer.showStdErr("Reading configuration file '" + configFile + "'");
-		config = new Config(genomeVer, configFile); // Read configuration
-		if (verbose) Timer.showStdErr("done");
+		readConfig(); // Read config file
 
 		// Load database
 		if (noGenome) {

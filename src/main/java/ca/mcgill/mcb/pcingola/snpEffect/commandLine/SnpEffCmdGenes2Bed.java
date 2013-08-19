@@ -4,7 +4,6 @@ import java.util.HashSet;
 
 import ca.mcgill.mcb.pcingola.interval.Gene;
 import ca.mcgill.mcb.pcingola.interval.Genome;
-import ca.mcgill.mcb.pcingola.snpEffect.Config;
 import ca.mcgill.mcb.pcingola.util.Gpr;
 import ca.mcgill.mcb.pcingola.util.Timer;
 
@@ -79,8 +78,7 @@ public class SnpEffCmdGenes2Bed extends SnpEff {
 		}
 
 		// Load config & database
-		if (verbose) Timer.showStdErr("Loading config file '" + configFile + "'");
-		config = new Config(genomeVer, configFile);
+		readConfig(); // Read config file
 		if (verbose) Timer.showStdErr("Loading database " + genomeVer);
 		config.loadSnpEffectPredictor();
 		Genome genome = config.getGenome();

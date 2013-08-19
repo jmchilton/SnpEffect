@@ -49,7 +49,7 @@ public class SnpEff implements CommandLine {
 	// Version info
 	public static final String SOFTWARE_NAME = "SnpEff";
 	public static final String REVISION = "h";
-	public static final String BUILD = "2013-08-11";
+	public static final String BUILD = "2013-08-19";
 	public static final String VERSION_MAJOR = "3.3";
 	public static final String VERSION_SHORT = VERSION_MAJOR + REVISION;
 	public static final String VERSION_NO_NAME = VERSION_SHORT + " (build " + BUILD + "), by " + Pcingola.BY;
@@ -235,7 +235,10 @@ public class SnpEff implements CommandLine {
 	 */
 	protected void readConfig() {
 		// Read config file
-		if (verbose) Timer.showStdErr("Reading configuration file '" + configFile + "'");
+		if (verbose) //
+			Timer.showStdErr("Reading configuration file '" + configFile + "'" //
+					+ ((genomeVer != null) && (!genomeVer.isEmpty()) ? ". Genome: '" + genomeVer + "'" : "") //
+			);
 		config = new Config(genomeVer, configFile); // Read configuration
 		if (verbose) Timer.showStdErr("done");
 	}

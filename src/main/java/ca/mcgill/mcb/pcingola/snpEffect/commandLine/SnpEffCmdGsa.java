@@ -31,7 +31,6 @@ import ca.mcgill.mcb.pcingola.interval.Genome;
 import ca.mcgill.mcb.pcingola.interval.Marker;
 import ca.mcgill.mcb.pcingola.interval.Markers;
 import ca.mcgill.mcb.pcingola.interval.SeqChange;
-import ca.mcgill.mcb.pcingola.snpEffect.Config;
 import ca.mcgill.mcb.pcingola.snpEffect.SnpEffectPredictor;
 import ca.mcgill.mcb.pcingola.util.Gpr;
 import ca.mcgill.mcb.pcingola.util.Timer;
@@ -236,9 +235,8 @@ public class SnpEffCmdGsa extends SnpEff {
 	 * Initialize: read config, database, etc.
 	 */
 	void initialize() {
-		// Read config file
-		if (verbose) Timer.showStdErr("Reading configuration file '" + configFile + "'");
-		config = new Config(genomeVer, configFile); // Read configuration
+		readConfig(); // Read config file
+
 		if (verbose) Timer.showStdErr("done");
 
 		// Read database (if gene level scores are provided, we don't neet to map p_values to genes (we can skip this step)

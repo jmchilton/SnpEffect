@@ -17,7 +17,6 @@ import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
 import ca.mcgill.mcb.pcingola.logStatsServer.VersionCheck;
-import ca.mcgill.mcb.pcingola.snpEffect.Config;
 import ca.mcgill.mcb.pcingola.util.Gpr;
 import ca.mcgill.mcb.pcingola.util.Timer;
 
@@ -224,7 +223,7 @@ public class SnpEffCmdDownload extends SnpEff {
 	 * @return
 	 */
 	boolean runDownloadGenome() {
-		config = new Config(genomeVer, configFile);
+		readConfig(); // Read config file
 
 		if (verbose) Timer.show("Downloading database for '" + genomeVer + "'");
 
@@ -245,7 +244,8 @@ public class SnpEffCmdDownload extends SnpEff {
 	 * @return
 	 */
 	boolean runDownloadSnpEff() {
-		config = new Config("", configFile); // No genome version
+		genomeVer = ""; // No genome version
+		readConfig(); // Read config file
 
 		//---
 		// Get latest version data from server

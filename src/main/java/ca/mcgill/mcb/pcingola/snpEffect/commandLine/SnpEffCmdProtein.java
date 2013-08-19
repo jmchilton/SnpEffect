@@ -337,11 +337,7 @@ public class SnpEffCmdProtein extends SnpEff {
 		if (verbose) Timer.showStdErr("Checking database using protein sequences");
 
 		// Load config
-		if (config == null) {
-			if (verbose) Timer.showStdErr("Reading configuration...");
-			config = new Config(genomeVer, configFile); // Read configuration
-			if (verbose) Timer.showStdErr("done");
-		}
+		if (config == null) readConfig();
 
 		// Read proteins
 		if (verbose) Timer.showStdErr("Reading proteins from file '" + proteinFile + "'...");

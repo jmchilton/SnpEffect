@@ -6,7 +6,6 @@ import ca.mcgill.mcb.pcingola.interval.Marker;
 import ca.mcgill.mcb.pcingola.interval.Markers;
 import ca.mcgill.mcb.pcingola.interval.Motif;
 import ca.mcgill.mcb.pcingola.probablility.FisherExactTest;
-import ca.mcgill.mcb.pcingola.snpEffect.Config;
 import ca.mcgill.mcb.pcingola.snpEffect.SnpEffectPredictor;
 import ca.mcgill.mcb.pcingola.stats.CountByType;
 import ca.mcgill.mcb.pcingola.util.Gpr;
@@ -106,9 +105,8 @@ public class SnpEffCmdTest extends SnpEff {
 		//---
 		// Initialize
 		//---
-		if (verbose) Timer.showStdErr("Reading configuration file '" + configFile + "'");
-		config = new Config(sepLoader.getGenomeVer(), configFile); // Read configuration
-		if (verbose) Timer.showStdErr("done");
+		genomeVer = sepLoader.getGenomeVer();
+		readConfig(); // Read config file
 
 		sepLoader.load(config); // Load database, build forest
 

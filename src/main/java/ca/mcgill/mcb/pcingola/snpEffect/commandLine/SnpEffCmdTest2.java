@@ -6,7 +6,6 @@ import ca.mcgill.mcb.pcingola.fileIterator.VcfFileIterator;
 import ca.mcgill.mcb.pcingola.interval.Gene;
 import ca.mcgill.mcb.pcingola.interval.Marker;
 import ca.mcgill.mcb.pcingola.snpEffect.ChangeEffect.EffectType;
-import ca.mcgill.mcb.pcingola.snpEffect.Config;
 import ca.mcgill.mcb.pcingola.snpEffect.LossOfFunction;
 import ca.mcgill.mcb.pcingola.snpEffect.SnpEffectPredictor;
 import ca.mcgill.mcb.pcingola.stats.CountByType;
@@ -263,9 +262,7 @@ public class SnpEffCmdTest2 extends SnpEff {
 		//---
 		// Load database, build tree
 		//---
-		if (verbose) Timer.showStdErr("Reading configuration...");
-		config = new Config(genomeVer, configFile); // Read configuration
-		if (verbose) Timer.showStdErr("done");
+		readConfig(); // Read config file
 
 		if (verbose) Timer.showStdErr("Loading predictor...");
 		config.loadSnpEffectPredictor();

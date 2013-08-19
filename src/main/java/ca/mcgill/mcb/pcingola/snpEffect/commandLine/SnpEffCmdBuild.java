@@ -14,7 +14,6 @@ import ca.mcgill.mcb.pcingola.interval.Markers;
 import ca.mcgill.mcb.pcingola.interval.Motif;
 import ca.mcgill.mcb.pcingola.interval.RareAminoAcid;
 import ca.mcgill.mcb.pcingola.motif.Jaspar;
-import ca.mcgill.mcb.pcingola.snpEffect.Config;
 import ca.mcgill.mcb.pcingola.snpEffect.SnpEffectPredictor;
 import ca.mcgill.mcb.pcingola.snpEffect.factory.SnpEffPredictorFactory;
 import ca.mcgill.mcb.pcingola.snpEffect.factory.SnpEffPredictorFactoryEmbl;
@@ -276,7 +275,7 @@ public class SnpEffCmdBuild extends SnpEff {
 	@Override
 	public boolean run() {
 		if (verbose) Timer.showStdErr("Building database for '" + genomeVer + "'");
-		config = new Config(genomeVer, configFile);
+		readConfig(); // Read config file
 
 		// Create SnpEffectPredictor
 		if (!onlyRegulation) {

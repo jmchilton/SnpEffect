@@ -228,11 +228,7 @@ public class SnpEffCmdClosest extends SnpEff {
 	@Override
 	public boolean run() {
 		// Load config
-		if (config == null) {
-			if (verbose) Timer.showStdErr("Reading configuration...");
-			config = new Config(genomeVer, configFile); // Read configuration
-			if (verbose) Timer.showStdErr("done");
-		}
+		if (config == null) readConfig();
 
 		if (verbose) Timer.showStdErr("Loading predictor...");
 		config.loadSnpEffectPredictor();

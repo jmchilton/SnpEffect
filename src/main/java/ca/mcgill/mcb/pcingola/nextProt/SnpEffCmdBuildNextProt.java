@@ -24,7 +24,6 @@ import ca.mcgill.mcb.pcingola.interval.Markers;
 import ca.mcgill.mcb.pcingola.interval.NextProt;
 import ca.mcgill.mcb.pcingola.interval.Transcript;
 import ca.mcgill.mcb.pcingola.serializer.MarkerSerializer;
-import ca.mcgill.mcb.pcingola.snpEffect.Config;
 import ca.mcgill.mcb.pcingola.snpEffect.SnpEffectPredictor;
 import ca.mcgill.mcb.pcingola.snpEffect.commandLine.SnpEff;
 import ca.mcgill.mcb.pcingola.stats.CountByType;
@@ -625,9 +624,7 @@ public class SnpEffCmdBuildNextProt extends SnpEff {
 	@Override
 	public boolean run() {
 		// Initialzie
-		if (verbose) Timer.showStdErr("Reading configuration file '" + configFile + "'");
-		config = new Config(genomeVer, configFile); // Read configuration
-		if (verbose) Timer.showStdErr("done");
+		readConfig(); // Read config file
 
 		if (verbose) Timer.showStdErr("Reading database for genome version '" + genomeVer + "' from file '" + config.getFileSnpEffectPredictor() + "' (this might take a while)");
 		SnpEffectPredictor snpEffectPredictor = config.loadSnpEffectPredictor();

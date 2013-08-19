@@ -9,7 +9,6 @@ import ca.mcgill.mcb.pcingola.interval.Marker;
 import ca.mcgill.mcb.pcingola.interval.Transcript;
 import ca.mcgill.mcb.pcingola.interval.Utr;
 import ca.mcgill.mcb.pcingola.interval.tree.IntervalTree;
-import ca.mcgill.mcb.pcingola.snpEffect.Config;
 import ca.mcgill.mcb.pcingola.util.Timer;
 
 /**
@@ -184,7 +183,7 @@ public class SnpEffCmdDump extends SnpEff {
 		//---
 		// Dump database
 		//---
-		config = new Config(genomeVer, configFile);
+		readConfig(); // Read config file
 
 		// Read database
 		if (verbose) Timer.showStdErr("Reading database for genome '" + genomeVer + "' (this might take a while)");

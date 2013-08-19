@@ -252,11 +252,7 @@ public class SnpEffCmdCds extends SnpEff {
 		if (verbose) Timer.showStdErr("Checking database using CDS sequences");
 
 		// Load config
-		if (config == null) {
-			if (verbose) Timer.showStdErr("Reading configuration...");
-			config = new Config(genomeVer, configFile); // Read configuration
-			if (verbose) Timer.showStdErr("done");
-		}
+		if (config == null) readConfig();
 
 		// Read CDS form file
 		if (verbose) Timer.showStdErr("Reading CDSs from file '" + cdsFile + "'...");
