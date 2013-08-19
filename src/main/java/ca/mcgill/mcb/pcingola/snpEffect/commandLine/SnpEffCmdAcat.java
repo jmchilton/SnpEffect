@@ -84,21 +84,24 @@ public class SnpEffCmdAcat extends SnpEff {
 				// Coding scores (ACAT)
 				//---
 
-				// Is this a better score?
+				// Is this a better score? => Remove old data
 				if (acatScore < minAcatScore) {
+					if (acat.length() > 0) acat = new StringBuilder();
+				}
+
+				// Append to ACAT score
+				if (acatScore >= minAcatScore) {
 					minAcatScore = acatScore;
 
 					// Add as ACAT format
-					String gene = veff.getGene();
-					String trId = veff.getTranscriptId();
-					if (gene == null) gene = "";
-					if (trId == null) trId = "";
-
+					String gene = veff.getGene() != null ? veff.getGene() : "";
+					String trId = veff.getTranscriptId() != null ? veff.getTranscriptId() : "";
 					if (acat.length() > 0) acat.append(",");
 					acat.append(gene + ":" + trId + ":" + acatScore);
 
 					acatKey = "CODING:" + veff.getImpact() + ":" + veff.getEffect();
 				}
+
 			} else {
 				//---
 				// NonCoding scores (NCCAT)
