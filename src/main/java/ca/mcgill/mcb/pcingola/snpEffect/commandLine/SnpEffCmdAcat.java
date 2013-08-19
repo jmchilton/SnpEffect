@@ -50,7 +50,7 @@ public class SnpEffCmdAcat extends SnpEff {
 	void acat(VcfEntry ve) {
 		boolean hasMotif = false, hasReg = false;
 		int minAcatScore = Integer.MAX_VALUE; // Lower values mean more deleterious
-		String acat = null;
+		StringBuilder acat = new StringBuilder();
 		String acatKey = null;
 		int nccat = Integer.MAX_VALUE;
 		StringBuilder ncmark = new StringBuilder();
@@ -93,7 +93,9 @@ public class SnpEffCmdAcat extends SnpEff {
 					String trId = veff.getTranscriptId();
 					if (gene == null) gene = "";
 					if (trId == null) trId = "";
-					acat = gene + ":" + trId + ":" + acatScore;
+
+					if (acat.length() > 0) acat.append(",");
+					acat.append(gene + ":" + trId + ":" + acatScore);
 
 					acatKey = "CODING:" + veff.getImpact() + ":" + veff.getEffect();
 				}
@@ -147,7 +149,7 @@ public class SnpEffCmdAcat extends SnpEff {
 		else if (cons > CONSERVATION_THRESHOLD) nccat = 4;
 
 		// Anything found? Add INFO
-		if (acat != null) ve.addInfo(ACAT, acat);
+		if (acat.length() > 0) ve.addInfo(ACAT, acat.toString());
 		if (minAcatScore >= 4) {
 			// If there is no coding annotation, add non-coding ones
 			if (ncmark.length() > 0) ve.addInfo(NCMARK, ncmark.toString());
