@@ -49,7 +49,8 @@ public class SnpEffCmdGsa extends SnpEff {
 		NONE
 	}
 
-	public static int READ_INPUT_SHOW_EVERY = 1000;;
+	public static int READ_INPUT_SHOW_EVERY = 1000;
+	public static int MAX_WARNS = 20;
 
 	InputFormat inputFormat = InputFormat.VCF;
 	boolean useClosestGene = false; // Map to 'any' closest gene?
@@ -604,14 +605,18 @@ public class SnpEffCmdGsa extends SnpEff {
 	ChrPosScoreList readInputVcf() {
 		ChrPosScoreList cppList = new ChrPosScoreList();
 
-		int num = 1;
+		int num = 1, warns = 0;
 		VcfFileIterator vcf = new VcfFileIterator(inputFile);
 		for (VcfEntry ve : vcf) {
 			double score = ve.getInfoFloat(infoName);
 
 			if (Double.isNaN(score)) {
 				// Error
-				System.err.println("Warning: Cannot find INFO field '" + infoName + "'.\n\tIgnoring VCF entry." + vcf.getLineNum() + "\n\t" + ve);
+				if (warns <= MAX_WARNS) {
+					System.err.println("Warning: Cannot find INFO field '" + infoName + "'. Ignoring VCF entry " + vcf.getLineNum() + "\t" + ve);
+					if (warns == MAX_WARNS) System.err.println("Too many warnings! No more warnings shown.");
+				}
+				warns++;
 			} else {
 				// Add to list
 				cppList.add(ve.getChromosome(), ve.getStart(), ve.getEnd(), score);
