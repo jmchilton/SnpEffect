@@ -404,7 +404,7 @@ public class ScoreList {
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 
-		sb.append(geneId + ":\t");
+		sb.append(geneId + "\t" + size() + "\t");
 		for (int i = 0; i < size(); i++)
 			sb.append(String.format(" %.2e", getScore(i)));
 

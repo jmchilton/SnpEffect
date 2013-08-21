@@ -68,6 +68,7 @@ public class SnpEffCmdGsa extends SnpEff {
 	String infoName = "";
 	String msigdb = "";
 	String geneScoreFile = "";
+	String geneScoreFileOut = null;
 	String geneInterestingFile = "";
 	ScoreSummary scoreSummary = ScoreSummary.MIN;
 	CorrectionMethod correctionMethod = CorrectionMethod.NONE;
@@ -385,9 +386,13 @@ public class SnpEffCmdGsa extends SnpEff {
 						enrichmentAlgorithmType = EnrichmentAlgorithmType.valueOf(algo);
 					} else usage("Missing value in command line option '-algo'");
 				} else if (arg.equals("-geneScoreFile")) {
-					// Algorithm to use
+					// Read gene scores from file
 					if ((i + 1) < args.length) geneScoreFile = args[++i];
 					else usage("Missing value in command line option '-geneScoreFile'");
+				} else if (arg.equals("-saveGeneScoreFile")) {
+					// Save gene scores to file
+					if ((i + 1) < args.length) geneScoreFileOut = args[++i];
+					else usage("Missing value in command line option '-saveGeneScoreFile'");
 				} else if (arg.equals("-geneInterestingFile")) {
 					// Algorithm to use
 					if ((i + 1) < args.length) geneInterestingFile = args[++i];
@@ -614,7 +619,7 @@ public class SnpEffCmdGsa extends SnpEff {
 			scoreGenes(); // Get one score (Score) per gene
 			correctScores(); // Correct gene scores
 		} else if (!geneScoreFile.isEmpty()) {
-			// Sscores already mapped to genes, provided in a file
+			// Scores already mapped to genes, provided in a file
 			readGeneScores(geneScoreFile);
 		} else if (!geneInterestingFile.isEmpty()) {
 			// Interesting genes from file (not calculated)
@@ -657,20 +662,32 @@ public class SnpEffCmdGsa extends SnpEff {
 	void scoreGenes() {
 		if (verbose) Timer.showStdErr("Aggregating scores by gene (scoring genes)");
 
+		StringBuilder saveScores = null;
+		if (geneScoreFileOut != null) saveScores = new StringBuilder();
+
 		// Create one Score per gene
+		double scoreMin = Double.MAX_VALUE, scoreMax = Double.MIN_VALUE;
+
 		geneScore = new HashMap<String, Double>();
-		if (debug) System.err.println("\tscore\tgeneId");
+		if (geneScoreFileOut != null) saveScores.append("score\tgeneId\tcount_pvalues\tpvalues\n");
 		for (String geneId : geneScores.keySet()) {
 			// Calculate aggregated score
 			ScoreList gpl = geneScores.get(geneId);
 			double score = gpl.score(scoreSummary);
 
+			scoreMax = Math.max(score, scoreMax);
+			scoreMin = Math.min(score, scoreMin);
+
 			// Add to map
 			geneScore.put(geneId, score);
-			if (debug) System.err.println(String.format("\t%.2e\t%s", score, geneId));
+			if (geneScoreFileOut != null) saveScores.append(String.format("%.2e\t%s\n", score, gpl));
 		}
 
-		if (verbose) Timer.showStdErr("Done.");
+		if (geneScoreFileOut != null) {
+			if (verbose) Timer.showStdErr("Saving gene scores to file: '" + geneScoreFileOut + "'");
+			Gpr.toFile(geneScoreFileOut, saveScores);
+		}
+		if (verbose) Timer.showStdErr("Done. Score range: [ " + scoreMin + " , " + scoreMax + " ]");
 	}
 
 	/**
@@ -691,6 +708,7 @@ public class SnpEffCmdGsa extends SnpEff {
 		System.err.println("\t-algo <name>                  : Gene set enrichment algorithm {FISHER_GREEDY, RANKSUM_GREEDY, FISHER, RANKSUM, LEADING_EDGE_FRACTION}. Default: " + enrichmentAlgorithmType);
 		System.err.println("\t-geneScore                    : Method to summarize gene scores {MIN, MAX, AVG, AVG_MIN_10, AVG_MAX_10, FISHER_CHI_SQUARE, Z_SCORES, SIMES}. Default: " + scoreSummary);
 		System.err.println("\t-geneScoreFile <file>         : Read gene score from file instead of calculating them.");
+		System.err.println("\t-saveGeneScoreFile <file>     : Save gene scores to file.");
 		System.err.println("\t-mapClosestGene               : Map to closest gene. Default: " + useClosestGene);
 		System.err.println("\t-rand <num>                   : Perform 'num' iterations using random scores. Default: " + randIterations);
 		System.err.println("\n\tAlgorithm specific options: FISHER and FISHER_GREEDY");
