@@ -161,6 +161,10 @@ public class SnpEff implements CommandLine {
 		System.exit(-1);
 	}
 
+	public Config getConfig() {
+		return config;
+	}
+
 	/**
 	 * Is this a command line option (e.g. "-tfam" is a command line option, but "-" means STDIN)
 	 * @param arg
@@ -307,7 +311,29 @@ public class SnpEff implements CommandLine {
 		//---
 		// Run
 		//---
-		String err = "";
+		StringBuilder err = new StringBuilder();
+		ok = run(snpEff, shiftArgs, err);
+
+		// Report to server (usage statistics) 
+		if (log) {
+			// Log to server
+			LogStats.report(SOFTWARE_NAME, VERSION_SHORT, VERSION, ok, verbose, args, err.toString(), snpEff.reportValues());
+
+			// Check for new version (use config file from command, since this one doesn't load a config file)
+			checkNewVersion(snpEff.config);
+		}
+
+		return ok;
+	}
+
+	/**
+	 * Run a SnpEff (usually a sub-class)
+	 * @param snpEff
+	 * @param err
+	 * @return
+	 */
+	protected boolean run(SnpEff snpEff, String args[], StringBuilder err) {
+		boolean ok = false;
 		try {
 			snpEff.verbose = verbose;
 			snpEff.help = help;
@@ -316,23 +342,17 @@ public class SnpEff implements CommandLine {
 			snpEff.configFile = configFile;
 
 			if (help) snpEff.usage(null); // Show help message and exit
-			else snpEff.parseArgs(shiftArgs);
+			else snpEff.parseArgs(args);
 			ok = snpEff.run();
 		} catch (Throwable t) {
-			err = t.getMessage();
+			err.append(t.getMessage());
 			t.printStackTrace();
 		}
-
-		// Report to server (usage statistics) 
-		if (log) {
-			// Log to server
-			LogStats.report(SOFTWARE_NAME, VERSION_SHORT, VERSION, ok, verbose, args, err, snpEff.reportValues());
-
-			// Check for new version (use config file from command, since this one doesn't load a config file)
-			checkNewVersion(snpEff.config);
-		}
-
 		return ok;
+	}
+
+	public void setConfig(Config config) {
+		this.config = config;
 	}
 
 	public void setDebug(boolean debug) {
