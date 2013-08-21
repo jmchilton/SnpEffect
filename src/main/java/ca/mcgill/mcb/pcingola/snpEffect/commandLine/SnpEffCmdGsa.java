@@ -702,7 +702,7 @@ public class SnpEffCmdGsa extends SnpEff {
 
 		// Parse commands from file
 		for (String commnadLine : Gpr.readFile(commands).split("\n")) {
-			if (verbose) System.err.println("COMMAND: " + commnadLine);
+			if (verbose) Timer.showStdErr("COMMAND: " + commnadLine);
 
 			// Parse command line (tab-separated)
 			String args[] = commnadLine.split("\t");
@@ -718,6 +718,7 @@ public class SnpEffCmdGsa extends SnpEff {
 			ok &= run(snpEffCmdGsa, args, err);
 		}
 
+		if (verbose) Timer.showStdErr("Done!");
 		return ok;
 	}
 
