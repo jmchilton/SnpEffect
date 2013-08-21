@@ -70,8 +70,9 @@ public class SnpEffCmdGsa extends SnpEff {
 	String msigdb = "";
 	String geneScoreFile = "";
 	String geneScoreFileOut = null;
-	String commands = null;
+	String commandsFile = null;
 	String geneInterestingFile = "";
+	String saveFile = null;
 	ScoreSummary scoreSummary = ScoreSummary.MIN;
 	CorrectionMethod correctionMethod = CorrectionMethod.NONE;
 	SnpEffectPredictor snpEffectPredictor;
@@ -255,6 +256,7 @@ public class SnpEffCmdGsa extends SnpEff {
 
 		// Run algorithm
 		algorithm.select();
+
 	}
 
 	/**
@@ -405,8 +407,12 @@ public class SnpEffCmdGsa extends SnpEff {
 					else usage("Missing value in command line option '-saveGeneScoreFile'");
 				} else if (arg.equals("-commands")) {
 					// Load multiple commands from file
-					if ((i + 1) < args.length) commands = args[++i];
+					if ((i + 1) < args.length) commandsFile = args[++i];
 					else usage("Missing value in command line option '-commands'");
+				} else if (arg.equals("-save")) {
+					// Save results to file
+					if ((i + 1) < args.length) saveFile = args[++i];
+					else usage("Missing value in command line option '-save'");
 				} else if (arg.equals("-geneInterestingFile")) {
 					// Algorithm to use
 					if ((i + 1) < args.length) geneInterestingFile = args[++i];
@@ -432,7 +438,7 @@ public class SnpEffCmdGsa extends SnpEff {
 		//---
 		if (genomeVer.isEmpty() && geneScoreFile.isEmpty() && geneInterestingFile.isEmpty()) usage("Missing genome version.");
 
-		if (commands == null) {
+		if (commandsFile == null) {
 			// All these check are only performed when "commands" is not set
 			if ((inputFormat == InputFormat.VCF) && infoName.isEmpty() && geneScoreFile.isEmpty() && geneInterestingFile.isEmpty()) usage("Missing '-info' comamnd line option.");
 
@@ -449,7 +455,7 @@ public class SnpEffCmdGsa extends SnpEff {
 
 			if (!geneInterestingFile.isEmpty() && !enrichmentAlgorithmType.isBinary()) usage("Cannot specify '-geneInterestingFile' using algorithm '" + enrichmentAlgorithmType + "'");
 		} else {
-			if (!Gpr.canRead(commands)) fatalError("Cannot read commands file '" + commands + "'");
+			if (!Gpr.canRead(commandsFile)) fatalError("Cannot read commands file '" + commandsFile + "'");
 		}
 
 	}
@@ -634,7 +640,7 @@ public class SnpEffCmdGsa extends SnpEff {
 	@Override
 	public boolean run() {
 		// Normal usage: Just run analysis
-		if (commands == null) return runAnalisis();
+		if (commandsFile == null) return runAnalisis();
 
 		return runCommands();
 	}
@@ -701,8 +707,11 @@ public class SnpEffCmdGsa extends SnpEff {
 		config();
 
 		// Parse commands from file
-		for (String commnadLine : Gpr.readFile(commands).split("\n")) {
-			if (verbose) Timer.showStdErr("COMMAND: " + commnadLine);
+		for (String commnadLine : Gpr.readFile(commandsFile).split("\n")) {
+			if (verbose) {
+				Timer.showStdErr("COMMAND: " + commnadLine);
+				System.out.println("COMMAND: " + commnadLine);
+			}
 
 			// Parse command line (tab-separated)
 			String args[] = commnadLine.split("\t");
@@ -770,6 +779,7 @@ public class SnpEffCmdGsa extends SnpEff {
 		System.err.println("\t-i <format>                   : Input format {vcf, bed, txt}. Default: " + inputFormat);
 		System.err.println("\t-info <name>                  : INFO tag used for scores (in VCF input format).");
 		System.err.println("\t-desc                         : Sort scores in descending order (high score are better then low scores. Default " + orderDescending);
+		System.err.println("\t-save <file>                  : Save results to file.");
 		System.err.println("\t-score                        : Treat input data as scores instead of p-values.");
 		System.err.println("\n\tAlgorithm options:");
 		System.err.println("\t-algo <name>                  : Gene set enrichment algorithm {FISHER_GREEDY, RANKSUM_GREEDY, FISHER, RANKSUM, LEADING_EDGE_FRACTION}. Default: " + enrichmentAlgorithmType);

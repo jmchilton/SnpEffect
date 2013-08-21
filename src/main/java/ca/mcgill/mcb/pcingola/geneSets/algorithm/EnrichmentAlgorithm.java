@@ -59,6 +59,7 @@ public abstract class EnrichmentAlgorithm {
 	int maxGeneSetSize = Integer.MAX_VALUE;
 	int numberToSelect;
 	double maxPValue = 1.0;
+	StringBuilder out = new StringBuilder();
 	GeneSets geneSets;
 	Set<String> filterOutputGeneSets;
 	public static long PRINT_SOMETHING_TIME = 5000; // Print something every X milliseconds
@@ -66,6 +67,10 @@ public abstract class EnrichmentAlgorithm {
 	public EnrichmentAlgorithm(GeneSets geneSets, int numberToSelect) {
 		this.geneSets = geneSets;
 		this.numberToSelect = numberToSelect;
+	}
+
+	public StringBuilder getOut() {
+		return out;
 	}
 
 	/**
@@ -89,11 +94,16 @@ public abstract class EnrichmentAlgorithm {
 		return true;
 	}
 
+	protected void print(String str) {
+		System.out.println(str);
+		out.append(str + "\n");
+	}
+
 	/**
 	 * Print after all genesets are shown
 	 */
 	void printEnd() {
-		if (htmlTable) System.out.println("</table>");
+		if (htmlTable) print("</table>");
 	}
 
 	/**
@@ -154,7 +164,7 @@ public abstract class EnrichmentAlgorithm {
 
 					String bgcolor = HTML_BG_COLOR[it % 2];
 
-					System.out.println("\t<tr bgcolor=\"" + bgcolor + "\"> <td nowrap>" + it //
+					print("\t<tr bgcolor=\"" + bgcolor + "\"> <td nowrap>" + it //
 							+ "</td>\t<td nowrap>" + String.format("%.2e", result.getPvalue().doubleValue()) //
 							+ "</td>\t<td nowrap>" + String.format("%.2e", result.getPvalueAdjusted()) //
 							+ "</td>\t<td nowrap>" + name //
@@ -165,7 +175,7 @@ public abstract class EnrichmentAlgorithm {
 							+ "</td>\t</tr>");
 				} else {
 					// Show as "normal" TXT 
-					System.out.println("\t" + it //
+					print("\t" + it //
 
 							+ "\t" + result.getPvalue() //
 							+ "\t" + result.getPvalueAdjusted() //
@@ -179,15 +189,15 @@ public abstract class EnrichmentAlgorithm {
 				}
 
 			}
-		} else System.out.println("\t" + it + "\tNULL");
+		} else print("\t" + it + "\tNULL");
 	}
 
 	/**
 	 * Print before all genesets are shown
 	 */
 	void printTitle() {
-		if (htmlTable) System.out.println("<table border=0> <tr bgcolor=\"" + HTML_BG_COLOR_TITLE + "\"> <th>Rank</th>\t<th>p-value</th>\t<th>p-value adj</th>\t<th>Latest result</th>\t<th>Size</th>\t<th>Description</th>\t<th>Interesting genes </th>\t<th> Score </th> </tr>");
-		else if (verbose) System.out.println("\tIteration\tp-value\tp-value adj\tLatest result\tSize\tDescription\tResult\tInteresting genes");
+		if (htmlTable) print("<table border=0> <tr bgcolor=\"" + HTML_BG_COLOR_TITLE + "\"> <th>Rank</th>\t<th>p-value</th>\t<th>p-value adj</th>\t<th>Latest result</th>\t<th>Size</th>\t<th>Description</th>\t<th>Interesting genes </th>\t<th> Score </th> </tr>");
+		else if (verbose) print("\tIteration\tp-value\tp-value adj\tLatest result\tSize\tDescription\tResult\tInteresting genes");
 	}
 
 	/**
