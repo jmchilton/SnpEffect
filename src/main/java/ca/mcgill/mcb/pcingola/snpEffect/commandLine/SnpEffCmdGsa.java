@@ -257,6 +257,10 @@ public class SnpEffCmdGsa extends SnpEff {
 		// Run algorithm
 		algorithm.select();
 
+		if (saveFile != null) {
+			if (verbose) Timer.showStdErr("Saving results to '" + saveFile + "'");
+			Gpr.toFile(saveFile, algorithm.getOutput());
+		}
 	}
 
 	/**

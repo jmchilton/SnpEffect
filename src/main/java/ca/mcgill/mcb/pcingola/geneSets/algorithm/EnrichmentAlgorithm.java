@@ -59,7 +59,7 @@ public abstract class EnrichmentAlgorithm {
 	int maxGeneSetSize = Integer.MAX_VALUE;
 	int numberToSelect;
 	double maxPValue = 1.0;
-	StringBuilder out = new StringBuilder();
+	StringBuilder output = new StringBuilder();
 	GeneSets geneSets;
 	Set<String> filterOutputGeneSets;
 	public static long PRINT_SOMETHING_TIME = 5000; // Print something every X milliseconds
@@ -69,8 +69,8 @@ public abstract class EnrichmentAlgorithm {
 		this.numberToSelect = numberToSelect;
 	}
 
-	public StringBuilder getOut() {
-		return out;
+	public StringBuilder getOutput() {
+		return output;
 	}
 
 	/**
@@ -96,7 +96,7 @@ public abstract class EnrichmentAlgorithm {
 
 	protected void print(String str) {
 		System.out.println(str);
-		out.append(str + "\n");
+		output.append(str + "\n");
 	}
 
 	/**
