@@ -782,7 +782,7 @@ public class SnpEffCmdGsa extends SnpEff {
 		System.err.println("\t-geneId                       : Use geneID instead of gene names. Default: " + useGeneId);
 		System.err.println("\t-i <format>                   : Input format {vcf, bed, txt}. Default: " + inputFormat);
 		System.err.println("\t-info <name>                  : INFO tag used for scores (in VCF input format).");
-		System.err.println("\t-desc                         : Sort scores in descending order (high score are better then low scores. Default " + orderDescending);
+		System.err.println("\t-desc                         : Sort scores in descending order (high score are better then low scores). Default " + orderDescending);
 		System.err.println("\t-save <file>                  : Save results to file.");
 		System.err.println("\t-score                        : Treat input data as scores instead of p-values.");
 		System.err.println("\n\tAlgorithm options:");
