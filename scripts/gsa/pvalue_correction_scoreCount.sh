@@ -3,4 +3,4 @@
 in="$1"
 out="$2"
 
-cut -f 1,2 "$in" > "$out"
+Rscript `dirname $0`/pvalue_correction_scoreCount.r "$in" "$out"
