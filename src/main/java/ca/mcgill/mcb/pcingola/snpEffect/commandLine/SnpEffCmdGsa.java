@@ -1,5 +1,7 @@
 package ca.mcgill.mcb.pcingola.snpEffect.commandLine;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -13,6 +15,7 @@ import ca.mcgill.mcb.pcingola.fileIterator.LineFileIterator;
 import ca.mcgill.mcb.pcingola.fileIterator.VcfFileIterator;
 import ca.mcgill.mcb.pcingola.geneSets.GeneSets;
 import ca.mcgill.mcb.pcingola.geneSets.GeneSetsRanked;
+import ca.mcgill.mcb.pcingola.geneSets.GeneStats;
 import ca.mcgill.mcb.pcingola.geneSets.algorithm.EnrichmentAlgorithm;
 import ca.mcgill.mcb.pcingola.geneSets.algorithm.EnrichmentAlgorithm.EnrichmentAlgorithmType;
 import ca.mcgill.mcb.pcingola.geneSets.algorithm.EnrichmentAlgorithmGreedyVariableSize;
@@ -45,10 +48,6 @@ import ca.mcgill.mcb.pcingola.vcf.VcfEntry;
  */
 public class SnpEffCmdGsa extends SnpEff {
 
-	public enum CorrectionMethod {
-		NONE
-	}
-
 	public static int READ_INPUT_SHOW_EVERY = 1000;
 	public static int MAX_WARNS = 20;
 
@@ -73,8 +72,8 @@ public class SnpEffCmdGsa extends SnpEff {
 	String commandsFile = null;
 	String geneInterestingFile = "";
 	String saveFile = null;
+	String correctionCmd = null;
 	ScoreSummary scoreSummary = ScoreSummary.MIN;
-	CorrectionMethod correctionMethod = CorrectionMethod.NONE;
 	SnpEffectPredictor snpEffectPredictor;
 	Genome genome;
 	GeneSets geneSets;
@@ -115,14 +114,55 @@ public class SnpEffCmdGsa extends SnpEff {
 	 * Correct scores (e.g. using covariates)
 	 */
 	void correctScores() {
-		switch (correctionMethod) {
-		case NONE:
-			// Nothing to do
-			break;
-
-		default:
-			throw new RuntimeException("Unimplemented p-value correction method '" + correctionMethod + "'");
+		// No correction method? nothing to do
+		if (correctionCmd == null) {
+			if (geneScoreFileOut != null) createScoresFile(geneScoreFileOut); // may be we were asked to write these files anyway...
+			return;
 		}
+
+		// Assign input and output file names (scores and residues files)
+		String scoresFile = geneScoreFileOut;
+		String residuesFile;
+		try {
+			if (geneScoreFileOut == null) scoresFile = File.createTempFile("geneScoreFile_in_", ".txt").getCanonicalPath();
+			residuesFile = File.createTempFile("geneScoreFile_out_", ".txt").getCanonicalPath();
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+
+		// Create scores files
+		createScoresFile(scoresFile);
+
+		//---
+		// Invoke method
+		//---
+		try {
+			String commandLine = correctionCmd + " " + scoresFile + " " + residuesFile;
+			if (verbose) Timer.showStdErr("Correction: Invoking command " + commandLine);
+			Process process = Runtime.getRuntime().exec(commandLine);
+			process.waitFor();
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+
+		//---
+		// Read output
+		//---
+		if (verbose) Timer.showStdErr("Correction: Reading results from file '" + residuesFile + "'");
+		if (!Gpr.canRead(residuesFile)) throw new RuntimeException("Cannot read correction's results from file '" + residuesFile + "'");
+		geneScore = new HashMap<String, Double>();
+		String lines[] = Gpr.readFile(residuesFile).split("\n");
+		for (String line : lines) {
+			// Parse line
+			String recs[] = line.split("\t");
+			String geneId = recs[0];
+			double score = Gpr.parseDoubleSafe(recs[1]);
+
+			// Add to map
+			geneScore.put(geneId, score);
+		}
+
+		if (verbose) Timer.showStdErr("Correction: Done, " + lines.length + " values added.");
 	}
 
 	/**
@@ -192,6 +232,38 @@ public class SnpEffCmdGsa extends SnpEff {
 					+ "\n\tInteresting genes  added : %d  (%.2f%%)" //
 			, scores.min(), scores.max(), 100.0 * interestingPerc, scoreThreshold, count, realPerc, countAdded, realPercAdded));
 		}
+	}
+
+	/**
+	 * Creates a file with scores and several gene values. 
+	 * Users can create regression algorithms (e.g. in R) and return the residuals
+	 * 
+	 * @param fileName
+	 */
+	void createScoresFile(String fileName) {
+		StringBuilder scores = new StringBuilder();
+		if (geneScoreFileOut != null) scores.append("geneId\tscore\tscoreCount\t" + (new GeneStats()).title() + "\n");
+
+		// Calculate statistics on each gene
+		AutoHashMap<String, GeneStats> genesStats = new AutoHashMap<String, GeneStats>(new GeneStats());
+		for (Gene gene : genome.getGenes()) {
+			String geneName = useGeneId ? gene.getId() : gene.getGeneName();
+			genesStats.getOrCreate(geneName).add(gene, useGeneId);
+		}
+
+		// Add all genes to output buffer
+		for (String geneId : geneScores.keySet()) {
+			// Calculate aggregated score
+			ScoreList gpl = geneScores.get(geneId);
+			double score = gpl.score(scoreSummary);
+
+			// Add to output
+			scores.append(geneId + "\t" + score + "\t" + gpl.size() + "\t" + genesStats.getOrCreate(geneId) + "\n");
+		}
+
+		// Save to file
+		if (verbose) Timer.showStdErr("Saving gene scores to file: '" + fileName + "'");
+		Gpr.toFile(fileName, scores);
 	}
 
 	/**
@@ -417,6 +489,12 @@ public class SnpEffCmdGsa extends SnpEff {
 					// Save results to file
 					if ((i + 1) < args.length) saveFile = args[++i];
 					else usage("Missing value in command line option '-save'");
+
+				} else if (arg.equals("-correction")) {
+					// Save results to file
+					if ((i + 1) < args.length) correctionCmd = args[++i];
+					else usage("Missing value in command line option '-correction'");
+
 				} else if (arg.equals("-geneInterestingFile")) {
 					// Algorithm to use
 					if ((i + 1) < args.length) geneInterestingFile = args[++i];
@@ -664,6 +742,7 @@ public class SnpEffCmdGsa extends SnpEff {
 		} else if (!geneScoreFile.isEmpty()) {
 			// Scores already mapped to genes, provided in a file
 			readGeneScores(geneScoreFile);
+			correctScores(); // Correct gene scores
 		} else if (!geneInterestingFile.isEmpty()) {
 			// Interesting genes from file (not calculated)
 			readGeneInteresting(geneInterestingFile);
@@ -741,14 +820,11 @@ public class SnpEffCmdGsa extends SnpEff {
 	void scoreGenes() {
 		if (verbose) Timer.showStdErr("Aggregating scores by gene (scoring genes)");
 
-		StringBuilder saveScores = null;
-		if (geneScoreFileOut != null) saveScores = new StringBuilder();
-
 		// Create one Score per gene
 		double scoreMin = Double.MAX_VALUE, scoreMax = Double.MIN_VALUE;
 
 		geneScore = new HashMap<String, Double>();
-		if (geneScoreFileOut != null) saveScores.append("score\tgeneId\tcount_pvalues\tpvalues\n");
+
 		for (String geneId : geneScores.keySet()) {
 			// Calculate aggregated score
 			ScoreList gpl = geneScores.get(geneId);
@@ -759,13 +835,8 @@ public class SnpEffCmdGsa extends SnpEff {
 
 			// Add to map
 			geneScore.put(geneId, score);
-			if (geneScoreFileOut != null) saveScores.append(String.format("%.2e\t%s\n", score, gpl));
 		}
 
-		if (geneScoreFileOut != null) {
-			if (verbose) Timer.showStdErr("Saving gene scores to file: '" + geneScoreFileOut + "'");
-			Gpr.toFile(geneScoreFileOut, saveScores);
-		}
 		if (verbose) Timer.showStdErr("Done. Score range: [ " + scoreMin + " , " + scoreMax + " ]");
 	}
 
@@ -787,6 +858,7 @@ public class SnpEffCmdGsa extends SnpEff {
 		System.err.println("\t-score                        : Treat input data as scores instead of p-values.");
 		System.err.println("\n\tAlgorithm options:");
 		System.err.println("\t-algo <name>                  : Gene set enrichment algorithm {FISHER_GREEDY, RANKSUM_GREEDY, FISHER, RANKSUM, LEADING_EDGE_FRACTION}. Default: " + enrichmentAlgorithmType);
+		System.err.println("\t-correction <cmd>             : Correction of scores using command 'cmd' (e.g. an R script).");
 		System.err.println("\t-geneScore                    : Method to summarize gene scores {MIN, MAX, AVG, AVG_MIN_10, AVG_MAX_10, FISHER_CHI_SQUARE, Z_SCORES, SIMES}. Default: " + scoreSummary);
 		System.err.println("\t-geneScoreFile <file>         : Read gene score from file instead of calculating them.");
 		System.err.println("\t-saveGeneScoreFile <file>     : Save gene scores to file.");
