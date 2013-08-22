@@ -57,7 +57,6 @@ import ca.mcgill.mcb.pcingola.util.Gpr;
 import ca.mcgill.mcb.pcingola.util.Timer;
 import ca.mcgill.mcb.pcingola.util.Tuple;
 import ca.mcgill.mcb.pcingola.vcf.PedigreeEnrty;
-import ca.mcgill.mcb.pcingola.vcf.VcfEffect;
 import ca.mcgill.mcb.pcingola.vcf.VcfEntry;
 import ca.mcgill.mcb.pcingola.vcf.VcfGenotype;
 import freemarker.template.Configuration;
@@ -1015,7 +1014,7 @@ public class SnpEffCmdEff extends SnpEff {
 			outputFormatter = vof;
 			break;
 		case GATK:
-			outputFormatter = new VcfOutputFormatter(config.getGenome(), VcfEffect.FormatVersion.FORMAT_SNPEFF_2);
+			outputFormatter = new VcfOutputFormatter(config.getGenome());
 			((VcfOutputFormatter) outputFormatter).setGatk(true);
 			break;
 		case BED:
