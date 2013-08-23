@@ -11,8 +11,8 @@
 # Main
 #-------------------------------------------------------------------------------
 
-show = FALSE
-# show = TRUE		# Used for debugging
+#show = TRUE		# Used for debugging
+show = FALSE	# Used for production
 
 #---
 # Parse command line arguments
@@ -32,7 +32,10 @@ d = read.table(fileName, sep="\t", header=TRUE)
 p = d$score			# p-values or scores
 c = d$scoreCount	# number of variants 
 
-keep = (p > 0) & (c > 0)	# Filter out p-values of zero OR counts of zero (because of log)
+# Filter out p-values of zero OR counts of zero (because of log)
+#keep = (p > 0) & (c > 0) 
+keep = (p > 0) & (c > 0) & (c > minScoreCount)	
+
 p = p[keep]
 lp = qnorm(p)				# Convert to z-scores using an inverse normal distribution
 
@@ -47,10 +50,8 @@ sumLmfit =  summary(lmfit)
 pvalCoef = sumLmfit$coefficients[2,4]
 
 res = lmfit$residuals		# Residuals
-padj = pnorm(res)			# Adjusted p-values
-
-# Don't adjust under 'minScoreCount'
-padj[ c <= minScoreCount ] = p[ c <= minScoreCount ]
+padj = p						# Keep some un-adjusted values
+padj[keep] = pnorm(res)			# Adjusted p-values
 
 if( show ) {
 	print(sumLmfit)
@@ -70,17 +71,14 @@ if( show ) {
 }
 
 #---
-# Decide whether to use corrected scores or not
+# Decide whether to use corrected scores or not.
+# Not very significant? Use original scores
 #---
-if( pvalCoef < 10^-12 ) { 
-	so = padj		# Significant? Then use correction
-} else {
-	so = d$score	# Not very significant? Use original scores
-}
+if( pvalCoef < 10^-12 ) { padj = d$score	}
 
 #---
 # Create output file
 #---
-dout = data.frame( geneId = d$geneId[keep], score = so )
+dout = data.frame( geneId = d$geneId, score = padj )
 write.table( dout, file=outFileName, quote=FALSE, row.names = FALSE, col.names = FALSE, sep="\t")
 
