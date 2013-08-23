@@ -68,7 +68,7 @@ public class SnpEffCmdGsa extends SnpEff {
 	String infoName = "";
 	String msigdb = "";
 	String geneScoreFile = "";
-	String geneScoreFileOut = null;
+	String geneScoreFileSave = null;
 	String commandsFile = null;
 	String geneInterestingFile = "";
 	String saveFile = null;
@@ -116,16 +116,26 @@ public class SnpEffCmdGsa extends SnpEff {
 	void correctScores() {
 		// No correction method? nothing to do
 		if (correctionCmd == null) {
-			if (geneScoreFileOut != null) createScoresFile(geneScoreFileOut); // may be we were asked to write these files anyway...
+			if (geneScoreFileSave != null) createScoresFile(geneScoreFileSave); // may be we were asked to write these files anyway...
 			return;
 		}
 
 		// Assign input and output file names (scores and residues files)
-		String scoresFile = geneScoreFileOut;
+		String scoresFile = geneScoreFileSave;
 		String residuesFile;
 		try {
-			if (geneScoreFileOut == null) scoresFile = File.createTempFile("geneScoreFile_in_", ".txt").getCanonicalPath();
-			residuesFile = File.createTempFile("geneScoreFile_out_", ".txt").getCanonicalPath();
+			if (geneScoreFileSave == null) {
+				// No predefined name
+				scoresFile = File.createTempFile("geneScoreFile_in_", ".txt").getCanonicalPath();
+				residuesFile = File.createTempFile("geneScoreFile_out_", ".txt").getCanonicalPath();
+
+				// Delete tmp files on exit
+				new File(scoresFile).deleteOnExit();
+				new File(residuesFile).deleteOnExit();
+			} else {
+				// Predefined name, use redidues file accordingly
+				residuesFile = Gpr.dirName(geneScoreFileSave) + "/" + Gpr.baseName(geneScoreFileSave) + ".out.txt";
+			}
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
@@ -242,7 +252,7 @@ public class SnpEffCmdGsa extends SnpEff {
 	 */
 	void createScoresFile(String fileName) {
 		StringBuilder scores = new StringBuilder();
-		if (geneScoreFileOut != null) scores.append("geneId\tscore\tscoreCount\t" + (new GeneStats()).title() + "\n");
+		if (geneScoreFileSave != null) scores.append("geneId\tscore\tscoreCount\t" + (new GeneStats()).title() + "\n");
 
 		// Calculate statistics on each gene
 		AutoHashMap<String, GeneStats> genesStats = new AutoHashMap<String, GeneStats>(new GeneStats());
@@ -479,7 +489,7 @@ public class SnpEffCmdGsa extends SnpEff {
 					else usage("Missing value in command line option '-geneScoreFile'");
 				} else if (arg.equals("-saveGeneScoreFile")) {
 					// Save gene scores to file
-					if ((i + 1) < args.length) geneScoreFileOut = args[++i];
+					if ((i + 1) < args.length) geneScoreFileSave = args[++i];
 					else usage("Missing value in command line option '-saveGeneScoreFile'");
 				} else if (arg.equals("-commands")) {
 					// Load multiple commands from file

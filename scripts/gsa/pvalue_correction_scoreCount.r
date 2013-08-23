@@ -11,8 +11,10 @@
 # Main
 #-------------------------------------------------------------------------------
 
-#show = TRUE		# Used for debugging
 show = FALSE	# Used for production
+show = TRUE		# Used for debugging
+
+pvalCoefThreshold = 10^-12	# Adjust only if linearmodel p-value is less than this
 
 #---
 # Parse command line arguments
@@ -74,7 +76,7 @@ if( show ) {
 # Decide whether to use corrected scores or not.
 # Not very significant? Use original scores
 #---
-if( pvalCoef < 10^-12 ) { padj = d$score	}
+if( pvalCoef > pvalCoefThreshold ) { padj = d$score	}
 
 #---
 # Create output file
