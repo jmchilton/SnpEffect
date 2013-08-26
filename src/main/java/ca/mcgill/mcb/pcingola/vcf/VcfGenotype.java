@@ -103,6 +103,8 @@ public class VcfGenotype {
 	 * 		1:	if Aa (0/1 or 1/0)
 	 * 		2:	if AA (1/1)
 	 * 
+	 * WARNING: In multi-allelic case, any non-ref is treated as ALT
+	 * 
 	 * @return
 	 */
 	public int getGenotypeCode() {
