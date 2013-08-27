@@ -15,9 +15,15 @@ public class Zzz {
 	SnpEffectPredictor sep;
 
 	public static void main(String[] args) {
-		String genome = "hg19";
-		Zzz zzz = new Zzz(genome);
-		zzz.run();
+
+		String str = "1\t2\t\t\t\t3";
+		String s[] = str.split("\t");
+		for (int i = 0; i < s.length; i++)
+			System.out.println(i + "\t" + s[i]);
+
+		//		String genome = "hg19";
+		//		Zzz zzz = new Zzz(genome);
+		//		zzz.run();
 	}
 
 	public Zzz(String genome) {
