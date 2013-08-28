@@ -79,6 +79,8 @@ public class SnpEffCmdEff extends SnpEff {
 	public static final String DEFAULT_SUMMARY_CSV_FILE = "snpEff_summary.csv";
 	public static final String DEFAULT_SUMMARY_GENES_FILE = "snpEff_genes.txt";
 
+	public static final int SHOW_EVERY = 100000;
+
 	boolean cancer = false; // Perform cancer comparisons
 	boolean canonical = false; // Use only canonical transcripts
 	boolean supressOutput = false; // Only used for debugging purposes 
@@ -219,7 +221,7 @@ public class SnpEffCmdEff extends SnpEff {
 				countInputLines++;
 
 				countVariants += seqChange.getChangeOptionCount();
-				if (verbose && (countVariants % 100000 == 0)) Timer.showStdErr("\t" + countVariants + " variants");
+				if (verbose && (countVariants % SHOW_EVERY == 0)) Timer.showStdErr("\t" + countVariants + " variants");
 
 				// Does it pass the filter? => Analyze
 				if ((seqChangeFilter == null) || seqChangeFilter.filter(seqChange)) {
@@ -314,7 +316,7 @@ public class SnpEffCmdEff extends SnpEff {
 				List<SeqChange> seqChanges = vcfEntry.seqChanges();
 				for (SeqChange seqChange : seqChanges) {
 					countVariants += seqChange.getChangeOptionCount();
-					if (verbose && (countVariants % 100000 == 0)) Timer.showStdErr("\t" + countVariants + " variants");
+					if (verbose && (countVariants % SHOW_EVERY == 0)) Timer.showStdErr("\t" + countVariants + " variants");
 
 					// Does it pass the filter? => Analyze
 					if ((seqChangeFilter == null) || seqChangeFilter.filter(seqChange)) {
@@ -1072,6 +1074,10 @@ public class SnpEffCmdEff extends SnpEff {
 	 * @param snpEffFile
 	 */
 	public void runAnalysis(String inputFile, String outputFile) {
+		// Reset all counters
+		totalErrs = 0;
+		countInputLines = countVariants = countEffects = countVariantsFilteredOut = 0;
+
 		// Create 'stats' objects
 		seqChangeStats = new SeqChangeStats(config.getGenome());
 		changeEffectResutStats = new ChangeEffectResutStats(config.getGenome());
