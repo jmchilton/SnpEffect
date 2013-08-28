@@ -228,7 +228,8 @@ public class Gpr {
 	 */
 	public static String dirName(String file) {
 		File f = new File(file);
-		return f.getParent();
+		String paren = f.getParent();
+		return paren == null ? "." : paren;
 	}
 
 	/**

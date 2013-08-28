@@ -55,12 +55,6 @@ public class VcfOutputFormatter extends OutputFormatter {
 		this.genome = genome;
 	}
 
-	//	public VcfOutputFormatter(Genome genome, FormatVersion formatVersion) {
-	//		super();
-	//		this.genome = genome;
-	//		this.formatVersion = formatVersion;
-	//	}
-
 	/**
 	 * Add all vcf entries to a list (used only for debugging and test-cases)
 	 * @param vcfEntries

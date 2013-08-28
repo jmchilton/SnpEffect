@@ -1,5 +1,8 @@
 package ca.mcgill.mcb.pcingola.outputFormatter;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 
 import ca.mcgill.mcb.pcingola.filter.ChangeEffectFilter;
@@ -29,6 +32,8 @@ public abstract class OutputFormatter {
 	String commandLineStr;
 	String version;
 	String chrStr;
+	String outputFile = null;
+	BufferedWriter out;
 	Marker section;
 	ChangeEffectFilter changeEffectResutFilter = null; // Filter prediction results
 	ArrayList<ChangeEffect> changeEffects;
@@ -70,6 +75,17 @@ public abstract class OutputFormatter {
 	}
 
 	/**
+	 * CLose output files, if any
+	 */
+	public void close() {
+		if (out != null) try {
+			out.close();
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	/**
 	 * Finish up section
 	 * @param marker
 	 */
@@ -103,8 +119,25 @@ public abstract class OutputFormatter {
 	 * @param marker
 	 */
 	public void printSection(Marker marker) {
-		String outStr = endSection(marker);
-		if ((outStr != null) && (!outStr.isEmpty())) System.out.println(outStr);
+		try {
+			// Open output file?
+			if ((outputFile != null) && (out == null)) out = new BufferedWriter(new FileWriter(outputFile));
+
+			// Get string
+			String outStr = endSection(marker);
+
+			// Write something?
+			if ((outStr != null) && (!outStr.isEmpty())) {
+
+				// Write to file?
+				if (out != null) {
+					out.write(outStr);
+					out.write("\n");
+				} else System.out.println(outStr); // Show oin STDOUT
+			}
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	public void setChangeEffectResutFilter(ChangeEffectFilter changeEffectResutFilter) {
@@ -125,6 +158,10 @@ public abstract class OutputFormatter {
 
 	public void setOutOffset(int outOffset) {
 		this.outOffset = outOffset;
+	}
+
+	public void setOutputFile(String outputFile) {
+		this.outputFile = outputFile;
 	}
 
 	public void setShowHeader(boolean showHeader) {

@@ -75,6 +75,10 @@ public class SnpEffCmdEff extends SnpEff {
 	public static final String SUMMARY_CSV_TEMPLATE = "snpEff_csv_summary.ftl"; // Summary template file name
 	public static final String SUMMARY_GENES_TEMPLATE = "snpEff_genes.ftl"; // Genes template file name
 
+	public static final String DEFAULT_SUMMARY_FILE = "snpEff_summary.html";
+	public static final String DEFAULT_SUMMARY_CSV_FILE = "snpEff_summary.csv";
+	public static final String DEFAULT_SUMMARY_GENES_FILE = "snpEff_genes.txt";
+
 	boolean cancer = false; // Perform cancer comparisons
 	boolean canonical = false; // Use only canonical transcripts
 	boolean supressOutput = false; // Only used for debugging purposes 
@@ -97,6 +101,7 @@ public class SnpEffCmdEff extends SnpEff {
 	long countInputLines = 0, countVariants = 0, countEffects = 0, countVariantsFilteredOut = 0;
 	String chrStr = "";
 	String inputFile = ""; // Input file
+	ArrayList<String> inputFiles;
 	String summaryFile; // Summary output file
 	String summaryGenesFile; // Gene table file
 	String onlyTranscriptsFile = null; // Only use the transcripts in this file (Format: One transcript ID per line)
@@ -196,7 +201,7 @@ public class SnpEffCmdEff extends SnpEff {
 	 * 
 	 * @param outputFormatter
 	 */
-	void iterateSeqChange(OutputFormatter outputFormatter) {
+	void iterateSeqChange(String inputFile, OutputFormatter outputFormatter) {
 		SnpEffectPredictor snpEffectPredictor = config.getSnpEffectPredictor();
 
 		// Create an input file iterator
@@ -261,7 +266,7 @@ public class SnpEffCmdEff extends SnpEff {
 	 * 
 	 * @param outputFormatter
 	 */
-	void iterateVcf(OutputFormatter outputFormatter) {
+	void iterateVcf(String inputFile, OutputFormatter outputFormatter) {
 		SnpEffectPredictor snpEffectPredictor = config.getSnpEffectPredictor();
 
 		// Open VCF file
@@ -401,7 +406,7 @@ public class SnpEffCmdEff extends SnpEff {
 	 * 
 	 * @param outputFormatter
 	 */
-	void iterateVcfMulti(final OutputFormatter outputFormatter) {
+	void iterateVcfMulti(String inputFile, final OutputFormatter outputFormatter) {
 		if (verbose) Timer.showStdErr("Running multi-threaded mode (numThreads=" + numWorkers + ").");
 
 		outputFormatter.setShowHeader(false); // Master process takes care of the header (instead of outputFormatter). Otherwise you get the header printed one time per worker.
@@ -435,12 +440,67 @@ public class SnpEffCmdEff extends SnpEff {
 	}
 
 	/**
+	 * Create a suitable output file name
+	 * @param inputFile
+	 * @return
+	 */
+	String outputFile(String inputFile) {
+		// Remove GZ extention
+		String base = Gpr.baseName(inputFile, ".gz");
+
+		// Remove extension according to input format
+		switch (inputFormat) {
+		case TXT:
+			base = Gpr.baseName(inputFile, ".txt");
+			break;
+		case BED:
+			base = Gpr.baseName(inputFile, ".bed");
+			break;
+		case VCF:
+			base = Gpr.baseName(inputFile, ".vcf");
+			break;
+		case PILEUP:
+			base = Gpr.baseName(inputFile, ".pileup");
+			break;
+		default:
+			throw new RuntimeException("Unimplemented option for input file type " + inputFormat);
+		}
+
+		String outputFile = Gpr.dirName(inputFile) + "/" + base + ".eff";
+
+		// Add extension according to output format
+		switch (outputFormat) {
+		case BED:
+		case BEDANN:
+			outputFile += ".bed";
+			break;
+		case VCF:
+		case GATK:
+			outputFile += ".vcf";
+			break;
+		case TXT:
+			outputFile += ".txt";
+			break;
+		default:
+			throw new RuntimeException("Unimplemented option for output file type " + outputFormat);
+		}
+
+		// Create summary file names 
+		summaryFile = Gpr.dirName(inputFile) + "/" + base + (createCsvSummary ? "_summary.csv" : "_summary.html");
+		summaryGenesFile = Gpr.dirName(inputFile) + "/" + base + "_genes.txt";
+
+		return outputFile;
+	}
+
+	/**
 	 * Parse command line arguments
 	 * @param args
 	 */
 	@Override
 	public void parseArgs(String[] args) {
+		boolean isFileList = false;
 		this.args = args;
+
 		for (int i = 0; i < args.length; i++) {
 
 			String arg = args[i];
@@ -460,7 +520,8 @@ public class SnpEffCmdEff extends SnpEff {
 				} else if (arg.equals("-t")) {
 					multiThreaded = true;
 					createSummary = false; // Implies '-noStats'
-				}
+				} else if (arg.equalsIgnoreCase("-fileList")) isFileList = true;
+
 				//---
 				// Output options
 				//---
@@ -628,6 +689,12 @@ public class SnpEffCmdEff extends SnpEff {
 		// Check input file
 		if (inputFile.isEmpty()) inputFile = "-"; // Use STDIN as default
 		else if (!Gpr.canRead(inputFile)) usage("Cannot read input file '" + inputFile + "'");
+		// Read input files from file list?
+		if (isFileList) {
+			inputFiles = new ArrayList<String>();
+			for (String file : readFile(inputFile).split("\n"))
+				inputFiles.add(file);
+		}
 
 		// Sanity checks for VCF output format
 		boolean isOutVcf = (outputFormat == OutputFormat.VCF) || (outputFormat == OutputFormat.GATK);
@@ -980,7 +1047,21 @@ public class SnpEffCmdEff extends SnpEff {
 
 		// Predict
 		if (verbose) Timer.showStdErr("Predicting variants");
-		runAnalysis();
+		if (inputFiles == null) {
+			// Single input file (normal operations)
+			runAnalysis(inputFile, null);
+		} else {
+			// Multiple input files
+			for (String inputFile : inputFiles) {
+				String outputFile = outputFile(inputFile);
+				if (verbose) Timer.showStdErr("Analyzing file" //
+						+ "\n\tInput   : '" + inputFile + "'" //
+						+ "\n\tOutput  : '" + outputFile + "'" //
+						+ (createSummary ? "\n\tSummary : '" + summaryFile + "'" : "") //
+				);
+				runAnalysis(inputFile, outputFile);
+			}
+		}
 		if (verbose) Timer.showStdErr("done.");
 
 		return vcfEntriesDebug;
@@ -990,7 +1071,7 @@ public class SnpEffCmdEff extends SnpEff {
 	 * Calculate the effect of variants and show results
 	 * @param snpEffFile
 	 */
-	public void runAnalysis() {
+	public void runAnalysis(String inputFile, String outputFile) {
 		// Create 'stats' objects
 		seqChangeStats = new SeqChangeStats(config.getGenome());
 		changeEffectResutStats = new ChangeEffectResutStats(config.getGenome());
@@ -1037,18 +1118,20 @@ public class SnpEffCmdEff extends SnpEff {
 		outputFormatter.setUseOicr(useOicr);
 		outputFormatter.setUseHgvs(useHgvs);
 		outputFormatter.setUseGeneId(useGeneId);
+		outputFormatter.setOutputFile(outputFile);
 
 		//---
 		// Iterate over all changes
 		//---
 		switch (inputFormat) {
 		case VCF:
-			if (multiThreaded) iterateVcfMulti(outputFormatter);
-			else iterateVcf(outputFormatter);
+			if (multiThreaded) iterateVcfMulti(inputFile, outputFormatter);
+			else iterateVcf(inputFile, outputFormatter);
 			break;
 		default:
-			iterateSeqChange(outputFormatter);
+			iterateSeqChange(inputFile, outputFormatter);
 		}
+		outputFormatter.close();
 
 		//---
 		// Create reports
@@ -1146,10 +1229,11 @@ public class SnpEffCmdEff extends SnpEff {
 		System.err.println("\n");
 		System.err.println("\nOptions:");
 		System.err.println("\t-a , -around            : Show N codons and amino acids around change (only in coding regions). Default is " + CodonChange.SHOW_CODONS_AROUND_CHANGE + " codons.");
-		System.err.println("\t-i <format>             : Input format [ vcf, txt, pileup, bed ]. Default: VCF.");
-		System.err.println("\t-o <format>             : Ouput format [ txt, vcf, gatk, bed, bedAnn ]. Default: VCF.");
-		System.err.println("\t-interval               : Use a custom interval BED file (you may use this option many times)");
 		System.err.println("\t-chr <string>           : Prepend 'string' to chromosome name (e.g. 'chr1' instead of '1'). Only on TXT output.");
+		System.err.println("\t-i <format>             : Input format [ vcf, txt, pileup, bed ]. Default: VCF.");
+		System.err.println("\t-fileList               : Input actually contains a list of files to process.");
+		System.err.println("\t-interval               : Use a custom interval BED file (you may use this option many times)");
+		System.err.println("\t-o <format>             : Ouput format [ txt, vcf, gatk, bed, bedAnn ]. Default: VCF.");
 		System.err.println("\t-s,  -stats             : Name of stats file (summary). Default is '" + DEFAULT_SUMMARY_FILE + "'");
 		System.err.println("\t-t                      : Use multiple threads (implies '-noStats'). Default 'off'");
 		System.err.println("\t-noStats                : Do not create stats (summary) file");
