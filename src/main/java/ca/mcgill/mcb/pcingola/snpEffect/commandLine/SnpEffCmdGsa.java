@@ -239,7 +239,7 @@ public class SnpEffCmdGsa extends SnpEff {
 					+ "\n\tQuantile                 : %.2f%%"//
 					+ "\n\tThreshold                : %f"//
 					+ "\n\tInteresting genes        : %d  (%.2f%%)" //
-					+ "\n\tInteresting genes  added : %d  (%.2f%%)" //
+					+ "\n\tInteresting genes added  : %d  (%.2f%%)" //
 			, scores.min(), scores.max(), 100.0 * interestingPerc, scoreThreshold, count, realPerc, countAdded, realPercAdded));
 		}
 	}
@@ -870,7 +870,7 @@ public class SnpEffCmdGsa extends SnpEff {
 		System.err.println("\t-algo <name>                  : Gene set enrichment algorithm {FISHER_GREEDY, RANKSUM_GREEDY, FISHER, RANKSUM, LEADING_EDGE_FRACTION}. Default: " + enrichmentAlgorithmType);
 		System.err.println("\t-correction <cmd>             : Correction of scores using command 'cmd' (e.g. an R script).");
 		System.err.println("\t-geneScore                    : Method to summarize gene scores {MIN, MAX, AVG, AVG_MIN_10, AVG_MAX_10, FISHER_CHI_SQUARE, Z_SCORES, SIMES}. Default: " + scoreSummary);
-		System.err.println("\t-geneScoreFile <file>         : Read gene score from file instead of calculating them.");
+		System.err.println("\t-geneScoreFile <file>         : Read gene score from file instead of calculating them. Format: 'geneId \\t score'");
 		System.err.println("\t-saveGeneScoreFile <file>     : Save gene scores to file.");
 		System.err.println("\t-mapClosestGene               : Map to closest gene. Default: " + useClosestGene);
 		System.err.println("\t-rand <num>                   : Perform 'num' iterations using random scores. Default: " + randIterations);
