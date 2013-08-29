@@ -64,7 +64,6 @@ public class Reaction extends Event {
 	@Override
 	public double calc(HashSet<Entity> doneEntities) {
 		if (doneEntities.contains(this)) return output; // Make sure we don't calculate twice
-		if (hasOutput()) return output; // TODO: Remove this!
 
 		doneEntities.add(this); // Keep 'entities' set up to date
 
@@ -105,15 +104,15 @@ public class Reaction extends Event {
 				switch (regType) {
 
 				case PositiveRegulation:
-					sigm = 2.0 / (1.0 + Math.exp(-dcat));
+					sigm = 1 + 1.0 / (1.0 + Math.exp(-dcat));
 					break;
 
 				case NegativeRegulation:
-					sigm = 2.0 / (1.0 + Math.exp(dcat));
+					sigm = 1 - 1.0 / (1.0 + Math.exp(-dcat));
 					break;
 
 				case Requirement:
-					sigm = 1.0 / (1.0 + Math.exp(dcat));
+					sigm = 1.0 / (1.0 + Math.exp(-dcat));
 					break;
 				}
 

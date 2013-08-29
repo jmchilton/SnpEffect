@@ -51,7 +51,6 @@ public class Entity {
 	 */
 	public double calc(HashSet<Entity> doneEntities) {
 		if (doneEntities.contains(this)) return output; // Make sure we don't calculate twice
-		if (hasOutput()) return output; // TODO: Remove this!
 
 		doneEntities.add(this); // Keep 'entities' set up to date
 		output = getWeight(); // Calculate output

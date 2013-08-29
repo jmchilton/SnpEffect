@@ -38,7 +38,6 @@ public class Complex extends Entity implements Iterable<Entity> {
 	@Override
 	public double calc(HashSet<Entity> doneEntities) {
 		if (doneEntities.contains(this)) return output; // Make sure we don't calculate twice
-		if (hasOutput()) return output; // TODO: Remove this!
 
 		doneEntities.add(this); // Keep 'entities' set up to date
 
@@ -62,6 +61,7 @@ public class Complex extends Entity implements Iterable<Entity> {
 		return entities.isEmpty();
 	}
 
+	@Override
 	public Iterator<Entity> iterator() {
 		return entities.keySet().iterator();
 	}

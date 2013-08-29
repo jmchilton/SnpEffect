@@ -39,7 +39,6 @@ public class Pathway extends Reaction implements Iterable<Event> {
 	@Override
 	public double calc(HashSet<Entity> doneEntities) {
 		if (doneEntities.contains(this)) return output; // Make sure we don't calculate twice
-		if (hasOutput()) return output; // TODO: Remove this!
 
 		doneEntities.add(this); // Keep 'entities' set up to date
 
@@ -62,6 +61,7 @@ public class Pathway extends Reaction implements Iterable<Event> {
 		return events.isEmpty();
 	}
 
+	@Override
 	public Iterator<Event> iterator() {
 		return events.keySet().iterator();
 	}

@@ -96,6 +96,9 @@ public class TestSuiteAll {
 		// Motif
 		suite.addTestSuite(TestCasesMotif.class);
 
+		// Reactome
+		suite.addTestSuite(TestCasesReactome.class);
+
 		return suite;
 	}
 }
