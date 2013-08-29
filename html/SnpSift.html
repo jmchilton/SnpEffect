@@ -61,7 +61,7 @@
 <header class="jumbotron subhead" id="overview">
   <div class="container">
     <h1>SnpSift</h1>
-    <p class="lead">Filter and manupulate annotated files</p>
+    <p class="lead">Filter and manipulate annotated files</p>
   </div>
 </header>
 
@@ -111,7 +111,7 @@
 				</p>
 				<p>
 				Once your genomic variants have been annotated, you need to filter them out in order to find the "interesting / relevant variants".
-				Given the large data files, this is not a trivial task (e.g. you cannot load all the variants into XLS spreasheet).
+				Given the large data files, this is not a trivial task (e.g. you cannot load all the variants into XLS spreadsheet).
 				SnpSift helps to perform this VCF file manipulation and filtering required at this stage in data processing pipelines.
 				</p>
 
@@ -130,7 +130,7 @@
 					<tr> <td> <b>Intervals (intidx)</b> </td> <td> Filter variants that intersect with intervals. Index the VCF file using memory mapped I/O to speed up the search. This is intended for huge VCF files and a small number of intervals to retrieve. </td> </tr>
 					<tr> <td> <b>Join</b> </td> <td> Join by generic genomic regions (intersecting or closest). </td> </tr>
 					<tr> <td> <b>RmRefGen</b> </td> <td> Remove reference genotype (i.e. replace '0/0' genotypes by '.') </td> </tr>
-					<tr> <td> <b>TsTv</b> </td> <td> Calculate transiton to transversion ratio. </td> </tr>
+					<tr> <td> <b>TsTv</b> </td> <td> Calculate transition to transversion ratio. </td> </tr>
 					<tr> <td> <b>Extract fields</b> </td> <td> Extract fields from a VCF file to a TXT (tab separated) format. </td> </tr>
 					<tr> <td> <b>Variant type</b> </td> <td> Adds SNP/MNP/INS/DEL to info field. It also adds "HOM/HET" if there is only one sample. </td> </tr>
 					<tr> <td> <b>GWAS Catalog</b> </td> <td> Annotate using GWAS Catalog. </td> </tr>
@@ -236,7 +236,7 @@ rs71262673</pre>
 
 					<li> <b>Multiple indexes</b> You may test multiple indexed fields using 'ANY' or 'ALL' as index. In the examples we assume the INFO field has "CI95=0.04167,0.5417" <p>
 						<b>ANY</b> or <b>*</b>: If you use 'ANY' as index, the expression will be true if any field satisfies the expression.<br>
-						So, for instance, the following expresssions
+						So, for instance, the following expressions
 						<pre> "( CI95[ANY] > 0.1 )" </pre>
 						or
 						<pre> "( CI95[*] > 0.1 )" </pre>
@@ -244,7 +244,7 @@ rs71262673</pre>
 						<pre> "( CI95[0] > 0.1 ) | ( CI95[1] > 0.1 )" </pre>
 						<p>
 						<b>ALL</b> or <b>?</b>: If you use 'ALL' as index, the expression will be true if all field satisfy the expression.<br>
-						So, for instance, the following expresssions
+						So, for instance, the following expressions
 						<pre> "( CI95[ALL] > 0.1 )" </pre>
 						<pre> "( CI95[?] > 0.1 )" </pre>
 						are equivalent to (in this case, there are only two values in the array)
@@ -273,7 +273,7 @@ rs71262673</pre>
 				</ul>
 				<br>
 				<br>
-				<i class="icon-hand-right"></i> You can create an expression usnig sample names instead of genotype numbers. 
+				<i class="icon-hand-right"></i> You can create an expression using sample names instead of genotype numbers. 
 				The script <code>snpSift_filter_sample_to_number.pl</code> converts sample names to sample numbers. 
 				<br>
 				E.g.
@@ -339,7 +339,7 @@ $cat test.snpeff.vcf | java -Xmx1G -jar SnpSift.jar filter "(exists LOF[*].PERC)
 				
 				<h3> Available operands and functions </h3>
 				<p>
-				The following operators and functions are interprested by <code>SnpSift filter</code>:
+				The following operators and functions are interpreted by <code>SnpSift filter</code>:
 				</p>
 				<center>
 				<table class="table table-striped">
@@ -494,7 +494,7 @@ $cat test.snpeff.vcf | java -Xmx1G -jar SnpSift.jar filter "(exists LOF[*].PERC)
 				<i class="icon-hand-right"></i> DbSnp in VCF format can download <a href="ftp://ftp.ncbi.nih.gov/snp/organisms/human_9606/VCF/00-All.vcf.gz"> here </a><p>
 				<br>
 				<br>
-				<b>Example 1</b>: Annotatating <code>ID</code> from dbSnp:
+				<b>Example 1</b>: Annotating <code>ID</code> from dbSnp:
 				<br>
 <pre>
 $ cat test.chr22.vcf
@@ -557,7 +557,7 @@ $ java -jar SnpSift.jar annotate db/dbSnp/dbSnp137.20120616.vcf test.chr22.vcf
 				</p>
 
 				<p>
-				This commnand counts the number of 'homozygous', 'heterozygous' and 'total' variants in a case and control groups and performs some basic pValue calculation using Fisher exact test and Cochran-Armitage test.
+				This command counts the number of 'homozygous', 'heterozygous' and 'total' variants in a case and control groups and performs some basic pValue calculation using Fisher exact test and Cochran-Armitage test.
 				
 				<br>
 				<br>
@@ -573,10 +573,10 @@ $ java -jar SnpSift.jar caseControl "++++0-----" cc.vcf
 #CHROM  POS    ID  REF  ALT  QUAL  FILTER  INFO                                FORMAT  Sample_01  Sample_02  Sample_03  Sample_04  Sample_05  Sample_06  Sample_07  Sample_08  Sample_09  Sample_10
 1       69496  .   G    A    .     PASS    AF=0.01;Cases=1,2,4;Controls=2,2,6  GT      0/1        1/1        1/0        0/0        0/0        0/1        1/1        1/1        1/0        0/0
 </pre>
-				Cases genotypes are samples 1 to 4 : 0/1, 1/1, 1/0 and 0/0. So there are 1 homozygous, 2 heterozygous, and a total of 4 vairnats (2 * 1 + 1 * 2 = 4).
+				Cases genotypes are samples 1 to 4 : 0/1, 1/1, 1/0 and 0/0. So there are 1 homozygous, 2 heterozygous, and a total of 4 variants (2 * 1 + 1 * 2 = 4).
 				Thus the annotation is <code>Cases=1,2,4</code>
 				<br>
-				Control genotypes are samples 6 to 10 : 0/1, 1/1, 1/1, 1/0 and 0/0. So there are 2 homozygous, 2 heterozygous, and a total of 6 vairnats (2 * 2 + 1 * 2 = 6)
+				Control genotypes are samples 6 to 10 : 0/1, 1/1, 1/1, 1/0 and 0/0. So there are 2 homozygous, 2 heterozygous, and a total of 6 variants (2 * 2 + 1 * 2 = 6)
 				Thus the annotation is <code>Controls=2,2,6</code>
 				<br>
 				<br>
@@ -588,7 +588,7 @@ $ java -jar SnpSift.jar caseControl "++++0-----" cc.vcf
 				<br>
 				<br>
 				<i class="icon-hand-right"></i> You can use the <code>-name nameString</code> command line option to add name to the INFO tags. 
-				This can be used to count different case/control groups in the same dataset (e.g. mutiple phenotypes)
+				This can be used to count different case/control groups in the same dataset (e.g. multiple phenotypes)
 <pre>
 $  java -jar SnpSift.jar caseControl -name "_MY_GROUP" "++++0-----" cc.vcf \
 	| java -jar SnpSift.jar caseControl -name "_ANOTHER_GROUP" "+-+-+-+-+-" -
@@ -772,7 +772,7 @@ java -Xmx2G -jar SnpSift.jar join -v -cols1 bed -cols2 7,8,9 -empty file.bed my_
 				Remove reference genotypes. 
 				</p>
 
-				Replcaces genotype information for non-variant samples. <p>
+				Replaces genotype information for non-variant samples. <p>
 				E.g. If you have this file:
 <pre>
 #CHROM  POS     ID      REF     ALT     QUAL    FILTER  INFO    FORMAT       M1                 M2                X1              X2              
@@ -991,7 +991,7 @@ $ java -jar SnpSift.jar  extractFields kath.gerp.vcf CHROM POS REF ALT dbnsfpGER
             <h1>11. SnpSift Variant type </h1>
           </div>
 				<p class="lead">
-				Adds an INFO fild denoting variant type.
+				Adds an INFO field denoting variant type.
 				</p>
 				It adds "SNP/MNP/INS/DEL/MIXED" in the INFO field.
 				It also adds "HOM/HET", but this last one works if there is only one sample (otherwise it doesn't make any sense).<p>
@@ -1083,7 +1083,7 @@ java -jar SnpSift.jar dbnsfp -v dbNSFP2.0.txt myFile.vcf > myFile.annotated.vcf
 </pre>
 
 				<i class="icon-warning-sign"></i> You can now specify which fields you want to use for annotation using the '-f' command line option followed by a comma separated list of field names.
-				Defaults fileds are 
+				Defaults fields are 
 				<ul>
 					<li> Ensembl_transcriptid
 					<li> Uniprot_acc
@@ -1230,9 +1230,9 @@ java -jar SnpSift.jar phastCons -minScore 0.8 -extract 10 -bed path/to/phastCons
 				Calculate concordance between two VCF files.
 				</p>
 				<p>
-				This is typically used when you want to calculate conrodance between a genotyping exepriment and a sequencing experiment.
+				This is typically used when you want to calculate concordance between a genotyping experiment and a sequencing experiment.
 				<br>
-				For instance, you sequenced several samples and, as part of a related experiment or just as quality control, you also genotype the same samepls using a genotyping array.
+				For instance, you sequenced several samples and, as part of a related experiment or just as quality control, you also genotype the same samples using a genotyping array.
 				Now you want to compare the two experiments. 
 				Ideally there would be no difference between the variants from genotyping and sequencing, but this is hardly the case in real world.
 				<br>
@@ -1331,7 +1331,7 @@ chr  pos     ref  alt  change_0_0  change_0_1  change_0_2  change_1_0  change_1_
 				<b>Concordance by sample</b>
 				<p>
 				This section shows details in the same format as the previous section.
-				Here, concordace metrics are shown aggregated for each sample.
+				Here, concordance metrics are shown aggregated for each sample.
 				E.g.:
 <pre>
 # Totals by sample
@@ -1438,7 +1438,7 @@ Parameters:
 							<li> Bi-allelic filter: <code>-onlyBiAllelic</code> option filters out non bi-allelic variants.
 							<li> Non SNP variants (InDels, MNPs, etc):
 								<ul>
-									<li> InDels and other non-SNP variants are converted for "fake" SNPs (some programs have problems handling non-SNP vairants).
+									<li> InDels and other non-SNP variants are converted for "fake" SNPs (some programs have problems handling non-SNP variants).
 									<li> <code>-onlySnp</code> option filters out non SNP variants.
 								</ul>
 							<li> Missing variants:
@@ -1468,7 +1468,7 @@ Parameters:
 				</p>
 				<p>
 				<br>
-				A tipical usage example is to create a consensus of peaks from several Chip-Seq experiments.
+				A typical usage example is to create a consensus of peaks from several Chip-Seq experiments.
 				<br>
 				<br>
 				Algorithm: This command creates one interval forest for each input file. 
@@ -1509,7 +1509,7 @@ Options:
 				<br>
 				The reason for this behavior is simply because replacing annotation values is considered a bad practice. 
 				Imagine that you have a VCF entry  in your re-annotated file having the value "AA=1": How do you know if this is from the old annotations or from the new ones? 
-				This confision often leads to problems in downstream steps of your pipelines, so it's better to avoid the problem by first removing all the previous annotations and then adding the new ones.
+				This confusion often leads to problems in downstream steps of your pipelines, so it's better to avoid the problem by first removing all the previous annotations and then adding the new ones.
 				<br>
 				<br>
 				Usage example:
@@ -1540,7 +1540,7 @@ $ java -jar SnpSift.jar rmInfo test.snpeff.vcf EFF
 				This is because we must know which gene the variant affects).
 				<br>
 				<br>
-				<i class="icon-hand-right"></i> You can download MSigDb from <a href="http://www.broadinstitute.org/gsea/msigdb">Broad Institue</a>
+				<i class="icon-hand-right"></i> You can download MSigDb from <a href="http://www.broadinstitute.org/gsea/msigdb">Broad Institute</a>
 				<br>
 				<br>
 				Usage example:
@@ -1590,10 +1590,10 @@ $ cat test.eff.geneSets.vcf
 				For those variants, you have thousands of samples that are homozygous reference (i.e. genotype entry is "0/0") and one that is a variant (e.g. '0/1' or '1/1').
 				<br>
 				A trivial way to compress these VCF entries is just to state which sample has non-reference information.
-				Intuitively, this is simmilar to the way used to represent sparse matrices (only store non-zero elements).
+				Intuitively, this is similar to the way used to represent sparse matrices (only store non-zero elements).
 				<br>
 				<br>
-				<code>SnpSift gt</code> creates three INFO fields. These three fiels are composed of comma separated indeces of samples having:
+				<code>SnpSift gt</code> creates three INFO fields. These three files are composed of comma separated indexes of samples having:
 				<ul>
 					<li> HE: Indicated heterozygous variants (i.e. '0/1').
 					<li> HO: Indicated homozygous variants (i.e. '1/1').

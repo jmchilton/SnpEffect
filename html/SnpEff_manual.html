@@ -113,7 +113,7 @@
 				<p> <h3> Variants </h3>
 				By genetic variant we mean difference between a genome and a "reference" genome.
 				As an example, imagine we are sequencing a "sample".
-				Here "sample" can mean anything that you are interested in studing, from a cell culture, to a mouse or a cancer patient.
+				Here "sample" can mean anything that you are interested in studying, from a cell culture, to a mouse or a cancer patient.
 				<br>
 				It is a standard procedure to compare your sample sequences against the corresponding "reference genome".
 				For instance you may compare the cancer patient genome against the current "reference genome" (at the time of this writing, it is 'hg19').
@@ -121,7 +121,7 @@
 				In a typical sequencing experiment, you will find many places in the genome where your sample differs from the reference genome.
 				These are called "genomic variants" or just "variants".
 				<br>
-				Typically, variants are catogorized as follows:
+				Typically, variants are categorized as follows:
 				<table class="table table-striped">
 					<tr> <th> Name  </th> <th> What is means                    </th> <th> Example </th> </tr>
 					<tr> <td> SNP   </td> <td> Single-Nucleotide Polymorphism   </td> <td> Reference = 'A', Sample = 'C' </td> </tr>
@@ -140,9 +140,9 @@
 				SnpEff can help you answer all these questions.
 				The process of adding this information about the variants is called "Annotation".
 				<br>
-				SnpEff provides several degrees of annotations, from simple (e.g. which gene is each variant affecting) to exremely complex annotations (e.g. will this non-coding variant affect the expression of a gene?).
+				SnpEff provides several degrees of annotations, from simple (e.g. which gene is each variant affecting) to extremely complex annotations (e.g. will this non-coding variant affect the expression of a gene?).
 				It should be noted that the more complex the annotations, the more it relies in computational predictions.
-				Such somputational predictions are sometimes incorrect. 
+				Such computational predictions are sometimes incorrect. 
 				<br>
 				<i class="icon-warning-sign"></i> Results cannot be trusted blindly. SnpEff results may have to analyzed and independently validated.
 				</p>
@@ -154,7 +154,7 @@
 				Currently, there are pre-built database for over 2,500 reference genomes.
 				This means that 99% of the cases are covered.
 				<br>
-				In some very rare ocasions, people need to build a database for an organism not currently supported (e.g. the genome is not publicly available).
+				In some very rare occasions, people need to build a database for an organism not currently supported (e.g. the genome is not publicly available).
 				In most cases, this can be done and there is a section of this manual teaching how to build your own SnpEff database.
 				<br>
 				If you have problems adding you own organism, send me an email and I'll do my best to help you out.<p>
@@ -187,7 +187,7 @@
 						<td> 
 							SnpEff can be installed in your local computer or servers.
 							Local installations are preferred for processing genomic data. 
-							As opposed to remote web-based servcices, running a program locally has many advantages:
+							As opposed to remote web-based services, running a program locally has many advantages:
 							<ul>
 								<li> There no need to upload huge genomic dataset. 
 								<li> Processing doesn't depend on availability or processing capacity of remote servers.
@@ -198,7 +198,7 @@
 						</td> 
 					</tr>
 					<tr> <td> Multi platform </td> <td> SnpEff is written in Java. It runs on Unix / Linux, OS.X and Windows. </td> </tr>
-					<tr> <td> Simple instalation </td> <td> Instalation is as simple as downloading a ZIP file and double clicking on it. </td> </tr>
+					<tr> <td> Simple installation </td> <td> Installation is as simple as downloading a ZIP file and double clicking on it. </td> </tr>
 					<tr> <td> Genomes </td> <td> Human genome, as well as all model organisms are supported. Over 2,500 genomes are supported, which includes most mammalian, plant, bacterial and fungal genomes with published genomic data. </td> </tr>
 					<tr> <td> Speed </td> <td> SnpEff is really fast. It can annotate up to 1,000,000 variants per minute. </td> </tr>
 					<tr> <td> GATK integration </td> <td> SnpEff can be easily integrated with <a href="http://www.broadinstitute.org/gatk/">GATK</a> pipleines.</td> </tr>
@@ -208,25 +208,25 @@
 						SnpEff accepts input files in the following format:
 							<ul>
 								<li> <code>VCF</code> format, which is the de-facto standard for sequencing variants.
-								<li> <code>TXT</code> format: Althought TXT format is deprecated, some people still find it useful.
+								<li> <code>TXT</code> format: Although TXT format is deprecated, some people still find it useful.
 								<li> <code>BED</code> format: To annotate enrichment experiments (e.g. ChIP-Seq peaks) or other genomic data.
 							</ul>
 						</td> 
 					</tr>
 					<tr> <td> Variants supported </td> <td> SnpEff can annotate SNPs, MNPs, insertions and deletions. Support for mixed variants and structural variants is available (although sometimes limited). </td> </tr>
 					<tr> <td> Effect supported </td> <td> Many effects are calculated: such as SYNONYMOUS_CODING, NON_SYNONYMOUS_CODING, FRAME_SHIFT, STOP_GAINED just to name a few.</td> </tr>
-					<tr> <td> Variant impact </td> <td> SnpEff provides a simple assesment of the putative impact of the variant (e.g. HIGH, MODERATE or LOW impact).</td> </tr>
-					<tr> <td> Cancer tissue analysis </td> <td> Somatic vs Germline mutations can be calculated on the fly. This is very usefull for the cancer researcher community. </td> </tr>
-					<tr> <td> Loss of Function (LOF) assesment </td> <td> SnpEff can estimate if a variant is deemed to have a loss of function on the protein. </td> </tr>
-					<tr> <td> Nonsense mediate decay (NMD) assesment </td> <td> Some mutations may cause mRNA to be degraded thus not translated into a protein. MND analysis marks mutations that are estimated to trigger nonsense mediated decay.</td> </tr>
+					<tr> <td> Variant impact </td> <td> SnpEff provides a simple assessment of the putative impact of the variant (e.g. HIGH, MODERATE or LOW impact).</td> </tr>
+					<tr> <td> Cancer tissue analysis </td> <td> Somatic vs Germline mutations can be calculated on the fly. This is very useful for the cancer researcher community. </td> </tr>
+					<tr> <td> Loss of Function (LOF) assessment </td> <td> SnpEff can estimate if a variant is deemed to have a loss of function on the protein. </td> </tr>
+					<tr> <td> Nonsense mediate decay (NMD) assessment </td> <td> Some mutations may cause mRNA to be degraded thus not translated into a protein. MND analysis marks mutations that are estimated to trigger nonsense mediated decay.</td> </tr>
 					<tr> <td> HGVS notation</td> <td> SnpEff can provide output in HGVS notation, which is quite popular in clinical and translation research environments.</td> </tr>
-					<tr> <td> User annotations</td> <td> A user can provide cutoms annotations (by means of BED files).</td> </tr>
+					<tr> <td> User annotations</td> <td> A user can provide custom annotations (by means of BED files).</td> </tr>
 					<tr> <td> Public databases </td> 
 						<td> 
 						SnpEff can annotate using publicly available data from well known databases, for instance:
 						<ul>
 							<li> <b>ENCODE</b> datasets are supported by SnpEff (by means of BigWig files provided by ENCODE project).
-							<li> <b>Epigenime Roadmap</b> provides data-sets that can be used with SnpEff.
+							<li> <b>Epigenome Roadmap</b> provides data-sets that can be used with SnpEff.
 							<li> <b>TFBS</b> Transcription factor binding site predictions can be annotated. Motif data used in this annotations is generates by <code>Jasper</code> and <code>ENSEBML</code> projects
 							<li> <b>NextProt</b> database can be used to annotate protein domains as well as important functional sites in a protein (e.g. phosphorilation site)
 						</ul>
@@ -285,10 +285,10 @@ data_dir = ~/snpEff/data/
 </pre>
 				</p>
 
-				<h3> Basic examples: Managing SnpEff databses </h3>
+				<h3> Basic examples: Managing SnpEff databases </h3>
 				<p>
 				In order to use SnpEff, you need a database for the reference genome you want to use. 
-				SnpEff databases for the most popular genomes are already pre-built and avaialable for you to download.
+				SnpEff databases for the most popular genomes are already pre-built and available for you to download.
 				So there is no need for you to build it (this will save you a LOT of work).
 				<p>
 				<i class="icon-warning-sign"></i> Most of the time you don't need to build the SnpEff database. You can just download a pre-built one.
@@ -311,7 +311,7 @@ java -Xmx4g -jar snpEff.jar download <b>-c path/to/snpEff/snpEff.config</b> -v G
 				You can download the file for this example <a class="body" href="examples/file.vcf">here</a>.
 				This data is from the 1000 Genomes project, so the reference genome is the human genome (GRCh37.66).
 				<p>
-				Let's assume this is the first time you use SnpEff, so you don't have the database installed, so the fisrt step is to download the database.
+				Let's assume this is the first time you use SnpEff, so you don't have the database installed, so the first step is to download the database.
 				Then you can annotate the file:
 
 <p><pre>
@@ -327,13 +327,13 @@ java -Xmx4g -jar snpEff.jar eff -v GRCh37.66 file.vcf > file.eff.vcf
 
 				The annotated variants will be in the new file "file.eff.vcf".<p>
 				<p>
-				<i class="icon-warning-sign"></i> SnpEff creates a file called "snpEff_summary.html" showing basic statistices about the analyzed variants. 
+				<i class="icon-warning-sign"></i> SnpEff creates a file called "snpEff_summary.html" showing basic statistics about the analyzed variants. 
 				Take a quick look at it!
 
 				<p>
-				<i class="icon-hand-right"></i> We used the java parameter -Xmx4g to increase the memory avaialble to the Java Virtual Machine to 4G. 
+				<i class="icon-hand-right"></i> We used the java parameter -Xmx4g to increase the memory available to the Java Virtual Machine to 4G. 
 				SnpEff's human genome database is large and it has to be loaded into memory. 
-				If your computer doesn't have at least 4G of memeory, you problably won't be able to run this example.
+				If your computer doesn't have at least 4G of memory, you probably won't be able to run this example.
 
 				<p>
 				<i class="icon-hand-right"></i> If you are running SnpEff from a directory different than the one it was installed, you will have to specify where the config file is.
@@ -345,7 +345,7 @@ java -Xmx4g -jar snpEff.jar eff <b>-c path/to/snpEff/snpEff.config</b> -v GRCh37
 
 				<h3> Advanced examples: Filter out SNPs from dbSnp </h3>
 
-				These are slighlty more advanced examples. 
+				These are slightly more advanced examples. 
 				Here we'll try to show how to perform specific tasks.
 
 				If you want to filter out SNPs from dbSnp, you can do it using SnpSift.
@@ -440,7 +440,7 @@ mvn install:install-file -Dfile=sam-1.94.jar -DgroupId=net.sf.samtools -Dartifac
 
 				<p><h3>Command line vs Web interface</h3>
 				In order to run SnpEff you need to be comfortable running command from a command line terminal.
-				If you are not, then it is probably a good idea to ask you systems adminitrator to install a <a class="body"class="body" href="http://usegalaxy.org">Galaxy</a> server and use the web interface.
+				If you are not, then it is probably a good idea to ask you systems administrator to install a <a class="body"class="body" href="http://usegalaxy.org">Galaxy</a> server and use the web interface.
 				You can also use the open Galaxy server, but functionality may be limited and SnpEff versions may not be updated frequently.
 				</p>
 
@@ -452,7 +452,7 @@ mvn install:install-file -Dfile=sam-1.94.jar -DgroupId=net.sf.samtools -Dartifac
 				<br>
 				In this example we will use a file 'demo.1kg.vcf.gz', which is provided in the distribution.
 <pre>
-# Go to SnpEff install sirectory
+# Go to SnpEff install directory
 cd ~/snpEff 
 
 # Download human database 'hg19'
@@ -474,7 +474,7 @@ $ cat demo.1kg.snpeff.vcf | grep STOP_
 				Note: The real output was edited for readibility reasons.
 				</p>
 
-				<p><h3>Runnig from another directory</h3>
+				<p><h3>Running from another directory</h3>
 				When you run SnpEff from a different directory than your install directory, you have to specify where the config file is located using the '-c' command line option.
 <pre>
 java -Xmx2g path/to/snpEff/snpEff.jar -c path/to/snpEff/snpEff.config GRCh37.70 path/to/snps.vcf
@@ -482,7 +482,7 @@ java -Xmx2g path/to/snpEff/snpEff.jar -c path/to/snpEff/snpEff.config GRCh37.70 
 
 				<p><h3>Java memory options</h3>
 				By default the amount of memory set by a java process is set too low.
-				If you don't assigm more memory to the process, you will most likely have an "OutOfMemory" error.<br>
+				If you don't assign more memory to the process, you will most likely have an "OutOfMemory" error.<br>
 
 				You should set the amount of memory in your java virtual machine to, at least, 2 Gb. 
 				This can be easily done using the Java command line option "-XmX".
@@ -544,10 +544,10 @@ $ ssh -i ./aws_amazon/pcingola_aws.pem ec2-user@ec2-54-234-14-244.compute-1.amaz
           <div class="page-header">
             <h1>5. Sequence data analysis</h1>
           </div>
-				<p class="lead"> Here we show an example on how to get from Sequenceing data to an annotated variants file </p>
+				<p class="lead"> Here we show an example on how to get from Sequencing data to an annotated variants file </p>
 
 				<p><h3>Sequencing data example</h3>
-				<i class="icon-warning-sign"></i> This is an extremelly simplified version on how to analyze the data from scratch
+				<i class="icon-warning-sign"></i> This is an extremely simplified version on how to analyze the data from scratch
 				This is not meant to be a tutorial on sequencing analysis as it would be way beyond the scope of this handbook.
 				<br>
 				Let's assume you have sequence data in FASTQ format (file "s.fastq") and your reference genome is dm5.34 (fly genome)
@@ -583,7 +583,7 @@ java -Xmx4g -jar snpEff.jar dm5.34 s.vcf > s.eff.vcf
 				<ul>
 					<li> Index the reference genome (bwa)
 					<li> Map reads to reference genome (bwa)
-					<li> Call varaints (bcftools)
+					<li> Call variants (bcftools)
 					<li> Annotate variants (SnpEff)
 				</ul>
 				</p>
@@ -612,13 +612,13 @@ java -Xmx4g -jar snpEff.jar dm5.34 s.vcf > s.eff.vcf
 					<li> Position
 					<li> Variant's ID
 					<li> Reference genome
-					<li> Alteranative (i.e. variant)
+					<li> Alternative (i.e. variant)
 					<li> Quality score
 					<li> Filter (whether or not the variant passed quality filters)
 					<li> INFO : Generic information about this variant. SnpEff adds annotation information in this column.
 				</ol>
 
-				Here is an exampls of a few lines in a VCF file:
+				Here is an example of a few lines in a VCF file:
 <pre>
 #CHROM POS     ID        REF    ALT     QUAL FILTER INFO                    
 20     14370   rs6054257 G      A       29   PASS   NS=3;DP=14;AF=0.5;DB;H2
@@ -630,7 +630,7 @@ java -Xmx4g -jar snpEff.jar dm5.34 s.vcf > s.eff.vcf
 				</p>
 
 				<p><h3>TXT</h3>
-				<i class="icon-warning-sign"></i> TXT format is currently deprecated and discurraged.
+				<i class="icon-warning-sign"></i> TXT format is currently deprecated and discouraged.
 				<br>
 				TXT file format must be tab-separated, containing columns that correspond to:
 				<ul>
@@ -655,7 +655,7 @@ java -Xmx4g -jar snpEff.jar dm5.34 s.vcf > s.eff.vcf
 </pre>
 
 				<p><b>TXT: Representing an heterozygous variant</b><br> 
-				<i class="icon-warning-sign"></i> TXT format is currently deprecated and discurraged.
+				<i class="icon-warning-sign"></i> TXT format is currently deprecated and discouraged.
 				<br>
 				When representing a heterozygous SNP you can use IUB codes: M=A/C, R=A/G, W=A/T, S=C/G, Y=C/T and K=G/T. 
 				Indels are indicated by, for example, */+A, -A/* or +CC/-C. There is no difference between */+A or +A/*.
@@ -664,7 +664,7 @@ java -Xmx4g -jar snpEff.jar dm5.34 s.vcf > s.eff.vcf
 				</p>
 
 				<p><h3>BED</h3>
-				In an enrichment experiment, such as ChIP-Seq, the results are enrichemnt regions, usually called "peaks".
+				In an enrichment experiment, such as ChIP-Seq, the results are enrichment regions, usually called "peaks".
 				It is common for "peak callers" (algorithms that detect enrichment), write the results in a BED file.
 				SnpEff can annotate BED files in order to facilitate interpretation of enrichment experiments.
 				<br>
@@ -685,11 +685,11 @@ java -Xmx4g -jar snpEff.jar dm5.34 s.vcf > s.eff.vcf
 
 				<p><h3>VCF output format</h3>
 				As we mentioned in the previous chapter, VCF is the default input format.
-				It is highly recomended to use VCF as input and output format, since it is a standard format that can be also used by other tools and software packages.
+				It is highly recommended to use VCF as input and output format, since it is a standard format that can be also used by other tools and software packages.
 				Thus VCF makes it much easier to integrate genomic data processing pipelines.
 				<br>
 				SnpEff adds annotation information to the INFO field of a VCF file.
-				The INFO field is the eigth column of a VCF file, see previous section for a quick example or take a look at the <a href="http://www.1000genomes.org/wiki/Analysis/Variant%20Call%20Format/vcf-variant-call-format-version-41">VCF specification</a> for details.
+				The INFO field is the eight column of a VCF file, see previous section for a quick example or take a look at the <a href="http://www.1000genomes.org/wiki/Analysis/Variant%20Call%20Format/vcf-variant-call-format-version-41">VCF specification</a> for details.
 				<br>
 				<br>
 				Here is an example of a file before and after being annotated using SnpEff:
@@ -755,7 +755,7 @@ java -Xmx4g -jar snpEff.jar dm5.34 s.vcf > s.eff.vcf
 							<br>
 							<br>
 							<b>Warning:</b> This could be caused because you are trying to annotate using a reference genome that is different than the one you used for sequence alignment.
-							Obviously doing this makes no sense and the annotaion information you'll get will be garbage.
+							Obviously doing this makes no sense and the annotation information you'll get will be garbage.
 							That's why SnpEff shows you an error message.
 							<br>
 							<br>
@@ -804,23 +804,23 @@ java -Xmx4g -jar snpEff.jar dm5.34 s.vcf > s.eff.vcf
 						A protein coding transcript whose length is non-multiple of 3. 
 						This means that information is missing for one or more amino acids.
 						<br>
-						This is usualy due to errors in the genomic information (e.g. the genomic databases provided by UCSC or ENSEMBL).
+						This is usually due to errors in the genomic information (e.g. the genomic databases provided by UCSC or ENSEMBL).
 						Genomic information databases are constantly being improved and are getting more accurate, but some errors still remain.
 						</td> 
 					</tr>
 					<tr> <td> WARNING_TRANSCRIPT_MULTIPLE_STOP_CODONS </td> 
 						<td> 
 						A protein coding transcript has two or more STOP codons in the middle of the coding sequence (CDS).
-						This should not happen and it usualy means the genomic infromation may have an error in this transcript.
+						This should not happen and it usually means the genomic information may have an error in this transcript.
 						<br>
-						This is usualy due to errors in the genomic information (e.g. the genomic databases provided by UCSC or ENSEMBL).
+						This is usually due to errors in the genomic information (e.g. the genomic databases provided by UCSC or ENSEMBL).
 						Genomic information databases are constantly being improved and are getting more accurate, but some errors still remain.
 						</td> 
 					</tr>
 					<tr> <td> WARNING_TRANSCRIPT_NO_START_CODON </td>
 						<td> 
 						A protein coding transcript does not have a proper START codon.
-						It is rare that a real transcript does not have a START codon, so this probably indicates errors in genomic infromation for this transcript (e.g. the genomic databases provided by UCSC or ENSEMBL).
+						It is rare that a real transcript does not have a START codon, so this probably indicates errors in genomic information for this transcript (e.g. the genomic databases provided by UCSC or ENSEMBL).
 						<br>
 						Genomic information databases are constantly being improved and are getting more accurate, but some errors still remain.
 						</td> 
@@ -832,12 +832,12 @@ java -Xmx4g -jar snpEff.jar dm5.34 s.vcf > s.eff.vcf
 				<p><b>VCF Header lines </b>
 				<br>
 				<br>
-				SnpEff updates the header of the VCF file to reflect aditional fields.
+				SnpEff updates the header of the VCF file to reflect additional fields.
 				This is required by the VCF specification.
 				SnpEff also adds the command line options used to annotate the file as well as SnpEff's version, so you can keep track of what exactly was done.
 				<br>
 				<br>
-				Here is an example of some header lines added to an anotated file:
+				Here is an example of some header lines added to an annotated file:
 <pre>
 ##SnpEffVersion="SnpEff 3.1m (build 2013-02-08)"
 ##SnpEffCmd="SnpEff  hg19 demo.1kg.vcf "
@@ -846,15 +846,15 @@ java -Xmx4g -jar snpEff.jar dm5.34 s.vcf > s.eff.vcf
 				</p>
 
 				<br> 
-				<p><b>Mutiple effects per VCF line</b>
+				<p><b>Multiple effects per VCF line</b>
 				<br> 
 				<br> 
 				Usually there is more than one effect reported in each EFF field.
 				<br>
 				There are several reasons for this:
 				<ul>
-					<li> A variant can affect multple genes. E.g a variant can be DOWNSTREAM from one gene and UPSTREAM from another gene.
-					<li> In complex organisms, genes usually have mutiple transcripts. So SnpEff reports the effect of a variant on each transcript.
+					<li> A variant can affect multiple genes. E.g a variant can be DOWNSTREAM from one gene and UPSTREAM from another gene.
+					<li> In complex organisms, genes usually have multiple transcripts. So SnpEff reports the effect of a variant on each transcript.
 					<li> A VCF line can have more then one variant. 
 						 For instance if reference genome is 'G', but the sample has either 'A' or 'T', then this will be reported as one line, having multiple alternative variants. 
 						 E.g.: 
@@ -870,7 +870,7 @@ java -Xmx4g -jar snpEff.jar dm5.34 s.vcf > s.eff.vcf
 				<p> <b> Counting total number of effects of a given type </b>
 				<br>
 				<br>
-				Some people try to count the number of effects in a file by doing (assuming we want to count how many MODIFIER efefcts we have): 
+				Some people try to count the number of effects in a file by doing (assuming we want to count how many MODIFIER effects we have): 
 				<br>
 				<pre> grep -o MODIFIER output.eff.vcf | wc -l </pre>
 				<br>
@@ -901,7 +901,7 @@ cat output.eff.vcf \
 
 				<br> 
 				<p><h3>TXT output format</h3>
-				<i class="icon-warning-sign"></i> TXT format is currently deprecated and discurraged.
+				<i class="icon-warning-sign"></i> TXT format is currently deprecated and discouraged.
 				<br>
 				The TXT output format consist of one line per effect. 
 				This means that you usually get more than one line per SNP since the same SNP may affect several different transcripts in the same gene.
@@ -1089,8 +1089,8 @@ $ java -Xmx4g -jar snpEff.jar eff -i bed BDGP5.69 chipSeq_peaks.bed
 				Similarly to exons, introns are named as<code>intron_Rank_ExonTypeBefore-ExonTypeAfter</code>, where:
 				<ul>
 					<li> <code>Rank</code> :  the rank number for this inton in the transcript
-					<li> <code>ExonTypeBefore</code> :  the splicing type of the exon preceding this intron (see exon naming convetion for details).
-					<li> <code>ExonTypeAfter</code> :  the splicing type of the after this intron (see exon naming convetion for details).
+					<li> <code>ExonTypeBefore</code> :  the splicing type of the exon preceding this intron (see exon naming convention for details).
+					<li> <code>ExonTypeAfter</code> :  the splicing type of the after this intron (see exon naming convention for details).
 				</ul>
 				For instance <code>intron_9_SKIPPED-RETAINED</code> would be the ninth intron of the transcript. 
 				The intron is preceded by a <code>SKIPPED</code> exon and followed by a <code>RETAINED</code> exon.
@@ -1107,12 +1107,12 @@ $ java -Xmx4g -jar snpEff.jar eff -i bed BDGP5.69 chipSeq_peaks.bed
           </div>
 				<p class="lead"> 
 				SnpEff creates an additional output file showing overall statistics.
-				This "stats" file is an HTML file which can be opned using a web browser.
+				This "stats" file is an HTML file which can be opened using a web browser.
 				You can find an example of a 'stats' file <a href="1kg.html"> here</a>.
 				</p>
 				<p>
 				The program performs some statistics and saves them to the file 'snpEff_summary.html' on the 
-				directory where snpEff is being executed. You can see the file, by opeining it in your browser.
+				directory where snpEff is being executed. You can see the file, by opening it in your browser.
 				<br>
 				<br>
 				<i class="icon-hand-right"></i>You can change the default location by using the '-stats' command line option. This also changes the location of the TXT summary file.
@@ -1336,11 +1336,11 @@ $ java -Xmx4g -jar snpEff.jar eff -i bed BDGP5.69 chipSeq_peaks.bed
 
 				<br>
 				<p><h3>Effect impact</h3>
-				Efefcts are categorized by 'impact': {High, Moderate, Low, Modifier}. 
+				Effects are categorized by 'impact': {High, Moderate, Low, Modifier}. 
 				This are pre-defined categories to help users find more significant variants.
 				<br>
 				<i class="icon-warning-sign"></i> Categories must be used with care, they were created only to help and simplify the filtering process. 
-				Obviously, there is no way to predict wether a "high impact" or a "low impact" variant is the one producing you phenotype of interest.
+				Obviously, there is no way to predict whether a "high impact" or a "low impact" variant is the one producing you phenotype of interest.
 				<br>
 				<br>
 				Impact categories:
@@ -1401,8 +1401,8 @@ $ java -Xmx4g -jar snpEff.jar eff -i bed BDGP5.69 chipSeq_peaks.bed
 
 				<br>
 				<p> <h3> Sequence Ontology </h3>
-				Sequence ontology allows to stardadize terminology used for assesing sequence changes and impact. 
-				This allows for a common language across all varaint annotation programs and makes it easier to comunicate using a uniform terminology.
+				Sequence ontology allows to standardize terminology used for assessing sequence changes and impact. 
+				This allows for a common language across all variant annotation programs and makes it easier to communicate using a uniform terminology.
 				<br>
 				<br>
 				
@@ -1455,7 +1455,7 @@ $ java -Xmx4g -jar snpEff.jar eff -i bed BDGP5.69 chipSeq_peaks.bed
 
 				<br>
 				<p> <h3> Loss of function and nonsense-mediated decay predictions </h3>
-				Loss of function ('LOF') and nonsense-mediated decay ('NMD') predictions can be activated by using <code>-lof</code> command line opion.
+				Loss of function ('LOF') and nonsense-mediated decay ('NMD') predictions can be activated by using <code>-lof</code> command line option.
 				Details on how these variants work, can be found in <a class="body" href="snpEff_lof_nmd.pdf">these slides </a>
 				<br>
 				Usage example:
@@ -1573,7 +1573,7 @@ $ java -Xmx4g eff -v GRCh37.70 test.1K.vcf
 
 				This means that you'll get different results for this transcript using sub-version 63 or 64. I assume that latest versions are improved, so I always encourage to upgrade.
 				<br>
-				Sometimes it might even be the case that latest released dataabse and the one shown on the web interface may be out of sync.
+				Sometimes it might even be the case that latest released database and the one shown on the web interface may be out of sync.
 				<br>
 				</p>
 
@@ -1614,7 +1614,7 @@ chr5 137622242 . C T . . EFF=NON_SYNONYMOUS_CODING(MODERATE|MISSENSE|Gaa/Aaa|E/K
 				</p>
 				<p>
 				<i class="icon-warning-sign"></i> Non-coding and regulatory annotations databases are available only for a few organisms (e.g. human, mouse, etc.).
-				We intend to incorporate more non-coding annotations as soon as public databases are availble, but your organism of choice might not have a non-coding/regulatory database available.
+				We intend to incorporate more non-coding annotations as soon as public databases are available, but your organism of choice might not have a non-coding/regulatory database available.
 				</p>
 				<p>
 				First of all, you need to see if your organism has a regulatory database.
@@ -1669,7 +1669,7 @@ java -Xmx4g -jar snpEff.jar eff -reg HeLa-S3 -reg NHEK GRCh37.70 in.vcf > out.vc
 				<p>
 				In order to speed up the annotation process, there are two options that can be activated:
 				<ul>
-					<li> No statistics: Calculating statistics can take a significant amout of time. 
+					<li> No statistics: Calculating statistics can take a significant amount of time. 
 							Particularly if there are hundreds or thousands of samples in the VCF file.
 							The command line option <code>-noStats</code> disables the statistics and may result in a significant speedup.
 
@@ -1701,7 +1701,7 @@ java -Xmx4g -jar snpEff.jar eff -reg HeLa-S3 -reg NHEK GRCh37.70 in.vcf > out.vc
 				<h3>Logging</h3>
 				<p>
 				SnpEff will try to log usage statistics to our "log server".
-				This is useful for us to understand user's needs and have some statistics on what users are doing with the program (e.g. decide wether a command or option is useful or not).
+				This is useful for us to understand user's needs and have some statistics on what users are doing with the program (e.g. decide whether a command or option is useful or not).
 				<br>
 				Logging can be deactivated by using the <code>-noLog</code> command line option.
 				</p>
@@ -1765,7 +1765,7 @@ java -Xmx4g -jar snpEff.jar eff -reg HeLa-S3 -reg NHEK GRCh37.70 in.vcf > out.vc
 				If none of the transcripts in a gene is protein coding, then it is the longest cDNA. 
 				<br>
 				<br>
-				<i class="icon-warning-sign"></i>Although this seems to be the standard definitions of "canonical transcript", there is no waranties that what SnpEff considers a canonical transcript will match exactly what UCSC or ENSEMBL consider a canonical transcript.
+				<i class="icon-warning-sign"></i>Although this seems to be the standard definitions of "canonical transcript", there is no warranties that what SnpEff considers a canonical transcript will match exactly what UCSC or ENSEMBL consider a canonical transcript.
 				</p>
 				Example on how to use canonical transcripts annotations:
 <pre> java -Xmx4G -jar snpEff.jar -canon GRCh37.70 file.vcf > file.snpeff.canon.vcf</pre>
@@ -1774,7 +1774,7 @@ java -Xmx4g -jar snpEff.jar eff -reg HeLa-S3 -reg NHEK GRCh37.70 in.vcf > out.vc
 <pre> java -Xmx4G -jar snpEff.jar -fi intervals.bed dm5.30 file.vcf </pre>
 
 				<br>
-				In order to get a list of cannonical transcipts, you can use the <code>-d</code> (debug) command line option. E.g.:
+				In order to get a list of canonical transcipts, you can use the <code>-d</code> (debug) command line option. E.g.:
 <pre>
 $ java -Xmx4G -jar snpEff.jar eff -d -v -canon GRCh37.66 test.vcf
 00:00:00.000    Reading configuration file 'snpEff.config'
@@ -1826,9 +1826,9 @@ $ java -Xmx4G -jar snpEff.jar eff -d -v -canon GRCh37.66 test.vcf
 
 				<h3>Adding your own annotations</h3>
 				<p>
-				SnpEff allows user defined instervals to be annotated.
-				This is achieved using the <code>-interval file.bed</code> command line option, which can be used mutiple times in the same command line.
-				Any variant that intersecs an interval defined in those files, will be anotated using the "name" field (fourth column) in the input bed file.
+				SnpEff allows user defined intervals to be annotated.
+				This is achieved using the <code>-interval file.bed</code> command line option, which can be used multiple times in the same command line.
+				Any variant that intersects an interval defined in those files, will be annotated using the "name" field (fourth column) in the input bed file.
 				<br>
 				<br>
 				Example: We create our own annotations in <code>my_annotations.bed</code>
@@ -1898,10 +1898,10 @@ CHROMOSOME1	10469	C	G	SNP	Hom	365.78	0		ENSG00000223972	DDX11L1	transcribed_unpr
 
 				<h3>Representing cancer data</h3>
 				<p>
-				In a typical cancer sequencing experiment, we want to measure and annotate differernces between germline (healthy) and somatic (cancer) tissue samples from the same patient.
+				In a typical cancer sequencing experiment, we want to measure and annotate differences between germline (healthy) and somatic (cancer) tissue samples from the same patient.
 				The complication is that germline is not always the same as the reference genome, so a typical annotation does not work.
 				<br>
-				For instance, let's assume tha at a given genomic position (e.g. chr1:69091), reference genome is 'A', germline is 'C' and somatic is 'C'.
+				For instance, let's assume that at a given genomic position (e.g. chr1:69091), reference genome is 'A', germline is 'C' and somatic is 'C'.
 				This should be represented in a VCF file as:
 <pre>
 #CHROM  POS    ID  REF  ALT    QUAL  FILTER  INFO  FORMAT  Patient_01_Germline  Patient_01_Somatic
@@ -1937,7 +1937,7 @@ CHROMOSOME1	10469	C	G	SNP	Hom	365.78	0		ENSG00000223972	DDX11L1	transcribed_unpr
 				<br>
 				<br>
 				<i class="icon-warning-sign"></i> If you do not provide <code>PEDIGREE</code> meta information, SnpEff will not know which somatic samples derive from which germline samples. 
-				Thus it will be unable to perform cancer effect analaysis.
+				Thus it will be unable to perform cancer effect analysis.
 
 				<h3>Running in cancer analysis mode</h3>
 				We added '-cancer'  command line option for somatic vs germline comparisons. 
@@ -1968,7 +1968,7 @@ EFF= Effect ( Effect_Impact | Functional_Class | Codon_Change | Amino_Acid_chang
 					<li> GenotypeNum = "2" if it's the effect related to the second ALT ('G') 
 					<li> GenotypeNum = "2-1" means that this is the effect of having the second ALT as variant while using the first ALT as reference ("C -&gt; G").
 				</ul>
-				It is importantthat you understand the meaning of the last one, because you'll use it often for your cancer analysis.
+				It is important that you understand the meaning of the last one, because you'll use it often for your cancer analysis.
 				<br>
 				<br>
 				Example: Sample output for the previously mentioned VCF example would be (the output has been edited for readability reasons)
@@ -2005,7 +2005,7 @@ EFF= Effect ( Effect_Impact | Functional_Class | Codon_Change | Amino_Acid_chang
 							<li> 1 vs 1 : This is not a variant, since both og them ar '1'. SnpEff skips this one.
 							<li> 1 vs 0 : This compares ALT to REF, so it was already reported in "default mode". SnpEff doesn't report this one again.
 						</ul>
-						I know is confusing, but the bototm line is that only the first comparisosn one makes sense, and is the one SnpEff reports.
+						I know is confusing, but the bottom line is that only the first comparison one makes sense, and is the one SnpEff reports.
 						So 'C -&gt; G' produces the following effect:
 						<br>
 						<code>'START_LOST(HIGH|MISSENSE|Ctg/Gtg|p.Leu1Val|305|OR4F5|protein_coding|CODING|ENST00000335137|2-1)</code>
@@ -2043,13 +2043,13 @@ EFF= Effect ( Effect_Impact | Functional_Class | Codon_Change | Amino_Acid_chang
 				You can perform annotations using ENCODE's data.
 				</p>
 				<p>
-				<a href="http://genome.ucsc.edu/ENCODE/">ENCODE</a> project has produced huge amonts of data (see also <a href="http://www.nature.com/encode">Nature's</a> portal).
-				This information is avaialbel for download and can be used to annotate genomic variants or regions.
+				<a href="http://genome.ucsc.edu/ENCODE/">ENCODE</a> project has produced huge amounts of data (see also <a href="http://www.nature.com/encode">Nature's</a> portal).
+				This information is available for download and can be used to annotate genomic variants or regions.
 				An overview of all the data available from ENCODE is shown as an <a href="http://genome.ucsc.edu/ENCODE/dataMatrix/encodeDataMatrixHuman.html">experimental data matrix</a>.
 				The download site is <a href="http://genome.ucsc.edu/ENCODE/downloads.html">here</a>.
 				<br>
 				<br>
-				Data is avaialble in "BigBed" format, which can be feed into SnpEff using <code>-interval</code> command line option (you can add many <code>-interval</code> options).
+				Data is available in "BigBed" format, which can be feed into SnpEff using <code>-interval</code> command line option (you can add many <code>-interval</code> options).
 				<br>
 				Here is a simple example:
 				<br>
@@ -2095,7 +2095,7 @@ $ grep CUSTOM test.eff.vcf
 				currently available.
 				<br>
 				<br>
-				Unfortunatelly the project is not (currently) providing results files that can be used directly by annotaion software, such as SnpEff.
+				Unfortunately the project is not (currently) providing results files that can be used directly by annotation software, such as SnpEff.
 				They will be available later in the project. 
 				So, for the time being, data has to be downloaded an pre-processed.
 				We'll be processing these information and making it available (as SnpEff databases) as soon as we can.
@@ -2142,7 +2142,7 @@ $ grep CUSTOM test.eff.vcf
 				NextProt povides only human data.
 				<br>
 				<br>
-				This data is avialble by default in GRCh37 databases (latest version).
+				This data is available by default in GRCh37 databases (latest version).
 				You only need to add the <code>-nextprot</code> command line option to get this information.
 <pre>
 $ java -Xmx4g -jar snpEff.jar -v -nextprot GRCh37.71 test.vcf > test.eff.vcf
@@ -2176,7 +2176,7 @@ $ grep glycosylation_site test.eff.vcf
 			<h1>16. Motif </h1>
 		  </div>
 				<p class="lead">
-				Motif annotaions provided by ENSEMBL and Jaspar can be added to the standard annotations.
+				Motif annotations provided by ENSEMBL and Jaspar can be added to the standard annotations.
 				</p>
 				<p>
 				ENSEMBL provides trancription factor binding sites prediction, for human and mouse genomes, using <a href="http://jaspar.genereg.net/">Jasper</a> motif database.
@@ -2218,9 +2218,9 @@ $ grep MOTIF test.eff.vcf
             <h1>17. Building databases </h1>
           </div>
 				<p class="lead">
-				SnpEff needs a datbase to perform genomic annotations. 
-				There are pre-built databases for over 2,500 genomes, so chances are that your organism of coice already has a SnpEff database available.
-				In the (unlikely?) event that you need to build one yourself, here we descrive how to it.
+				SnpEff needs a database to perform genomic annotations. 
+				There are pre-built databases for over 2,500 genomes, so chances are that your organism of choice already has a SnpEff database available.
+				In the (unlikely?) event that you need to build one yourself, here we describe how to it.
 				</p>
 
 				<p>
@@ -2263,7 +2263,7 @@ java -jar snpEff.jar databases
 				<br>
 				<br>
 				<i class="icon-warning-sign"></i><b>Warning:</b> Some files claimed to be compressed using GZIP are actually not or even use a block compression variant not supported by Java's gzip library.
-				If you notice that your build process finishes abruptly for no aparent reason, try uncompressing the files. 
+				If you notice that your build process finishes abruptly for no apparent reason, try uncompressing the files. 
 				This sometimes happens with ENSEMBL files.
 				<br>
 				<br>
@@ -2277,7 +2277,7 @@ java -jar snpEff.jar databases
 				<br>
 				If your genome, or a chromosome, uses non-standard codon tables you must update <code>snpEff.config</code> accordingly.
 				A typical case is when you use mitochondrial DNA. Then you specify that chromosome 'MT' uses <code>codon.Invertebrate_Mitochondrial</code> codon table. 
-				Another comon case is when you are adding a bacterial genome, then you specify that the codon table is <code>Bacterial_and_Plant_Plastid</code>.
+				Another common case is when you are adding a bacterial genome, then you specify that the codon table is <code>Bacterial_and_Plant_Plastid</code>.
 				<br>
 				<br>
 				</p>
@@ -2293,7 +2293,7 @@ java -jar snpEff.jar databases
 
 						<pre> vi snpEffect.config </pre>
 							
-						Add the following lines (you are editting snpEffect.config)<br>
+						Add the following lines (you are editing snpEffect.config)<br>
 <pre>
 # Mouse genome, version mm37.61
 mm37.61.genome : Mouse 
@@ -2327,7 +2327,7 @@ vi snpEffect.xml
 				<h4>Configuring codon tables (not always required)</h4>
 				<p>
 				Codon tables are provided in the <code>snpEff.config</code> configuration file under the section <code>codon.Name_of_your_codon_table</code>.
-				The format is a comma separaated list of <code>CODON/AMINO_ACID</code>. 
+				The format is a comma separated list of <code>CODON/AMINO_ACID</code>. 
 				<br>
 				E.g.: 
 <pre>
@@ -2359,7 +2359,7 @@ dm3.M.codonTable : Invertebrate_Mitochondrial
 				<a name="buildGtf"></a>
 				<h4>Option 1: Building a database from GTF files</h4>
 				<p>
-				GTF 2.2 files are supported by SnpEff (e.g. ENSEMBL relases genome annotations in this format).
+				GTF 2.2 files are supported by SnpEff (e.g. ENSEMBL releases genome annotations in this format).
 				<ol>
 					<li> Get the genome and uncompress it
 <pre>
@@ -2395,7 +2395,7 @@ java -jar snpEff.jar build -gtf22 -v mm37.61
 				<a name="buildGff"> </a>
 				<h4>Option 2: Building a database from GFF files </h4>
 				<br>
-				<i class="icon-warning-sign"></i><b>Warning:</b> Using GFF is discurraged, we recomend you use GTF files instead (whenever possible).
+				<i class="icon-warning-sign"></i><b>Warning:</b> Using GFF is discouraged, we recommend you use GTF files instead (whenever possible).
 				<br>
 				<br>
 				<p>
@@ -2432,20 +2432,20 @@ java -jar snpEff.jar build -gff3 -v dm5.31
 				For this example we'll use the Human genome (hg19).
 				<br>
 				<br>
-				<i class="icon-warning-sign"></i><b>Warning:</b> Using UCSC genome tables is highly discurraged, we recomend you use ENSEMBL versions instead.
+				<i class="icon-warning-sign"></i><b>Warning:</b> Using UCSC genome tables is highly discouraged, we recommend you use ENSEMBL versions instead.
 				<br>
 				<br>
 				<i class="icon-warning-sign"></i><b>Warning:</b> UCSC tables sometimes change for different species. 
 				This means that even if these instructions work for human genome, it might not work for other genomes.
-				Obviously creating a new parser for each genome is impractical, so working with UCSC genomes is higly discurraged.
+				Obviously creating a new parser for each genome is impractical, so working with UCSC genomes is highly discouraged.
 				We recommend to use ENSEMBL genomes instead.
 				<br>
 				<br>
 				<i class="icon-warning-sign"></i><b>Warning:</b> UCSC genomes provide only major release version, but NOT sub-versions.
 				E.g. UCSC's "hg19" has major version 19 but there is no "sub-version", whereas ENSEMBL's GRCh37.70 clearly has major version 37 and minor version 70. 
 				Not providing a minor version means that they might change the database and two "hg19" genomes are actually be different.
-				This creates all sorts of consitency problems (e.g. the annotations may not be the same that you see in the UCSC genome browser, even though both of them are 'hg19' version).
-				Using UCSC genome tables is highly discurraged, we recomend you use ENSEMBL versions instead.
+				This creates all sorts of consistency problems (e.g. the annotations may not be the same that you see in the UCSC genome browser, even though both of them are 'hg19' version).
+				Using UCSC genome tables is highly discouraged, we recommend you use ENSEMBL versions instead.
 				<br>
 				<br>
 				In order to build a genome using UCSC tables, you can follow these instructions:
@@ -2629,7 +2629,7 @@ cat sequence.fa  >> genes.gff
 				<br>
 				Having no information, snpEff will treat all genes as protein coding (assuming you have '-treatAllAsProteinCoding Auto' option in the command line, which is the default).
 				<br>
-				So you will get effects as if all genes were protein coding, then you can filter out the irrelevant genes. unfortunately, this is the best I can do if there is no 'bioType' information 
+				So you will get effects as if all genes were protein coding, then you can filter out the irrelevant genes. Unfortunately, this is the best I can do if there is no 'bioType' information 
 				</p>
 
 				<p> <b> When building a database, I get too many warnings </b>
@@ -2724,7 +2724,7 @@ Done.
 				<h3>Option 2: Using an BED filed </h3>
 				<p>
 				This example shows how to create a regulation database for human (GRCh37.65). 
-				We assume we have a file called "my_regulation.bed" which has infromation for H3K9me3 in Pancreatic Islets (for instance, as a result of a Chip-Seq experiment and peak enrichment analysis).
+				We assume we have a file called "my_regulation.bed" which has information for H3K9me3 in Pancreatic Islets (for instance, as a result of a Chip-Seq experiment and peak enrichment analysis).
 
 				<ol>
 					<li> Add all your BED files to 'path/to/snpEff/data/GRCh37.65/regulation.bed/' dir:
@@ -2772,7 +2772,7 @@ Done
 Finishing up
 </pre>
 
-						<b>Note:</b> If there are many annotations, they are saved in one binary file for each cell type (i.e. several BED files for different cell types are collapsed toghether). 
+						<b>Note:</b> If there are many annotations, they are saved in one binary file for each cell type (i.e. several BED files for different cell types are collapsed together). 
 						This makes it easier to load annotations only for the desired cell types when analyzing data.
 				</ol>
 				</p>
@@ -2944,8 +2944,6 @@ INFO  11:23:49,280 ProgressMeter - Total runtime 7.15 secs, 0.12 min, 0.00 hours
 INFO  11:23:49,953 GATKRunReport - Uploaded run statistics report to AWS S3 
 </pre>
 				<br>
-				<br>
-				<i class="icon-warning-sign"></i> When using <code>-o gatk</code>, SnpEff will report version as <code>2.0.5</code> followed by the real version number. This is because GATK refuses to run using another SnpEff version, due to an old bug in ENSEMBL databases. The bug has been fixed after ENSEMBL's release GRCh37.66, but GATK's module has not been updated yet, it will be done soon.
         </section>
 
 		<!-- IntegrationL Galaxy
@@ -3152,16 +3150,16 @@ Utr5prime          0.02765432673262785    8146       5675          7.90840684080
 				<ul>
 					<li> type : Type of interval
 					<li> p.binomial : Probability that a random read hits this 'type' of interval (in binomial model)
-					<li> reads.fileName : Total number of reads in 'fileName' (user probided BAM/SAM file)
-					<li> expected.fileName : Expected number of reads hitting this 'type' of interval (for user probided BAM/SAM file)
-					<li> pvalue.fileName : p-value that 'reads.fileName' reads or more hit this 'type' of interval (for user probided BAM/SAM file)
+					<li> reads.fileName : Total number of reads in 'fileName' (user provided BAM/SAM file)
+					<li> expected.fileName : Expected number of reads hitting this 'type' of interval (for user provided BAM/SAM file)
+					<li> pvalue.fileName : p-value that 'reads.fileName' reads or more hit this 'type' of interval (for user provided BAM/SAM file)
 					<li> Column ...:  (repeat last three column for each BAM/SAM file provided by the user)
 				</ul>
 				<br>
 				<b>User defined intervals </b>
 				<br>
 				You can add user defined intervals using <code>-i file.bed</code> command line option.
-				The option can be used muiple times, thus allowing mutiple BED files to be added.
+				The option can be used multiple times, thus allowing multiple BED files to be added.
 				<br>
 				Example : You want to know how many reads intersect each peak from a peak detection algorithm:
 <pre>
@@ -3241,7 +3239,7 @@ $ java -jar snpEff.jar download -v WBcel215.69
 
 				<h3> SnpEff dump </h3>
 				<p>
-				Dump the contets od a database to a text file, a BED file or a tab separated TXT file (that can be loaded into R).
+				Dump the contents of a database to a text file, a BED file or a tab separated TXT file (that can be loaded into R).
 				<br>
 				<br>
 				<b>BED file example</b>:
@@ -3254,7 +3252,7 @@ $ java -Xmx4g -jar snpEff.jar dump -v -bed GRCh37.70 > GRCh37.70.bed
 00:00:45.928	Done.
 </pre>
 
-				The ouput file looks like a typical BED file (chr \t start \t end \t name).
+				The output file looks like a typical BED file (chr \t start \t end \t name).
 				<br>
 				<i class="icon-warning-sign"></i>Keep in mind that BED file coordinates are zero based, semi-open intervals. 
 				So a 2 base interval at (one-based) positions 100 and 101 is expressed as a BED interval [99 - 101].
@@ -3323,7 +3321,7 @@ chr start       end        strand  type         id                          gene
 				Dumps a selected set of genes as BED intervals.
 				<br>
 				<br>
-				<i class="icon-warning-sign"></i>The functionality of this comand is a subset of <code>SnpEff dump</code>, so it is likely to be deprecated in the future.
+				<i class="icon-warning-sign"></i>The functionality of this command is a subset of <code>SnpEff dump</code>, so it is likely to be deprecated in the future.
 				<br>
 				<br>
 				Example:
@@ -3420,7 +3418,7 @@ chrIII  cctaagcctaagcctaagcctaagcctaagcctaagcctaagccta...
 </pre> </td> </tr>
 
 					<tr> <td> fastaSplit.pl </td> <td>	Split a multiple sequence FASTA file to individial files.
-														Example: Creates one file per chromsome
+														Example: Creates one file per chromosome
 <pre>
 $ zcat ce6.fa.gz | ./scripts/fastaSplit.pl
 Writing to chrI.fa
@@ -3460,7 +3458,7 @@ $ ls -al scripts/ | tr -s " " | cut -f 5 -d " " | ./scripts/plot.pl
 													<img src=plot_example.png>
 													</td> </tr>
 
-					<tr> <td> queue.pl </td> <td>	Process a list of statements in parallel accordig to the number of CPUs available in the local machine </td> </tr>
+					<tr> <td> queue.pl </td> <td>	Process a list of statements in parallel according to the number of CPUs available in the local machine </td> </tr>
 
 					<tr> <td> splitChr.pl </td> <td> Splits a file by chromosome. Works on any tab separated file that the first column is CHR field (e.g. BED, VCF, etc.)
 													<br>
