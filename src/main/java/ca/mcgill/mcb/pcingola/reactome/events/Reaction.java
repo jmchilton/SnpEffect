@@ -1,5 +1,6 @@
 package ca.mcgill.mcb.pcingola.reactome.events;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 
@@ -23,12 +24,14 @@ public class Reaction extends Event {
 		NegativeRegulation, PositiveRegulation, Requirement
 	};
 
-	HashSet<Entity> inputs, outputs, catalyst;
-	HashMap<Entity, RegulationType> regulator;
+	protected HashMap<Entity, Integer> inputs; // Count number of entities
+	protected HashSet<Entity> outputs;
+	protected HashSet<Entity> catalyst;
+	protected HashMap<Entity, RegulationType> regulator;
 
 	public Reaction(int id, String name) {
 		super(id, name);
-		inputs = new HashSet<Entity>();
+		inputs = new HashMap<Entity, Integer>();
 		outputs = new HashSet<Entity>();
 		catalyst = new HashSet<Entity>();
 		regulator = new HashMap<Entity, RegulationType>();
@@ -39,11 +42,17 @@ public class Reaction extends Event {
 	}
 
 	public void addInput(Entity e) {
-		inputs.add(e);
+		if (e == null) return;
+
+		if (!inputs.containsKey(e)) inputs.put(e, 1);
+		inputs.put(e, inputs.get(e) + 1);
 	}
 
 	public void addOutput(Entity e) {
 		outputs.add(e);
+
+		// Add input
+		if (e.isReaction()) ((Reaction) e).addInput(this);
 	}
 
 	public void addRegulator(Entity e, RegulationType type) {
@@ -63,75 +72,76 @@ public class Reaction extends Event {
 	 */
 	@Override
 	public double calc(HashSet<Entity> doneEntities) {
-		if (doneEntities.contains(this)) return output; // Make sure we don't calculate twice
 
-		doneEntities.add(this); // Keep 'entities' set up to date
-
-		// Calculate inputs, catalysts & regulators
-		for (Entity ein : inputs)
-			ein.calc(doneEntities);
-
-		for (Entity ecat : catalyst)
-			ecat.calc(doneEntities);
-
-		for (Entity ereg : regulator.keySet())
-			ereg.calc(doneEntities);
-
-		// Calculate aggregated input
-		double in = Double.POSITIVE_INFINITY;
-		for (Entity ein : inputs)
-			if (ein.hasOutput()) in = Math.min(in, ein.getOutput());
-
-		// Apply 'catalyst'
-		double cat = 1.0; // Neutral by default
-		for (Entity ecat : catalyst) {
-			if (ecat.hasOutput()) {
-				double dcat = ecat.getOutput();
-				double sigm = 2.0 / (1.0 + Math.exp(-dcat));
-				cat *= sigm;
-			}
-		}
-
-		// Apply 'regulation'
-		double reg = 1.0; // Neutral by default
-		for (Entity ereg : regulator.keySet()) {
-			if (ereg.hasOutput()) {
-				double dcat = ereg.getOutput();
-				double sigm = 1.0;
-
-				RegulationType regType = regulator.get(ereg);
-
-				switch (regType) {
-
-				case PositiveRegulation:
-					sigm = 1 + 1.0 / (1.0 + Math.exp(-dcat));
-					break;
-
-				case NegativeRegulation:
-					sigm = 1 - 1.0 / (1.0 + Math.exp(-dcat));
-					break;
-
-				case Requirement:
-					sigm = 1.0 / (1.0 + Math.exp(-dcat));
-					break;
-				}
-
-				reg *= sigm; // Summarize weight
-			}
-		}
-
-		// Nothing in input? => Cannot calculate output
-		if (Double.isInfinite(in)) output = Double.NaN;
+		if (!Double.isNaN(fixedOutput)) output = fixedOutput;
 		else {
-			output = in * cat * reg;
-			Gpr.debug("REACTION:\t" + this.getName() + "\t" + in + "\t" + cat + "\t" + reg + "\t=>\t" + output);
+			if (doneEntities.contains(this)) return output; // Make sure we don't calculate twice
+			doneEntities.add(this); // Keep 'entities' set up to date
+
+			// Calculate inputs, catalysts & regulators
+			for (Entity ein : getInputs())
+				ein.calc(doneEntities);
+
+			for (Entity ecat : catalyst)
+				ecat.calc(doneEntities);
+
+			for (Entity ereg : regulator.keySet())
+				ereg.calc(doneEntities);
+
+			// Calculate aggregated input
+			double in = Double.POSITIVE_INFINITY;
+			for (Entity ein : getInputs())
+				if (ein.hasOutput()) in = Math.min(in, ein.getOutput());
+
+			// Apply 'catalyst'
+			double cat = 1.0; // Neutral by default
+			for (Entity ecat : catalyst) {
+				if (ecat.hasOutput()) {
+					double dcat = ecat.getOutput();
+					double sigm = 2.0 / (1.0 + Math.exp(-dcat));
+					cat *= sigm;
+				}
+			}
+
+			// Apply 'regulation'
+			double reg = 1.0; // Neutral by default
+			for (Entity ereg : regulator.keySet()) {
+				if (ereg.hasOutput()) {
+					double dcat = ereg.getOutput();
+					double sigm = 1.0;
+
+					RegulationType regType = regulator.get(ereg);
+
+					switch (regType) {
+
+					case PositiveRegulation:
+						sigm = 1 + 1.0 / (1.0 + Math.exp(-dcat));
+						break;
+
+					case NegativeRegulation:
+						sigm = 1 - 1.0 / (1.0 + Math.exp(-dcat));
+						break;
+
+					case Requirement:
+						sigm = 1.0 / (1.0 + Math.exp(-dcat));
+						break;
+					}
+
+					reg *= sigm; // Summarize weight
+				}
+			}
+
+			// Nothing in input? => Cannot calculate output
+			if (Double.isInfinite(in)) output = Double.NaN;
+			else output = in * cat * reg;
 		}
 
+		if (debug) System.out.println(output + "\tfixed:" + isFixed() + "\tid:" + id + "\ttype:" + getClass().getSimpleName() + "\tname:" + name);
 		return output;
 	}
 
-	public HashSet<Entity> getInputs() {
-		return inputs;
+	public Collection<Entity> getInputs() {
+		return inputs.keySet();
 	}
 
 	public HashSet<Entity> getOutputs() {
@@ -143,18 +153,25 @@ public class Reaction extends Event {
 	}
 
 	@Override
+	public boolean isReaction() {
+		return true;
+	}
+
+	@Override
 	public String toString() {
 		return toString(0, new HashSet<Entity>());
 	}
 
 	@Override
 	public String toString(int tabs, HashSet<Entity> done) {
+		done.add(this);
+
 		StringBuilder sb = new StringBuilder();
 		sb.append(Gpr.tabs(tabs) + getClass().getSimpleName() + "[" + id + "]: " + name + "\n");
 
 		if (!inputs.isEmpty()) {
 			sb.append(Gpr.tabs(tabs + 1) + "Inputs:\n");
-			for (Entity e : inputs) {
+			for (Entity e : getInputs()) {
 				if (done.contains(e)) sb.append(Gpr.tabs(tabs + 2) + e.toStringSimple() + "\n");
 				else {
 					done.add(e);

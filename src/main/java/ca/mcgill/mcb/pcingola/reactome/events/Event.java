@@ -14,9 +14,4 @@ public class Event extends Entity {
 		super(id, name);
 	}
 
-	@Override
-	public boolean isEvent() {
-		return true;
-	}
-
 }

@@ -1,31 +1,25 @@
 package ca.mcgill.mcb.pcingola.reactome.events;
 
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 
 import ca.mcgill.mcb.pcingola.reactome.Entity;
+import ca.mcgill.mcb.pcingola.util.Gpr;
 
 /**
- * A Reactome pathway
+ * A Reactome complex (a bunch of molecules or complexes
  * 
  * @author pcingola
  *
  */
-public class Pathway extends Reaction implements Iterable<Event> {
+public class Complex extends Reaction implements Iterable<Entity> {
 
-	HashMap<Event, Integer> events; // Count number of events
-
-	public Pathway(int id, String name) {
+	public Complex(int id, String name) {
 		super(id, name);
-		events = new HashMap<Event, Integer>();
 	}
 
-	public void add(Event e) {
-		if (e == null) return;
-
-		if (!events.containsKey(e)) events.put(e, 1);
-		events.put(e, events.get(e) + 1);
+	public void add(Entity e) {
+		addInput(e);
 	}
 
 	/**
@@ -47,9 +41,11 @@ public class Pathway extends Reaction implements Iterable<Event> {
 			double sum = 0;
 			int count = 0;
 			for (Entity e : this) {
-				count += events.get(e);
 				double out = e.calc(doneEntities);
-				sum += out * out;
+				if (e.hasOutput()) {
+					count += inputs.get(e);
+					sum += out * out;
+				}
 			}
 
 			// Calculate output
@@ -62,25 +58,20 @@ public class Pathway extends Reaction implements Iterable<Event> {
 	}
 
 	public boolean contains(Object o) {
-		return events.containsKey(o);
+		return inputs.containsKey(o);
 	}
 
 	public boolean isEmpty() {
-		return events.isEmpty();
+		return inputs.isEmpty();
 	}
 
 	@Override
-	public Iterator<Event> iterator() {
-		return events.keySet().iterator();
+	public Iterator<Entity> iterator() {
+		return inputs.keySet().iterator();
 	}
 
 	public int size() {
-		return events.size();
-	}
-
-	@Override
-	public String toString() {
-		return toString(0, new HashSet<Entity>());
+		return inputs.size();
 	}
 
 	@Override
@@ -88,9 +79,9 @@ public class Pathway extends Reaction implements Iterable<Event> {
 		done.add(this);
 
 		StringBuilder sb = new StringBuilder();
-		sb.append(super.toString(tabs, done));
+		sb.append(Gpr.tabs(tabs) + toStringSimple() + "\n");
 
-		for (Event e : this)
+		for (Entity e : this)
 			sb.append(e.toString(tabs + 1, done) + "\n");
 
 		return sb.toString();

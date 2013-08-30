@@ -15,6 +15,7 @@ import ca.mcgill.mcb.pcingola.gtex.Gtex;
 import ca.mcgill.mcb.pcingola.gtex.GtexExperiment;
 import ca.mcgill.mcb.pcingola.reactome.events.BlackBoxEvent;
 import ca.mcgill.mcb.pcingola.reactome.events.CatalystActivity;
+import ca.mcgill.mcb.pcingola.reactome.events.Complex;
 import ca.mcgill.mcb.pcingola.reactome.events.Depolymerisation;
 import ca.mcgill.mcb.pcingola.reactome.events.Event;
 import ca.mcgill.mcb.pcingola.reactome.events.Pathway;
@@ -149,6 +150,7 @@ public class Reactome implements Iterable<Entity> {
 		return e;
 	}
 
+	@Override
 	public Iterator<Entity> iterator() {
 		return entityById.values().iterator();
 	}
@@ -167,6 +169,10 @@ public class Reactome implements Iterable<Entity> {
 		loadRegulation(); // Load reaction regulators
 
 		loadCatalystActivity(); // Load catalyst
+
+		// Remove cached data, we don't need it any more
+		objectType = null;
+		objectName = null;
 
 		Timer.showStdErr("Loading finished");
 	}
@@ -506,7 +512,7 @@ public class Reactome implements Iterable<Entity> {
 			// Parse line
 			String rec[] = line.split("\t");
 			String id = rec[0];
-			String inputId = rec[1];
+			String outputId = rec[1];
 
 			if (id.equals("DB_ID")) continue; // Skip title
 
@@ -514,7 +520,9 @@ public class Reactome implements Iterable<Entity> {
 			Reaction reaction = (Reaction) entityById.get(id);
 			if (reaction == null) continue; // Reaction not found? Skip
 
-			Entity e = getEntity(inputId);
+			Entity e = getEntity(outputId);
+			if (reaction.getId() == 74711) //
+				Gpr.debug(reaction.getName() + "\t--->\t" + e.toStringSimple());
 			reaction.addOutput(e);
 
 			Gpr.showMark(i++, SHOW_EVERY);
@@ -560,6 +568,17 @@ public class Reactome implements Iterable<Entity> {
 		Timer.showStdErr("Total regulations assigned: " + (i - 1));
 	}
 
+	public void reset() {
+		for (Entity e : this)
+			e.reset();
+
+	}
+
+	public void resetWeight() {
+		for (Entity e : this)
+			e.resetWeight();
+	}
+
 	@Override
 	public String toString() {
 		CountByType countByType = new CountByType();
@@ -579,42 +598,59 @@ public class Reactome implements Iterable<Entity> {
 		return sb.toString();
 	}
 
-	public void tree() {
-
-	}
-
 	/**
 	 * Run some simulations
 	 * @param gtex
 	 * @param gtexExperiment
 	 */
 	public void zzz(GtexExperiment gtexExperiment) {
-		System.out.println(gtexExperiment);
-
-		// Set weights
-		int count = 0;
+		//---
+		// Set fixed outputs
+		//---
 		Gtex gtex = gtexExperiment.getGtex();
 		for (String gid : gtex.getGeneIds()) {
 			List<Entity> entities = entitiesByGeneId.get(gid);
 
 			if (entities != null) {
-				count++;
 				double value = gtexExperiment.getValue(gid);
 
-				System.out.println(gid + " [ " + entities.size() + " ]");
-				for (Entity e : entities)
-					e.addWeight(value);
-
+				if (!Double.isNaN(value)) {
+					// System.out.println("\t" + gid + " [ " + entities.size() + " ]");
+					for (Entity e : entities) {
+						e.setFixedOutput(value);
+						// if (!e.getClass().getSimpleName().equals("Entity")) System.out.println("\t\t" + e.getClass().getSimpleName() + ":" + e.getName() + " [ " + value + " ]");
+					}
+				}
 			}
 		}
-		Gpr.debug("Gene values added: " + count);
 
-		// Calculate & show values
+		//---
+		// Select entities to monitor
+		//---
+		HashSet<Entity> monitor = new HashSet<Entity>();
+		for (Entity e : this)
+			if (e.getName().toLowerCase().indexOf("phospho-irs:activated insulin receptor") >= 0) monitor.add(e);
+
+		//---
+		// Calculate 
+		//---
 		HashSet<Entity> done = new HashSet<Entity>();
+		resetWeight();
 		for (Entity e : this) {
-			double out = e.calc(done);
-			//if (!Double.isNaN(out)) System.out.println(e.getId() + "\t" + e.getName() + "\t" + out);
-		}
-	}
+			if (monitor.contains(e)) {
+				Gpr.debug("\t" + e);
+				HashSet<Entity> doneNew = new HashSet<Entity>();
 
+				Entity.debug = true;
+				e.calc(doneNew);
+				Entity.debug = false;
+			} else e.calc(done);
+		}
+
+		//---
+		// Show values
+		//---
+		for (Entity e : monitor)
+			if (e.hasOutput()) System.out.println("\t" + e.getId() + "\t" + e.getOutput() + "\t" + e.isFixed() + "\t" + e.getClass().getSimpleName() + "\t" + e.getName());
+	}
 }
