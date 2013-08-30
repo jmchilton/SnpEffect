@@ -186,9 +186,10 @@ public class VcfOutputFormatter extends OutputFormatter {
 					effBuff.append("|");
 					effBuff.append(changeEffect.getGenotype());
 				}
-				// Add genotype corresponding to this change
 
+				//---
 				// Errors or warnings (this is the last thing in the list)
+				//---
 				if (changeEffect.hasError() || changeEffect.hasWarning()) {
 					StringBuilder err = new StringBuilder();
 
