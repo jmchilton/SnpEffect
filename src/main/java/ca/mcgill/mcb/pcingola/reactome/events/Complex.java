@@ -49,7 +49,7 @@ public class Complex extends Reaction implements Iterable<Entity> {
 			}
 
 			// Calculate output
-			if (count > 0) output = sum / Math.sqrt(count);
+			if (count > 0) output = cap(sum / Math.sqrt(count));
 			else output = Double.NaN;
 		}
 

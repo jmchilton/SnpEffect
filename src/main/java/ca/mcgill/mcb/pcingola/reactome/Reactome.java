@@ -92,7 +92,7 @@ public class Reactome implements Iterable<Entity> {
 			if (gtexExperiment.size() > 0) {
 				System.out.println(gtexExperiment.getTissueTypeDetail() + "\t" + gtexExperiment.size());
 				reactome.zzz(gtexExperiment);
-				break;
+				//				break;
 			}
 		}
 	}
@@ -637,14 +637,15 @@ public class Reactome implements Iterable<Entity> {
 		HashSet<Entity> done = new HashSet<Entity>();
 		resetWeight();
 		for (Entity e : this) {
-			if (monitor.contains(e)) {
-				Gpr.debug("\t" + e);
-				HashSet<Entity> doneNew = new HashSet<Entity>();
-
-				Entity.debug = true;
-				e.calc(doneNew);
-				Entity.debug = false;
-			} else e.calc(done);
+			//			if (monitor.contains(e)) {
+			//				Gpr.debug("\t" + e);
+			//				HashSet<Entity> doneNew = new HashSet<Entity>();
+			//
+			//				Entity.debug = true;
+			//				e.calc(doneNew);
+			//				Entity.debug = false;
+			//			} else e.calc(done);
+			e.calc(done);
 		}
 
 		//---
@@ -652,5 +653,6 @@ public class Reactome implements Iterable<Entity> {
 		//---
 		for (Entity e : monitor)
 			if (e.hasOutput()) System.out.println("\t" + e.getId() + "\t" + e.getOutput() + "\t" + e.isFixed() + "\t" + e.getClass().getSimpleName() + "\t" + e.getName());
+
 	}
 }

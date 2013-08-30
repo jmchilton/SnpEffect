@@ -24,6 +24,9 @@ public class Entity {
 	protected int countWeights;
 	protected HashSet<String> geneIds; // All gene IDs related to this entity
 
+	public static final double MAX_OUTPUT = 10;
+	public static final double MIN_OUTPUT = -10;
+
 	public Entity(int id, String name) {
 		this.id = id;
 		this.name = name;
@@ -61,11 +64,22 @@ public class Entity {
 			if (doneEntities.contains(this)) return output; // Make sure we don't calculate twice
 			doneEntities.add(this); // Keep 'entities' set up to date
 
-			output = getWeight(); // Calculate output
+			output = cap(getWeight()); // Calculate output
 		}
 
 		if (debug) System.out.println(output + "\tfixed:" + isFixed() + "\tid:" + id + "\ttype:" + getClass().getSimpleName() + "\tname:" + name);
 		return output;
+	}
+
+	/**
+	 * Cap a value 
+	 * @param out
+	 * @return
+	 */
+	protected double cap(double out) {
+		if (out < MIN_OUTPUT) return MIN_OUTPUT;
+		if (out > MAX_OUTPUT) return MAX_OUTPUT;
+		return out;
 	}
 
 	public Compartment getCompartment() {
@@ -97,12 +111,12 @@ public class Entity {
 		return !Double.isNaN(output);
 	}
 
-	public boolean isReaction() {
-		return false;
-	}
-
 	public boolean isFixed() {
 		return !Double.isNaN(fixedOutput);
+	}
+
+	public boolean isReaction() {
+		return false;
 	}
 
 	public void reset() {

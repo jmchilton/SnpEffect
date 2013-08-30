@@ -53,7 +53,7 @@ public class Pathway extends Reaction implements Iterable<Event> {
 			}
 
 			// Calculate output
-			if (count > 0) output = sum / Math.sqrt(count);
+			if (count > 0) output = cap(sum / Math.sqrt(count));
 			else output = Double.NaN;
 		}
 

@@ -133,7 +133,7 @@ public class Reaction extends Event {
 
 			// Nothing in input? => Cannot calculate output
 			if (Double.isInfinite(in)) output = Double.NaN;
-			else output = in * cat * reg;
+			else output = cap(in * cat * reg);
 		}
 
 		if (debug) System.out.println(output + "\tfixed:" + isFixed() + "\tid:" + id + "\ttype:" + getClass().getSimpleName() + "\tname:" + name);
