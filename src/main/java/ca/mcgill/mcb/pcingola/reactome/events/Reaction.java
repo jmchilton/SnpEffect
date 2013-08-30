@@ -24,14 +24,14 @@ public class Reaction extends Event {
 		NegativeRegulation, PositiveRegulation, Requirement
 	};
 
-	protected HashMap<Entity, Integer> inputs; // Count number of entities
+	protected HashMap<Entity, Double> inputs; // Input -> Weight
 	protected HashSet<Entity> outputs;
 	protected HashSet<Entity> catalyst;
 	protected HashMap<Entity, RegulationType> regulator;
 
 	public Reaction(int id, String name) {
 		super(id, name);
-		inputs = new HashMap<Entity, Integer>();
+		inputs = new HashMap<Entity, Double>();
 		outputs = new HashSet<Entity>();
 		catalyst = new HashSet<Entity>();
 		regulator = new HashMap<Entity, RegulationType>();
@@ -44,8 +44,8 @@ public class Reaction extends Event {
 	public void addInput(Entity e) {
 		if (e == null) return;
 
-		if (!inputs.containsKey(e)) inputs.put(e, 1);
-		inputs.put(e, inputs.get(e) + 1);
+		if (!inputs.containsKey(e)) inputs.put(e, 1.0);
+		else inputs.put(e, inputs.get(e) + 1.0);
 	}
 
 	public void addOutput(Entity e) {
@@ -88,10 +88,21 @@ public class Reaction extends Event {
 			for (Entity ereg : regulator.keySet())
 				ereg.calc(doneEntities);
 
-			// Calculate aggregated input
-			double in = Double.POSITIVE_INFINITY;
-			for (Entity ein : getInputs())
-				if (ein.hasOutput()) in = Math.min(in, ein.getOutput());
+			// Calculate aggregated input (weighted sum)
+			double in = 0;
+			switch (TRANSFER_FUNCTION) {
+			case LINEAR:
+				in = Double.POSITIVE_INFINITY;
+				for (Entity ein : getInputs())
+					if (ein.hasOutput()) in = Math.min(in, ein.getOutput());
+				break;
+
+			default:
+				in = 0;
+				for (Entity ein : getInputs())
+					if (ein.hasOutput()) in += ein.getOutput() * inputs.get(ein);
+				break;
+			}
 
 			// Apply 'catalyst'
 			double cat = 1.0; // Neutral by default
@@ -133,7 +144,7 @@ public class Reaction extends Event {
 
 			// Nothing in input? => Cannot calculate output
 			if (Double.isInfinite(in)) output = Double.NaN;
-			else output = cap(in * cat * reg);
+			else output = transferFunction(in * cat * reg);
 		}
 
 		if (debug) System.out.println(output + "\tfixed:" + isFixed() + "\tid:" + id + "\ttype:" + getClass().getSimpleName() + "\tname:" + name);

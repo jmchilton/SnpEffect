@@ -5,6 +5,7 @@ import java.util.HashSet;
 import junit.framework.Assert;
 import junit.framework.TestCase;
 import ca.mcgill.mcb.pcingola.reactome.Entity;
+import ca.mcgill.mcb.pcingola.reactome.Entity.TransferFunction;
 import ca.mcgill.mcb.pcingola.reactome.events.Reaction;
 import ca.mcgill.mcb.pcingola.reactome.events.Reaction.RegulationType;
 
@@ -35,13 +36,21 @@ public class TestCasesReactome extends TestCase {
 		r.addInput(e1);
 		r.addInput(e2);
 
-		e1.setWeight(3.2);
-		e2.setWeight(2.1);
+		e1.setFixedOutput(3.2);
+		e2.setFixedOutput(2.1);
 
+		Entity.debug = true;
+
+		Entity.TRANSFER_FUNCTION = TransferFunction.LINEAR;
 		double out = r.calc(new HashSet<Entity>());
 		System.out.println("Out: " + out);
-
 		Assert.assertEquals(2.1, out);
+
+		Entity.TRANSFER_FUNCTION = TransferFunction.TANH;
+		out = r.calc(new HashSet<Entity>());
+		System.out.println("Out: " + out);
+		Assert.assertEquals(0.9999501692221211, out);
+
 	}
 
 	/**
@@ -58,9 +67,11 @@ public class TestCasesReactome extends TestCase {
 		r.addInput(e2);
 		r.addCatalyst(cat);
 
-		e1.setWeight(3.2);
-		e2.setWeight(2.1);
+		e1.setFixedOutput(3.2);
+		e2.setFixedOutput(2.1);
 		cat.setWeight(-1.0);
+
+		Entity.TRANSFER_FUNCTION = TransferFunction.LINEAR;
 
 		double out = r.calc(new HashSet<Entity>());
 		System.out.println("Out: " + out);
@@ -70,6 +81,14 @@ public class TestCasesReactome extends TestCase {
 		out = r.calc(new HashSet<Entity>());
 		System.out.println("Out: " + out);
 		Assert.assertEquals(3.699347727507106, out);
+
+		Entity.TRANSFER_FUNCTION = TransferFunction.TANH;
+		e1.setFixedOutput(0.9);
+		e2.setFixedOutput(0.5);
+		cat.setWeight(-1.0);
+		out = r.calc(new HashSet<Entity>());
+		System.out.println("Out: " + out);
+		Assert.assertEquals(0.6369566834708253, out);
 	}
 
 	/**
@@ -86,15 +105,17 @@ public class TestCasesReactome extends TestCase {
 		r.addInput(e2);
 		r.addRegulator(reg, RegulationType.PositiveRegulation);
 
-		e1.setWeight(3.2);
-		e2.setWeight(2.1);
-		reg.setWeight(-1.0);
+		e1.setFixedOutput(3.2);
+		e2.setFixedOutput(2.1);
+		reg.setFixedOutput(-1.0);
+
+		Entity.TRANSFER_FUNCTION = TransferFunction.LINEAR;
 
 		double out = r.calc(new HashSet<Entity>());
 		System.out.println("Out: " + out);
 		Assert.assertEquals(2.66477698487699, out);
 
-		reg.setWeight(2.0);
+		reg.setFixedOutput(2.0);
 		out = r.calc(new HashSet<Entity>());
 		System.out.println("Out: " + out);
 		Assert.assertEquals(3.949673863753553, out);
@@ -114,15 +135,17 @@ public class TestCasesReactome extends TestCase {
 		r.addInput(e2);
 		r.addRegulator(reg, RegulationType.NegativeRegulation);
 
-		e1.setWeight(3.2);
-		e2.setWeight(2.1);
-		reg.setWeight(-1.0);
+		e1.setFixedOutput(3.2);
+		e2.setFixedOutput(2.1);
+		reg.setFixedOutput(-1.0);
+
+		Entity.TRANSFER_FUNCTION = TransferFunction.LINEAR;
 
 		double out = r.calc(new HashSet<Entity>());
 		System.out.println("Out: " + out);
 		Assert.assertEquals(1.5352230151230104, out);
 
-		reg.setWeight(2.0);
+		reg.setFixedOutput(2.0);
 		out = r.calc(new HashSet<Entity>());
 		System.out.println("Out: " + out);
 		Assert.assertEquals(0.2503261362464472, out);
@@ -142,15 +165,17 @@ public class TestCasesReactome extends TestCase {
 		r.addInput(e2);
 		r.addRegulator(reg, RegulationType.Requirement);
 
-		e1.setWeight(3.2);
-		e2.setWeight(2.1);
-		reg.setWeight(-1.0);
+		e1.setFixedOutput(3.2);
+		e2.setFixedOutput(2.1);
+		reg.setFixedOutput(-1.0);
+
+		Entity.TRANSFER_FUNCTION = TransferFunction.LINEAR;
 
 		double out = r.calc(new HashSet<Entity>());
 		System.out.println("Out: " + out);
 		Assert.assertEquals(0.5647769848769898, out);
 
-		reg.setWeight(2.0);
+		reg.setFixedOutput(2.0);
 		out = r.calc(new HashSet<Entity>());
 		System.out.println("Out: " + out);
 		Assert.assertEquals(1.849673863753553, out);

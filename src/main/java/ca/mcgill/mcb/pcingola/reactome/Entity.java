@@ -13,7 +13,12 @@ import ca.mcgill.mcb.pcingola.util.Gpr;
  */
 public class Entity {
 
+	public enum TransferFunction {
+		LINEAR, TANH, SIGM
+	};
+
 	public static boolean debug = false;
+	public static TransferFunction TRANSFER_FUNCTION = TransferFunction.TANH;
 
 	protected int id; // Entity ID
 	protected String name; // Entity Name
@@ -64,22 +69,11 @@ public class Entity {
 			if (doneEntities.contains(this)) return output; // Make sure we don't calculate twice
 			doneEntities.add(this); // Keep 'entities' set up to date
 
-			output = cap(getWeight()); // Calculate output
+			output = getWeight(); // Calculate output
 		}
 
 		if (debug) System.out.println(output + "\tfixed:" + isFixed() + "\tid:" + id + "\ttype:" + getClass().getSimpleName() + "\tname:" + name);
 		return output;
-	}
-
-	/**
-	 * Cap a value 
-	 * @param out
-	 * @return
-	 */
-	protected double cap(double out) {
-		if (out < MIN_OUTPUT) return MIN_OUTPUT;
-		if (out > MAX_OUTPUT) return MAX_OUTPUT;
-		return out;
 	}
 
 	public Compartment getCompartment() {
@@ -158,6 +152,24 @@ public class Entity {
 
 	public String toStringSimple() {
 		return getClass().getSimpleName() + "[" + id + "]: " + name;
+	}
+
+	/**
+	 * Transfer function
+	 * @param x
+	 * @return
+	 */
+	protected double transferFunction(double x) {
+		switch (TRANSFER_FUNCTION) {
+		case LINEAR:
+			return x;
+		case SIGM:
+			return 1.0 / (1.0 + Math.exp(-x));
+		case TANH:
+			return Math.tanh(x);
+		default:
+			throw new RuntimeException("Unimplemented transfer function: " + TRANSFER_FUNCTION);
+		}
 	}
 
 }
