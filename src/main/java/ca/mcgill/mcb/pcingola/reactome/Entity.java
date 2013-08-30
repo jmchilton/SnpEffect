@@ -19,6 +19,7 @@ public class Entity {
 
 	public static boolean debug = false;
 	public static TransferFunction TRANSFER_FUNCTION = TransferFunction.TANH;
+	public static double BETA = 1.0;
 
 	protected int id; // Entity ID
 	protected String name; // Entity Name
@@ -166,7 +167,7 @@ public class Entity {
 		case SIGM:
 			return 1.0 / (1.0 + Math.exp(-x));
 		case TANH:
-			return Math.tanh(x);
+			return Math.tanh(BETA * x);
 		default:
 			throw new RuntimeException("Unimplemented transfer function: " + TRANSFER_FUNCTION);
 		}

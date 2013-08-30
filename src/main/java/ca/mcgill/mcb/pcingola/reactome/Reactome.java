@@ -81,20 +81,28 @@ public class Reactome implements Iterable<Entity> {
 		Timer.showStdErr("Loading GTEx data");
 		String gtexDir = Gpr.HOME + "/snpEff/db/GTEx";
 		String gtexSamples = gtexDir + "/GTEx_Analysis_Annotations_Sample_DS__Pilot_2013_01_31.txt";
-		String gtexData = gtexDir + "/gtex_norm.20.txt";
+		String gtexData = gtexDir + "/gtex_norm.zzz.txt";
 		Gtex gtex = new Gtex(gtexSamples, gtexData);
 		gtex.getClass();
 
 		//---
 		// Simulate...!?
 		//---
+		double betas[] = { 0.9, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 2.0, 3.0 };
+
 		for (GtexExperiment gtexExperiment : gtex) {
 			if (gtexExperiment.size() > 0) {
-				System.out.println(gtexExperiment.getTissueTypeDetail() + "\t" + gtexExperiment.size());
-				reactome.zzz(gtexExperiment);
-				//				break;
+				//				System.out.println(gtexExperiment.getTissueTypeDetail() + "\t" + gtexExperiment.size());
+
+				for (double beta : betas) {
+					Entity.BETA = beta;
+					System.out.println("Beta: " + beta);
+					reactome.zzz(gtexExperiment);
+				}
+				break;
 			}
 		}
+		System.out.println("MAX:" + reactome.max);
 	}
 
 	public Reactome(String dirName) {
@@ -613,13 +621,9 @@ public class Reactome implements Iterable<Entity> {
 
 			if (entities != null) {
 				double value = gtexExperiment.getValue(gid);
-
 				if (!Double.isNaN(value)) {
-					// System.out.println("\t" + gid + " [ " + entities.size() + " ]");
-					for (Entity e : entities) {
+					for (Entity e : entities)
 						e.setFixedOutput(value);
-						// if (!e.getClass().getSimpleName().equals("Entity")) System.out.println("\t\t" + e.getClass().getSimpleName() + ":" + e.getName() + " [ " + value + " ]");
-					}
 				}
 			}
 		}
@@ -636,23 +640,35 @@ public class Reactome implements Iterable<Entity> {
 		//---
 		HashSet<Entity> done = new HashSet<Entity>();
 		resetWeight();
+		int omin = 0, omax = 0, ocount = 0;
 		for (Entity e : this) {
-			//			if (monitor.contains(e)) {
-			//				Gpr.debug("\t" + e);
-			//				HashSet<Entity> doneNew = new HashSet<Entity>();
-			//
-			//				Entity.debug = true;
-			//				e.calc(doneNew);
-			//				Entity.debug = false;
-			//			} else e.calc(done);
-			e.calc(done);
+			double o = e.calc(done);
+			if ((e instanceof Reaction) && !Double.isNaN(o) && !e.isFixed()) {
+				if (o <= -0.99) omin++;
+				else if (o >= 0.99) omax++;
+				ocount++;
+
+			}
 		}
 
 		//---
 		// Show values
 		//---
 		for (Entity e : monitor)
-			if (e.hasOutput()) System.out.println("\t" + e.getId() + "\t" + e.getOutput() + "\t" + e.isFixed() + "\t" + e.getClass().getSimpleName() + "\t" + e.getName());
+			if (e.hasOutput()) {
+				max = Math.max(max, e.getOutput());
+				double ratio = (omax + omin) / ((double) ocount);
+				System.out.println( //
+						String.format("%.3f\t%.3f [ %d , %d ]", e.getOutput(), ratio, omin, omax) //
+								+ "\t" + e.getId() //
+								+ "\t" + e.isFixed() //
+								+ "\t" + e.getClass().getSimpleName() //
+								+ "\t" + e.getName() //
+								+ "\t" + gtexExperiment //
+						);
+			}
 
 	}
+
+	double max = Double.NEGATIVE_INFINITY;
 }
