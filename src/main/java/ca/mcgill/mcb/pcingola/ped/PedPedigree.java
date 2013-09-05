@@ -129,8 +129,12 @@ public class PedPedigree implements Iterable<TfamEntry>, Comparable<PedPedigree>
 		for (String line : tfamStr.split("\n")) {
 			if (line.startsWith("#")) continue; // Skip comments
 
-			TfamEntry te = new TfamEntry(line);
-			add(te);
+			try {
+				TfamEntry te = new TfamEntry(line);
+				add(te);
+			} catch (Throwable t) {
+				throw new RuntimeException("Error parsing line from PED/TFAM file:\n\tFile name : '" + tfamFileName + "\n\tLine: '" + line + "'", t);
+			};
 		}
 	}
 

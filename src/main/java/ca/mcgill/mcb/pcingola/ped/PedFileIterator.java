@@ -41,9 +41,13 @@ public class PedFileIterator extends FileIterator<PedEntry> {
 				line = reader.readLine(); // Read a line (only if needed)
 				if (line != null) {
 					lineNum++;
+					try {
+						PedEntry pedEntry = parseLine(line);
+						if (pedEntry != null) return pedEntry;
+					} catch (Throwable t) {
+						throw new RuntimeException("Error parsing line from PED/TFAM file:\n\tFile name : '" + fileName + "'\n\tLine number : " + lineNum + "\n\tLine: '" + line + "'", t);
+					};
 
-					PedEntry pedEntry = parseLine(line);
-					if (pedEntry != null) return pedEntry;
 				}
 			}
 		} catch (IOException e) {
