@@ -34,13 +34,8 @@ import ca.mcgill.mcb.pcingola.util.Timer;
 public class Reactome implements Iterable<Entity> {
 
 	public static final int SHOW_EVERY = 10000;
-
-	String dirName;
-	HashMap<String, Entity> entityById;
-	HashMap<String, String> objectType;
-	HashMap<String, String> objectName;
-	AutoHashMap<String, ArrayList<Entity>> entitiesByGeneId;
-	HashSet<String> entitiesGeneId = new HashSet<String>();
+	public static final double EPSILON = 1E-6;
+	public static final int MAX_ITERATIONS = 1000;
 
 	/**
 	 * Find and return first Regexp occurrence (null if nothing is found)
@@ -73,7 +68,6 @@ public class Reactome implements Iterable<Entity> {
 		Reactome reactome = new Reactome(reactomeDir);
 		reactome.load();
 		reactome.loadGeneIds(geneIdsFile); // Load Gene IDs data
-		//		System.out.println(reactome.getEntity("165718"));
 
 		//---
 		// Load GTEX data
@@ -88,22 +82,18 @@ public class Reactome implements Iterable<Entity> {
 		//---
 		// Simulate...!?
 		//---
-		double betas[] = { 0.9, 1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 2.0, 3.0 };
-
 		for (GtexExperiment gtexExperiment : gtex) {
-			if (gtexExperiment.size() > 0) {
-				//				System.out.println(gtexExperiment.getTissueTypeDetail() + "\t" + gtexExperiment.size());
-
-				for (double beta : betas) {
-					Entity.BETA = beta;
-					System.out.println("Beta: " + beta);
-					reactome.zzz(gtexExperiment);
-				}
-				break;
-			}
+			if (gtexExperiment.size() > 0) reactome.zzz(gtexExperiment);
 		}
-		System.out.println("MAX:" + reactome.max);
 	}
+
+	String dirName;
+	HashMap<String, Entity> entityById;
+	HashMap<String, String> objectType;
+	HashMap<String, String> objectName;
+	AutoHashMap<String, ArrayList<Entity>> entitiesByGeneId;
+	HashSet<String> entitiesGeneId = new HashSet<String>();
+	HashSet<Entity> monitor;
 
 	public Reactome(String dirName) {
 		this.dirName = dirName;
@@ -579,12 +569,6 @@ public class Reactome implements Iterable<Entity> {
 	public void reset() {
 		for (Entity e : this)
 			e.reset();
-
-	}
-
-	public void resetWeight() {
-		for (Entity e : this)
-			e.resetWeight();
 	}
 
 	@Override
@@ -611,9 +595,15 @@ public class Reactome implements Iterable<Entity> {
 	 * @param gtex
 	 * @param gtexExperiment
 	 */
-	public void zzz(GtexExperiment gtexExperiment) {
+	public boolean zzz(GtexExperiment gtexExperiment) {
 		//---
-		// Set fixed outputs
+		// Reset previous values
+		//---
+		for (Entity e : this)
+			e.reset();
+
+		//---
+		// Set fixed outputs (from GTEx values)
 		//---
 		Gtex gtex = gtexExperiment.getGtex();
 		for (String gid : gtex.getGeneIds()) {
@@ -629,46 +619,61 @@ public class Reactome implements Iterable<Entity> {
 		}
 
 		//---
+		// Scale weights
+		//---
+		for (Entity e : this)
+			if (e.isReaction()) ((Reaction) e).scaleWeights();
+
+		//---
 		// Select entities to monitor
 		//---
-		HashSet<Entity> monitor = new HashSet<Entity>();
-		for (Entity e : this)
-			if (e.getName().toLowerCase().indexOf("phospho-irs:activated insulin receptor") >= 0) monitor.add(e);
+		if (monitor == null) {
+			monitor = new HashSet<Entity>();
+			for (Entity e : this)
+				if ((e.getId() == 74695) //
+						|| e.getId() == 373676 //
+						|| e.getId() == 165690 //
+						|| e.getId() == 165678 //
+				// || e.getName().toLowerCase().indexOf("neuro") >= 0 //
+				) {
+					monitor.add(e);
+				}
+
+			// Show title
+			for (Entity e : monitor) {
+				if (e.isFixed()) throw new RuntimeException("Monitoring a fixed node: " + e.getId() + "\t" + e.getName());
+				System.out.print("\t" + e.getName());
+			}
+			System.out.println("");
+		}
 
 		//---
-		// Calculate 
+		// Iterate network until convergence
 		//---
-		HashSet<Entity> done = new HashSet<Entity>();
-		resetWeight();
-		int omin = 0, omax = 0, ocount = 0;
-		for (Entity e : this) {
-			double o = e.calc(done);
-			if ((e instanceof Reaction) && !Double.isNaN(o) && !e.isFixed()) {
-				if (o <= -0.99) omin++;
-				else if (o >= 0.99) omax++;
-				ocount++;
+		boolean anyOk = false;
+		boolean changed = true;
+		for (int iteration = 0; changed && iteration < MAX_ITERATIONS; iteration++) {
+			changed = false;
+			HashSet<Entity> done = new HashSet<Entity>();
 
+			for (Entity e : this) {
+				double outPrev = e.getOutput();
+				double out = e.calc(done);
+
+				// Output changed?
+				if (Math.abs(outPrev - out) > EPSILON) changed = true;
 			}
 		}
 
 		//---
-		// Show values
+		// Show results
 		//---
-		for (Entity e : monitor)
-			if (e.hasOutput()) {
-				max = Math.max(max, e.getOutput());
-				double ratio = (omax + omin) / ((double) ocount);
-				System.out.println( //
-						String.format("%.3f\t%.3f [ %d , %d ]", e.getOutput(), ratio, omin, omax) //
-								+ "\t" + e.getId() //
-								+ "\t" + e.isFixed() //
-								+ "\t" + e.getClass().getSimpleName() //
-								+ "\t" + e.getName() //
-								+ "\t" + gtexExperiment //
-						);
-			}
+		for (Entity e : monitor) {
+			if (e.hasOutput() && !e.isFixed() && Math.abs(e.getOutput()) > EPSILON) anyOk = true;
+			System.out.print(String.format("\t%+.6f", e.getOutput()));
+		}
+		System.out.println("\t" + gtexExperiment.getTissueTypeDetail());
 
+		return anyOk;
 	}
-
-	double max = Double.NEGATIVE_INFINITY;
 }

@@ -22,41 +22,6 @@ public class Complex extends Reaction implements Iterable<Entity> {
 		addInput(e);
 	}
 
-	/**
-	 * Calculate entities.
-	 * Make sure we don't calculate twice (keep 'doneEntities' set up to date)
-	 * 
-	 * @param doneEntities
-	 * @return
-	 */
-	@Override
-	public double calc(HashSet<Entity> doneEntities) {
-
-		if (!Double.isNaN(fixedOutput)) output = fixedOutput;
-		else {
-			if (doneEntities.contains(this)) return output; // Make sure we don't calculate twice
-			doneEntities.add(this); // Keep 'entities' set up to date
-
-			// Sum inputs
-			double sum = 0;
-			int count = 0;
-			for (Entity e : this) {
-				double out = e.calc(doneEntities);
-				if (e.hasOutput()) {
-					count += inputs.get(e);
-					sum += out * out;
-				}
-			}
-
-			// Calculate output
-			if (count > 0) output = transferFunction(sum / Math.sqrt(count));
-			else output = Double.NaN;
-		}
-
-		if (debug) System.out.println(output + "\tfixed:" + isFixed() + "\tid:" + id + "\ttype:" + getClass().getSimpleName() + "\tname:" + name);
-		return output;
-	}
-
 	public boolean contains(Object o) {
 		return inputs.containsKey(o);
 	}

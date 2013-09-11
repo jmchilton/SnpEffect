@@ -24,6 +24,8 @@ public class Reaction extends Event {
 		NegativeRegulation, PositiveRegulation, Requirement
 	};
 
+	public static final double MAX_WEIGHT_SUM = 1.1;
+
 	protected HashMap<Entity, Double> inputs; // Input -> Weight
 	protected HashSet<Entity> outputs;
 	protected HashSet<Entity> catalyst;
@@ -78,26 +80,30 @@ public class Reaction extends Event {
 			if (doneEntities.contains(this)) return output; // Make sure we don't calculate twice
 			doneEntities.add(this); // Keep 'entities' set up to date
 
-			// Calculate inputs, catalysts & regulators
+			// Calculate inputs
 			for (Entity ein : getInputs())
 				ein.calc(doneEntities);
 
+			// Calculate catalysts 
 			for (Entity ecat : catalyst)
 				ecat.calc(doneEntities);
 
+			// Calculate regulators
 			for (Entity ereg : regulator.keySet())
 				ereg.calc(doneEntities);
 
-			// Calculate aggregated input (weighted sum)
+			// Calculate aggregated input
 			double in = 0;
 			switch (TRANSFER_FUNCTION) {
 			case LINEAR:
+				// Min of all inputs
 				in = Double.POSITIVE_INFINITY;
 				for (Entity ein : getInputs())
 					if (ein.hasOutput()) in = Math.min(in, ein.getOutput());
 				break;
 
 			default:
+				// Weighted input
 				in = 0;
 				for (Entity ein : getInputs())
 					if (ein.hasOutput()) in += ein.getOutput() * inputs.get(ein);
@@ -151,6 +157,10 @@ public class Reaction extends Event {
 		return output;
 	}
 
+	public HashSet<Entity> getCatalyst() {
+		return catalyst;
+	}
+
 	public Collection<Entity> getInputs() {
 		return inputs.keySet();
 	}
@@ -166,6 +176,30 @@ public class Reaction extends Event {
 	@Override
 	public boolean isReaction() {
 		return true;
+	}
+
+	public void scaleWeights() {
+		// One input? Nothing to do
+		if (inputs.size() <= 1) return;
+
+		// Sum
+		double sum = 0;
+		for (Double in : inputs.values())
+			sum += Math.abs(in);
+
+		// Is it scaled? Nothing to do
+		if (sum < MAX_WEIGHT_SUM) return;
+
+		// New hash with scaled weights
+		HashMap<Entity, Double> newInputs = new HashMap<Entity, Double>();
+		for (Entity e : inputs.keySet()) {
+			double weight = inputs.get(e) / sum;
+			newInputs.put(e, weight);
+		}
+
+		// Replace hash
+		inputs = newInputs;
+
 	}
 
 	@Override

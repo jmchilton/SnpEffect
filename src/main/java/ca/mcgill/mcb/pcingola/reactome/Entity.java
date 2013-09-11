@@ -19,7 +19,7 @@ public class Entity {
 
 	public static boolean debug = false;
 	public static TransferFunction TRANSFER_FUNCTION = TransferFunction.TANH;
-	public static double BETA = 1.0;
+	public static double BETA = 2.0;
 
 	protected int id; // Entity ID
 	protected String name; // Entity Name
@@ -27,11 +27,7 @@ public class Entity {
 	protected double output; // Entity output value
 	protected double weight; // Weight applied to this entity (NaN means not available)
 	protected double fixedOutput; // Fixed output value (external information)
-	protected int countWeights;
 	protected HashSet<String> geneIds; // All gene IDs related to this entity
-
-	public static final double MAX_OUTPUT = 10;
-	public static final double MIN_OUTPUT = -10;
 
 	public Entity(int id, String name) {
 		this.id = id;
@@ -46,13 +42,6 @@ public class Entity {
 	public void addGeneId(String geneId) {
 		if (geneIds == null) geneIds = new HashSet<String>();
 		geneIds.add(geneId);
-	}
-
-	public void addWeight(double weight) {
-		if (Double.isNaN(weight)) return; // Nothing to do
-		else if (countWeights == 0) this.weight = weight; // In case previous value was NAN
-		else this.weight += weight;
-		countWeights++;
 	}
 
 	/**
@@ -98,7 +87,6 @@ public class Entity {
 	}
 
 	public double getWeight() {
-		if (countWeights > 1) return weight / Math.sqrt(countWeights);
 		return weight;
 	}
 
@@ -115,17 +103,9 @@ public class Entity {
 	}
 
 	public void reset() {
-		output = Double.NaN; // Entity output value
-		weight = Double.NaN; // Weight applied to this entity (NaN means not available)
+		output = 0; // Entity output value
 		fixedOutput = Double.NaN; // Fixed output value (external information)
-		countWeights = 0;
-
-		output = weight = 0;
-	}
-
-	public void resetWeight() {
-		weight = Double.NaN;
-		countWeights = 0;
+		weight = Double.NaN; // Weight
 	}
 
 	public void setCompartment(Compartment compartment) {
@@ -138,7 +118,6 @@ public class Entity {
 
 	public void setWeight(double weight) {
 		this.weight = weight;
-		countWeights = 1;
 	}
 
 	@Override
