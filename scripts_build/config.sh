@@ -1,11 +1,11 @@
 #!/bin/sh
 
-export VERSION_SNPEFF=3.3
+export VERSION_SNPEFF=3.4
 export SUBVERSION_SNPEFF=""
 export VERSION_SNPSIFT=$VERSION_SNPEFF
 export VERSION_SNPSQL=0.2
 
-export ENSEMBL_RELEASE=72
+export ENSEMBL_RELEASE=73
 export ENSEMBL_BFMPP_RELEASE=18
 
 # Version values using underscores ('3_2' instead of '3.2')
