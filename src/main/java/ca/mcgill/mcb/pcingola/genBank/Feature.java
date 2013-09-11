@@ -87,12 +87,74 @@ public class Feature {
 		return qualifiers.get(name);
 	}
 
+	/**
+	 * Get translated amino acid sequence
+	 * @return
+	 */
+	public String getAasequence() {
+		return get("translation");
+	}
+
 	public int getEnd() {
 		return end;
 	}
 
+	public String getGeneId() {
+		// Try 'locus'...
+		String geneId = get("locus_tag");
+		if (geneId != null) return geneId;
+
+		// Try 'gene'...
+		geneId = get("gene");
+		if (geneId != null) return geneId;
+
+		// Try 'db_xref'...
+		geneId = get("db_xref");
+		if (geneId != null) return geneId;
+
+		return null;
+	}
+
+	/**
+	 * Get gene name from feature
+	 * @param f
+	 * @param start
+	 * @param end
+	 * @return
+	 */
+	public String getGeneName() {
+		// Try 'gene'...
+		String geneName = get("gene");
+		if (geneName != null) return geneName;
+
+		// Try 'locus'...
+		geneName = get("locus_tag");
+		if (geneName != null) return geneName;
+
+		return null;
+	}
+
 	public int getStart() {
 		return start;
+	}
+
+	/**
+	 * Create a transciript ID based on a feature
+	 * @param f
+	 * @return
+	 */
+	public String getTrId() {
+		// Try 'locus'...
+		String trId = get("locus_tag");
+		if (trId != null) return trId;
+
+		trId = get("gene");
+		if (trId != null) return "Tr_" + trId;
+
+		trId = get("product");
+		if (trId != null) trId = trId.replaceAll("\\s", "_");
+
+		return trId;
 	}
 
 	public Type getType() {

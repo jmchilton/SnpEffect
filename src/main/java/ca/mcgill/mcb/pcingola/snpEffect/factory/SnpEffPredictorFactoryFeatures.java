@@ -86,7 +86,7 @@ public abstract class SnpEffPredictorFactoryFeatures extends SnpEffPredictorFact
 				int start = f.getStart() - inOffset;
 				int end = f.getEnd() - inOffset;
 
-				String trId = getTrId(f);
+				String trId = f.getTrId();
 				Gene gene = findOrCreateGene(f, chromosome, false); // Find or create gene
 
 				// Add transcript
@@ -106,7 +106,7 @@ public abstract class SnpEffPredictorFactoryFeatures extends SnpEffPredictorFact
 				int end = f.getEnd() - inOffset;
 
 				// Try to find transcript
-				String trId = getTrId(f);
+				String trId = f.getTrId();
 
 				Transcript tr = findTranscript(trId);
 				if (tr == null) {
@@ -123,7 +123,7 @@ public abstract class SnpEffPredictorFactoryFeatures extends SnpEffPredictorFact
 				}
 
 				// Mark transcript as protein coding
-				if (f.get("translation") != null) tr.setProteinCoding(true);
+				if (f.getAasequence() != null) tr.setProteinCoding(true);
 
 				Cds cds = new Cds(tr, f.getStart() - inOffset, f.getEnd() - inOffset, f.isComplement() ? -1 : 1, "CDS_" + trId);
 				add(cds);
@@ -213,15 +213,7 @@ public abstract class SnpEffPredictorFactoryFeatures extends SnpEffPredictorFact
 	 */
 	protected String geneId(Feature f, int start, int end) {
 		// Try 'locus'...
-		String geneId = f.get("locus_tag");
-		if (geneId != null) return geneId;
-
-		// Try 'gene'...
-		geneId = f.get("gene");
-		if (geneId != null) return geneId;
-
-		// Try 'db_xref'...
-		geneId = f.get("db_xref");
+		String geneId = f.getGeneId();
 		if (geneId != null) return geneId;
 
 		return "Gene_" + start + "_" + end;
@@ -236,33 +228,10 @@ public abstract class SnpEffPredictorFactoryFeatures extends SnpEffPredictorFact
 	 */
 	protected String geneName(Feature f, int start, int end) {
 		// Try 'gene'...
-		String geneName = f.get("gene");
-		if (geneName != null) return geneName;
-
-		// Try 'locus'...
-		geneName = f.get("locus_tag");
+		String geneName = f.getGeneName();
 		if (geneName != null) return geneName;
 
 		return "Gene_" + start + "_" + end;
-	}
-
-	/**
-	 * Create a transciript ID based on a feature
-	 * @param f
-	 * @return
-	 */
-	protected String getTrId(Feature f) {
-		// Try 'locus'...
-		String trId = f.get("locus_tag");
-		if (trId != null) return trId;
-
-		trId = f.get("gene");
-		if (trId != null) return "Tr_" + trId;
-
-		trId = f.get("product");
-		if (trId != null) trId = trId.replaceAll("\\s", "_");
-
-		return trId;
 	}
 
 	/**

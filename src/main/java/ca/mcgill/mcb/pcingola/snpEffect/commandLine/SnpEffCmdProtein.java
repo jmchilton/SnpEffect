@@ -291,8 +291,8 @@ public class SnpEffCmdProtein extends SnpEff {
 		for (Features features : featuresFile) {
 			for (Feature f : features.getFeatures()) { // Find all CDS 
 				if (f.getType() == Type.CDS) { // Add CDS 'translation' record
-					String trId = f.get("locus_tag");
-					String seq = f.get("translation");
+					String trId = f.getTrId();
+					String seq = f.getAasequence();
 					if ((trId != null) && (seq != null)) add(trId, seq, -1);
 				}
 			}
