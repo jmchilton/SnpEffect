@@ -98,13 +98,13 @@ public class ChangeEffect implements Cloneable, Comparable<ChangeEffect> {
 			case UTR_5_DELETED:
 				return "five_prime_UTR";
 			case SPLICE_SITE_ACCEPTOR:
-				return "splice_region_variant";
+				return "splice_acceptor_variant";
 			case SPLICE_SITE_BRANCH:
 				return "splice_region_variant";
 			case SPLICE_SITE_BRANCH_U12:
 				return "splice_region_variant";
 			case SPLICE_SITE_DONOR:
-				return "splice_region_variant";
+				return "splice_donor_variant";
 			case START_LOST:
 				return "initiator_codon_variant";
 			case SYNONYMOUS_START:
@@ -201,6 +201,14 @@ public class ChangeEffect implements Cloneable, Comparable<ChangeEffect> {
 
 	static final boolean COMPATIBLE_v1_8 = true; // Activate this in order to get the same out as version 1.8. This is only for testing & debugging 
 
+	/**
+	 *  An empty list of results;
+	 * @return
+	 */
+	public static List<ChangeEffect> emptyResults() {
+		return new ArrayList<ChangeEffect>();
+	}
+
 	SeqChange seqChange = null;
 	SeqChange seqChangeRef = null;
 	EffectType effectType = EffectType.NONE;
@@ -214,15 +222,8 @@ public class ChangeEffect implements Cloneable, Comparable<ChangeEffect> {
 	int codonIndex = -1; // Index within a codon (negative number mens 'information not available')
 	int codonDegeneracy = -1; // Codon degeneracy (negative number mens 'information not available')
 	String aaOld = "", aaNew = ""; // Amino acid changes
-	String aasAroundOld = "", aasAroundNew = ""; // Amino acids around
 
-	/**
-	 *  An empty list of results;
-	 * @return
-	 */
-	public static List<ChangeEffect> emptyResults() {
-		return new ArrayList<ChangeEffect>();
-	}
+	String aasAroundOld = "", aasAroundNew = ""; // Amino acids around
 
 	public ChangeEffect(SeqChange seqChange) {
 		this.seqChange = seqChange;

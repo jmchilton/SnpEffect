@@ -104,14 +104,14 @@ public class Feature {
 		String geneId = get("locus_tag");
 		if (geneId != null) return geneId;
 
-		// Try 'gene'...
-		geneId = get("gene");
-		if (geneId != null) return geneId;
-
-		// Try 'db_xref'...
-		geneId = get("db_xref");
-		if (geneId != null) return geneId;
-
+		//		// Try 'gene'...
+		//		geneId = get("protein_id");
+		//		if (geneId != null) return geneId;
+		//
+		//		// Try 'db_xref'...
+		//		geneId = get("db_xref");
+		//		if (geneId != null) return geneId;
+		//
 		return null;
 	}
 
@@ -127,11 +127,7 @@ public class Feature {
 		String geneName = get("gene");
 		if (geneName != null) return geneName;
 
-		// Try 'locus'...
-		geneName = get("locus_tag");
-		if (geneName != null) return geneName;
-
-		return null;
+		return getGeneId();
 	}
 
 	public int getStart() {
@@ -143,13 +139,18 @@ public class Feature {
 	 * @param f
 	 * @return
 	 */
-	public String getTrId() {
-		// Try 'locus'...
-		String trId = get("locus_tag");
+	public String getTranscriptId() {
+		// Try 'gene'...
+		String trId = get("protein_id");
 		if (trId != null) return trId;
 
-		trId = get("gene");
-		if (trId != null) return "Tr_" + trId;
+		// Try 'db_xref'...
+		trId = get("db_xref");
+		if (trId != null) return trId;
+
+		// Try 'locus'...
+		trId = get("locus_tag");
+		if (trId != null) return trId;
 
 		trId = get("product");
 		if (trId != null) trId = trId.replaceAll("\\s", "_");

@@ -86,7 +86,7 @@ public abstract class SnpEffPredictorFactoryFeatures extends SnpEffPredictorFact
 				int start = f.getStart() - inOffset;
 				int end = f.getEnd() - inOffset;
 
-				String trId = f.getTrId();
+				String trId = f.getTranscriptId();
 				Gene gene = findOrCreateGene(f, chromosome, false); // Find or create gene
 
 				// Add transcript
@@ -106,7 +106,7 @@ public abstract class SnpEffPredictorFactoryFeatures extends SnpEffPredictorFact
 				int end = f.getEnd() - inOffset;
 
 				// Try to find transcript
-				String trId = f.getTrId();
+				String trId = f.getTranscriptId();
 
 				Transcript tr = findTranscript(trId);
 				if (tr == null) {
