@@ -35,6 +35,7 @@ public class Reactome implements Iterable<Entity> {
 
 	public static final int SHOW_EVERY = 10000;
 	public static final double EPSILON = 1E-6;
+	public static final double MAX_CONVERGENCE_DIFFERENCE = 1E-3;
 	public static final int MAX_ITERATIONS = 1000;
 
 	/**
@@ -93,7 +94,7 @@ public class Reactome implements Iterable<Entity> {
 	HashMap<String, String> objectName;
 	AutoHashMap<String, ArrayList<Entity>> entitiesByGeneId;
 	HashSet<String> entitiesGeneId = new HashSet<String>();
-	HashSet<Entity> monitor;
+	Monitor monitor;
 
 	public Reactome(String dirName) {
 		this.dirName = dirName;
@@ -153,7 +154,7 @@ public class Reactome implements Iterable<Entity> {
 		return entityById.values().iterator();
 	}
 
-	protected void load() {
+	public void load() {
 		Timer.showStdErr("Loading Reactome data from directory '" + dirName + "'");
 
 		loadDatabaseObjects(); // Load a map of all object names and types
@@ -277,7 +278,7 @@ public class Reactome implements Iterable<Entity> {
 	 * 
 	 * @param geneIdsFile
 	 */
-	protected void loadGeneIds(String geneIdsFile) {
+	public void loadGeneIds(String geneIdsFile) {
 		//---
 		// Load Gene IDs data
 		//---
@@ -628,23 +629,13 @@ public class Reactome implements Iterable<Entity> {
 		// Select entities to monitor
 		//---
 		if (monitor == null) {
-			monitor = new HashSet<Entity>();
-			for (Entity e : this)
-				if ((e.getId() == 74695) //
-						|| e.getId() == 373676 //
-						|| e.getId() == 165690 //
-						|| e.getId() == 165678 //
-				// || e.getName().toLowerCase().indexOf("neuro") >= 0 //
-				) {
-					monitor.add(e);
-				}
-
-			// Show title
-			for (Entity e : monitor) {
-				if (e.isFixed()) throw new RuntimeException("Monitoring a fixed node: " + e.getId() + "\t" + e.getName());
-				System.out.print("\t" + e.getName());
+			monitor = new Monitor();
+			for (Entity e : this) {
+				if (!e.isFixed() && e.isReaction()) monitor.add(e);
 			}
-			System.out.println("");
+
+			monitor.sort();
+			Gpr.debug("Monitor size: " + monitor.size());
 		}
 
 		//---
@@ -652,7 +643,9 @@ public class Reactome implements Iterable<Entity> {
 		//---
 		boolean anyOk = false;
 		boolean changed = true;
-		for (int iteration = 0; changed && iteration < MAX_ITERATIONS; iteration++) {
+		int iteration;
+		System.out.print(gtexExperiment.getTissueTypeDetail() + "\t");
+		for (iteration = 0; changed && iteration < MAX_ITERATIONS; iteration++) {
 			changed = false;
 			HashSet<Entity> done = new HashSet<Entity>();
 
@@ -661,18 +654,19 @@ public class Reactome implements Iterable<Entity> {
 				double out = e.calc(done);
 
 				// Output changed?
-				if (Math.abs(outPrev - out) > EPSILON) changed = true;
+				if (Math.abs(outPrev - out) > MAX_CONVERGENCE_DIFFERENCE) changed = true;
 			}
+			System.out.print(".");
 		}
+		System.out.println(" " + iteration);
 
-		//---
-		// Show results
-		//---
-		for (Entity e : monitor) {
-			if (e.hasOutput() && !e.isFixed() && Math.abs(e.getOutput()) > EPSILON) anyOk = true;
-			System.out.print(String.format("\t%+.6f", e.getOutput()));
-		}
-		System.out.println("\t" + gtexExperiment.getTissueTypeDetail());
+		// Add results
+		monitor.addResults(gtexExperiment.getTissueTypeDetail(), this);
+
+		// Save results
+		String file = Gpr.HOME + "/zzz." + monitor.sizeResults() + ".txt";
+		Timer.showStdErr("Saving results to '" + file + "'");
+		monitor.save(file);
 
 		return anyOk;
 	}

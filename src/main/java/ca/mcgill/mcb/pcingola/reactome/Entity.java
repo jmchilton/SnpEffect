@@ -11,7 +11,7 @@ import ca.mcgill.mcb.pcingola.util.Gpr;
  * @author pcingola
  *
  */
-public class Entity {
+public class Entity implements Comparable<Entity> {
 
 	public enum TransferFunction {
 		LINEAR, TANH, SIGM
@@ -64,6 +64,11 @@ public class Entity {
 
 		if (debug) System.out.println(output + "\tfixed:" + isFixed() + "\tid:" + id + "\ttype:" + getClass().getSimpleName() + "\tname:" + name);
 		return output;
+	}
+
+	@Override
+	public int compareTo(Entity e) {
+		return getName().compareTo(e.getName());
 	}
 
 	public Compartment getCompartment() {
