@@ -31,17 +31,24 @@ for( ns in nshort ) {
 }
 
 # Plot values
-for( i in 1:1000 ) {
+for( i in 1:length(rnames) ) {
 	x <- as.numeric(d[i,minExp:maxExp])
 
 
 	# Kruskal-Wallis test
-#	kw <- kruskal.test( list( x, nameShort ) )
-#	pval <- kw$p.value
+	kw <- kruskal.test( list( x, nameShort ) )
+	pval.kw <- kw$p.value
 
 	# Annova test
 	anv <- oneway.test(x ~ nameShort)
 	pval <- anv$p.value
+
+	if( is.na(pval) && !is.na(pval.kw) ) {
+		pval <- pval.kw
+	} else if( !is.na(pval) && !is.na(pval.kw) && (pval < pval.kw)) { 
+		cat("KW!\n") 
+		pval <- max(pval, pval.kw);
+	}
 
 	if( !is.na(pval) && (pval < maxPval)) {
 		cat('  \t', i,'\tp-value:', pval, '\tNode:', i, rnames[i], '\n');
