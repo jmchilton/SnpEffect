@@ -5,9 +5,11 @@
 #																Pablo Cingolani
 #-------------------------------------------------------------------------------
 
+savePdf <- FALSE
 savePdf <- TRUE
+
 maxPval <- 10E-30
-minNameCount <- 50
+minNameCount <- 30
 
 if( ! exists('d') ) {
 	# Simaltion data
@@ -44,10 +46,11 @@ if( savePdf ) { pdf(width=20, height=20); }
 # Plot values
 for( i in 1:length(rnames) ) {
 	#if( length( grep("insulin", rnames[i], fixed=TRUE) ) > 0 ) {
-	if(
-		# (d$enityId[i] == 74695) || (d$enityId[i] == 165690) || (d$enityId[i] == 373676)
-		#|| 
-		( length( grep("insulin", rnames[i], fixed=TRUE) ) > 0 )
+	if( FALSE
+		|| (d$enityId[i] == 74695) 
+		|| (d$enityId[i] == 165690) 
+		|| (d$enityId[i] == 373676)
+		#|| ( length( grep("insulin", rnames[i], fixed=TRUE) ) > 0 )
 		) {
 		x <- as.numeric(d[i,minExp:maxExp])
 
@@ -72,25 +75,27 @@ for( i in 1:length(rnames) ) {
 			dens <- density(x)
 			plot( dens, xlim=c(-1,1), main=rnames[i], sub=pvalStr )
 
+			# Plot chrts for each tissue
+			par( mfrow=c(3,3) ) 
 			col <- minColor
-			labels <- list()
 			for( ns in nshort ) {
+				# Only keep matching experiments
 				keep <- (nameShort == ns) & (! is.na(x))
-
 				xns <- x[keep]
 				xns <- xns[ ! is.na(xns) ]
+
+				# At least 'minNameCount' samples?
 				if( length(xns) > minNameCount ) {
-					lines( density(xns) , col=col )
+					# Avoid black color
+					if( col %% 9 == 0 ) { col <- col + 1; }
+
+					# Plot this density and overall density
+					plot( density(xns), xlim=c(-1,1), main=ns, xlab=rnames[i], sub=col, col=col )
+					lines( dens )
+
 					col <- col + 1
-					labels[[ length(labels) + 1 ]] <- ns
-					# cat('\t', ns, ':', length(xns), '\n');
 				}
 			}
-
-			# Draw lables
-			maxy <- max(dens$y)
-			colors <- ( 1:length(labels) ) + minColor
-			legend(0.75, maxy, labels, col=colors, lty=1 );
 		} else {
 			cat('NO\t', i,'\tp-value:', pval, '\tNode:', i, d$enityId[i], d$entityName[i],as.character(rnames[i]), '\n');
 		}
