@@ -1,6 +1,13 @@
+#-------------------------------------------------------------------------------
+#
+# Show simmulated values from Reactome + GTEx "circuit" simmulation
+#
+#																Pablo Cingolani
+#-------------------------------------------------------------------------------
 
+savePdf <- TRUE
 maxPval <- 10E-30
-minNameCount <- 10
+minNameCount <- 50
 
 if( ! exists('d') ) {
 	# Simaltion data
@@ -16,7 +23,7 @@ maxExp <- dim(d)[2]
 
 # Column names
 cnames <- colnames(d)
-rnames <- rownames(d)
+rnames <- d$entityName
 
 # Experiment name
 # Remove low counts and 'NA'
@@ -30,42 +37,64 @@ for( ns in nshort ) {
 	}
 }
 
+minColor = 1
+
+if( savePdf ) { pdf(width=20, height=20); }
+
 # Plot values
 for( i in 1:length(rnames) ) {
-	x <- as.numeric(d[i,minExp:maxExp])
+	#if( length( grep("insulin", rnames[i], fixed=TRUE) ) > 0 ) {
+	if(
+		# (d$enityId[i] == 74695) || (d$enityId[i] == 165690) || (d$enityId[i] == 373676)
+		#|| 
+		( length( grep("insulin", rnames[i], fixed=TRUE) ) > 0 )
+		) {
+		x <- as.numeric(d[i,minExp:maxExp])
 
+		# Kruskal-Wallis test
+		kw <- kruskal.test( list( x, nameShort ) )
+		pval.kw <- kw$p.value
 
-	# Kruskal-Wallis test
-	kw <- kruskal.test( list( x, nameShort ) )
-	pval.kw <- kw$p.value
+		# Annova test
+		anv <- oneway.test(x ~ nameShort)
+		pval <- anv$p.value
 
-	# Annova test
-	anv <- oneway.test(x ~ nameShort)
-	pval <- anv$p.value
+		# Density plots
+		if( !is.na(pval) && (pval < maxPval)) {
+			name = as.character(d$entityName[i])
 
-	if( is.na(pval) && !is.na(pval.kw) ) {
-		pval <- pval.kw
-	} else if( !is.na(pval) && !is.na(pval.kw) && (pval < pval.kw)) { 
-		cat("KW!\n") 
-		pval <- max(pval, pval.kw);
-	}
+			# Boxplots
+			par( mfrow=c(2,1) ) 
+			boxplot(x ~ nameShort, main=name )
 
-	if( !is.na(pval) && (pval < maxPval)) {
-		cat('  \t', i,'\tp-value:', pval, '\tNode:', i, rnames[i], '\n');
-		plot( density(x), main=rnames[i] )
+			cat('  \t', i,'\tp-value:', pval, '\tNode:', i, '\tId:', d$enityId[i], '\tName:', name, '\n');
+			pvalStr <- paste('p-value(ANNOVA):', pval, '  p-value(Kruskal):', pval.kw)
+			dens <- density(x)
+			plot( dens, xlim=c(-1,1), main=rnames[i], sub=pvalStr )
 
-		col <- 0
-		for( ns in nshort ) {
-			keep <- (names$nameShort == ns) & (! is.na(x))
+			col <- minColor
+			labels <- list()
+			for( ns in nshort ) {
+				keep <- (nameShort == ns) & (! is.na(x))
 
-			xns <- x[keep]
-			xns <- xns[ ! is.na(xns) ]
-			if( length(xns) > minNameCount ) {
-				lines( density(xns) , col=col )
+				xns <- x[keep]
+				xns <- xns[ ! is.na(xns) ]
+				if( length(xns) > minNameCount ) {
+					lines( density(xns) , col=col )
+					col <- col + 1
+					labels[[ length(labels) + 1 ]] <- ns
+					# cat('\t', ns, ':', length(xns), '\n');
+				}
 			}
-			col <- col + 1
+
+			# Draw lables
+			maxy <- max(dens$y)
+			colors <- ( 1:length(labels) ) + minColor
+			legend(0.75, maxy, labels, col=colors, lty=1 );
+		} else {
+			cat('NO\t', i,'\tp-value:', pval, '\tNode:', i, d$enityId[i], d$entityName[i],as.character(rnames[i]), '\n');
 		}
-	} else {
-		cat('NO\t', i,'\tp-value:', pval, '\tNode:', i, rnames[i], '\n');
 	}
 }
+
+if( savePdf ) { dev.off(); }
