@@ -591,8 +591,11 @@ public class Gpr {
 	}
 
 	public static String sanityzeName(String fileName) {
-		String out = fileName.trim().replaceAll("[^0-9_a-zA-Z\\-\\.]", "_");
-		return out.replaceAll("_+", "_");
+		String out = fileName.trim().replaceAll("[^0-9_a-zA-Z\\.]", "_");
+		out = out.replaceAll("_+", "_");
+		if (out.startsWith("_")) out = out.substring(1);
+		if (out.endsWith("_")) out = out.substring(0, out.length() - 1);
+		return out;
 	}
 
 	/**

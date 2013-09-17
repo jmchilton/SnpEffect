@@ -48,7 +48,7 @@ public class Reactome implements Iterable<Entity> {
 	AutoHashMap<String, ArrayList<Entity>> entitiesByGeneId;
 	HashSet<String> entitiesGeneId = new HashSet<String>();
 	Monitor monitor; // Monitor all nodes in the circuit
-	Monitor traceMonitor; // Monitor a specific set of nodes (usually one node and all it's predecesors)
+	Monitor monitorTrace; // Monitor a specific set of nodes (usually one node and all it's predecesors)
 
 	/**
 	 * Find and return first Regexp occurrence (null if nothing is found)
@@ -158,6 +158,25 @@ public class Reactome implements Iterable<Entity> {
 			if (!e.isFixed() && e.isReaction()) monitor.add(e);
 		}
 
+		monitor.sort();
+		Gpr.debug("Monitor size: " + monitor.size());
+
+		return monitor;
+	}
+
+	/** 
+	 * Create a monitor for a subset of nodes that explain "target's" output
+	 */
+	Monitor createMonitor(String targetNodeId) {
+		// Perform 1 iteration to get a set of all nodes required for target's output
+		reset();
+		Entity target = entityById.get(targetNodeId);
+		HashSet<Entity> done = new HashSet<Entity>();
+		target.calc(done);
+
+		Monitor monitor = new Monitor();
+		for (Entity e : done)
+			monitor.add(e);
 		monitor.sort();
 		Gpr.debug("Monitor size: " + monitor.size());
 
@@ -681,24 +700,22 @@ public class Reactome implements Iterable<Entity> {
 	 */
 	public boolean zzz(GtexExperiment gtexExperiment) {
 		// Initialize 
+		if (monitor == null) monitor = createMonitor(); // Create monitor if needed
+		if (monitorTrace == null) monitorTrace = createMonitor("74695"); // Create monitor if needed
 		reset(); // Reset previous values
 		setInputsFromGtex(gtexExperiment); // Set input nodes (fixed outputs from GTEx values)
 		scaleWeights(); // Scale weights
-		if (monitor == null) monitor = createMonitor(); // Create monitor if needed
 
 		// Calculate circuit
 		calc(gtexExperiment);
 
-		// Monitor IRS node
-		Entity e = entityById.get("74695");
-		HashSet<Entity> done = new HashSet<Entity>();
-		e.calc(done);
-
 		// Add results to monitors
-		monitor.addResults(gtexExperiment.getTissueTypeDetail(), this);
+		String experimentLabel = gtexExperiment.getTissueTypeDetail();
+		monitor.addResults(experimentLabel);
+		monitorTrace.addResults(experimentLabel);
 
 		// Save results
-		String file = Gpr.HOME + "/zzz." + monitor.sizeResults() + ".txt";
+		String file = Gpr.HOME + "/zzz." + monitorTrace.sizeResults() + ".txt";
 		Timer.showStdErr("Saving results to '" + file + "'");
 		monitor.save(file);
 

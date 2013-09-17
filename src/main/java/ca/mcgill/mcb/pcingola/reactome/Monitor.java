@@ -20,7 +20,7 @@ public class Monitor {
 		entities.add(e);
 	}
 
-	public void addResults(String label, Reactome reactome) {
+	public void addResults(String label) {
 		// Create results array
 		double[] res = new double[size()];
 		for (int i = 0; i < res.length; i++) {
