@@ -9,7 +9,7 @@ savePdf <- FALSE
 savePdf <- TRUE
 
 maxPval <- 10E-30
-minNameCount <- 30
+minNameCount <- 3
 
 if( ! exists('d') ) {
 	# Simaltion data
@@ -17,6 +17,7 @@ if( ! exists('d') ) {
 
 	# Experiment names
 	names <- read.table('expNames.txt', sep='\t', header=TRUE)
+	names <- read.table('expNames_full.txt', sep='\t', header=TRUE)
 }
 
 # Experiment indexes
@@ -48,9 +49,9 @@ for( i in 1:length(rnames) ) {
 	#if( length( grep("insulin", rnames[i], fixed=TRUE) ) > 0 ) {
 	if( FALSE
 		|| (d$enityId[i] == 74695) 
-		|| (d$enityId[i] == 165690) 
-		|| (d$enityId[i] == 373676)
-		#|| ( length( grep("insulin", rnames[i], fixed=TRUE) ) > 0 )
+		# || (d$enityId[i] == 165690) 
+		# || (d$enityId[i] == 373676)
+		# || ( length( grep("insulin", rnames[i], fixed=TRUE) ) > 0 )
 		) {
 		x <- as.numeric(d[i,minExp:maxExp])
 

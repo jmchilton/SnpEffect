@@ -38,6 +38,18 @@ public class Reactome implements Iterable<Entity> {
 	public static final double MAX_CONVERGENCE_DIFFERENCE = 1E-3;
 	public static final int MAX_ITERATIONS = 1000;
 
+	String dirName;
+
+	HashMap<String, Entity> entityById;
+
+	HashMap<String, String> objectType;
+
+	HashMap<String, String> objectName;
+	AutoHashMap<String, ArrayList<Entity>> entitiesByGeneId;
+	HashSet<String> entitiesGeneId = new HashSet<String>();
+	Monitor monitor; // Monitor all nodes in the circuit
+	Monitor traceMonitor; // Monitor a specific set of nodes (usually one node and all it's predecesors)
+
 	/**
 	 * Find and return first Regexp occurrence (null if nothing is found)
 	 * @param pattern
@@ -84,17 +96,11 @@ public class Reactome implements Iterable<Entity> {
 		// Simulate...!?
 		//---
 		for (GtexExperiment gtexExperiment : gtex) {
-			if (gtexExperiment.size() > 0) reactome.zzz(gtexExperiment);
+			if (gtexExperiment.size() > 0) {
+				reactome.zzz(gtexExperiment);
+			}
 		}
 	}
-
-	String dirName;
-	HashMap<String, Entity> entityById;
-	HashMap<String, String> objectType;
-	HashMap<String, String> objectName;
-	AutoHashMap<String, ArrayList<Entity>> entitiesByGeneId;
-	HashSet<String> entitiesGeneId = new HashSet<String>();
-	Monitor monitor;
 
 	public Reactome(String dirName) {
 		this.dirName = dirName;
@@ -114,6 +120,48 @@ public class Reactome implements Iterable<Entity> {
 		entity.addGeneId(geneId);
 		entitiesByGeneId.getOrCreate(geneId).add(entity);
 		entitiesGeneId.add(key);
+	}
+
+	/**
+	 * Iterate network until convergence
+	 * 
+	 * @param gtexExperiment
+	 */
+	boolean calc(GtexExperiment gtexExperiment) {
+		boolean changed = true;
+		int iteration;
+		System.out.print(gtexExperiment.getTissueTypeDetail() + "\t");
+		for (iteration = 0; changed && iteration < MAX_ITERATIONS; iteration++) {
+			changed = false;
+			HashSet<Entity> done = new HashSet<Entity>();
+
+			for (Entity e : this) {
+				double outPrev = e.getOutput();
+				double out = e.calc(done);
+
+				// Output changed?
+				if (Math.abs(outPrev - out) > MAX_CONVERGENCE_DIFFERENCE) changed = true;
+			}
+			System.out.print(".");
+		}
+		System.out.println(" " + iteration);
+
+		return changed;
+	}
+
+	/** 
+	 * Create a monitor for all nodes in the circuit
+	 */
+	Monitor createMonitor() {
+		Monitor monitor = new Monitor();
+		for (Entity e : this) {
+			if (!e.isFixed() && e.isReaction()) monitor.add(e);
+		}
+
+		monitor.sort();
+		Gpr.debug("Monitor size: " + monitor.size());
+
+		return monitor;
 	}
 
 	/**
@@ -567,9 +615,40 @@ public class Reactome implements Iterable<Entity> {
 		Timer.showStdErr("Total regulations assigned: " + (i - 1));
 	}
 
+	/**
+	 * Reset all nodes in the circuit
+	 */
 	public void reset() {
 		for (Entity e : this)
 			e.reset();
+	}
+
+	/**
+	 * Scale weights
+	 */
+	void scaleWeights() {
+		for (Entity e : this)
+			if (e.isReaction()) ((Reaction) e).scaleWeights();
+	}
+
+	/**
+	 * Set input nodes (fixed outputs from GTEx values)
+	 * @param gtex
+	 */
+	void setInputsFromGtex(GtexExperiment gtexExperiment) {
+		Gtex gtex = gtexExperiment.getGtex();
+
+		for (String gid : gtex.getGeneIds()) {
+			List<Entity> entities = entitiesByGeneId.get(gid);
+
+			if (entities != null) {
+				double value = gtexExperiment.getValue(gid);
+				if (!Double.isNaN(value)) {
+					for (Entity e : entities)
+						e.setFixedOutput(value);
+				}
+			}
+		}
 	}
 
 	@Override
@@ -582,6 +661,10 @@ public class Reactome implements Iterable<Entity> {
 		return countByType.toString();
 	}
 
+	/**
+	 * Show details
+	 * @return
+	 */
 	public String toStringDetails() {
 		StringBuilder sb = new StringBuilder();
 
@@ -597,70 +680,21 @@ public class Reactome implements Iterable<Entity> {
 	 * @param gtexExperiment
 	 */
 	public boolean zzz(GtexExperiment gtexExperiment) {
-		//---
-		// Reset previous values
-		//---
-		for (Entity e : this)
-			e.reset();
+		// Initialize 
+		reset(); // Reset previous values
+		setInputsFromGtex(gtexExperiment); // Set input nodes (fixed outputs from GTEx values)
+		scaleWeights(); // Scale weights
+		if (monitor == null) monitor = createMonitor(); // Create monitor if needed
 
-		//---
-		// Set fixed outputs (from GTEx values)
-		//---
-		Gtex gtex = gtexExperiment.getGtex();
-		for (String gid : gtex.getGeneIds()) {
-			List<Entity> entities = entitiesByGeneId.get(gid);
+		// Calculate circuit
+		calc(gtexExperiment);
 
-			if (entities != null) {
-				double value = gtexExperiment.getValue(gid);
-				if (!Double.isNaN(value)) {
-					for (Entity e : entities)
-						e.setFixedOutput(value);
-				}
-			}
-		}
+		// Monitor IRS node
+		Entity e = entityById.get("74695");
+		HashSet<Entity> done = new HashSet<Entity>();
+		e.calc(done);
 
-		//---
-		// Scale weights
-		//---
-		for (Entity e : this)
-			if (e.isReaction()) ((Reaction) e).scaleWeights();
-
-		//---
-		// Select entities to monitor
-		//---
-		if (monitor == null) {
-			monitor = new Monitor();
-			for (Entity e : this) {
-				if (!e.isFixed() && e.isReaction()) monitor.add(e);
-			}
-
-			monitor.sort();
-			Gpr.debug("Monitor size: " + monitor.size());
-		}
-
-		//---
-		// Iterate network until convergence
-		//---
-		boolean anyOk = false;
-		boolean changed = true;
-		int iteration;
-		System.out.print(gtexExperiment.getTissueTypeDetail() + "\t");
-		for (iteration = 0; changed && iteration < MAX_ITERATIONS; iteration++) {
-			changed = false;
-			HashSet<Entity> done = new HashSet<Entity>();
-
-			for (Entity e : this) {
-				double outPrev = e.getOutput();
-				double out = e.calc(done);
-
-				// Output changed?
-				if (Math.abs(outPrev - out) > MAX_CONVERGENCE_DIFFERENCE) changed = true;
-			}
-			System.out.print(".");
-		}
-		System.out.println(" " + iteration);
-
-		// Add results
+		// Add results to monitors
 		monitor.addResults(gtexExperiment.getTissueTypeDetail(), this);
 
 		// Save results
@@ -668,6 +702,6 @@ public class Reactome implements Iterable<Entity> {
 		Timer.showStdErr("Saving results to '" + file + "'");
 		monitor.save(file);
 
-		return anyOk;
+		return true;
 	}
 }
