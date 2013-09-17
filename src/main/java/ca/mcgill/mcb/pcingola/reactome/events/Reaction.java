@@ -150,11 +150,28 @@ public class Reaction extends Event {
 
 			// Nothing in input? => Cannot calculate output
 			if (Double.isInfinite(in)) output = Double.NaN;
-			else output = transferFunction(in * cat * reg);
+			else output = transferFunction(in, cat, reg);
 		}
 
 		if (debug) System.out.println(output + "\tfixed:" + isFixed() + "\tid:" + id + "\ttype:" + getClass().getSimpleName() + "\tname:" + name);
 		return output;
+	}
+
+	/**
+	 * Transfer function
+	 * @param x
+	 * @return
+	 */
+	protected double transferFunction(double x, double cat, double reg) {
+		switch (TRANSFER_FUNCTION) {
+		case SIGM_PLUS_MINUS:
+			return 2.0 * (cat * reg) / (1.0 + Math.exp(-x)) - 1.0;
+		case SIGM:
+			return (cat * reg) / (1.0 + Math.exp(-x));
+		case LINEAR:
+		default:
+			throw new RuntimeException("Unimplemented transfer function: " + TRANSFER_FUNCTION);
+		}
 	}
 
 	public HashSet<Entity> getCatalyst() {

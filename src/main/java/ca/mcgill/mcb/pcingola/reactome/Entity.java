@@ -14,11 +14,11 @@ import ca.mcgill.mcb.pcingola.util.Gpr;
 public class Entity implements Comparable<Entity> {
 
 	public enum TransferFunction {
-		LINEAR, TANH, SIGM
+		LINEAR, TANH, SIGM, SIGM_PLUS_MINUS
 	};
 
 	public static boolean debug = false;
-	public static TransferFunction TRANSFER_FUNCTION = TransferFunction.TANH;
+	public static TransferFunction TRANSFER_FUNCTION = TransferFunction.SIGM_PLUS_MINUS;
 	public static double BETA = 2.0;
 
 	protected int id; // Entity ID
@@ -146,6 +146,8 @@ public class Entity implements Comparable<Entity> {
 	 */
 	protected double transferFunction(double x) {
 		switch (TRANSFER_FUNCTION) {
+		case SIGM_PLUS_MINUS:
+			return 2.0 / (1.0 + Math.exp(-x)) - 1;
 		case LINEAR:
 			return x;
 		case SIGM:

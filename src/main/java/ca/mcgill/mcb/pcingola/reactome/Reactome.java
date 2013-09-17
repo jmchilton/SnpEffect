@@ -39,11 +39,8 @@ public class Reactome implements Iterable<Entity> {
 	public static final int MAX_ITERATIONS = 1000;
 
 	String dirName;
-
 	HashMap<String, Entity> entityById;
-
 	HashMap<String, String> objectType;
-
 	HashMap<String, String> objectName;
 	AutoHashMap<String, ArrayList<Entity>> entitiesByGeneId;
 	HashSet<String> entitiesGeneId = new HashSet<String>();

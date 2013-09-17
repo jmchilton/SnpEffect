@@ -17,6 +17,10 @@ public class SnpEffCmdTest extends SnpEff {
 
 	String reactomeDir = Gpr.HOME + "/snpEff/db/reactome/txt/";
 	String geneIdsFile = Gpr.HOME + "/snpEff/db/reactome/gene_ids/biomart_query_uniq.txt";
+	String gtexDir = Gpr.HOME + "/snpEff/db/GTEx";
+	String gtexSamples = gtexDir + "/GTEx_Analysis_Annotations_Sample_DS__Pilot_2013_01_31.txt";
+	String gtexData = gtexDir + "/gtex_norm.zzz.txt";
+	String nameMatch;
 
 	public SnpEffCmdTest() {
 		super();
@@ -27,7 +31,15 @@ public class SnpEffCmdTest extends SnpEff {
 	 */
 	@Override
 	public void parseArgs(String[] args) {
-		//		if (args.length <4) usage(null);
+		if (args.length < 5) usage(null);
+
+		int i = 0;
+		reactomeDir = args[i++];
+		geneIdsFile = args[i++];
+		gtexDir = args[i++];
+		gtexSamples = args[i++];
+		gtexData = args[i++];
+		if (args.length > i) nameMatch = args[i++];
 	}
 
 	/**
@@ -35,7 +47,6 @@ public class SnpEffCmdTest extends SnpEff {
 	 */
 	@Override
 	public boolean run() {
-
 		Reactome reactome = new Reactome(reactomeDir);
 		reactome.load();
 		reactome.loadGeneIds(geneIdsFile); // Load Gene IDs data
@@ -44,9 +55,6 @@ public class SnpEffCmdTest extends SnpEff {
 		// Load GTEX data
 		//---
 		Timer.showStdErr("Loading GTEx data");
-		String gtexDir = Gpr.HOME + "/snpEff/db/GTEx";
-		String gtexSamples = gtexDir + "/GTEx_Analysis_Annotations_Sample_DS__Pilot_2013_01_31.txt";
-		String gtexData = gtexDir + "/gtex_norm.zzz.txt";
 		Gtex gtex = new Gtex(gtexSamples, gtexData);
 		gtex.getClass();
 
@@ -54,7 +62,9 @@ public class SnpEffCmdTest extends SnpEff {
 		// Simulate...!?
 		//---
 		for (GtexExperiment gtexExperiment : gtex) {
-			if (gtexExperiment.size() > 0) reactome.zzz(gtexExperiment);
+			if ((gtexExperiment.size() > 0) // Do we have data for this experiment?
+					&& ((nameMatch == null) || gtexExperiment.getTissueTypeDetail().toLowerCase().indexOf(nameMatch.toLowerCase()) >= 0) // Does the name match (if any)
+			) reactome.zzz(gtexExperiment);
 		}
 
 		return true;
@@ -67,7 +77,7 @@ public class SnpEffCmdTest extends SnpEff {
 	public void usage(String message) {
 		if (message != null) System.err.println("Error: " + message + "\n");
 		System.err.println("snpEff version " + SnpEff.VERSION);
-		System.err.println("Usage: snpEff test [options] ...");
+		System.err.println("Usage: snpEff test reactomeDir geneIdsFile gtexDir gtexSamples gtexData\n");
 		System.exit(-1);
 	}
 
