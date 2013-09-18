@@ -86,7 +86,7 @@ public class SnpEff implements CommandLine {
 
 	public SnpEff() {
 		genomeVer = ""; // Genome version
-		configFile = Config.DEFAULT_CONFIG_FILE; // Config file
+		configFile = Config.defaultConfigFile(); // Config file
 		verbose = false; // Be verbose
 		debug = false; // Debug mode
 		quiet = false; // Be quiet

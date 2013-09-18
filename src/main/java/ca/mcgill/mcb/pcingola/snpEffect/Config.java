@@ -59,6 +59,10 @@ public class Config implements Serializable, Iterable<String> {
 		return configInstance;
 	}
 
+	public static String defaultConfigFile() {
+		return System.getProperty("snpeff.config.file", DEFAULT_CONFIG_FILE);
+	}
+
 	public Config() {
 		genome = new Genome();
 		treatAllAsProteinCoding = false;
@@ -69,7 +73,9 @@ public class Config implements Serializable, Iterable<String> {
 	}
 
 	/**
-	 * Create a config (uses DEFAULT_CONFIG_FILE)
+	 * Create a config (uses DEFAULT_CONFIG_FILE or Java system property
+	 * snpeff.config.file if set).
+	 *
 	 * @param genomeVersion
 	 */
 	public Config(String genomeVersion) {
@@ -78,7 +84,7 @@ public class Config implements Serializable, Iterable<String> {
 		errorOnMissingChromo = true;
 		errorChromoHit = true;
 
-		read(genomeVersion, DEFAULT_CONFIG_FILE); // Read config file and get a genome
+		read(genomeVersion, Config.defaultConfigFile()); // Read config file and get a genome
 		genome = genomeByVersion.get(genomeVersion); // Set a genome
 		if (genome == null) throw new RuntimeException("No such genome '" + genomeVersion + "'");
 		configInstance = this;

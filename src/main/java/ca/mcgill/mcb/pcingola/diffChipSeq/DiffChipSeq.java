@@ -139,8 +139,8 @@ public class DiffChipSeq implements CommandLine {
 	 * Load data
 	 */
 	void load() {
-		if (verbose) Timer.showStdErr("Loading config: " + Config.DEFAULT_CONFIG_FILE);
-		config = new Config(genomeVer, Config.DEFAULT_CONFIG_FILE);
+		if (verbose) Timer.showStdErr("Loading config: " + Config.defaultConfigFile());
+		config = new Config(genomeVer, Config.defaultConfigFile());
 		genome = config.getGenome();
 
 		if (verbose) Timer.showStdErr("Loading database: " + config.getFileSnpEffectPredictor());
